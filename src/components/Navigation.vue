@@ -1,58 +1,70 @@
-<template>
-  <ol class="carousel__navigation">
-    <li
-      class="carousel__navigation-item"
-      v-for="slide in slidesCount"
-      :key="slide"
-    >
-      <button
-        class="carousel__navigation-button"
-        :class="{
-          'carousel__navigation-button--active': currentSlide === slide,
-        }"
-        @click="slideTo(slide)"
-      ></button>
-    </li>
-  </ol>
+<template functional>
+  <button class="carousel__prev" @click="handlePrevClick">
+    <slot name="prevIcon">
+      <icon name="arrowLeft" />
+    </slot>
+  </button>
+  <button class="carousel__next" @click="handleNextClick">
+    <slot name="nextIcon">
+      <icon name="arrowRight" />
+    </slot>
+  </button>
 </template>
 
 <script>
-import { defineComponent, inject, ref } from 'vue';
+import { defineComponent } from 'vue';
+
+import Icon from './Icon.vue';
 
 export default defineComponent({
+  name: 'Navigation',
+  components: {
+    Icon,
+  },
   setup(props, { emit }) {
-    const slidesCount = inject('slidesCount', ref(0));
-    const currentSlide = inject('currentSlide', ref(1));
-
-    function slideTo(slideNumber) {
-      emit('slide', slideNumber);
+    function handleNextClick() {
+      emit('next');
+    }
+    function handlePrevClick() {
+      emit('prev');
     }
 
     return {
-      slidesCount,
-      currentSlide,
-      slideTo,
+      handleNextClick,
+      handlePrevClick,
     };
   },
 });
 </script>
 
 <style>
-.carousel__navigation {
+.carousel__prev,
+.carousel__next {
+  background-color: #642afb;
+  border-radius: 20px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  font-size: 20px;
+  padding: 0;
+  color: #ffffff;
   display: flex;
   justify-content: center;
-  list-style: none;
-}
-.carousel__navigation-button {
-  margin: 5px;
-  width: 10px;
-  height: 5px;
+  align-items: center;
+  position: absolute;
   border: 0;
   cursor: pointer;
-  background-color: #8e98f3;
 }
 
-.carousel__navigation-button--active {
-  background-color: #642afb;
+.carousel__prev {
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.carousel__next {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
 }
 </style>

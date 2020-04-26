@@ -1,16 +1,11 @@
 <template>
   <section ref="root" class="carousel" aria-label="Gallery">
-    <div
-      ref="track"
-      class="carousel__track"
-      @scroll.prevent=""
-      :style="trackStyle"
-    >
+    <div ref="track" class="carousel__track" :style="trackStyle">
       <ol ref="viewport" class="carousel__viewport">
         <slot name="slides" />
       </ol>
     </div>
-    <slot name="addons" :nav="{ slideTo }" />
+    <slot name="addons" :nav="{ slideTo, next, prev }" />
   </section>
 </template>
 
@@ -94,6 +89,28 @@ export default defineComponent({
       currentSlide.value = slideNumber;
     }
 
+    function next() {
+      const isLastSlide = currentSlide.value >= slidesCount.value;
+      if (!isLastSlide) {
+        slideTo(currentSlide.value + 1);
+        return;
+      }
+      if (config.wrapAround) {
+        slideTo(1);
+      }
+    }
+
+    function prev() {
+      const isFirstSlide = currentSlide.value === 1;
+      if (!isFirstSlide) {
+        slideTo(currentSlide.value - 1);
+        return;
+      }
+      if (config.wrapAround) {
+        slideTo(slidesCount.value);
+      }
+    }
+
     onMounted(() => {
       const rect = root.value.getBoundingClientRect();
       slideWidth.value = rect.width / config.itemsToShow;
@@ -124,9 +141,7 @@ export default defineComponent({
 
       const xScroll = slidesToScroll * slideWidth.value;
 
-      setTimeout(() => {
-        track.value?.scroll(xScroll, 0);
-      });
+      setTimeout(() => track.value?.scroll(xScroll, 0));
     });
 
     const trackStyle = computed(() => ({ overflowX: 'hidden' }));
@@ -134,8 +149,10 @@ export default defineComponent({
     return {
       root,
       track,
-      slideTo,
       trackStyle,
+      slideTo,
+      next,
+      prev,
     };
   },
 });
@@ -143,8 +160,8 @@ export default defineComponent({
 
 <style>
 .carousel {
+  position: relative;
   text-align: center;
-  overflow: hidden;
   box-sizing: border-box;
 }
 

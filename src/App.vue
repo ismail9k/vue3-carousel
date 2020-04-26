@@ -10,7 +10,8 @@
       </template>
 
       <template #addons="{ nav }">
-        <navigation @slide="nav.slideTo" />
+        <pagination @slide="nav.slideTo" />
+        <navigation @prev="nav.prev" @next="nav.next" />
       </template>
     </carousel>
   </div>
@@ -21,6 +22,7 @@ import { defineComponent } from 'vue';
 
 import Carousel from './components/Carousel.vue';
 import Slide from './components/Slide.vue';
+import Pagination from './components/Pagination.vue';
 import Navigation from './components/Navigation.vue';
 
 export default defineComponent({
@@ -28,6 +30,7 @@ export default defineComponent({
   components: {
     Carousel,
     Slide,
+    Pagination,
     Navigation,
   },
 });
