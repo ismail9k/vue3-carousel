@@ -22,20 +22,15 @@ export default defineComponent({
     const currentSlide = inject('currentSlide', ref(1));
     const middleSlide = inject('middleSlide', ref(1));
 
-    watch(
-      currentSlide,
-      () => {
-        if (!config.infiniteScroll.value) return;
-
-        setTimeout(updateSlideOrder, 500);
-      },
-      { immediate: true }
-    );
+    if (config.wrapAround.value) {
+      watch(currentSlide, updateSlideOrder, { immediate: true });
+    }
 
     const slideStyle = computed(() => {
       const items = config.itemsToShow.value;
+      const mode = config.mode.value;
       const width = `${(1 / items) * 100}%`;
-      return { width, order: slideOrder.value };
+      return { width, order: slideOrder.value, scrollSnapAlign: mode };
     });
 
     function updateSlideOrder() {
@@ -71,8 +66,7 @@ export default defineComponent({
 
 <style>
 .carousel__slide {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-stop: auto;
   flex-shrink: 0;
   margin: 0;
   position: relative;

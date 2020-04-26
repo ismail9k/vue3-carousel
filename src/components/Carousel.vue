@@ -1,6 +1,11 @@
 <template>
-  <section ref="root" class="carousel" aria-label="Gallery" style="">
-    <div ref="track" class="carousel__track" @scroll="handleTrackScroll">
+  <section ref="root" class="carousel" aria-label="Gallery">
+    <div
+      ref="track"
+      class="carousel__track"
+      @scroll.prevent=""
+      :style="trackStyle"
+    >
       <ol ref="viewport" class="carousel__viewport">
         <slot name="slides" />
       </ol>
@@ -18,9 +23,8 @@ import {
   toRefs,
   reactive,
   provide,
+  computed,
 } from 'vue';
-
-import { debounce } from '../utils';
 
 export default defineComponent({
   name: 'Carousel',
@@ -36,14 +40,17 @@ export default defineComponent({
       type: Number,
     },
     // control infinite scrolling mode
-    infiniteScroll: {
+    wrapAround: {
       default: false,
       type: Boolean,
     },
     // control center mode
     mode: {
-      default: true,
-      type: Boolean,
+      default: 'center',
+      validator(value) {
+        // The value must match one of these strings
+        return ['start', 'end', 'center'].includes(value);
+      },
     },
     // sliding transition time in ms
     transition: {
@@ -64,6 +71,7 @@ export default defineComponent({
     const slides = ref([]);
     const slideWidth = ref(0);
     const currentSlide = ref(1);
+    const prevSlide = ref(1);
     const slidesCount = ref(1);
     const middleSlide = ref(1);
     const config = reactive({
@@ -81,6 +89,8 @@ export default defineComponent({
     provide('currentSlide', currentSlide);
 
     function slideTo(slideNumber) {
+      if (currentSlide.value === slideNumber) return;
+      prevSlide.value = currentSlide.value;
       currentSlide.value = slideNumber;
     }
 
@@ -89,22 +99,43 @@ export default defineComponent({
       slideWidth.value = rect.width / config.itemsToShow;
     });
 
-    watchEffect(() => {
-      const xScroll = (currentSlide.value - 1) * slideWidth.value;
-      track.value?.scroll(xScroll, 0);
+    const getSlidesBufferCount = computed(() => {
+      if (!config.wrapAround) return 0;
+
+      const current = currentSlide.value;
+      const middle = middleSlide.value;
+      const count = slidesCount.value;
+
+      if (current >= middle) {
+        return -1 * (current - middle + 1);
+      }
+      return count - (current + middle - 1);
     });
 
-    const handleTrackScroll = debounce((event) => {
-      const target = event.target;
-      const scroll = target.scrollLeft;
-      currentSlide.value = Math.round(scroll / slideWidth.value) + 1;
-    }, 300);
+    watchEffect(() => {
+      let slidesToScroll = currentSlide.value + getSlidesBufferCount.value - 1;
+
+      if (config.mode === 'center') {
+        slidesToScroll -= (config.itemsToShow - 1) / 2;
+      }
+      if (config.mode === 'end') {
+        slidesToScroll += (config.itemsToShow - 1) / 2 - 1;
+      }
+
+      const xScroll = slidesToScroll * slideWidth.value;
+
+      setTimeout(() => {
+        track.value?.scroll(xScroll, 0);
+      });
+    });
+
+    const trackStyle = computed(() => ({ overflowX: 'hidden' }));
 
     return {
       root,
       track,
       slideTo,
-      handleTrackScroll,
+      trackStyle,
     };
   },
 });
@@ -125,25 +156,12 @@ export default defineComponent({
   display: flex;
   padding: 0;
   position: relative;
-  margin: 0;
+  margin: 5px 0;
 }
 .carousel__track {
-  overflow-x: auto;
   scroll-snap-type: x mandatory;
 
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-}
-
-.carousel__track::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-.carousel__track::-webkit-scrollbar-thumb {
-  background: black;
-  border-radius: 5px;
-}
-.carousel__track::-webkit-scrollbar-track {
-  background: transparent;
 }
 </style>

@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <carousel :settings="{ itemsToShow: 3 }">
+    <carousel
+      :settings="{ itemsToShow: 3.5, mode: 'center', wrapAround: true }"
+    >
       <template #slides>
         <slide v-for="n in 10" :key="n" :order="n">
           {{ n }}
@@ -14,7 +16,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from 'vue';
 
 import Carousel from './components/Carousel.vue';
@@ -50,5 +52,6 @@ body {
   background: #5563de;
   color: #ffffff;
   font-size: 50px;
+  border: 2px solid #ffffff;
 }
 </style>
