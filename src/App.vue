@@ -2,7 +2,7 @@
   <div id="app">
     <carousel :settings="{ itemsToShow: 3 }">
       <template #slides>
-        <slide v-for="n in 10" :key="n">
+        <slide v-for="n in 10" :key="n" :order="n">
           {{ n }}
         </slide>
       </template>

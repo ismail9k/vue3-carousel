@@ -5,20 +5,65 @@
 </template>
 
 <script>
-import { defineComponent, inject, ref, computed } from 'vue';
+import { defineComponent, inject, ref, computed, watch } from 'vue';
 
 export default defineComponent({
-  setup() {
+  name: 'CarouselSlide',
+  props: {
+    order: {
+      type: Number,
+      default: 1,
+    },
+  },
+  setup(props) {
+    const slideOrder = ref(props.order);
     const config = inject('config', ref({}));
+    const slidesCount = inject('slidesCount', ref(0));
+    const currentSlide = inject('currentSlide', ref(1));
+    const middleSlide = inject('middleSlide', ref(1));
+
+    watch(
+      currentSlide,
+      () => {
+        if (!config.infiniteScroll.value) return;
+
+        setTimeout(updateSlideOrder, 500);
+      },
+      { immediate: true }
+    );
 
     const slideStyle = computed(() => {
       const items = config.itemsToShow.value;
       const width = `${(1 / items) * 100}%`;
-      return { width };
+      return { width, order: slideOrder.value };
     });
+
+    function updateSlideOrder() {
+      const order = props.order;
+      const current = currentSlide.value;
+      const count = slidesCount.value;
+      const middle = middleSlide.value;
+
+      if (current >= middle) {
+        const slidesToShift = current - middle + 1;
+        if (order <= slidesToShift) {
+          slideOrder.value = order + count;
+        } else {
+          slideOrder.value = order;
+        }
+      } else {
+        const slidesToShift = current + middle;
+        if (order >= slidesToShift) {
+          slideOrder.value = order - count - 1;
+        } else {
+          slideOrder.value = order;
+        }
+      }
+    }
 
     return {
       slideStyle,
+      props,
     };
   },
 });
@@ -27,6 +72,7 @@ export default defineComponent({
 <style>
 .carousel__slide {
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   flex-shrink: 0;
   margin: 0;
   position: relative;

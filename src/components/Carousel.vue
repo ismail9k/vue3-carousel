@@ -1,6 +1,6 @@
 <template>
   <section ref="root" class="carousel" aria-label="Gallery" style="">
-    <div ref="track" class="carousel__track">
+    <div ref="track" class="carousel__track" @scroll="handleTrackScroll">
       <ol ref="viewport" class="carousel__viewport">
         <slot name="slides" />
       </ol>
@@ -20,6 +20,8 @@ import {
   provide,
 } from 'vue';
 
+import { debounce } from '../utils';
+
 export default defineComponent({
   name: 'Carousel',
   props: {
@@ -28,14 +30,14 @@ export default defineComponent({
       default: 1,
       type: Number,
     },
-    // index number of initial slide
+    // slide number number of initial slide
     currentSlide: {
-      default: 0,
+      default: 1,
       type: Number,
     },
     // control infinite scrolling mode
     infiniteScroll: {
-      default: true,
+      default: false,
       type: Boolean,
     },
     // control center mode
@@ -62,15 +64,20 @@ export default defineComponent({
     const slides = ref([]);
     const slideWidth = ref(0);
     const currentSlide = ref(1);
+    const slidesCount = ref(1);
+    const middleSlide = ref(1);
     const config = reactive({
       ...props,
       ...props.settings,
     });
 
     slides.value = slots.slides()?.[0]?.children || [];
+    slidesCount.value = slides.value.length;
+    middleSlide.value = Math.ceil(slidesCount.value / 2);
 
     provide('config', toRefs(config));
-    provide('slidesCount', ref(slides.value.length));
+    provide('slidesCount', slidesCount);
+    provide('middleSlide', middleSlide);
     provide('currentSlide', currentSlide);
 
     function slideTo(slideNumber) {
@@ -87,10 +94,17 @@ export default defineComponent({
       track.value?.scroll(xScroll, 0);
     });
 
+    const handleTrackScroll = debounce((event) => {
+      const target = event.target;
+      const scroll = target.scrollLeft;
+      currentSlide.value = Math.round(scroll / slideWidth.value) + 1;
+    }, 300);
+
     return {
       root,
       track,
       slideTo,
+      handleTrackScroll,
     };
   },
 });
