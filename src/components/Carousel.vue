@@ -1,7 +1,7 @@
 <template>
   <section ref="root" class="carousel" aria-label="Gallery">
-    <div ref="track" class="carousel__track" :style="trackStyle">
-      <ol ref="viewport" class="carousel__viewport">
+    <div ref="viewport" class="carousel__viewport" :style="viewportStyle">
+      <ol class="carousel__track">
         <slot name="slides" />
       </ol>
     </div>
@@ -62,7 +62,7 @@ export default defineComponent({
   },
   setup(props, { slots }) {
     const root = ref(null);
-    const track = ref(null);
+    const viewport = ref(null);
     const slides = ref([]);
     const slideWidth = ref(0);
     const currentSlide = ref(1);
@@ -141,15 +141,15 @@ export default defineComponent({
 
       const xScroll = slidesToScroll * slideWidth.value;
 
-      setTimeout(() => track.value?.scroll(xScroll, 0));
+      setTimeout(() => viewport.value?.scroll(xScroll, 0));
     });
 
-    const trackStyle = computed(() => ({ overflowX: 'hidden' }));
+    const viewportStyle = computed(() => ({ overflowX: 'hidden' }));
 
     return {
       root,
-      track,
-      trackStyle,
+      viewport,
+      viewportStyle,
       slideTo,
       next,
       prev,
@@ -169,13 +169,13 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-.carousel__viewport {
+.carousel__track {
   display: flex;
   padding: 0;
   position: relative;
   margin: 5px 0;
 }
-.carousel__track {
+.carousel__viewport {
   scroll-snap-type: x mandatory;
 
   scroll-behavior: smooth;
