@@ -1,7 +1,7 @@
 <template>
   <section ref="root" class="carousel" aria-label="Gallery">
-    <div ref="viewport" class="carousel__viewport" :style="viewportStyle">
-      <ol class="carousel__track">
+    <div class="carousel__viewport" :style="viewportStyle">
+      <ol class="carousel__track" :style="trackStyle">
         <slot name="slides" />
       </ol>
     </div>
@@ -10,10 +10,11 @@
 </template>
 
 <script>
+import eventsBus from '../EventsBus';
+
 import {
   defineComponent,
   onMounted,
-  watchEffect,
   ref,
   toRefs,
   reactive,
@@ -62,13 +63,13 @@ export default defineComponent({
   },
   setup(props, { slots }) {
     const root = ref(null);
-    const viewport = ref(null);
     const slides = ref([]);
     const slideWidth = ref(0);
     const currentSlide = ref(1);
     const prevSlide = ref(1);
     const slidesCount = ref(1);
     const middleSlide = ref(1);
+    const isSliding = ref(false);
     const config = reactive({
       ...props,
       ...props.settings,
@@ -84,9 +85,15 @@ export default defineComponent({
     provide('currentSlide', currentSlide);
 
     function slideTo(slideNumber) {
-      if (currentSlide.value === slideNumber) return;
+      if (currentSlide.value === slideNumber || isSliding.value) return;
+      isSliding.value = true;
       prevSlide.value = currentSlide.value;
       currentSlide.value = slideNumber;
+
+      setTimeout(() => {
+        isSliding.value = false;
+        eventsBus.emit('sliding-end');
+      }, config.transition);
     }
 
     function next() {
@@ -116,21 +123,28 @@ export default defineComponent({
       slideWidth.value = rect.width / config.itemsToShow;
     });
 
-    const getSlidesBufferCount = computed(() => {
+    /**
+     * mode:
+     * true => current slide
+     * false => previous slide
+     */
+    function getSlidesBufferCount(mode) {
       if (!config.wrapAround) return 0;
 
-      const current = currentSlide.value;
+      const slides = mode ? currentSlide.value : prevSlide.value;
       const middle = middleSlide.value;
       const count = slidesCount.value;
 
-      if (current >= middle) {
-        return -1 * (current - middle + 1);
+      if (slides >= middle) {
+        return -1 * (slides - middle + 1);
       }
-      return count - (current + middle - 1);
-    });
+      return count - (slides + middle - 1);
+    }
 
-    watchEffect(() => {
-      let slidesToScroll = currentSlide.value + getSlidesBufferCount.value - 1;
+    const trackStyle = computed(() => {
+      const _isSliding = isSliding.value;
+      let slidesToScroll =
+        currentSlide.value + getSlidesBufferCount(!_isSliding) - 1;
 
       if (config.mode === 'center') {
         slidesToScroll -= (config.itemsToShow - 1) / 2;
@@ -140,15 +154,17 @@ export default defineComponent({
       }
 
       const xScroll = slidesToScroll * slideWidth.value;
-
-      setTimeout(() => viewport.value?.scroll(xScroll, 0));
+      return {
+        transform: `translateX(-${xScroll}px)`,
+        transition: `${_isSliding ? config.transition : 0}ms`,
+      };
     });
 
     const viewportStyle = computed(() => ({ overflowX: 'hidden' }));
 
     return {
       root,
-      viewport,
+      trackStyle,
       viewportStyle,
       slideTo,
       next,

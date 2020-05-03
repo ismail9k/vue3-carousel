@@ -5,7 +5,15 @@
 </template>
 
 <script>
-import { defineComponent, inject, ref, computed, watch } from 'vue';
+import eventsBus from '../EventsBus';
+
+import {
+  defineComponent,
+  inject,
+  ref,
+  computed,
+  //watch
+} from 'vue';
 
 export default defineComponent({
   name: 'CarouselSlide',
@@ -23,7 +31,8 @@ export default defineComponent({
     const middleSlide = inject('middleSlide', ref(1));
 
     if (config.wrapAround.value) {
-      watch(currentSlide, updateSlideOrder, { immediate: true });
+      updateSlideOrder();
+      eventsBus.on('sliding-end', updateSlideOrder);
     }
 
     const slideStyle = computed(() => {
