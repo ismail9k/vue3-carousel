@@ -27,8 +27,8 @@ export default defineComponent({
     const slideOrder = ref(props.order);
     const config = inject('config', ref({}));
     const slidesCount = inject('slidesCount', ref(0));
-    const currentSlide = inject('currentSlide', ref(1));
-    const middleSlide = inject('middleSlide', ref(1));
+    const currentSlide = inject('currentSlide', ref(0));
+    const middleSlide = inject('middleSlide', ref(0));
 
     if (config.wrapAround.value) {
       updateSlideOrder();
@@ -37,9 +37,11 @@ export default defineComponent({
 
     const slideStyle = computed(() => {
       const items = config.itemsToShow.value;
-      const mode = config.mode.value;
       const width = `${(1 / items) * 100}%`;
-      return { width, order: slideOrder.value, scrollSnapAlign: mode };
+      return {
+        width,
+        order: slideOrder.value.toString(),
+      };
     });
 
     function updateSlideOrder() {
@@ -48,21 +50,7 @@ export default defineComponent({
       const count = slidesCount.value;
       const middle = middleSlide.value;
 
-      if (current >= middle) {
-        const slidesToShift = current - middle + 1;
-        if (order <= slidesToShift) {
-          slideOrder.value = order + count;
-        } else {
-          slideOrder.value = order;
-        }
-      } else {
-        const slidesToShift = current + middle;
-        if (order >= slidesToShift) {
-          slideOrder.value = order - count - 1;
-        } else {
-          slideOrder.value = order;
-        }
-      }
+      slideOrder.value = (middle + order - current) % count;
     }
 
     return {

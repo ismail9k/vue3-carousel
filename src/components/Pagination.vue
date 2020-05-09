@@ -2,7 +2,7 @@
   <ol class="carousel__pagination">
     <li
       class="carousel__pagination-item"
-      v-for="slide in slidesCount"
+      v-for="(_, slide) in slidesCount"
       :key="slide"
     >
       <button

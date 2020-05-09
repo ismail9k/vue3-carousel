@@ -32,7 +32,7 @@ export default defineComponent({
     },
     // slide number number of initial slide
     currentSlide: {
-      default: 1,
+      default: 0,
       type: Number,
     },
     // control infinite scrolling mode
@@ -65,7 +65,7 @@ export default defineComponent({
     const root = ref(null);
     const slides = ref([]);
     const slideWidth = ref(0);
-    const currentSlide = ref(1);
+    const currentSlide = ref(0);
     const prevSlide = ref(1);
     const slidesCount = ref(1);
     const middleSlide = ref(1);
@@ -97,7 +97,7 @@ export default defineComponent({
     }
 
     function next() {
-      const isLastSlide = currentSlide.value >= slidesCount.value;
+      const isLastSlide = currentSlide.value >= slidesCount.value - 1;
       if (!isLastSlide) {
         slideTo(currentSlide.value + 1);
         return;
@@ -108,7 +108,7 @@ export default defineComponent({
     }
 
     function prev() {
-      const isFirstSlide = currentSlide.value === 1;
+      const isFirstSlide = currentSlide.value <= 0;
       if (!isFirstSlide) {
         slideTo(currentSlide.value - 1);
         return;
@@ -123,40 +123,28 @@ export default defineComponent({
       slideWidth.value = rect.width / config.itemsToShow;
     });
 
-    /**
-     * mode:
-     * true => current slide
-     * false => previous slide
-     */
-    function getSlidesBufferCount(mode) {
-      if (!config.wrapAround) return 0;
-
-      const slides = mode ? currentSlide.value : prevSlide.value;
-      const middle = middleSlide.value;
-      const count = slidesCount.value;
-
-      if (slides >= middle) {
-        return -1 * (slides - middle + 1);
-      }
-      return count - (slides + middle - 1);
-    }
-
     const trackStyle = computed(() => {
-      const _isSliding = isSliding.value;
-      let slidesToScroll =
-        currentSlide.value + getSlidesBufferCount(!_isSliding) - 1;
+      let slidesToScroll = currentSlide.value;
 
       if (config.mode === 'center') {
         slidesToScroll -= (config.itemsToShow - 1) / 2;
       }
       if (config.mode === 'end') {
-        slidesToScroll += (config.itemsToShow - 1) / 2 - 1;
+        slidesToScroll -= config.itemsToShow - 1;
+      }
+
+      if (!config.wrapAround) {
+        const max = slidesCount.value - config.itemsToShow;
+        const min = 0;
+        slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
+      } else {
+        slidesToScroll += middleSlide.value - 1;
       }
 
       const xScroll = slidesToScroll * slideWidth.value;
       return {
         transform: `translateX(-${xScroll}px)`,
-        transition: `${_isSliding ? config.transition : 0}ms`,
+        transition: `${isSliding.value ? config.transition : 0}ms`,
       };
     });
 
