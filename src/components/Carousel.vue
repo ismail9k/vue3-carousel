@@ -69,6 +69,7 @@ export default defineComponent({
     const prevSlide = ref(1);
     const slidesCount = ref(1);
     const middleSlide = ref(1);
+    const slidesBuffer = ref([]);
     const isSliding = ref(false);
     const config = reactive({
       ...props,
@@ -77,54 +78,26 @@ export default defineComponent({
 
     slides.value = slots.slides()?.[0]?.children || [];
     slidesCount.value = slides.value.length;
-    middleSlide.value = Math.ceil(slidesCount.value / 2);
+    middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
 
     provide('config', toRefs(config));
     provide('slidesCount', slidesCount);
     provide('middleSlide', middleSlide);
     provide('currentSlide', currentSlide);
-
-    function slideTo(slideNumber) {
-      if (currentSlide.value === slideNumber || isSliding.value) return;
-      isSliding.value = true;
-      prevSlide.value = currentSlide.value;
-      currentSlide.value = slideNumber;
-
-      setTimeout(() => {
-        isSliding.value = false;
-        eventsBus.emit('sliding-end');
-      }, config.transition);
-    }
-
-    function next() {
-      const isLastSlide = currentSlide.value >= slidesCount.value - 1;
-      if (!isLastSlide) {
-        slideTo(currentSlide.value + 1);
-        return;
-      }
-      if (config.wrapAround) {
-        slideTo(1);
-      }
-    }
-
-    function prev() {
-      const isFirstSlide = currentSlide.value <= 0;
-      if (!isFirstSlide) {
-        slideTo(currentSlide.value - 1);
-        return;
-      }
-      if (config.wrapAround) {
-        slideTo(slidesCount.value);
-      }
-    }
+    provide('slidesBuffer', slidesBuffer);
 
     onMounted(() => {
       const rect = root.value.getBoundingClientRect();
       slideWidth.value = rect.width / config.itemsToShow;
     });
 
+    if (config.wrapAround) {
+      updateSlidesBuffer();
+    }
+
+    const viewportStyle = computed(() => ({ overflowX: 'hidden' }));
     const trackStyle = computed(() => {
-      let slidesToScroll = currentSlide.value;
+      let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
 
       if (config.mode === 'center') {
         slidesToScroll -= (config.itemsToShow - 1) / 2;
@@ -137,8 +110,6 @@ export default defineComponent({
         const max = slidesCount.value - config.itemsToShow;
         const min = 0;
         slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
-      } else {
-        slidesToScroll += middleSlide.value - 1;
       }
 
       const xScroll = slidesToScroll * slideWidth.value;
@@ -148,7 +119,51 @@ export default defineComponent({
       };
     });
 
-    const viewportStyle = computed(() => ({ overflowX: 'hidden' }));
+    function updateSlidesBuffer() {
+      const slidesArray = [...Array(slidesCount.value).keys()];
+      if (config.wrapAround) {
+        const shifts = currentSlide.value + middleSlide.value + 1;
+        for (let i = 0; i < shifts; i++) {
+          slidesArray.push(slidesArray.shift());
+        }
+      }
+      slidesBuffer.value = slidesArray;
+    }
+
+    function slideTo(slideNumber) {
+      if (currentSlide.value === slideNumber || isSliding.value) return;
+      isSliding.value = true;
+      prevSlide.value = currentSlide.value;
+      currentSlide.value = slideNumber;
+
+      setTimeout(() => {
+        updateSlidesBuffer();
+        eventsBus.emit('sliding-end');
+        isSliding.value = false;
+      }, config.transition);
+    }
+
+    function next() {
+      const isLastSlide = currentSlide.value >= slidesCount.value - 1;
+      if (!isLastSlide) {
+        slideTo(currentSlide.value + 1);
+        return;
+      }
+      if (config.wrapAround) {
+        slideTo(0);
+      }
+    }
+
+    function prev() {
+      const isFirstSlide = currentSlide.value <= 0;
+      if (!isFirstSlide) {
+        slideTo(currentSlide.value - 1);
+        return;
+      }
+      if (config.wrapAround) {
+        slideTo(slidesCount.value - 1);
+      }
+    }
 
     return {
       root,

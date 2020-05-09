@@ -1,11 +1,11 @@
 <template>
   <div id="app">
     <carousel
-      :settings="{ itemsToShow: 2.5, mode: 'center', wrapAround: false }"
+      :settings="{ itemsToShow: 2.5, mode: 'center', wrapAround: true }"
     >
       <template #slides>
-        <slide v-for="(n, order) in 5" :key="n" :order="order">
-          {{ n }}
+        <slide v-for="(n, order) in 10" :key="n" :order="order">
+          {{ order }}
         </slide>
       </template>
 
@@ -38,7 +38,7 @@ export default defineComponent({
 
 <style>
 .carousel {
-  width: 700px;
+  width: 500px;
 }
 html,
 body {
