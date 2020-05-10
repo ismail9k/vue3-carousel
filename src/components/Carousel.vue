@@ -1,7 +1,12 @@
 <template>
   <section ref="root" class="carousel" aria-label="Gallery">
     <div class="carousel__viewport">
-      <ol class="carousel__track" :style="trackStyle">
+      <ol
+        class="carousel__track"
+        :style="trackStyle"
+        @mousedown="handleDragStart"
+        @touchstrat="handleDragStart"
+      >
         <slot name="slides" />
       </ol>
     </div>
@@ -64,13 +69,12 @@ export default defineComponent({
   setup(props, { slots }) {
     const root = ref(null);
     const slides = ref([]);
-    const slideWidth = ref(0);
-    const currentSlide = ref(0);
-    const prevSlide = ref(1);
-    const slidesCount = ref(1);
-    const middleSlide = ref(1);
     const slidesBuffer = ref([]);
-    const isSliding = ref(false);
+    const slideWidth = ref(0);
+    const slidesCount = ref(1);
+    const currentSlide = ref(0);
+    const prevSlide = ref(0);
+    const middleSlide = ref(0);
     const config = reactive({
       ...props,
       ...props.settings,
@@ -123,38 +127,88 @@ export default defineComponent({
       slidesBuffer.value = slidesArray;
     }
 
-    const trackStyle = computed(() => {
-      let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
+    /**
+     * Event listeners
+     */
+    let isTouch = false;
+    const startPosition = { x: 0, y: 0 };
+    const endPosition = { x: 0, y: 0 };
+    const dragged = reactive({ x: 0, y: 0 });
+    const isDragging = ref(false);
 
-      if (config.mode === 'center') {
-        slidesToScroll -= (config.itemsToShow - 1) / 2;
-      }
-      if (config.mode === 'end') {
-        slidesToScroll -= config.itemsToShow - 1;
-      }
-
-      if (!config.wrapAround) {
-        const max = slidesCount.value - config.itemsToShow;
-        const min = 0;
-        slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
+    function handleDragStart(event) {
+      isTouch = event.type === 'touchstart';
+      if ((!isTouch && event.button !== 0) || isSliding.value) {
+        return;
       }
 
-      const xScroll = slidesToScroll * slideWidth.value;
-      return {
-        transform: `translateX(-${xScroll}px)`,
-        transition: `${isSliding.value ? config.transition : 0}ms`,
-      };
-    });
+      isDragging.value = true;
+      startPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
+      startPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
+
+      document.addEventListener(
+        isTouch ? 'touchmove' : 'mousemove',
+        handleDrag
+      );
+      document.addEventListener(
+        isTouch ? 'touchend' : 'mouseup',
+        handleDragEnd
+      );
+    }
+
+    function handleDrag(event) {
+      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
+      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
+      const deltaX = endPosition.x - startPosition.x;
+      const deltaY = endPosition.y - startPosition.y;
+
+      dragged.y = deltaY;
+      dragged.x = deltaX;
+
+      if (!isTouch) {
+        event.preventDefault();
+      }
+    }
+
+    function handleDragEnd() {
+      isDragging.value = false;
+
+      const draggedSlides = Math.round(dragged.x / slideWidth.value);
+
+      slideTo(currentSlide.value - draggedSlides);
+      dragged.x = 0;
+      dragged.y = 0;
+      document.removeEventListener(
+        isTouch ? 'touchmove' : 'mousemove',
+        handleDrag
+      );
+      document.removeEventListener(
+        isTouch ? 'touchend' : 'mouseup',
+        handleDragEnd
+      );
+    }
 
     /**
      * Navigation function
      */
+    const isSliding = ref(false);
+    function slideTo(slideIndex) {
+      if (currentSlide.value === slideIndex || isSliding.value) {
+        return;
+      }
 
-    function slideTo(slideNumber) {
-      if (currentSlide.value === slideNumber || isSliding.value) return;
+      // Wrap slide index
+      const lastSlideIndex = slidesCount.value - 1;
+      if (slideIndex > lastSlideIndex) {
+        return slideTo(slideIndex - slidesCount.value);
+      }
+      if (slideIndex < 0) {
+        return slideTo(slideIndex + slidesCount.value);
+      }
+
       isSliding.value = true;
       prevSlide.value = currentSlide.value;
-      currentSlide.value = slideNumber;
+      currentSlide.value = slideIndex;
 
       setTimeout(() => {
         updateSlidesBuffer();
@@ -187,10 +241,37 @@ export default defineComponent({
     const nav = { slideTo, next, prev };
     provide('nav', nav);
 
+    /**
+     * Track style
+     */
+    const trackStyle = computed(() => {
+      let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
+
+      if (config.mode === 'center') {
+        slidesToScroll -= (config.itemsToShow - 1) / 2;
+      }
+      if (config.mode === 'end') {
+        slidesToScroll -= config.itemsToShow - 1;
+      }
+
+      if (!config.wrapAround) {
+        const max = slidesCount.value - config.itemsToShow;
+        const min = 0;
+        slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
+      }
+
+      const xScroll = slidesToScroll * slideWidth.value - dragged.x;
+      return {
+        transform: `translateX(-${xScroll}px)`,
+        transition: `${isSliding.value ? config.transition : 0}ms`,
+      };
+    });
+
     return {
       root,
       trackStyle,
       nav,
+      handleDragStart,
     };
   },
 });
