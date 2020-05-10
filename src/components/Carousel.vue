@@ -68,6 +68,11 @@ export default defineComponent({
       },
       type: Object,
     },
+    // an object to store breakpoints
+    breakpoints: {
+      default: null,
+      type: Object,
+    },
   },
   setup(props, { slots }) {
     const root = ref(null);
@@ -75,16 +80,20 @@ export default defineComponent({
     const slidesBuffer = ref([]);
     const slideWidth = ref(0);
     const slidesCount = ref(1);
-    const currentSlide = ref(0);
+
+    // generate carousel configs
+    const defaultConfig = { ...props, ...props.settings };
+    const breakpoints = ref({ ...defaultConfig.breakpoints });
+    // remove extra values
+    delete defaultConfig.settings;
+    delete defaultConfig.breakpoints;
+    // current config
+    const config = reactive({ ...defaultConfig });
+
+    // slides
+    const currentSlide = ref(config.currentSlide);
     const prevSlide = ref(0);
     const middleSlide = ref(0);
-
-    // getting current config
-    const breakpoints = ref(props.settings.breakpoints);
-    const defaultConfig = { ...props, ...props.settings };
-    delete defaultConfig.breakpoints;
-
-    let config = reactive(defaultConfig);
 
     provide('config', config);
     provide('slidesBuffer', slidesBuffer);
@@ -107,27 +116,20 @@ export default defineComponent({
      * Breakpoints
      */
 
-    const updateConfig = debounce(function updateConfig() {
-      const breakpoints = Object.keys(breakpoints.value).sort((a, b) => b - a);
-      const results = breakpoints.some((breakpoint) => {
-        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`)
-          .matches;
+    const updateConfig = debounce(function() {
+      const breakpointsArray = Object.keys(breakpoints.value).sort((a, b) => b - a);
+      let newConfig = { ...defaultConfig };
+
+      breakpointsArray.some(breakpoint => {
+        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches;
         if (isMatched) {
-          config = reactive(
-            Object.assign(
-              {},
-              config,
-              defaultConfig,
-              breakpoints.value[breakpoint]
-            )
-          );
+          newConfig = { ...newConfig, ...breakpoints.value[breakpoint] };
           return true;
         }
       });
-      if (!results) {
-        config = reactive(defaultConfig);
-      }
-    });
+      Object.keys(newConfig).forEach(key => (config[key] = newConfig[key]));
+      updateSlideWidth();
+    }, 500);
 
     /**
      * Setup functions
@@ -156,7 +158,7 @@ export default defineComponent({
 
     onMounted(() => {
       updateSlideWidth();
-      new ResizeObserver((entries) => {
+      new ResizeObserver(entries => {
         for (let entry of entries) updateSlideWidth(entry.contentRect);
       }).observe(root.value);
 
@@ -187,14 +189,8 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
 
-      document.addEventListener(
-        isTouch ? 'touchmove' : 'mousemove',
-        handleDrag
-      );
-      document.addEventListener(
-        isTouch ? 'touchend' : 'mouseup',
-        handleDragEnd
-      );
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
 
     function handleDrag(event) {
@@ -219,14 +215,8 @@ export default defineComponent({
       slideTo(currentSlide.value - draggedSlides);
       dragged.x = 0;
       dragged.y = 0;
-      document.removeEventListener(
-        isTouch ? 'touchmove' : 'mousemove',
-        handleDrag
-      );
-      document.removeEventListener(
-        isTouch ? 'touchend' : 'mouseup',
-        handleDragEnd
-      );
+      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
+      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
 
     /**

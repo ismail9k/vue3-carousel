@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <carousel :settings="{ itemsToShow: 2, mode: 'center', wrapAround: true }">
+    <carousel :settings="settings" :breakpoints="breakpoints">
       <template #slides>
         <slide v-for="(n, order) in slides" :key="n">
           {{ order }}
@@ -36,6 +36,18 @@ export default defineComponent({
   },
   data: () => ({
     slides: [],
+    settings: {
+      itemsToShow: 2,
+      currentSlide: 5,
+      mode: 'center',
+    },
+    breakpoints: {
+      800: {
+        itemsToShow: 1.5,
+        mode: 'end',
+        wrapAround: true,
+      },
+    },
   }),
   mounted() {
     setTimeout(() => {
