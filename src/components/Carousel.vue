@@ -18,6 +18,8 @@
 import eventsBus from '../EventsBus';
 import slidesCounter from '../counter';
 
+import { debounce } from '../utils';
+
 import {
   defineComponent,
   onMounted,
@@ -76,10 +78,13 @@ export default defineComponent({
     const currentSlide = ref(0);
     const prevSlide = ref(0);
     const middleSlide = ref(0);
-    const config = reactive({
-      ...props,
-      ...props.settings,
-    });
+
+    // getting current config
+    const breakpoints = ref(props.settings.breakpoints);
+    const defaultConfig = { ...props, ...props.settings };
+    delete defaultConfig.breakpoints;
+
+    let config = reactive(defaultConfig);
 
     provide('config', config);
     provide('slidesBuffer', slidesBuffer);
@@ -99,15 +104,34 @@ export default defineComponent({
     });
 
     /**
-     * Setup functions
+     * Breakpoints
      */
 
-    onMounted(() => {
-      updateSlideWidth();
-      new ResizeObserver((entries) => {
-        for (let entry of entries) updateSlideWidth(entry.contentRect);
-      }).observe(root.value);
+    const updateConfig = debounce(function updateConfig() {
+      const breakpoints = Object.keys(breakpoints.value).sort((a, b) => b - a);
+      const results = breakpoints.some((breakpoint) => {
+        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`)
+          .matches;
+        if (isMatched) {
+          config = reactive(
+            Object.assign(
+              {},
+              config,
+              defaultConfig,
+              breakpoints.value[breakpoint]
+            )
+          );
+          return true;
+        }
+      });
+      if (!results) {
+        config = reactive(defaultConfig);
+      }
     });
+
+    /**
+     * Setup functions
+     */
 
     function updateSlideWidth(contentRect) {
       const rect = contentRect || root.value.getBoundingClientRect();
@@ -130,8 +154,22 @@ export default defineComponent({
       slidesBuffer.value = slidesArray;
     }
 
+    onMounted(() => {
+      updateSlideWidth();
+      new ResizeObserver((entries) => {
+        for (let entry of entries) updateSlideWidth(entry.contentRect);
+      }).observe(root.value);
+
+      if (breakpoints.value) {
+        updateConfig();
+        window.addEventListener('resize', updateConfig, {
+          passive: true,
+        });
+      }
+    });
+
     /**
-     * Event listeners
+     * Carousel Event listeners
      */
     let isTouch = false;
     const startPosition = { x: 0, y: 0 };

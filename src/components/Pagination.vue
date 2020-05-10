@@ -1,4 +1,4 @@
-<template functional>
+<template>
   <ol class="carousel__pagination">
     <li
       class="carousel__pagination-item"

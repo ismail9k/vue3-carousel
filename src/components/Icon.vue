@@ -1,4 +1,4 @@
-<template functional>
+<template>
   <svg viewBox="0 0 24 24" class="carousel__icon" role="img">
     <title>{{ iconTitle }}</title>
     <path :d="path" />

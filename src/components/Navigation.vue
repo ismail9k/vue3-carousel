@@ -1,4 +1,4 @@
-<template functional>
+<template>
   <button class="carousel__prev" @click="handlePrevClick">
     <slot name="prevIcon">
       <icon name="arrowLeft" />

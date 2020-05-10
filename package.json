@@ -22,7 +22,7 @@
     "@vue/eslint-config-typescript": "^5.0.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.0.0",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint-plugin-vue": "^7.0.0-alpha.2",
     "typescript": "~3.8.3",
     "vue-cli-plugin-vue-next": "~0.1.2"
   },
