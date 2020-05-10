@@ -1,10 +1,10 @@
 <template>
   <div id="app">
     <carousel
-      :settings="{ itemsToShow: 2.5, mode: 'center', wrapAround: false }"
+      :settings="{ itemsToShow: 2.5, mode: 'center', wrapAround: true }"
     >
       <template #slides>
-        <slide v-for="(n, order) in 10" :key="n" :order="order">
+        <slide v-for="(n, order) in slides" :key="n" :order="order">
           {{ order }}
         </slide>
       </template>
@@ -14,6 +14,9 @@
         <navigation />
       </template>
     </carousel>
+
+    <button @click="addSlide">Add slide</button>
+    <button @click="removeSlide">remove slide</button>
   </div>
 </template>
 
@@ -33,12 +36,28 @@ export default defineComponent({
     Pagination,
     Navigation,
   },
+  data: () => ({
+    slides: [],
+  }),
+  mounted() {
+    setTimeout(() => {
+      this.slides = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    }, 1000);
+  },
+  methods: {
+    addSlide() {
+      this.slides.push(this.slides.length + 1);
+    },
+    removeSlide() {
+      this.slides.pop();
+    },
+  },
 });
 </script>
 
 <style>
 .carousel {
-  width: 500px;
+  width: 50vw;
 }
 html,
 body {

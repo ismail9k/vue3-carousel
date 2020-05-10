@@ -1,6 +1,6 @@
 <template>
   <section ref="root" class="carousel" aria-label="Gallery">
-    <div class="carousel__viewport" :style="viewportStyle">
+    <div class="carousel__viewport">
       <ol class="carousel__track" :style="trackStyle">
         <slot name="slides" />
       </ol>
@@ -19,6 +19,7 @@ import {
   reactive,
   provide,
   computed,
+  watchEffect,
 } from 'vue';
 
 export default defineComponent({
@@ -75,9 +76,14 @@ export default defineComponent({
       ...props.settings,
     });
 
-    slides.value = slots.slides()?.[0]?.children || [];
-    slidesCount.value = slides.value.length;
-    middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
+    watchEffect(() => {
+      slides.value = slots.slides()?.[0]?.children || [];
+      const needToUpdate = slidesCount.value !== slides.value.length;
+      if (needToUpdate) {
+        updateSlidesData();
+        updateSlidesBuffer();
+      }
+    });
 
     provide('config', config);
     provide('slidesCount', slidesCount);
@@ -85,16 +91,38 @@ export default defineComponent({
     provide('currentSlide', currentSlide);
     provide('slidesBuffer', slidesBuffer);
 
+    /**
+     * Setup functions
+     */
+
     onMounted(() => {
-      const rect = root.value.getBoundingClientRect();
-      slideWidth.value = rect.width / config.itemsToShow;
+      updateSlideWidth();
+      new ResizeObserver((entries) => {
+        for (let entry of entries) updateSlideWidth(entry.contentRect);
+      }).observe(root.value);
     });
 
-    if (config.wrapAround) {
-      updateSlidesBuffer();
+    function updateSlideWidth(contentRect) {
+      const rect = contentRect || root.value.getBoundingClientRect();
+      slideWidth.value = rect.width / config.itemsToShow;
     }
 
-    const viewportStyle = computed(() => ({ overflowX: 'hidden' }));
+    function updateSlidesData() {
+      slidesCount.value = slides.value.length;
+      middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
+    }
+
+    function updateSlidesBuffer() {
+      const slidesArray = [...Array(slidesCount.value).keys()];
+      if (config.wrapAround) {
+        const shifts = currentSlide.value + middleSlide.value + 1;
+        for (let i = 0; i < shifts; i++) {
+          slidesArray.push(slidesArray.shift());
+        }
+      }
+      slidesBuffer.value = slidesArray;
+    }
+
     const trackStyle = computed(() => {
       let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
 
@@ -118,16 +146,9 @@ export default defineComponent({
       };
     });
 
-    function updateSlidesBuffer() {
-      const slidesArray = [...Array(slidesCount.value).keys()];
-      if (config.wrapAround) {
-        const shifts = currentSlide.value + middleSlide.value + 1;
-        for (let i = 0; i < shifts; i++) {
-          slidesArray.push(slidesArray.shift());
-        }
-      }
-      slidesBuffer.value = slidesArray;
-    }
+    /**
+     * Navigation function
+     */
 
     function slideTo(slideNumber) {
       if (currentSlide.value === slideNumber || isSliding.value) return;
@@ -163,14 +184,12 @@ export default defineComponent({
         slideTo(slidesCount.value - 1);
       }
     }
-    // navigation functions
     const nav = { slideTo, next, prev };
     provide('nav', nav);
 
     return {
       root,
       trackStyle,
-      viewportStyle,
       nav,
     };
   },
@@ -190,14 +209,12 @@ export default defineComponent({
 
 .carousel__track {
   display: flex;
+  margin: 0;
   padding: 0;
   position: relative;
-  margin: 5px 0;
 }
-.carousel__viewport {
-  scroll-snap-type: x mandatory;
 
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+.carousel__viewport {
+  overflow: hidden;
 }
 </style>
