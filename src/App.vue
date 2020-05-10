@@ -1,10 +1,8 @@
 <template>
   <div id="app">
-    <carousel
-      :settings="{ itemsToShow: 2.5, mode: 'center', wrapAround: true }"
-    >
+    <carousel :settings="{ itemsToShow: 2, mode: 'center', wrapAround: true }">
       <template #slides>
-        <slide v-for="(n, order) in slides" :key="n" :order="order">
+        <slide v-for="(n, order) in slides" :key="n">
           {{ order }}
         </slide>
       </template>

@@ -16,6 +16,7 @@
 
 <script>
 import eventsBus from '../EventsBus';
+import slidesCounter from '../counter';
 
 import {
   defineComponent,
@@ -80,20 +81,22 @@ export default defineComponent({
       ...props.settings,
     });
 
+    provide('config', config);
+    provide('slidesBuffer', slidesBuffer);
+    provide('slidesCount', slidesCount);
+    provide('currentSlide', currentSlide);
+
     watchEffect(() => {
       slides.value = slots.slides()?.[0]?.children || [];
+
+      // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
       if (needToUpdate) {
         updateSlidesData();
         updateSlidesBuffer();
+        slidesCounter.value = slides.value.length - 1;
       }
     });
-
-    provide('config', config);
-    provide('slidesCount', slidesCount);
-    provide('middleSlide', middleSlide);
-    provide('currentSlide', currentSlide);
-    provide('slidesBuffer', slidesBuffer);
 
     /**
      * Setup functions

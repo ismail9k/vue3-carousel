@@ -1,0 +1,18 @@
+interface Counter {
+  value: number;
+  [name: string]: any;
+}
+
+export default new Proxy(
+  { value: 0 },
+  {
+    get(obj: Counter, prop: string): number {
+      if (!(prop in obj)) return 0;
+      return obj[prop]++;
+    },
+    set(obj: Counter, prop: string, value: number): boolean {
+      obj[prop] = Math.max(value, 0);
+      return true;
+    },
+  }
+);

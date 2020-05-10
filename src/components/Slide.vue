@@ -6,6 +6,7 @@
 
 <script>
 import { defineComponent, inject, ref, computed, watchEffect } from 'vue';
+import slidesCounter from '../counter';
 
 export default defineComponent({
   name: 'CarouselSlide',
@@ -16,9 +17,11 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const slideOrder = ref(props.order);
     const config = inject('config', ref({}));
     const slidesBuffer = inject('slidesBuffer', ref([]));
+
+    const slideOrder = ref(slidesCounter.value);
+    const wrapOrder = ref(slideOrder.value);
 
     if (config.wrapAround) {
       updateOrder();
@@ -30,12 +33,12 @@ export default defineComponent({
       const width = `${(1 / items) * 100}%`;
       return {
         width,
-        order: slideOrder.value.toString(),
+        order: wrapOrder.value.toString(),
       };
     });
 
     function updateOrder() {
-      slideOrder.value = slidesBuffer.value.indexOf(props.order);
+      wrapOrder.value = slidesBuffer.value.indexOf(slideOrder.value);
     }
 
     return {
