@@ -5,7 +5,7 @@
         <slot name="slides" />
       </ol>
     </div>
-    <slot name="addons" :nav="{ slideTo, next, prev }" />
+    <slot name="addons" :nav="nav" />
   </section>
 </template>
 
@@ -16,7 +16,6 @@ import {
   defineComponent,
   onMounted,
   ref,
-  toRefs,
   reactive,
   provide,
   computed,
@@ -80,7 +79,7 @@ export default defineComponent({
     slidesCount.value = slides.value.length;
     middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
 
-    provide('config', toRefs(config));
+    provide('config', config);
     provide('slidesCount', slidesCount);
     provide('middleSlide', middleSlide);
     provide('currentSlide', currentSlide);
@@ -164,14 +163,15 @@ export default defineComponent({
         slideTo(slidesCount.value - 1);
       }
     }
+    // navigation functions
+    const nav = { slideTo, next, prev };
+    provide('nav', nav);
 
     return {
       root,
       trackStyle,
       viewportStyle,
-      slideTo,
-      next,
-      prev,
+      nav,
     };
   },
 });

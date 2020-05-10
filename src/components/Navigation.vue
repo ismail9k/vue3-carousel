@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, inject } from 'vue';
 
 import Icon from './Icon.vue';
 
@@ -22,10 +22,14 @@ export default defineComponent({
     Icon,
   },
   setup(props, { emit }) {
+    const nav = inject('nav');
+
     function handleNextClick() {
+      nav.next();
       emit('next');
     }
     function handlePrevClick() {
+      nav.prev();
       emit('prev');
     }
 

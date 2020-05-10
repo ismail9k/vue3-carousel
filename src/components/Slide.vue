@@ -20,13 +20,13 @@ export default defineComponent({
     const config = inject('config', ref({}));
     const slidesBuffer = inject('slidesBuffer', ref([]));
 
-    if (config.wrapAround.value) {
+    if (config.wrapAround) {
       updateOrder();
       watchEffect(updateOrder);
     }
 
     const slideStyle = computed(() => {
-      const items = config.itemsToShow.value;
+      const items = config.itemsToShow;
       const width = `${(1 / items) * 100}%`;
       return {
         width,

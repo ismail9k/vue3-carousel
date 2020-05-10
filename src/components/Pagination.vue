@@ -24,8 +24,10 @@ export default defineComponent({
   setup(props, { emit }) {
     const slidesCount = inject('slidesCount', ref(0));
     const currentSlide = inject('currentSlide', ref(1));
+    const nav = inject('nav');
 
     function handleButtonClick(slideNumber) {
+      nav.slideTo(slideNumber);
       emit('slide', slideNumber);
     }
 
