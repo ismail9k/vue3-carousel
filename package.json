@@ -1,45 +1,24 @@
 {
   "name": "vue3-carousel",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "build": "rollup -c",
+    "dev": "rollup -cw"
   },
-  "dependencies": {
-    "core-js": "^3.6.4",
-    "vue": "^3.0.0-beta.1"
-  },
+  "main": "dist/carousel.js",
+  "module": "dist/carousel.es.js",
+  "style": "dist/carousel.css",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.31.0",
-    "@typescript-eslint/parser": "^2.31.0",
-    "@vue/cli-plugin-babel": "~4.3.0",
-    "@vue/cli-plugin-eslint": "~4.3.0",
-    "@vue/cli-plugin-typescript": "~4.3.0",
-    "@vue/cli-service": "~4.3.0",
-    "@vue/compiler-sfc": "^3.0.0-beta.10",
-    "@vue/eslint-config-typescript": "^5.0.2",
-    "babel-eslint": "^10.1.0",
     "eslint": "^7.0.0",
-    "eslint-plugin-vue": "^7.0.0-alpha.2",
-    "typescript": "~3.8.3",
-    "vue-cli-plugin-vue-next": "~0.1.2"
+    "prettier": "^2.0.5",
+    "rollup": "^2.10.2",
+    "rollup-plugin-css-only": "^2.0.0",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "typescript": "^3.9.2",
+    "vue": "^3.0.0-beta.13"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended",
-      "@vue/typescript"
-    ],
-    "parserOptions": {
-      "parser": "@typescript-eslint/parser"
-    },
-    "rules": {}
+  "peerDependencies": {
+    "vue": "^3.0.0-beta.13"
   },
   "browserslist": [
     "> 1%",

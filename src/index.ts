@@ -1,3 +1,4 @@
+import './styles';
 import Carousel from './components/Carousel';
 import Navigation from './components/Navigation';
 import Slide from './components/Slide';
