@@ -1,20 +1,3 @@
-<template>
-  <section ref="root" class="carousel" aria-label="Gallery">
-    <div class="carousel__viewport">
-      <ol
-        class="carousel__track"
-        :style="trackStyle"
-        @mousedown="handleDragStart"
-        @touchstrat="handleDragStart"
-      >
-        <slot name="slides" />
-      </ol>
-    </div>
-    <slot name="addons" :nav="nav" />
-  </section>
-</template>
-
-<script lang="ts">
 import {
   defineComponent,
   onMounted,
@@ -23,13 +6,21 @@ import {
   provide,
   computed,
   watchEffect,
+  h,
 } from 'vue';
 
 import eventsBus from '../partials/EventsBus';
 import slidesCounter from '../partials/counter';
 import { debounce } from '../partials/utils';
 
-import { Data, SetupContext } from 'vue/types';
+import {
+  Data,
+  SetupContext,
+  CarouselConfig,
+  Ref,
+  CarouselNav,
+  ElementStyleObject,
+} from '../types';
 
 export default defineComponent({
   name: 'Carousel',
@@ -75,16 +66,19 @@ export default defineComponent({
       type: Object,
     },
   },
-  setup(props: Data, { slots }: SetupContext): Data {
-    const root = ref(null);
-    const slides = ref([]);
-    const slidesBuffer = ref([]);
-    const slideWidth = ref(0);
-    const slidesCount = ref(1);
+  setup(props: Data, { slots }: SetupContext) {
+    const root: Ref<Element | null> = ref(null);
+    const slides: Ref<any> = ref([]);
+    const slidesBuffer: Ref<Array<number>> = ref([]);
+    const slideWidth: Ref<number> = ref(0);
+    const slidesCount: Ref<number> = ref(1);
 
     // generate carousel configs
-    const defaultConfig = { ...props, ...props.settings };
-    const breakpoints = ref({ ...defaultConfig.breakpoints });
+    const defaultConfig: CarouselConfig = {
+      ...props,
+      ...(props.settings as CarouselConfig),
+    };
+    const breakpoints: CarouselConfig = ref({ ...defaultConfig.breakpoints });
     // remove extra values
     delete defaultConfig.settings;
     delete defaultConfig.breakpoints;
@@ -102,7 +96,9 @@ export default defineComponent({
     provide('currentSlide', currentSlide);
 
     watchEffect((): void => {
-      slides.value = slots.slides()?.[0]?.children || [];
+      if (slots.slides) {
+        slides.value = slots.slides()?.[0]?.children || [];
+      }
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
@@ -117,7 +113,7 @@ export default defineComponent({
      * Breakpoints
      */
 
-    const updateConfig = debounce((): void => {
+    function updateConfig(): void {
       const breakpointsArray = Object.keys(breakpoints.value)
         .map((key: string): number => Number(key))
         .sort((a: number, b: number) => +b - +a);
@@ -132,15 +128,21 @@ export default defineComponent({
         return false;
       });
       Object.keys(newConfig).forEach((key): any => (config[key] = newConfig[key]));
-      updateSlideWidth(null);
-    }, 500);
+    }
+
+    const handleWindowResize = () =>
+      debounce(() => {
+        if (breakpoints.value) updateConfig();
+        updateSlideWidth();
+      }, 500);
 
     /**
      * Setup functions
      */
 
-    function updateSlideWidth(contentRect: DOMRect | null): void {
-      const rect = contentRect || root.value.getBoundingClientRect();
+    function updateSlideWidth(): void {
+      if (!root.value) return;
+      const rect = root.value.getBoundingClientRect();
       slideWidth.value = rect.width / config.itemsToShow;
     }
 
@@ -161,17 +163,9 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      updateSlideWidth(null);
-      new ResizeObserver((entries: Array<any>) => {
-        for (let entry of entries) updateSlideWidth(entry.contentRect);
-      }).observe(root.value);
-
-      if (breakpoints.value) {
-        updateConfig();
-        window.addEventListener('resize', updateConfig, {
-          passive: true,
-        });
-      }
+      updateSlideWidth();
+      if (breakpoints.value) updateConfig();
+      window.addEventListener('resize', handleWindowResize, { passive: true });
     });
 
     /**
@@ -182,6 +176,21 @@ export default defineComponent({
     const endPosition = { x: 0, y: 0 };
     const dragged = reactive({ x: 0, y: 0 });
     const isDragging = ref(false);
+
+    const handleDrag = () =>
+      function (event: MouseEvent & TouchEvent): void {
+        endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
+        endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
+        const deltaX = endPosition.x - startPosition.x;
+        const deltaY = endPosition.y - startPosition.y;
+
+        dragged.y = deltaY;
+        dragged.x = deltaX;
+
+        if (!isTouch) {
+          event.preventDefault();
+        }
+      };
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
       isTouch = event.type === 'touchstart';
@@ -195,20 +204,6 @@ export default defineComponent({
 
       document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
-    }
-
-    function handleDrag(event: MouseEvent & TouchEvent): void {
-      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
-      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
-      const deltaX = endPosition.x - startPosition.x;
-      const deltaY = endPosition.y - startPosition.y;
-
-      dragged.y = deltaY;
-      dragged.x = deltaX;
-
-      if (!isTouch) {
-        event.preventDefault();
-      }
     }
 
     function handleDragEnd(): void {
@@ -273,41 +268,61 @@ export default defineComponent({
         slideTo(slidesCount.value - 1);
       }
     }
-    const nav = { slideTo, next, prev };
+    const nav: CarouselNav = { slideTo, next, prev };
     provide('nav', nav);
 
     /**
      * Track style
      */
-    const trackStyle = computed((): object => {
-      let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
+    const trackStyle = computed(
+      (): ElementStyleObject => {
+        let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
 
-      if (config.mode === 'center') {
-        slidesToScroll -= (config.itemsToShow - 1) / 2;
+        if (config.mode === 'center') {
+          slidesToScroll -= (config.itemsToShow - 1) / 2;
+        }
+        if (config.mode === 'end') {
+          slidesToScroll -= config.itemsToShow - 1;
+        }
+
+        if (!config.wrapAround) {
+          const max = slidesCount.value - config.itemsToShow;
+          const min = 0;
+          slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
+        }
+
+        const xScroll = slidesToScroll * slideWidth.value - dragged.x;
+        return {
+          transform: `translateX(-${xScroll}px)`,
+          transition: `${isSliding.value ? config.transition : 0}ms`,
+        };
       }
-      if (config.mode === 'end') {
-        slidesToScroll -= config.itemsToShow - 1;
-      }
+    );
 
-      if (!config.wrapAround) {
-        const max = slidesCount.value - config.itemsToShow;
-        const min = 0;
-        slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
-      }
+    const slidesEl = slots.slides ? slots.slides() : [];
+    const addonsEl = slots.addons ? slots.addons() : [];
+    const trackEl = h(
+      'ol',
+      {
+        class: 'carousel__track',
+        style: trackStyle,
+        on: { mousedown: handleDragStart, touchstrat: handleDragStart },
+      },
+      slidesEl
+    );
+    const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl);
 
-      const xScroll = slidesToScroll * slideWidth.value - dragged.x;
-      return {
-        transform: `translateX(-${xScroll}px)`,
-        transition: `${isSliding.value ? config.transition : 0}ms`,
-      };
-    });
-
-    return {
-      root,
-      trackStyle,
-      nav,
-      handleDragStart,
-    };
+    return () =>
+      h(
+        'section',
+        {
+          ref: 'root',
+          class: 'carousel',
+          attr: {
+            'aria-label': 'Gallery',
+          },
+        },
+        [viewPortEl, addonsEl]
+      );
   },
 });
-</script>
