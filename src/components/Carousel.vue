@@ -311,26 +311,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style>
-.carousel {
-  position: relative;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.carousel * {
-  box-sizing: border-box;
-}
-
-.carousel__track {
-  display: flex;
-  margin: 0;
-  padding: 0;
-  position: relative;
-}
-
-.carousel__viewport {
-  overflow: hidden;
-}
-</style>

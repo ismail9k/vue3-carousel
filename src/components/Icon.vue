@@ -27,11 +27,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.carousel__icon {
-  width: 1.2em;
-  height: 1.2em;
-  fill: currentColor;
-}
-</style>

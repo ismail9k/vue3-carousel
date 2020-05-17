@@ -37,23 +37,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style>
-.carousel__pagination {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-}
-.carousel__pagination-button {
-  margin: 5px;
-  width: 10px;
-  height: 5px;
-  border: 0;
-  cursor: pointer;
-  background-color: #8e98f3;
-}
-
-.carousel__pagination-button--active {
-  background-color: #642afb;
-}
-</style>

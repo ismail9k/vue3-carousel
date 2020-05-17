@@ -51,16 +51,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style>
-.carousel__slide {
-  scroll-snap-stop: auto;
-  flex-shrink: 0;
-  margin: 0;
-  position: relative;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-</style>
