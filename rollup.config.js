@@ -3,22 +3,24 @@ import typescript from 'rollup-plugin-typescript2';
 
 import pkg from './package.json';
 
+const banner = `/**
+ * Vue 3 Carousel ${pkg.version}
+ * (c) ${new Date().getFullYear()}
+ * @license MIT
+ */`;
+
 export default {
-  name: pkg.name,
-  banner: `/**
-  * Vue 3 Carousel ${pkg.version}
-  * (c) ${new Date().getFullYear()}
-    * @license MIT
-    */`,
   input: 'src/index.ts',
   output: [
     {
       file: pkg.main,
       format: 'cjs',
+      banner,
     },
     {
       file: pkg.module,
       format: 'es',
+      banner,
     },
   ],
   external: [
