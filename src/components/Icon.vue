@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import icons from '../icons';
+import icons from '../partials/icons';
 
 import { Data } from 'vue/types';
 

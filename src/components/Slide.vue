@@ -6,7 +6,8 @@
 
 <script lang="ts">
 import { defineComponent, inject, ref, computed, watchEffect } from 'vue';
-import slidesCounter from '../counter';
+
+import slidesCounter from '../partials/counter';
 
 import { Data } from 'vue/types';
 

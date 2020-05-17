@@ -15,11 +15,6 @@
 </template>
 
 <script lang="ts">
-import eventsBus from '../EventsBus';
-import slidesCounter from '../counter';
-
-import { debounce } from '../utils';
-
 import {
   defineComponent,
   onMounted,
@@ -29,6 +24,10 @@ import {
   computed,
   watchEffect,
 } from 'vue';
+
+import eventsBus from '../partials/EventsBus';
+import slidesCounter from '../partials/counter';
+import { debounce } from '../partials/utils';
 
 import { Data, SetupContext } from 'vue/types';
 
