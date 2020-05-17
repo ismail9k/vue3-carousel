@@ -39,6 +39,7 @@ export default defineComponent({
       wrapOrder.value = slidesBuffer.value.indexOf(slideOrder.value);
     }
 
-    return () => h('li', { style: slideStyle, class: 'carousel__slide' }, slots.default);
+    return () =>
+      h('li', { style: slideStyle, class: 'carousel__slide' }, slots.default?.());
   },
 });

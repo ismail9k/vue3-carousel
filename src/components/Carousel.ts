@@ -299,8 +299,9 @@ export default defineComponent({
       }
     );
 
-    const slidesEl = slots.slides ? slots.slides() : [];
-    const addonsEl = slots.addons ? slots.addons() : [];
+    const { default: slotDefault, slides: slotSlides, addons: slotAddons } = slots;
+    const slidesEl = slotSlides?.() || slotDefault?.() || [];
+    const addonsEl = slotAddons?.() || [];
     const trackEl = h(
       'ol',
       {
@@ -316,9 +317,10 @@ export default defineComponent({
       h(
         'section',
         {
+          inheritAttrs: false,
           ref: 'root',
           class: 'carousel',
-          attr: {
+          attrs: {
             'aria-label': 'Gallery',
           },
         },

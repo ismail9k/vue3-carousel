@@ -2,7 +2,7 @@ import { defineComponent, inject, h } from 'vue';
 
 import Icon from './Icon';
 
-import { Data, SetupContext, CarouselNav } from '../types';
+import { SetupContext, CarouselNav } from '../types';
 
 export default defineComponent({
   name: 'Navigation',
@@ -23,14 +23,14 @@ export default defineComponent({
 
     const prevButton = h(
       'button',
-      { class: 'carousel__prev', nativeOn: { click: handlePrevClick } },
+      { class: 'carousel__prev', on: { click: handlePrevClick } },
       h(Icon, { props: { name: 'arrowLeft' } })
     );
     const nextButton = h(
       'button',
-      { class: 'carousel__next', nativeOn: { click: handleNextClick } },
+      { class: 'carousel__next', on: { click: handleNextClick } },
       h(Icon, { props: { name: 'arrowRight' } })
     );
-    return () => h('div', {}, [prevButton, nextButton]);
+    return () => h('div', [prevButton, nextButton]);
   },
 });

@@ -21,7 +21,7 @@ export default defineComponent({
           'carousel__pagination-button': true,
           'carousel__pagination-button--active': currentSlide.value === slide,
         },
-        nativeOn: {
+        on: {
           click: () => handleButtonClick(slide),
         },
       });
