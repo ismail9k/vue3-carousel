@@ -4,9 +4,11 @@
   </li>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject, ref, computed, watchEffect } from 'vue';
 import slidesCounter from '../counter';
+
+import { Data } from 'vue/types';
 
 export default defineComponent({
   name: 'CarouselSlide',
@@ -16,7 +18,7 @@ export default defineComponent({
       default: 1,
     },
   },
-  setup(props) {
+  setup(props: Data): Data {
     const config = inject('config', ref({}));
     const slidesBuffer = inject('slidesBuffer', ref([]));
 
@@ -28,7 +30,7 @@ export default defineComponent({
       watchEffect(updateOrder);
     }
 
-    const slideStyle = computed(() => {
+    const slideStyle = computed((): object => {
       const items = config.itemsToShow;
       const width = `${(1 / items) * 100}%`;
       return {
@@ -37,7 +39,7 @@ export default defineComponent({
       };
     });
 
-    function updateOrder() {
+    function updateOrder(): void {
       wrapOrder.value = slidesBuffer.value.indexOf(slideOrder.value);
     }
 

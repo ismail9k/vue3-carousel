@@ -14,7 +14,7 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
 import eventsBus from '../EventsBus';
 import slidesCounter from '../counter';
 
@@ -29,6 +29,8 @@ import {
   computed,
   watchEffect,
 } from 'vue';
+
+import { Data, SetupContext } from 'vue/types';
 
 export default defineComponent({
   name: 'Carousel',
@@ -51,7 +53,7 @@ export default defineComponent({
     // control center mode
     mode: {
       default: 'center',
-      validator(value) {
+      validator(value: string) {
         // The value must match one of these strings
         return ['start', 'end', 'center'].includes(value);
       },
@@ -74,7 +76,7 @@ export default defineComponent({
       type: Object,
     },
   },
-  setup(props, { slots }) {
+  setup(props: Data, { slots }: SetupContext): Data {
     const root = ref(null);
     const slides = ref([]);
     const slidesBuffer = ref([]);
@@ -100,7 +102,7 @@ export default defineComponent({
     provide('slidesCount', slidesCount);
     provide('currentSlide', currentSlide);
 
-    watchEffect(() => {
+    watchEffect((): void => {
       slides.value = slots.slides()?.[0]?.children || [];
 
       // Handel when slides added/removed
@@ -116,49 +118,52 @@ export default defineComponent({
      * Breakpoints
      */
 
-    const updateConfig = debounce(function() {
-      const breakpointsArray = Object.keys(breakpoints.value).sort((a, b) => b - a);
+    const updateConfig = debounce((): void => {
+      const breakpointsArray = Object.keys(breakpoints.value)
+        .map((key: string): number => Number(key))
+        .sort((a: number, b: number) => +b - +a);
       let newConfig = { ...defaultConfig };
 
-      breakpointsArray.some(breakpoint => {
+      breakpointsArray.some((breakpoint): boolean => {
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches;
         if (isMatched) {
           newConfig = { ...newConfig, ...breakpoints.value[breakpoint] };
           return true;
         }
+        return false;
       });
-      Object.keys(newConfig).forEach(key => (config[key] = newConfig[key]));
-      updateSlideWidth();
+      Object.keys(newConfig).forEach((key): any => (config[key] = newConfig[key]));
+      updateSlideWidth(null);
     }, 500);
 
     /**
      * Setup functions
      */
 
-    function updateSlideWidth(contentRect) {
+    function updateSlideWidth(contentRect: DOMRect | null): void {
       const rect = contentRect || root.value.getBoundingClientRect();
       slideWidth.value = rect.width / config.itemsToShow;
     }
 
-    function updateSlidesData() {
+    function updateSlidesData(): void {
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
     }
 
-    function updateSlidesBuffer() {
+    function updateSlidesBuffer(): void {
       const slidesArray = [...Array(slidesCount.value).keys()];
       if (config.wrapAround) {
         const shifts = currentSlide.value + middleSlide.value + 1;
         for (let i = 0; i < shifts; i++) {
-          slidesArray.push(slidesArray.shift());
+          slidesArray.push(Number(slidesArray.shift()));
         }
       }
       slidesBuffer.value = slidesArray;
     }
 
-    onMounted(() => {
-      updateSlideWidth();
-      new ResizeObserver(entries => {
+    onMounted((): void => {
+      updateSlideWidth(null);
+      new ResizeObserver((entries: Array<any>) => {
         for (let entry of entries) updateSlideWidth(entry.contentRect);
       }).observe(root.value);
 
@@ -179,7 +184,7 @@ export default defineComponent({
     const dragged = reactive({ x: 0, y: 0 });
     const isDragging = ref(false);
 
-    function handleDragStart(event) {
+    function handleDragStart(event: MouseEvent & TouchEvent): void {
       isTouch = event.type === 'touchstart';
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return;
@@ -193,7 +198,7 @@ export default defineComponent({
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
 
-    function handleDrag(event) {
+    function handleDrag(event: MouseEvent & TouchEvent): void {
       endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
       const deltaX = endPosition.x - startPosition.x;
@@ -207,7 +212,7 @@ export default defineComponent({
       }
     }
 
-    function handleDragEnd() {
+    function handleDragEnd(): void {
       isDragging.value = false;
 
       const draggedSlides = Math.round(dragged.x / slideWidth.value);
@@ -223,7 +228,7 @@ export default defineComponent({
      * Navigation function
      */
     const isSliding = ref(false);
-    function slideTo(slideIndex) {
+    function slideTo(slideIndex: number): void {
       if (currentSlide.value === slideIndex || isSliding.value) {
         return;
       }
@@ -241,14 +246,14 @@ export default defineComponent({
       prevSlide.value = currentSlide.value;
       currentSlide.value = slideIndex;
 
-      setTimeout(() => {
+      setTimeout((): void => {
         updateSlidesBuffer();
         eventsBus.emit('sliding-end');
         isSliding.value = false;
       }, config.transition);
     }
 
-    function next() {
+    function next(): void {
       const isLastSlide = currentSlide.value >= slidesCount.value - 1;
       if (!isLastSlide) {
         slideTo(currentSlide.value + 1);
@@ -259,7 +264,7 @@ export default defineComponent({
       }
     }
 
-    function prev() {
+    function prev(): void {
       const isFirstSlide = currentSlide.value <= 0;
       if (!isFirstSlide) {
         slideTo(currentSlide.value - 1);
@@ -275,7 +280,7 @@ export default defineComponent({
     /**
      * Track style
      */
-    const trackStyle = computed(() => {
+    const trackStyle = computed((): object => {
       let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
 
       if (config.mode === 'center') {

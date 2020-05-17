@@ -11,24 +11,26 @@
   </button>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject } from 'vue';
 
 import Icon from './Icon.vue';
+
+import { Data, SetupContext } from 'vue/types';
 
 export default defineComponent({
   name: 'Navigation',
   components: {
     Icon,
   },
-  setup(props, { emit }) {
+  setup(props: Data, { emit }: SetupContext): Data {
     const nav = inject('nav');
 
-    function handleNextClick() {
+    function handleNextClick(): void {
       nav.next();
       emit('next');
     }
-    function handlePrevClick() {
+    function handlePrevClick(): void {
       nav.prev();
       emit('prev');
     }

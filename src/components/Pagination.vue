@@ -1,10 +1,6 @@
 <template>
   <ol class="carousel__pagination">
-    <li
-      class="carousel__pagination-item"
-      v-for="(_, slide) in slidesCount"
-      :key="slide"
-    >
+    <li class="carousel__pagination-item" v-for="(_, slide) in slidesCount" :key="slide">
       <button
         class="carousel__pagination-button"
         :class="{
@@ -16,17 +12,19 @@
   </ol>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject, ref } from 'vue';
+
+import { Data, SetupContext } from 'vue/types';
 
 export default defineComponent({
   name: 'Pagination',
-  setup(props, { emit }) {
+  setup(props: Data, { emit }: SetupContext): Data {
     const slidesCount = inject('slidesCount', ref(0));
     const currentSlide = inject('currentSlide', ref(1));
     const nav = inject('nav');
 
-    function handleButtonClick(slideNumber) {
+    function handleButtonClick(slideNumber: number): void {
       nav.slideTo(slideNumber);
       emit('slide', slideNumber);
     }

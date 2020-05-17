@@ -5,8 +5,10 @@
   </svg>
 </template>
 
-<script>
+<script lang="ts">
 import icons from '../icons';
+
+import { Data } from 'vue/types';
 
 export default {
   name: 'Icon',
@@ -14,7 +16,7 @@ export default {
     name: String,
     title: String,
   },
-  setup(props) {
+  setup(props: Data): Data {
     const path = icons[props.name];
     const iconTitle = props.title || props.name;
 
