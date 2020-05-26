@@ -40,6 +40,6 @@ export default defineComponent({
     }
 
     return () =>
-      h('li', { style: slideStyle, class: 'carousel__slide' }, slots.default?.());
+      h('li', { style: slideStyle.value, class: 'carousel__slide' }, slots.default?.());
   },
 });

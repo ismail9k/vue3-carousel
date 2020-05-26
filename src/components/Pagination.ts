@@ -5,7 +5,7 @@ import { SetupContext, CarouselNav, VNode } from '../types';
 export default defineComponent({
   name: 'Pagination',
   setup(_, { emit }: SetupContext) {
-    const slidesCount = inject('slidesCount', ref(0));
+    const slidesCount = inject('slidesCount', ref(1));
     const currentSlide = inject('currentSlide', ref(1));
     const nav: CarouselNav = inject('nav', {});
 
@@ -14,20 +14,22 @@ export default defineComponent({
       emit('slide', slideNumber);
     }
 
-    const children: Array<VNode> = [];
-    for (let slide = 0; slide < slidesCount.value; slide++) {
-      const button = h('button', {
-        class: {
-          'carousel__pagination-button': true,
-          'carousel__pagination-button--active': currentSlide.value === slide,
-        },
-        on: {
-          click: () => handleButtonClick(slide),
-        },
-      });
-      const item = h('li', { class: 'carousel__pagination-item', key: slide }, button);
-      children.push(item);
+    function getChildren() {
+      const children: Array<VNode> = [];
+      for (let slide = 0; slide < slidesCount.value; slide++) {
+        const button = h('button', {
+          class: {
+            'carousel__pagination-button': true,
+            'carousel__pagination-button--active': currentSlide.value === slide,
+          },
+          onClick: () => handleButtonClick(slide),
+        });
+        const item = h('li', { class: 'carousel__pagination-item', key: slide }, button);
+        children.push(item);
+      }
+      return children;
     }
-    return () => h('ol', { class: 'carousel__pagination' }, children);
+
+    return () => h('ol', { class: 'carousel__pagination' }, getChildren());
   },
 });

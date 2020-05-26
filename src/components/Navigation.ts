@@ -6,9 +6,6 @@ import { SetupContext, CarouselNav } from '../types';
 
 export default defineComponent({
   name: 'Navigation',
-  components: {
-    Icon,
-  },
   setup(_, { emit }: SetupContext) {
     const nav: CarouselNav = inject('nav', {});
 
@@ -23,13 +20,13 @@ export default defineComponent({
 
     const prevButton = h(
       'button',
-      { class: 'carousel__prev', on: { click: handlePrevClick } },
-      h(Icon, { props: { name: 'arrowLeft' } })
+      { class: 'carousel__prev', onClick: handlePrevClick },
+      h(Icon, { name: 'arrowLeft' })
     );
     const nextButton = h(
       'button',
-      { class: 'carousel__next', on: { click: handleNextClick } },
-      h(Icon, { props: { name: 'arrowRight' } })
+      { class: 'carousel__next', onClick: handleNextClick },
+      h(Icon, { name: 'arrowRight' })
     );
     return () => h('div', [prevButton, nextButton]);
   },

@@ -95,9 +95,13 @@ export default defineComponent({
     provide('slidesCount', slidesCount);
     provide('currentSlide', currentSlide);
 
+    const { default: slotDefault, slides: slotSlides, addons: slotAddons } = slots;
+    const slidesEl = slotSlides?.() || slotDefault?.() || [];
+    const addonsEl = slotAddons?.() || [];
+
     watchEffect((): void => {
-      if (slots.slides) {
-        slides.value = slots.slides()?.[0]?.children || [];
+      if (slotSlides) {
+        slides.value = slidesEl[0]?.children || [];
       }
 
       // Handel when slides added/removed
@@ -274,57 +278,53 @@ export default defineComponent({
     /**
      * Track style
      */
-    const trackStyle = computed(
-      (): ElementStyleObject => {
-        let slidesToScroll = slidesBuffer.value.indexOf(currentSlide.value);
-
+    const slidesToScroll = computed(() => {
+      let output = slidesBuffer.value.indexOf(currentSlide.value);
         if (config.mode === 'center') {
-          slidesToScroll -= (config.itemsToShow - 1) / 2;
+        output -= (config.itemsToShow - 1) / 2;
         }
         if (config.mode === 'end') {
-          slidesToScroll -= config.itemsToShow - 1;
+        output -= config.itemsToShow - 1;
         }
 
         if (!config.wrapAround) {
           const max = slidesCount.value - config.itemsToShow;
           const min = 0;
-          slidesToScroll = Math.max(Math.min(slidesToScroll, max), min);
+        output = Math.max(Math.min(output, max), min);
         }
+      return output;
+    });
 
-        const xScroll = slidesToScroll * slideWidth.value - dragged.x;
+    const trackStyle = computed(() => {
+      const xScroll = slidesToScroll.value * slideWidth.value - dragged.x;
         return {
           transform: `translateX(-${xScroll}px)`,
           transition: `${isSliding.value ? config.transition : 0}ms`,
         };
-      }
-    );
+    });
 
-    const { default: slotDefault, slides: slotSlides, addons: slotAddons } = slots;
-    const slidesEl = slotSlides?.() || slotDefault?.() || [];
-    const addonsEl = slotAddons?.() || [];
+    return () => {
     const trackEl = h(
       'ol',
       {
         class: 'carousel__track',
-        style: trackStyle,
-        on: { mousedown: handleDragStart, touchstrat: handleDragStart },
+          style: trackStyle.value,
+          onMmousedown: handleDragStart,
+          onTouchstrat: handleDragStart,
       },
       slidesEl
     );
     const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl);
 
-    return () =>
-      h(
+      return h(
         'section',
         {
-          inheritAttrs: false,
-          ref: 'root',
+          ref: root,
           class: 'carousel',
-          attrs: {
             'aria-label': 'Gallery',
           },
-        },
         [viewPortEl, addonsEl]
       );
+    };
   },
 });
