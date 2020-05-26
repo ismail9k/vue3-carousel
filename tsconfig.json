@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "moduleResolution": "node",
     "strict": true,
     "importHelpers": true,
     "esModuleInterop": true,
