@@ -16,8 +16,8 @@ export default defineComponent({
     const config: CarouselConfig = inject('config', reactive({}));
     const slidesBuffer: Ref<Array<number>> = inject('slidesBuffer', ref([]));
 
-    const slideOrder: Ref<number> = ref(slidesCounter.value);
-    const wrapOrder: Ref<number> = ref(slideOrder.value);
+    const slideOrder: number = slidesCounter.value;
+    const wrapOrder: Ref<number> = ref(slideOrder);
 
     if (config.wrapAround) {
       updateOrder();
@@ -36,7 +36,7 @@ export default defineComponent({
     );
 
     function updateOrder(): void {
-      wrapOrder.value = slidesBuffer.value.indexOf(slideOrder.value);
+      wrapOrder.value = slidesBuffer.value.indexOf(slideOrder);
     }
 
     return () =>

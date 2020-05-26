@@ -109,7 +109,9 @@ export default defineComponent({
       if (needToUpdate) {
         updateSlidesData();
         updateSlidesBuffer();
-        slidesCounter.value = slides.value.length - 1;
+        if (slidesCounter.read) {
+          slidesCounter.value = slides.value.length - 1;
+        }
       }
     });
 
@@ -280,49 +282,51 @@ export default defineComponent({
      */
     const slidesToScroll = computed(() => {
       let output = slidesBuffer.value.indexOf(currentSlide.value);
-        if (config.mode === 'center') {
+      if (config.mode === 'center') {
         output -= (config.itemsToShow - 1) / 2;
-        }
-        if (config.mode === 'end') {
+      }
+      if (config.mode === 'end') {
         output -= config.itemsToShow - 1;
-        }
+      }
 
-        if (!config.wrapAround) {
-          const max = slidesCount.value - config.itemsToShow;
-          const min = 0;
+      if (!config.wrapAround) {
+        const max = slidesCount.value - config.itemsToShow;
+        const min = 0;
         output = Math.max(Math.min(output, max), min);
-        }
+      }
       return output;
     });
 
-    const trackStyle = computed(() => {
-      const xScroll = slidesToScroll.value * slideWidth.value - dragged.x;
+    const trackStyle = computed(
+      (): ElementStyleObject => {
+        const xScroll = slidesToScroll.value * slideWidth.value - dragged.x;
         return {
           transform: `translateX(-${xScroll}px)`,
           transition: `${isSliding.value ? config.transition : 0}ms`,
         };
-    });
+      }
+    );
 
     return () => {
-    const trackEl = h(
-      'ol',
-      {
-        class: 'carousel__track',
+      const trackEl = h(
+        'ol',
+        {
+          class: 'carousel__track',
           style: trackStyle.value,
           onMmousedown: handleDragStart,
           onTouchstrat: handleDragStart,
-      },
-      slidesEl
-    );
-    const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl);
+        },
+        slidesEl
+      );
+      const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl);
 
       return h(
         'section',
         {
           ref: root,
           class: 'carousel',
-            'aria-label': 'Gallery',
-          },
+          'aria-label': 'Gallery',
+        },
         [viewPortEl, addonsEl]
       );
     };
