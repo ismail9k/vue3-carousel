@@ -24,6 +24,10 @@ export default defineComponent({
       watchEffect(updateOrder);
     }
 
+    function updateOrder(): void {
+      wrapOrder.value = slidesBuffer.value.indexOf(slideOrder);
+    }
+
     const slideStyle = computed(
       (): ElementStyleObject => {
         const items = config.itemsToShow;
@@ -34,10 +38,6 @@ export default defineComponent({
         };
       }
     );
-
-    function updateOrder(): void {
-      wrapOrder.value = slidesBuffer.value.indexOf(slideOrder);
-    }
 
     return () =>
       h('li', { style: slideStyle.value, class: 'carousel__slide' }, slots.default?.());

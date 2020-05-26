@@ -140,7 +140,7 @@ export default defineComponent({
       debounce(() => {
         if (breakpoints.value) updateConfig();
         updateSlideWidth();
-      }, 500);
+      }, 300)();
 
     /**
      * Setup functions
