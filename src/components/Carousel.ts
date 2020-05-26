@@ -96,22 +96,20 @@ export default defineComponent({
     provide('currentSlide', currentSlide);
 
     const { default: slotDefault, slides: slotSlides, addons: slotAddons } = slots;
-    const slidesEl = slotSlides?.() || slotDefault?.() || [];
-    const addonsEl = slotAddons?.() || [];
+    const slidesElements = slotSlides?.() || slotDefault?.() || [];
+    const addonsElements = slotAddons?.() || [];
 
     watchEffect((): void => {
-      if (slotSlides) {
-        slides.value = slidesEl[0]?.children || [];
-      }
+      slides.value = slidesElements[0]?.children || [];
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
       if (needToUpdate) {
         updateSlidesData();
         updateSlidesBuffer();
-        if (slidesCounter.read) {
-          slidesCounter.value = slides.value.length - 1;
-        }
+      }
+      if (slidesCounter.read) {
+        slidesCounter.value = slides.value.length - 1;
       }
     });
 
@@ -319,7 +317,7 @@ export default defineComponent({
           onMousedown: handleDragStart,
           onTouchstart: handleDragStart,
         },
-        slidesEl
+        slidesElements
       );
       const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl);
 
@@ -330,7 +328,7 @@ export default defineComponent({
           class: 'carousel',
           'aria-label': 'Gallery',
         },
-        [viewPortEl, addonsEl]
+        [viewPortEl, addonsElements]
       );
     };
   },
