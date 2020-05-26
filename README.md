@@ -2,6 +2,17 @@
 
 Modern lightweight Vue 3 carousel component
 
+## TODO
+
+- [x] Responsive breakpoints
+- [x] Mouse/touch dragging
+- [x] Infinity scroll (wrapping around)
+- [ ] Auto play
+- [ ] RTL
+- [ ] Vertical scroll
+- [ ] Sync multiple carousel
+- [ ] Enrich a11y
+
 ## Getting started
 
 ### Installation
@@ -32,6 +43,7 @@ yarn add vue3-carousel
 </template>
 
 <script>
+// If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
 import 'vue3-carousel/dist/carousel.css';
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 
