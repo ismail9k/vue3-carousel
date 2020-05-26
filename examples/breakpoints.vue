@@ -1,5 +1,5 @@
 <template>
-  <carousel :items-to-show="1.5" :wrap-around="true">
+  <carousel :settings="settings" :breakpoints="breakpoints">
     <slide v-for="slide in 10" :key="slide">{{ slide }}</slide>
 
     <template #addons>
@@ -21,6 +21,29 @@ export default {
     Pagination,
     Navigation,
   },
+  data: () => ({
+    // carousel settings
+    settings: {
+      itemsToShow: 1.5,
+      wrapAround: true,
+      mode: 'center',
+    },
+    // breakpoints are mobile first
+    // any settings not specified will fallback to the carousel settings
+    breakpoints: {
+      // 700px and up
+      700: {
+        itemsToShow: 3.5,
+        mode: 'start',
+      },
+      // 1024 and up
+      1024: {
+        itemsToShow: 5,
+        wrapAround: false,
+        mode: 'start',
+      },
+    },
+  }),
 };
 </script>
 
