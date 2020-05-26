@@ -136,11 +136,10 @@ export default defineComponent({
       Object.keys(newConfig).forEach((key): any => (config[key] = newConfig[key]));
     }
 
-    const handleWindowResize = () =>
-      debounce(() => {
-        if (breakpoints.value) updateConfig();
-        updateSlideWidth();
-      }, 300)();
+    const handleWindowResize = debounce(() => {
+      if (breakpoints.value) updateConfig();
+      updateSlideWidth();
+    }, 300);
 
     /**
      * Setup functions
@@ -171,6 +170,8 @@ export default defineComponent({
     onMounted((): void => {
       updateSlideWidth();
       if (breakpoints.value) updateConfig();
+
+      // @ts-ignore
       window.addEventListener('resize', handleWindowResize, { passive: true });
     });
 
@@ -183,20 +184,19 @@ export default defineComponent({
     const dragged = reactive({ x: 0, y: 0 });
     const isDragging = ref(false);
 
-    const handleDrag = () =>
-      function (event: MouseEvent & TouchEvent): void {
-        endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
-        endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
-        const deltaX = endPosition.x - startPosition.x;
-        const deltaY = endPosition.y - startPosition.y;
+    const handleDrag = function (event: MouseEvent & TouchEvent): void {
+      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
+      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
+      const deltaX = endPosition.x - startPosition.x;
+      const deltaY = endPosition.y - startPosition.y;
 
-        dragged.y = deltaY;
-        dragged.x = deltaX;
+      dragged.y = deltaY;
+      dragged.x = deltaX;
 
-        if (!isTouch) {
-          event.preventDefault();
-        }
-      };
+      if (!isTouch) {
+        event.preventDefault();
+      }
+    };
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
       isTouch = event.type === 'touchstart';
@@ -208,6 +208,7 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
 
+      // @ts-ignore
       document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
@@ -220,6 +221,8 @@ export default defineComponent({
       slideTo(currentSlide.value - draggedSlides);
       dragged.x = 0;
       dragged.y = 0;
+
+      // @ts-ignore
       document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
@@ -313,8 +316,8 @@ export default defineComponent({
         {
           class: 'carousel__track',
           style: trackStyle.value,
-          onMmousedown: handleDragStart,
-          onTouchstrat: handleDragStart,
+          onMousedown: handleDragStart,
+          onTouchstart: handleDragStart,
         },
         slidesEl
       );
