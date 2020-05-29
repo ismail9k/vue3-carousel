@@ -40,8 +40,8 @@ export default defineComponent({
       default: false,
       type: Boolean,
     },
-    // control center mode
-    mode: {
+    // control snap position alignment
+    snapAlign: {
       default: 'center',
       validator(value: string) {
         // The value must match one of these strings
@@ -283,10 +283,10 @@ export default defineComponent({
      */
     const slidesToScroll = computed(() => {
       let output = slidesBuffer.value.indexOf(currentSlide.value);
-      if (config.mode === 'center') {
+      if (config.snapAlign === 'center') {
         output -= (config.itemsToShow - 1) / 2;
       }
-      if (config.mode === 'end') {
+      if (config.snapAlign === 'end') {
         output -= config.itemsToShow - 1;
       }
 

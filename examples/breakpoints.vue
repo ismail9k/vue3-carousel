@@ -26,7 +26,7 @@ export default {
     settings: {
       itemsToShow: 1.5,
       wrapAround: true,
-      mode: 'center',
+      snapAlign: 'center',
     },
     // breakpoints are mobile first
     // any settings not specified will fallback to the carousel settings
@@ -34,13 +34,13 @@ export default {
       // 700px and up
       700: {
         itemsToShow: 3.5,
-        mode: 'start',
+        snapAlign: 'start',
       },
       // 1024 and up
       1024: {
         itemsToShow: 5,
         wrapAround: false,
-        mode: 'start',
+        snapAlign: 'start',
       },
     },
   }),
