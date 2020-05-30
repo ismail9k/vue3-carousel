@@ -9,7 +9,6 @@ import {
   h,
 } from 'vue';
 
-import eventsBus from '../partials/EventsBus';
 import slidesCounter from '../partials/counter';
 import { debounce } from '../partials/utils';
 
@@ -156,11 +155,9 @@ export default defineComponent({
 
     function updateSlidesBuffer(): void {
       const slidesArray = [...Array(slidesCount.value).keys()];
-      if (config.wrapAround) {
-        const shifts = currentSlide.value + middleSlide.value + 1;
-        for (let i = 0; i < shifts; i++) {
-          slidesArray.push(Number(slidesArray.shift()));
-        }
+      const shifts = currentSlide.value + middleSlide.value + 1;
+      for (let i = 0; i < shifts; i++) {
+        slidesArray.push(Number(slidesArray.shift()));
       }
       slidesBuffer.value = slidesArray;
     }
@@ -248,8 +245,9 @@ export default defineComponent({
       currentSlide.value = slideIndex;
 
       setTimeout((): void => {
-        updateSlidesBuffer();
-        eventsBus.emit('sliding-end');
+        if (config.wrapAround) {
+          updateSlidesBuffer();
+        }
         isSliding.value = false;
       }, config.transition);
     }
@@ -260,6 +258,7 @@ export default defineComponent({
         slideTo(currentSlide.value + 1);
         return;
       }
+      // if wrap around to the first slide
       if (config.wrapAround) {
         slideTo(0);
       }
@@ -271,6 +270,7 @@ export default defineComponent({
         slideTo(currentSlide.value - 1);
         return;
       }
+      // if wrap around to the last slide
       if (config.wrapAround) {
         slideTo(slidesCount.value - 1);
       }
@@ -281,7 +281,7 @@ export default defineComponent({
     /**
      * Track style
      */
-    const slidesToScroll = computed(() => {
+    const slidesToScroll = computed((): number => {
       let output = slidesBuffer.value.indexOf(currentSlide.value);
       if (config.snapAlign === 'center') {
         output -= (config.itemsToShow - 1) / 2;
@@ -300,9 +300,9 @@ export default defineComponent({
 
     const trackStyle = computed(
       (): ElementStyleObject => {
-        const xScroll = slidesToScroll.value * slideWidth.value - dragged.x;
+        const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
         return {
-          transform: `translateX(-${xScroll}px)`,
+          transform: `translateX(${xScroll}px)`,
           transition: `${isSliding.value ? config.transition : 0}ms`,
         };
       }
