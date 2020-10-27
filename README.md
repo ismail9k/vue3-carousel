@@ -30,8 +30,8 @@ yarn add vue3-carousel
 
 ```vue
 <template>
-  <carousel>
-    <slide v-for="slide in 10" :key="slide" :items-to-show="1.5">
+  <carousel :items-to-show="1.5">
+    <slide v-for="slide in 10" :key="slide">
       {{ slide }}
     </slide>
 
