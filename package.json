@@ -3,7 +3,11 @@
   "version": "0.1.4",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -cw"
+    "dev": "rollup -cw",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs",
+    "docs:deploy": "bash scripts/docs-deploy.sh"
   },
   "main": "dist/carousel.js",
   "module": "dist/carousel.es.js",
@@ -15,7 +19,8 @@
     "rollup-plugin-css-only": "^2.0.0",
     "rollup-plugin-typescript2": "^0.27.1",
     "typescript": "^3.9.2",
-    "vue": "^3.0.0-beta.14"
+    "vitepress": "^0.8.1",
+    "vue": "^3.0.2"
   },
   "peerDependencies": {
     "vue": "^3.0.0-beta.13"
