@@ -10,7 +10,7 @@ import {
 } from 'vue';
 
 import slidesCounter from '../partials/counter';
-import { debounce } from '../partials/utils';
+import { debounce, throttle } from '../partials/utils';
 
 import {
   Data,
@@ -136,7 +136,7 @@ export default defineComponent({
     const handleWindowResize = debounce(() => {
       if (breakpoints.value) updateConfig();
       updateSlideWidth();
-    }, 300);
+    }, 16);
 
     /**
      * Setup functions
@@ -179,7 +179,7 @@ export default defineComponent({
     const dragged = reactive({ x: 0, y: 0 });
     const isDragging = ref(false);
 
-    const handleDrag = function (event: MouseEvent & TouchEvent): void {
+    const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
       endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
       const deltaX = endPosition.x - startPosition.x;
@@ -191,7 +191,7 @@ export default defineComponent({
       if (!isTouch) {
         event.preventDefault();
       }
-    };
+    }, 16);
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
       isTouch = event.type === 'touchstart';
