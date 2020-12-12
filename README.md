@@ -2,6 +2,10 @@
 
 Modern lightweight Vue 3 carousel component
 
+## Documentation
+
+https://ismail9k.github.io/vue3-carousel/
+
 ## TODO
 
 - [x] Responsive breakpoints
