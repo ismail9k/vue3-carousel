@@ -155,9 +155,11 @@ export default defineComponent({
 
     function updateSlidesBuffer(): void {
       const slidesArray = [...Array(slidesCount.value).keys()];
-      const shifts = currentSlide.value + middleSlide.value + 1;
-      for (let i = 0; i < shifts; i++) {
-        slidesArray.push(Number(slidesArray.shift()));
+      if (config.wrapAround) {
+        const shifts = currentSlide.value + middleSlide.value + 1;
+        for (let i = 0; i < shifts; i++) {
+          slidesArray.push(Number(slidesArray.shift()));
+        }
       }
       slidesBuffer.value = slidesArray;
     }
