@@ -14,8 +14,9 @@ export default {
   output: [
     {
       file: pkg.main,
-      format: 'cjs',
-      banner,
+      format: 'umd',
+      name: 'VueCarousel',
+      banner
     },
     {
       file: pkg.module,
