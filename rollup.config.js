@@ -16,7 +16,10 @@ export default {
       file: pkg.main,
       format: 'umd',
       name: 'VueCarousel',
-      banner
+      banner,
+      globals: {
+        vue: 'Vue',
+      },
     },
     {
       file: pkg.module,
