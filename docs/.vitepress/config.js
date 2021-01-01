@@ -3,6 +3,7 @@ module.exports = {
   title: 'Vue3-carousel',
   description: 'Vue.js 3 carousel component',
 
+  base: '/vue3-carousel/',
 
   themeConfig: {
     repo: 'ismail9k/vue3-carousel',
