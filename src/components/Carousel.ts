@@ -215,7 +215,8 @@ export default defineComponent({
     function handleDragEnd(): void {
       isDragging.value = false;
 
-      const draggedSlides = Math.round(dragged.x / slideWidth.value);
+      const tolerance = Math.sign(dragged.x) * 0.4;
+      const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance);
 
       slideTo(currentSlide.value - draggedSlides);
       dragged.x = 0;
