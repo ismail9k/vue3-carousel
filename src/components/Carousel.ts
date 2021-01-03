@@ -9,7 +9,7 @@ import {
   h,
 } from 'vue';
 
-import slidesCounter from '../partials/counter';
+import counterFactory, { Counter } from '../partials/counter';
 import { debounce, throttle } from '../partials/utils';
 
 import {
@@ -71,6 +71,7 @@ export default defineComponent({
     const slidesBuffer: Ref<Array<number>> = ref([]);
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
+    const slidesCounter: Counter = counterFactory();
 
     // generate carousel configs
     const defaultConfig: CarouselConfig = {
@@ -93,6 +94,7 @@ export default defineComponent({
     provide('slidesBuffer', slidesBuffer);
     provide('slidesCount', slidesCount);
     provide('currentSlide', currentSlide);
+    provide('slidesCounter', slidesCounter);
 
     const { default: slotDefault, slides: slotSlides, addons: slotAddons } = slots;
     const slidesElements = slotSlides?.() || slotDefault?.() || [];
