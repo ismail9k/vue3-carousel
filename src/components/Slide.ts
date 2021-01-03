@@ -1,6 +1,6 @@
 import { defineComponent, inject, ref, computed, watchEffect, h, reactive } from 'vue';
 
-import slidesCounter from '../partials/counter';
+import { Counter } from '../partials/counter';
 
 import { SetupContext, CarouselConfig, Ref, ElementStyleObject } from '../types';
 
@@ -15,6 +15,7 @@ export default defineComponent({
   setup(_, { slots }: SetupContext) {
     const config: CarouselConfig = inject('config', reactive({}));
     const slidesBuffer: Ref<Array<number>> = inject('slidesBuffer', ref([]));
+    const slidesCounter = inject('slidesCounter') as Counter;
 
     const slideOrder: number = slidesCounter.value;
     const wrapOrder: Ref<number> = ref(slideOrder);
