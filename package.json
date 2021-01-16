@@ -19,7 +19,7 @@
     "rollup-plugin-css-only": "^2.0.0",
     "rollup-plugin-typescript2": "^0.27.1",
     "typescript": "^3.9.2",
-    "vitepress": "^0.8.1",
+    "vitepress": "^0.11.3",
     "vue": "^3.0.0"
   },
   "peerDependencies": {
