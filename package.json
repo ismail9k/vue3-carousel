@@ -12,6 +12,7 @@
   "main": "dist/carousel.js",
   "module": "dist/carousel.es.js",
   "style": "dist/carousel.css",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "eslint": "^7.0.0",
     "prettier": "^2.0.5",
