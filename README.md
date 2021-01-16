@@ -2,6 +2,11 @@
 
 Modern lightweight Vue 3 carousel component
 
+<p>
+  <a href="https://npm-stat.com/charts.html?package=vue3-carousel"><img src="https://img.shields.io/npm/dm/vue3-carousel.svg" alt="npm"/></a>
+  <a href="https://www.npmjs.com/package/vue3-carousel"><img src="https://img.shields.io/npm/v/vue3-carousel.svg" alt="npm"/></a>
+</p>
+
 ## Documentation
 
 https://ismail9k.github.io/vue3-carousel/
