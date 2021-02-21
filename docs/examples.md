@@ -1,6 +1,6 @@
 # Examples
 
-## Basic Example
+## [Basic Example](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleBasic.vue)
 
 <ExampleBasic></ExampleBasic>
 
@@ -59,7 +59,7 @@ export default defineComponent({
 }
 </style>
 ```
-## Wrap Around
+## [Wrap Around](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleWrapAround.vue)
 
 <ExampleWrapAround></ExampleWrapAround>
 
@@ -93,7 +93,7 @@ export default defineComponent({
 </script>
 ```
 
-## Breakpoints
+## [Breakpoints](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleBreakpoints.vue)
 
 <ExampleBreakpoints></ExampleBreakpoints>
 
