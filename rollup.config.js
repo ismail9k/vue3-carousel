@@ -32,7 +32,7 @@ export default {
     ...Object.keys(pkg.peerDependencies || {}),
   ],
   plugins: [
-    css({ output: pkg.style }),
+    css({ output: 'carousel.css' }),
     typescript({
       typescript: require('typescript'),
     }),
