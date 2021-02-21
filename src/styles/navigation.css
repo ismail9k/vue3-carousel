@@ -1,13 +1,13 @@
 .carousel__prev,
 .carousel__next {
-  background-color: #642afb;
-  border-radius: 20px;
-  width: 30px;
-  height: 30px;
+  background-color: var(--carousel-color-primary);
+  border-radius: var(--carousel-nav-width);
+  width: var(--carousel-nav-width);
+  height: var(--carousel-nav-width);
   text-align: center;
-  font-size: 20px;
+  font-size: calc(var(--carousel-nav-width) * 2 / 3);
   padding: 0;
-  color: #ffffff;
+  color: var(--carousel-color-white);
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,3 +1,4 @@
+import './variables.css';
 import './carousel.css';
 import './icon.css';
 import './navigation.css';

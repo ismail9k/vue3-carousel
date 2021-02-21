@@ -9,9 +9,9 @@
   height: 5px;
   border: 0;
   cursor: pointer;
-  background-color: #8e98f3;
+  background-color: var(--carousel-color-secondary);
 }
 
 .carousel__pagination-button--active {
-  background-color: #642afb;
+  background-color: var(--carousel-color-primary);
 }
