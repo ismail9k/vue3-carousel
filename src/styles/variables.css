@@ -1,0 +1,9 @@
+:root {
+  /* Colors */
+  --carousel-color-primary: #642afb;
+  --carousel-color-secondary: #8e98f3;
+  --carousel-color-white: #ffffff;
+  
+  /* Navigation */
+  --carousel-nav-width: 30px;
+}
