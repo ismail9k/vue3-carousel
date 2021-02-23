@@ -64,6 +64,11 @@ export default defineComponent({
       default: null,
       type: Object,
     },
+    // disable touch 
+    disabledTouch: {
+      default: false,
+      type: Boolean
+    },
   },
   setup(props: Data, { slots }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
@@ -198,6 +203,7 @@ export default defineComponent({
     }, 16);
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
+      if(this.disabledTouch) return
       isTouch = event.type === 'touchstart';
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return;

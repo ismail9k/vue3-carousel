@@ -70,12 +70,13 @@ export default {
 
 ### Available Props
 
-| Prop           | Default  | Description                                                                  |
-| -------------- | -------- | ---------------------------------------------------------------------------- |
-| `itemsToShow`  | 1        | count of items to showed per view (can be a fraction).                       |
-| `initialSlide` | 0        | index number of the initial slide.                                           |
-| `wrapAround`   | false    | enable infinite scrolling mode.                                              |
-| `snapAlign`    | 'center' | controls the carousel position alignment, can be 'start', 'end', or 'center' |
-| `transition`   | 300      | sliding transition time in ms.                                               |
-| `settings`     | { }      | an object to pass all settings.                                              |
-| `breakpoints`  | null     | an object to pass all the breakpoints settings.                              |
+| Prop            | Default  | Description                                                                  |
+| --------------  | -------- | ---------------------------------------------------------------------------- |
+| `itemsToShow`   | 1        | count of items to showed per view (can be a fraction).                       |
+| `initialSlide`  | 0        | index number of the initial slide.                                           |
+| `wrapAround`    | false    | enable infinite scrolling mode.                                              |
+| `snapAlign`     | 'center' | controls the carousel position alignment, can be 'start', 'end', or 'center' |
+| `transition`    | 300      | sliding transition time in ms.                                               |
+| `settings`      | { }      | an object to pass all settings.                                              |
+| `breakpoints`   | null     | an object to pass all the breakpoints settings.                              |
+| `disabledTouch` | null     | disable touch event                                                          |
