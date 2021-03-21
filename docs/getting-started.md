@@ -55,3 +55,53 @@ export default {
 | `transition`   | 300      | sliding transition time in ms.                                               |
 | `settings`     | { }      | an object to pass all settings.                                              |
 | `breakpoints`  | null     | an object to pass all the breakpoints settings.                              |
+
+## Slots
+
+### Slides/Default
+Used to render the carousel items. You can use either the default slot or wrap element in `slides` slot.
+
+```vue
+<Carousel>
+  <template #slides>
+    <Slide v-for="slide in 10" :key="slide">
+      ...
+    </Slide>
+  </template>
+</Carousel>
+```
+### Addons
+Used to add display carousel addons components.
+
+```vue
+<Carousel>
+  ...
+  <template #addons>
+    <Navigation />
+    <Pagination />
+  </template>
+</Carousel>
+```
+
+### Slots Attributes
+
+| Prop           | Description                          |
+| -------------- | ------------------------------------ |
+| `slideWidth`   | the width of a single slide element. |
+| `currentSlide` | index number of the current slide.   |
+| `slidesCount`  | the count of all slides              |
+
+
+#### Example
+
+```vue {6,7,8}
+<Carousel>
+  <Slide v-for="slide in slides" :key="slide">
+    <div class="carousel__item">{{ slide }}</div>
+  </Slide>
+
+  <template #addons="{ slidesCount }">
+    <Navigation v-if="slidesCount > 1" />
+  </template>
+</Carousel>
+```
