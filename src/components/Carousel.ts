@@ -218,7 +218,11 @@ export default defineComponent({
       const tolerance = Math.sign(dragged.x) * 0.4;
       const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance);
 
-      slideTo(currentSlide.value - draggedSlides);
+      let newSlide = currentSlide.value - draggedSlides;
+      if (!config.wrapAround)
+        newSlide = Math.max(Math.min(newSlide, slidesCount.value - 1), 0);
+      slideTo(newSlide);
+
       dragged.x = 0;
       dragged.y = 0;
 
