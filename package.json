@@ -3,7 +3,7 @@
   "version": "0.1.12",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -cw",
+    "dev": "rollup -cw & npm run docs:dev",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
