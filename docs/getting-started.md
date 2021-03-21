@@ -49,7 +49,7 @@ export default {
 | Prop           | Default  | Description                                                                  |
 | -------------- | -------- | ---------------------------------------------------------------------------- |
 | `itemsToShow`  | 1        | count of items to showed per view (can be a fraction).                       |
-| `initialSlide` | 0        | index number of the initial slide.                                           |
+| `currentSlide` | 0        | index number of the initial slide.                                           |
 | `wrapAround`   | false    | enable infinite scrolling mode.                                              |
 | `snapAlign`    | 'center' | controls the carousel position alignment, can be 'start', 'end', or 'center' |
 | `transition`   | 300      | sliding transition time in ms.                                               |
