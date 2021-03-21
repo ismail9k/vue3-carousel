@@ -96,24 +96,6 @@ export default defineComponent({
     provide('currentSlide', currentSlide);
     provide('slidesCounter', slidesCounter);
 
-    const { default: slotDefault, slides: slotSlides, addons: slotAddons } = slots;
-    const slidesElements = slotSlides?.() || slotDefault?.() || [];
-    const addonsElements = slotAddons?.() || [];
-
-    watchEffect((): void => {
-      slides.value = slidesElements[0]?.children || [];
-
-      // Handel when slides added/removed
-      const needToUpdate = slidesCount.value !== slides.value.length;
-      if (needToUpdate) {
-        updateSlidesData();
-        updateSlidesBuffer();
-      }
-      if (slidesCounter.read) {
-        slidesCounter.value = slides.value.length - 1;
-      }
-    });
-
     /**
      * Breakpoints
      */
@@ -317,7 +299,28 @@ export default defineComponent({
       }
     );
 
+    const slotsProps = reactive({ slideWidth, slidesCount, currentSlide });
+    const slotSlides = slots.default || slots.slides;
+    const slotAddons = slots.addons;
+
+    watchEffect((): void => {
+      const slidesElements = slotSlides?.(slotsProps) || [];
+      slides.value = slidesElements[0]?.children || [];
+
+      // Handel when slides added/removed
+      const needToUpdate = slidesCount.value !== slides.value.length;
+      if (needToUpdate) {
+        updateSlidesData();
+        updateSlidesBuffer();
+      }
+      if (slidesCounter.read) {
+        slidesCounter.value = slides.value.length - 1;
+      }
+    });
+
     return () => {
+      const slidesElements = slotSlides?.(slotsProps) || [];
+      const addonsElements = slotAddons?.(slotsProps) || [];
       const trackEl = h(
         'ol',
         {
