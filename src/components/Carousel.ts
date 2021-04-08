@@ -318,6 +318,8 @@ export default defineComponent({
       }
     });
 
+    updateSlidesBuffer();
+
     return () => {
       const slidesElements = slotSlides?.(slotsProps) || [];
       const addonsElements = slotAddons?.(slotsProps) || [];
