@@ -167,6 +167,8 @@ export default defineComponent({
     const isDragging = ref(false);
 
     const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
+      if (!isTouch) event.preventDefault();
+
       endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
       const deltaX = endPosition.x - startPosition.x;
@@ -174,13 +176,11 @@ export default defineComponent({
 
       dragged.y = deltaY;
       dragged.x = deltaX;
-
-      if (!isTouch) {
-        event.preventDefault();
-      }
     }, 16);
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
+      event.preventDefault();
+
       isTouch = event.type === 'touchstart';
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return;
