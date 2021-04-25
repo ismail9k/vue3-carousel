@@ -135,6 +135,7 @@ export default defineComponent({
     function updateSlidesData(): void {
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
+      currentSlide.value = Math.min(slidesCount.value - 1, currentSlide.value);
     }
 
     function updateSlidesBuffer(): void {
