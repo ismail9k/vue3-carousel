@@ -1,6 +1,6 @@
 {
   "name": "vue3-carousel",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw & npm run docs:dev",
