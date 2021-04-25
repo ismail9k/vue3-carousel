@@ -149,8 +149,8 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      updateSlideWidth();
       if (breakpoints.value) updateConfig();
+      updateSlideWidth();
 
       // @ts-ignore
       window.addEventListener('resize', handleWindowResize, { passive: true });
