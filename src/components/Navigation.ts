@@ -15,7 +15,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
   );
   const nextButton = h(
     'button',
-    { class: 'carousel__next', onClick: nav.next },
+    { class: ['carousel__next', attrs?.class], onClick: nav.next },
     slotNext?.() || h(Icon, { name: 'arrowRight' })
   );
 
