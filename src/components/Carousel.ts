@@ -64,6 +64,11 @@ export default defineComponent({
       default: null,
       type: Object,
     },
+    // time to auto advance slides in ms
+    autoplay: {
+      default: 0,
+      type: Number,
+    },
   },
   setup(props: Data, { slots }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
@@ -123,6 +128,15 @@ export default defineComponent({
     }, 16);
 
     /**
+     * Autoplay
+     */
+    function initializeAutoplay(): void {
+      setInterval(() => {
+        next();
+      }, config.autoplay);
+    }
+
+    /**
      * Setup functions
      */
 
@@ -152,6 +166,8 @@ export default defineComponent({
     onMounted((): void => {
       if (breakpoints.value) updateConfig();
       updateSlideWidth();
+
+      if (config.autoplay > 0) initializeAutoplay();
 
       // @ts-ignore
       window.addEventListener('resize', handleWindowResize, { passive: true });
