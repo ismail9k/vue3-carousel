@@ -29,6 +29,11 @@ export default defineComponent({
       default: 1,
       type: Number,
     },
+    // count of items to be scrolled
+    itemsToScroll: {
+      default: 1,
+      type: Number,
+    },
     // control infinite scrolling mode
     wrapAround: {
       default: false,
@@ -257,35 +262,25 @@ export default defineComponent({
         emit('update:modelValue', currentSlide.value);
       }
       setTimeout((): void => {
-        if (config.wrapAround) {
-          updateSlidesBuffer();
-        }
+        if (config.wrapAround) updateSlidesBuffer();
         isSliding.value = false;
       }, config.transition);
     }
 
     function next(): void {
-      const isLastSlide = currentSlide.value >= slidesCount.value - 1;
-      if (!isLastSlide) {
-        slideTo(currentSlide.value + 1);
-        return;
+      let nextSlide = currentSlide.value + config.itemsToScroll;
+      if (!config.wrapAround) {
+        nextSlide = Math.min(nextSlide, slidesCount.value - 1);
       }
-      // if wrap around to the first slide
-      if (config.wrapAround) {
-        slideTo(0);
-      }
+      slideTo(nextSlide);
     }
 
     function prev(): void {
-      const isFirstSlide = currentSlide.value <= 0;
-      if (!isFirstSlide) {
-        slideTo(currentSlide.value - 1);
-        return;
+      let prevSlide = currentSlide.value - config.itemsToScroll;
+      if (!config.wrapAround) {
+        prevSlide = Math.max(prevSlide, 0);
       }
-      // if wrap around to the last slide
-      if (config.wrapAround) {
-        slideTo(slidesCount.value - 1);
-      }
+      slideTo(prevSlide);
     }
     const nav: CarouselNav = { slideTo, next, prev };
     provide('nav', nav);
