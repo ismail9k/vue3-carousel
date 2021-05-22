@@ -49,6 +49,7 @@ export default {
 | Prop               | Default  | Description                                                                     |
 | ------------------ | -------- | ------------------------------------------------------------------------------- |
 | `itemsToShow`      | 1        | count of items to showed per view (can be a fraction).                          |
+| `itemsToScroll`    | 1        | number of slides to be scrolled                                                 |
 | ~~`currentSlide`~~ | ~~0~~    | ~~index number of the initial slide.~~ <Badge text="Deprecated" type="danger"/> |
 | `wrapAround`       | false    | enable infinite scrolling mode.                                                 |
 | `snapAlign`        | 'center' | controls the carousel position alignment, can be 'start', 'end', or 'center'    |
