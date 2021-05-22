@@ -66,7 +66,7 @@ export default defineComponent({
     },
     // slide number number of initial slide
     modelValue: {
-      default: 0,
+      default: undefined,
       type: Number,
     },
   },
@@ -92,7 +92,7 @@ export default defineComponent({
     const config = reactive({ ...defaultConfig });
 
     // slides
-    const currentSlide = ref(config.currentSlide);
+    const currentSlide = ref(config.currentSlide ?? 0);
     const prevSlide = ref(0);
     const middleSlide = ref(0);
 
@@ -196,7 +196,7 @@ export default defineComponent({
     }, 16);
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      event.preventDefault();
+      if (!isTouch) event.preventDefault();
 
       isTouch = event.type === 'touchstart';
       if ((!isTouch && event.button !== 0) || isSliding.value) {
@@ -330,7 +330,8 @@ export default defineComponent({
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
-      const currentSlideUpdated = currentSlide.value !== props.modelValue;
+      const currentSlideUpdated =
+        props.modelValue !== undefined && currentSlide.value !== props.modelValue;
 
       if (currentSlideUpdated) {
         slideTo(Number(props.modelValue), true);
