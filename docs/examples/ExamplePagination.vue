@@ -1,11 +1,12 @@
 <template>
   <Carousel :settings="settings" :breakpoints="breakpoints">
-    <Slide v-for="slide in 10" :key="slide">
+    <Slide v-for="slide in 11" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
 
     <template #addons>
       <Pagination />
+      <Navigation />
     </template>
   </Carousel>
 </template>
@@ -40,7 +41,7 @@ export default defineComponent({
       },
       // 1024 and up
       1024: {
-        itemsToShow: 4,
+        itemsToShow: 5,
         snapAlign: 'start',
       },
     },

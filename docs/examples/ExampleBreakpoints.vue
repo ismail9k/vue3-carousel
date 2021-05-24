@@ -6,14 +6,13 @@
 
     <template #addons>
       <Navigation />
-      <Pagination />
     </template>
   </Carousel>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
-import { Carousel, Navigation, Pagination, Slide } from '../../dist/carousel.es';
+import { Carousel, Navigation, Slide } from '../../dist/carousel.es';
 
 import '../../dist/carousel.css';
 
@@ -23,7 +22,6 @@ export default defineComponent({
     Carousel,
     Slide,
     Navigation,
-    Pagination
   },
   data: () => ({
     // carousel settings

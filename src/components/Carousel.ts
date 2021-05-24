@@ -254,7 +254,7 @@ export default defineComponent({
     }
 
     function next(): void {
-      const isLastSlide = currentSlide.value >= slidesCount.value - 1;
+      const isLastSlide = currentSlide.value >= paginationCount.value;
       if (!isLastSlide) {
         slideTo(currentSlide.value + 1);
         return;
