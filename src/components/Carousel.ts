@@ -279,7 +279,7 @@ export default defineComponent({
     function next(): void {
       let nextSlide = currentSlide.value + config.itemsToScroll;
       if (!config.wrapAround) {
-        nextSlide = Math.min(nextSlide, slidesCount.value - 1);
+        nextSlide = Math.min(nextSlide, paginationCount.value - 1);
       }
       slideTo(nextSlide);
     }
