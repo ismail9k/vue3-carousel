@@ -5,7 +5,6 @@
     </Slide>
 
     <template #addons>
-      <Navigation />
       <Pagination />
     </template>
   </Carousel>
@@ -18,7 +17,7 @@ import { Carousel, Navigation, Pagination, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css';
 
 export default defineComponent({
-  name: 'Breakpoints',
+  name: 'ExamplePagination',
   components: {
     Carousel,
     Slide,
@@ -36,12 +35,12 @@ export default defineComponent({
     breakpoints: {
       // 700px and up
       700: {
-        itemsToShow: 3.5,
+        itemsToShow: 3,
         snapAlign: 'center',
       },
       // 1024 and up
       1024: {
-        itemsToShow: 5,
+        itemsToShow: 4,
         snapAlign: 'start',
       },
     },

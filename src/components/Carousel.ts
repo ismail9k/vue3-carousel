@@ -71,6 +71,7 @@ export default defineComponent({
     const slidesBuffer: Ref<Array<number>> = ref([]);
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
+    const paginationCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
 
     // generate carousel configs
@@ -95,6 +96,7 @@ export default defineComponent({
     provide('slidesCount', slidesCount);
     provide('currentSlide', currentSlide);
     provide('slidesCounter', slidesCounter);
+    provide('paginationCount', paginationCount);
 
     /**
      * Breakpoints
@@ -118,7 +120,10 @@ export default defineComponent({
     }
 
     const handleWindowResize = debounce(() => {
-      if (breakpoints.value) updateConfig();
+      if (breakpoints.value) {
+        updateConfig();
+        updateSlidesData();
+      }
       updateSlideWidth();
     }, 16);
 
@@ -133,6 +138,7 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
+      paginationCount.value = (slides.value.length - config.itemsToShow) + 1;
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
       currentSlide.value = Math.min(slidesCount.value - 1, currentSlide.value);
@@ -150,7 +156,10 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      if (breakpoints.value) updateConfig();
+      if (breakpoints.value) {
+        updateConfig();
+        updateSlidesData();
+      }
       updateSlideWidth();
 
       // @ts-ignore
