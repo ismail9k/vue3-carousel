@@ -204,17 +204,53 @@ export default defineComponent({
 </script>
 ```
 
+## [Autoplay Example](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleAutoplay.vue)
+
+<ExampleAutoplay></ExampleAutoplay>
+
+```vue
+<template>
+  <Carousel :autoplay="2000" :wrap-around="true">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+
+    <template #addons>
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+
+<script>
+import { defineComponent } from 'vue'
+import { Carousel, Pagination, Slide } from 'vue3-carousel';
+
+import 'vue3-carousel/dist/carousel.css';
+
+export default defineComponent({
+  name: 'Autoplay',
+  components: {
+    Carousel,
+    Slide,
+    Pagination,
+  },
+});
+</script>
+```
+
 <script>
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
 import ExampleBreakpoints from './examples/ExampleBreakpoints.vue'; 
-import ExamplePagination from './examples/ExamplePagination.vue'; 
+import ExamplePagination from './examples/ExamplePagination.vue';
+import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 
 export default {
   components: {
     ExampleBasic,
     ExampleWrapAround,
     ExampleBreakpoints,
+    ExampleAutoplay,
     ExamplePagination
   }
 }

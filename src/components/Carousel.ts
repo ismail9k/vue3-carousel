@@ -29,9 +29,9 @@ export default defineComponent({
       default: 1,
       type: Number,
     },
-    // slide number number of initial slide
-    currentSlide: {
-      default: 0,
+    // count of items to be scrolled
+    itemsToScroll: {
+      default: 1,
       type: Number,
     },
     // control infinite scrolling mode
@@ -64,8 +64,18 @@ export default defineComponent({
       default: null,
       type: Object,
     },
+    // time to auto advance slides in ms
+    autoplay: {
+      default: 0,
+      type: Number,
+    },
+    // slide number number of initial slide
+    modelValue: {
+      default: undefined,
+      type: Number,
+    },
   },
-  setup(props: Data, { slots }: SetupContext) {
+  setup(props: Data, { slots, emit }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
     const slides: Ref<any> = ref([]);
     const slidesBuffer: Ref<Array<number>> = ref([]);
@@ -78,6 +88,7 @@ export default defineComponent({
     const defaultConfig: CarouselConfig = {
       ...props,
       ...(props.settings as CarouselConfig),
+      currentSlide: props.modelValue,
     };
     const breakpoints: CarouselConfig = ref({ ...defaultConfig.breakpoints });
     // remove extra values
@@ -87,7 +98,7 @@ export default defineComponent({
     const config = reactive({ ...defaultConfig });
 
     // slides
-    const currentSlide = ref(config.currentSlide);
+    const currentSlide = ref(config.currentSlide ?? 0);
     const prevSlide = ref(0);
     const middleSlide = ref(0);
 
@@ -128,6 +139,15 @@ export default defineComponent({
     }, 16);
 
     /**
+     * Autoplay
+     */
+    function initializeAutoplay(): void {
+      setInterval(() => {
+        next();
+      }, config.autoplay);
+    }
+
+    /**
      * Setup functions
      */
 
@@ -162,6 +182,8 @@ export default defineComponent({
       }
       updateSlideWidth();
 
+      if (config.autoplay > 0) initializeAutoplay();
+
       // @ts-ignore
       window.addEventListener('resize', handleWindowResize, { passive: true });
     });
@@ -176,6 +198,8 @@ export default defineComponent({
     const isDragging = ref(false);
 
     const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
+      if (!isTouch) event.preventDefault();
+
       endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
       const deltaX = endPosition.x - startPosition.x;
@@ -183,13 +207,11 @@ export default defineComponent({
 
       dragged.y = deltaY;
       dragged.x = deltaX;
-
-      if (!isTouch) {
-        event.preventDefault();
-      }
     }, 16);
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
+      if (!isTouch) event.preventDefault();
+
       isTouch = event.type === 'touchstart';
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return;
@@ -227,7 +249,7 @@ export default defineComponent({
      * Navigation function
      */
     const isSliding = ref(false);
-    function slideTo(slideIndex: number): void {
+    function slideTo(slideIndex: number, mute = false): void {
       if (currentSlide.value === slideIndex || isSliding.value) {
         return;
       }
@@ -245,36 +267,29 @@ export default defineComponent({
       prevSlide.value = currentSlide.value;
       currentSlide.value = slideIndex;
 
+      if (!mute) {
+        emit('update:modelValue', currentSlide.value);
+      }
       setTimeout((): void => {
-        if (config.wrapAround) {
-          updateSlidesBuffer();
-        }
+        if (config.wrapAround) updateSlidesBuffer();
         isSliding.value = false;
       }, config.transition);
     }
 
     function next(): void {
-      const isLastSlide = currentSlide.value >= paginationCount.value;
-      if (!isLastSlide) {
-        slideTo(currentSlide.value + 1);
-        return;
+      let nextSlide = currentSlide.value + config.itemsToScroll;
+      if (!config.wrapAround) {
+        nextSlide = Math.min(nextSlide, slidesCount.value - 1);
       }
-      // if wrap around to the first slide
-      if (config.wrapAround) {
-        slideTo(0);
-      }
+      slideTo(nextSlide);
     }
 
     function prev(): void {
-      const isFirstSlide = currentSlide.value <= 0;
-      if (!isFirstSlide) {
-        slideTo(currentSlide.value - 1);
-        return;
+      let prevSlide = currentSlide.value - config.itemsToScroll;
+      if (!config.wrapAround) {
+        prevSlide = Math.max(prevSlide, 0);
       }
-      // if wrap around to the last slide
-      if (config.wrapAround) {
-        slideTo(slidesCount.value - 1);
-      }
+      slideTo(prevSlide);
     }
     const nav: CarouselNav = { slideTo, next, prev };
     provide('nav', nav);
@@ -319,6 +334,13 @@ export default defineComponent({
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
+      const currentSlideUpdated =
+        props.modelValue !== undefined && currentSlide.value !== props.modelValue;
+
+      if (currentSlideUpdated) {
+        slideTo(Number(props.modelValue), true);
+      }
+
       if (needToUpdate) {
         updateSlidesData();
         updateSlidesBuffer();

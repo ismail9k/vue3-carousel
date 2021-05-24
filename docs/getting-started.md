@@ -46,15 +46,18 @@ export default {
 
 ## Available Props
 
-| Prop           | Default  | Description                                                                  |
-| -------------- | -------- | ---------------------------------------------------------------------------- |
-| `itemsToShow`  | 1        | count of items to showed per view (can be a fraction).                       |
-| `currentSlide` | 0        | index number of the initial slide.                                           |
-| `wrapAround`   | false    | enable infinite scrolling mode.                                              |
-| `snapAlign`    | 'center' | controls the carousel position alignment, can be 'start', 'end', or 'center' |
-| `transition`   | 300      | sliding transition time in ms.                                               |
-| `settings`     | { }      | an object to pass all settings.                                              |
-| `breakpoints`  | null     | an object to pass all the breakpoints settings.                              |
+| Prop               | Default  | Description                                                                     |
+| ------------------ | -------- | ------------------------------------------------------------------------------- |
+| `itemsToShow`      | 1        | count of items to showed per view (can be a fraction).                          |
+| `itemsToScroll`    | 1        | number of slides to be scrolled                                                 |
+| ~~`currentSlide`~~ | ~~0~~    | ~~index number of the initial slide.~~ <Badge text="Deprecated" type="danger"/> |
+| `wrapAround`       | false    | enable infinite scrolling mode.                                                 |
+| `snapAlign`        | 'center' | controls the carousel position alignment, can be 'start', 'end', or 'center'    |
+| `transition`       | 300      | sliding transition time in ms.                                                  |
+| `settings`         | { }      | an object to pass all settings.                                                 |
+| `breakpoints`      | null     | an object to pass all the breakpoints settings.                                 |
+| `modelValue`       | 0        | index number of the initial slide. <Badge text="0.1.20"/>                       |
+
 
 ## Slots
 
@@ -105,3 +108,13 @@ Used to add display carousel addons components.
   </template>
 </Carousel>
 ```
+
+<script>
+import Badge from './.vitepress/components/Badge.vue';
+
+export default {
+  components: {
+   Badge,
+  }
+}
+</script>

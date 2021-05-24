@@ -16,7 +16,8 @@ https://ismail9k.github.io/vue3-carousel/
 - [x] Responsive breakpoints
 - [x] Mouse/touch dragging
 - [x] Infinity scroll (wrapping around)
-- [ ] Auto play
+- [x] Auto play
+- [ ] Add classes for active and for visible slides
 - [ ] RTL
 - [ ] Vertical scroll
 - [ ] Sync multiple carousel
