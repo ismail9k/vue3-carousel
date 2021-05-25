@@ -4,6 +4,7 @@ import { CarouselNav, VNode } from '../types';
 
 const Pagination = () => {
   const slidesCount = inject('slidesCount', ref(1));
+  const paginationCount = inject('paginationCount', ref(1));
   const currentSlide = inject('currentSlide', ref(1));
   const nav: CarouselNav = inject('nav', {});
 
@@ -12,7 +13,7 @@ const Pagination = () => {
   }
 
   const children: Array<VNode> = [];
-  for (let slide = 0; slide < slidesCount.value; slide++) {
+  for (let slide = 0; slide < paginationCount.value; slide++) {
     const button = h('button', {
       class: {
         'carousel__pagination-button': true,
