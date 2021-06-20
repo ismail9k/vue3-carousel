@@ -7,6 +7,7 @@ import {
   computed,
   watchEffect,
   h,
+  watch,
 } from 'vue';
 
 import counterFactory, { Counter } from '../partials/counter';
@@ -84,18 +85,22 @@ export default defineComponent({
     const paginationCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
 
-    // generate carousel configs
-    const defaultConfig: CarouselConfig = {
-      ...props,
-      ...(props.settings as CarouselConfig),
-      currentSlide: props.modelValue,
-    };
-    const breakpoints: CarouselConfig = ref({ ...defaultConfig.breakpoints });
-    // remove extra values
-    delete defaultConfig.settings;
-    delete defaultConfig.breakpoints;
     // current config
-    const config = reactive({ ...defaultConfig });
+    const config = reactive<CarouselConfig>({});
+    // generate carousel configs
+    let defaultConfig: CarouselConfig = {};
+    let breakpoints: CarouselConfig = ref({});
+
+    initDefaultConfigs();
+    updateConfig();
+
+    // Update the carousel on props change
+    watch(props, () => {
+      initDefaultConfigs();
+      updateConfig();
+      updateSlidesData();
+      updateSlideWidth();
+    });
 
     // slides
     const currentSlide = ref(config.currentSlide ?? 0);
@@ -110,8 +115,22 @@ export default defineComponent({
     provide('paginationCount', paginationCount);
 
     /**
-     * Breakpoints
+     * Configs
      */
+    function initDefaultConfigs(): void {
+      // generate carousel configs
+      defaultConfig = {
+        ...props,
+        ...(props.settings as CarouselConfig),
+        currentSlide: props.modelValue,
+      };
+
+      // Set breakpoints
+      breakpoints = ref({ ...defaultConfig.breakpoints });
+
+      // remove extra values
+      defaultConfig = { ...defaultConfig, settings: undefined, breakpoints: undefined };
+    }
 
     function updateConfig(): void {
       const breakpointsArray = Object.keys(breakpoints.value)
@@ -158,7 +177,7 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
-      paginationCount.value = (slides.value.length - config.itemsToShow) + 1;
+      paginationCount.value = slides.value.length - config.itemsToShow + 1;
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
       currentSlide.value = Math.min(slidesCount.value - 1, currentSlide.value);
