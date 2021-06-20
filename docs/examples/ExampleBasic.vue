@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es';
 
 import '../../dist/carousel.css';
