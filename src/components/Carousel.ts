@@ -75,6 +75,16 @@ export default defineComponent({
       default: undefined,
       type: Number,
     },
+    // toggle mouse dragging.
+    mouseDrag: {
+      default: true,
+      type: Boolean,
+    },
+    // toggle mouse dragging.
+    touchDrag: {
+      default: true,
+      type: Boolean,
+    },
   },
   setup(props: Data, { slots, emit }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
@@ -379,8 +389,8 @@ export default defineComponent({
         {
           class: 'carousel__track',
           style: trackStyle.value,
-          onMousedown: handleDragStart,
-          onTouchstart: handleDragStart,
+          onMousedown: config.mouseDrag ? handleDragStart : null,
+          onTouchstart: config.touchDrag ? handleDragStart : null,
         },
         slidesElements
       );
