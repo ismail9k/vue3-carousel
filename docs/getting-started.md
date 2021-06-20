@@ -57,6 +57,8 @@ export default {
 | `settings`         | { }      | an object to pass all settings.                                                 |
 | `breakpoints`      | null     | an object to pass all the breakpoints settings.                                 |
 | `modelValue`       | 0        | index number of the initial slide. <Badge text="0.1.20"/>                       |
+| `mouseDrag`        | true     | toggle mouse dragging <Badge text="0.1.23"/>                                    |
+| `touchDrag`        | true     | toggle pointer touch dragging <Badge text="0.1.23"/>                            |
 
 
 ## Slots
