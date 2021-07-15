@@ -8,6 +8,7 @@ import {
   watchEffect,
   h,
   watch,
+  Component,
 } from 'vue';
 
 import counterFactory, { Counter } from '../partials/counter';
@@ -359,7 +360,13 @@ export default defineComponent({
 
     watchEffect((): void => {
       const slidesElements = slotSlides?.(slotsProps) || [];
-      slides.value = slidesElements[0]?.children || [];
+
+      // Check if the Slides components are added directly without v-for (#72)
+      if ((slidesElements[0]?.type as Component)?.name === 'CarouselSlide') {
+        slides.value = slidesElements;
+      } else {
+        slides.value = slidesElements[0]?.children || [];
+      }
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
