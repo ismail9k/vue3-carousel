@@ -8,11 +8,10 @@ import {
   watchEffect,
   h,
   watch,
-  Component,
 } from 'vue';
 
 import counterFactory, { Counter } from '../partials/counter';
-import { debounce, throttle } from '../partials/utils';
+import { debounce, throttle, getSlides } from '../partials/utils';
 
 import {
   Data,
@@ -70,6 +69,11 @@ export default defineComponent({
     autoplay: {
       default: 0,
       type: Number,
+    },
+    // pause autoplay when mouse hover over the carousel
+    pauseAutoplayOnHover: {
+      default: false,
+      type: Boolean,
     },
     // slide number number of initial slide
     modelValue: {
@@ -169,15 +173,6 @@ export default defineComponent({
     }, 16);
 
     /**
-     * Autoplay
-     */
-    function initializeAutoplay(): void {
-      setInterval(() => {
-        next();
-      }, config.autoplay);
-    }
-
-    /**
      * Setup functions
      */
 
@@ -188,7 +183,7 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
-      paginationCount.value = slides.value.length - config.itemsToShow + 1;
+      paginationCount.value = slides.value.length;
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
       currentSlide.value = Math.min(slidesCount.value - 1, currentSlide.value);
@@ -226,6 +221,14 @@ export default defineComponent({
     const endPosition = { x: 0, y: 0 };
     const dragged = reactive({ x: 0, y: 0 });
     const isDragging = ref(false);
+    const isHover = ref(false);
+
+    const handleMouseEnter = (): void => {
+      isHover.value = true;
+    };
+    const handleMouseLeave = (): void => {
+      isHover.value = false;
+    };
 
     const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
       if (!isTouch) event.preventDefault();
@@ -273,6 +276,19 @@ export default defineComponent({
       // @ts-ignore
       document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
+    }
+
+    /**
+     * Autoplay
+     */
+    function initializeAutoplay(): void {
+      setInterval(() => {
+        if (config.pauseAutoplayOnHover && isHover.value) {
+          return;
+        }
+
+        next();
+      }, config.autoplay);
     }
 
     /**
@@ -343,6 +359,7 @@ export default defineComponent({
       }
       return output;
     });
+    provide('slidesToScroll', slidesToScroll);
 
     const trackStyle = computed(
       (): ElementStyleObject => {
@@ -359,14 +376,7 @@ export default defineComponent({
     const slotAddons = slots.addons;
 
     watchEffect((): void => {
-      const slidesElements = slotSlides?.(slotsProps) || [];
-
-      // Check if the Slides components are added directly without v-for (#72)
-      if ((slidesElements[0]?.type as Component)?.name === 'CarouselSlide') {
-        slides.value = slidesElements;
-      } else {
-        slides.value = slidesElements[0]?.children || [];
-      }
+      slides.value = getSlides(slotSlides?.(slotsProps));
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
@@ -389,8 +399,13 @@ export default defineComponent({
     updateSlidesBuffer();
 
     return () => {
-      const slidesElements = slotSlides?.(slotsProps) || [];
+      const slidesElements = getSlides(slotSlides?.(slotsProps));
       const addonsElements = slotAddons?.(slotsProps) || [];
+
+      // Bind slide order
+      slidesElements.forEach(
+        (el: { props: { [key: string]: any } }, index: number) => (el.props.index = index)
+      );
       const trackEl = h(
         'ol',
         {
@@ -409,6 +424,8 @@ export default defineComponent({
           ref: root,
           class: 'carousel',
           'aria-label': 'Gallery',
+          onMouseenter: handleMouseEnter,
+          onMouseleave: handleMouseLeave,
         },
         [viewPortEl, addonsElements]
       );

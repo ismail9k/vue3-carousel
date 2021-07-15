@@ -1,3 +1,5 @@
+import { Component, RendererElement, RendererNode, VNode } from 'vue';
+
 /**
  * return a debounced version of the function
  * @param fn
@@ -18,9 +20,9 @@ export function debounce(fn: (...args: any[]) => unknown, delay: number): typeof
 
 /**
  * return a throttle version of the function
-* Throttling
-*
-*/
+ * Throttling
+ *
+ */
 export function throttle(fn: (...args: any[]) => unknown, limit: number): typeof fn {
   let inThrottle: boolean;
   return function (...args: any[]) {
@@ -31,4 +33,14 @@ export function throttle(fn: (...args: any[]) => unknown, limit: number): typeof
       setTimeout(() => (inThrottle = false), limit);
     }
   };
+}
+
+export function getSlides(vNode: any[] | undefined) {
+  // Return empty array if there's any node
+  if (!vNode) return [];
+
+  // Check if the Slides components are added directly without v-for (#72)
+  if (vNode[0]?.type?.name === 'CarouselSlide') return vNode;
+
+  return vNode[0]?.children || [];
 }

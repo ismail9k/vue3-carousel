@@ -1,5 +1,5 @@
 <template>
-  <Carousel :autoplay="2000" :wrap-around="true">
+  <Carousel :autoplay="2000" :wrap-around="true" pause-autoplay-on-hover>
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 import { Carousel, Pagination, Slide } from '../../dist/carousel.es';
 
 import '../../dist/carousel.css';
