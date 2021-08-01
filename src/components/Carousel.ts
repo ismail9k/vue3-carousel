@@ -8,11 +8,10 @@ import {
   watchEffect,
   h,
   watch,
-  Component,
 } from 'vue';
 
 import counterFactory, { Counter } from '../partials/counter';
-import { debounce, throttle } from '../partials/utils';
+import { debounce, throttle, getSlides } from '../partials/utils';
 
 import {
   Data,
@@ -172,9 +171,7 @@ export default defineComponent({
      * Autoplay
      */
     function initializeAutoplay(): void {
-      setInterval(() => {
-        next();
-      }, config.autoplay);
+      setInterval(next, config.autoplay);
     }
 
     /**
@@ -188,7 +185,7 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
-      paginationCount.value = slides.value.length - config.itemsToShow + 1;
+      paginationCount.value = slides.value.length;
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
       currentSlide.value = Math.min(slidesCount.value - 1, currentSlide.value);
@@ -343,6 +340,7 @@ export default defineComponent({
       }
       return output;
     });
+    provide('slidesToScroll', slidesToScroll);
 
     const trackStyle = computed(
       (): ElementStyleObject => {
@@ -359,14 +357,7 @@ export default defineComponent({
     const slotAddons = slots.addons;
 
     watchEffect((): void => {
-      const slidesElements = slotSlides?.(slotsProps) || [];
-
-      // Check if the Slides components are added directly without v-for (#72)
-      if ((slidesElements[0]?.type as Component)?.name === 'CarouselSlide') {
-        slides.value = slidesElements;
-      } else {
-        slides.value = slidesElements[0]?.children || [];
-      }
+      slides.value = getSlides(slotSlides?.(slotsProps));
 
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
@@ -389,8 +380,13 @@ export default defineComponent({
     updateSlidesBuffer();
 
     return () => {
-      const slidesElements = slotSlides?.(slotsProps) || [];
+      const slidesElements = getSlides(slotSlides?.(slotsProps));
       const addonsElements = slotAddons?.(slotsProps) || [];
+
+      // Bind slide order
+      slidesElements.forEach(
+        (el: { props: { [key: string]: any } }, index: number) => (el.props.index = index)
+      );
       const trackEl = h(
         'ol',
         {
