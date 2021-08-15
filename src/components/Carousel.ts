@@ -376,8 +376,6 @@ export default defineComponent({
     const slotAddons = slots.addons;
 
     watchEffect((): void => {
-      slides.value = getSlides(slotSlides?.(slotsProps));
-
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
       const currentSlideUpdated =
@@ -401,7 +399,7 @@ export default defineComponent({
     return () => {
       const slidesElements = getSlides(slotSlides?.(slotsProps));
       const addonsElements = slotAddons?.(slotsProps) || [];
-
+      slides.value = slidesElements;
       // Bind slide order
       slidesElements.forEach(
         (el: { props: { [key: string]: any } }, index: number) => (el.props.index = index)
