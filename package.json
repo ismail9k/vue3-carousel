@@ -9,7 +9,7 @@
     "docs:serve": "vitepress serve docs",
     "docs:deploy": "bash scripts/docs-deploy.sh",
     "test": "jest",
-    "test:watch": "npm run jest -- --watchAll"
+    "test:watch": "npm run test -- --watchAll"
   },
   "repository": {
     "type": "git",
