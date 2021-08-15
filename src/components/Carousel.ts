@@ -70,6 +70,11 @@ export default defineComponent({
       default: 0,
       type: Number,
     },
+    // pause autoplay when mouse hover over the carousel
+    pauseAutoplayOnHover: {
+      default: false,
+      type: Boolean,
+    },
     // slide number number of initial slide
     modelValue: {
       default: undefined,
@@ -168,13 +173,6 @@ export default defineComponent({
     }, 16);
 
     /**
-     * Autoplay
-     */
-    function initializeAutoplay(): void {
-      setInterval(next, config.autoplay);
-    }
-
-    /**
      * Setup functions
      */
 
@@ -223,6 +221,14 @@ export default defineComponent({
     const endPosition = { x: 0, y: 0 };
     const dragged = reactive({ x: 0, y: 0 });
     const isDragging = ref(false);
+    const isHover = ref(false);
+
+    const handleMouseEnter = (): void => {
+      isHover.value = true;
+    };
+    const handleMouseLeave = (): void => {
+      isHover.value = false;
+    };
 
     const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
       if (!isTouch) event.preventDefault();
@@ -270,6 +276,19 @@ export default defineComponent({
       // @ts-ignore
       document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
+    }
+
+    /**
+     * Autoplay
+     */
+    function initializeAutoplay(): void {
+      setInterval(() => {
+        if (config.pauseAutoplayOnHover && isHover.value) {
+          return;
+        }
+
+        next();
+      }, config.autoplay);
     }
 
     /**
@@ -405,6 +424,8 @@ export default defineComponent({
           ref: root,
           class: 'carousel',
           'aria-label': 'Gallery',
+          onMouseenter: handleMouseEnter,
+          onMouseleave: handleMouseLeave,
         },
         [viewPortEl, addonsElements]
       );
