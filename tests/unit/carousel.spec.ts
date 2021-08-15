@@ -8,7 +8,8 @@ describe('Carousel.ts', () => {
     wrapper = mount(Carousel);
   });
 
-  it('Should success', () => {
-    expect(true).toBeTruthy();
+  it('It renders correctly', () => {
+    const carousel = wrapper.find('.carousel');
+    expect(carousel.exists()).toBe(true);
   });
 });
