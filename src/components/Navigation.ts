@@ -10,12 +10,12 @@ const Navigation = (props: any, { slots, attrs }: any) => {
 
   const prevButton = h(
     'button',
-    { class: ['carousel__prev', attrs?.class] , onClick: nav.prev },
+    { type: 'button', class: ['carousel__prev', attrs?.class] , onClick: nav.prev },
     slotPrev?.() || h(Icon, { name: 'arrowLeft' })
   );
   const nextButton = h(
     'button',
-    { class: ['carousel__next', attrs?.class], onClick: nav.next },
+    { type: 'button', class: ['carousel__next', attrs?.class], onClick: nav.next },
     slotNext?.() || h(Icon, { name: 'arrowRight' })
   );
 
