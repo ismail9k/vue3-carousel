@@ -39,8 +39,8 @@ export default defineComponent({
 .carousel__item {
   min-height: 200px;
   width: 100%;
-  background-color: var(--carousel-color-primary);
-  color:  var(--carousel-color-white);
+  background-color: var(--vc-clr-primary);
+  color:  var(--vc-clr-white);
   font-size: 20px;
   border-radius: 8px;
   display: flex;
@@ -316,8 +316,8 @@ export default {
 .carousel__item {
   min-height: 200px;
   width: 100%;
-  background-color: var(--carousel-color-primary);
-  color:  var(--carousel-color-white);
+  background-color: var(--vc-clr-primary);
+  color:  var(--vc-clr-white);
   font-size: 20px;
   border-radius: 8px;
   display: flex;

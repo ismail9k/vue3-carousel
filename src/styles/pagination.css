@@ -4,15 +4,15 @@
   list-style: none;
 }
 .carousel__pagination-button {
-  margin: var(--carousel-pagination-margin);
-  width: var(--carousel-pagination-width);
-  height: var(--carousel-pagination-height);
-  border-radius: var(--carousel-pagination-height);
+  margin: var(--vc-pgn-margin);
+  width: var(--vc-pgn-width);
+  height: var(--vc-pgn-height);
+  border-radius: var(--vc-pgn-height);
   border: 0;
   cursor: pointer;
-  background-color: var(--carousel-pagination-bg-color);
+  background-color: var(--vc-pgn-bg-color);
 }
 
 .carousel__pagination-button--active {
-  background-color: var(--carousel-pagination-active-color);
+  background-color: var(--vc-pgn-active-color);
 }

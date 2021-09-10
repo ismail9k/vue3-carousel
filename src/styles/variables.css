@@ -1,19 +1,22 @@
 :root {
-  /* Colors */
-  --carousel-color-primary: #642afb;
-  --carousel-color-secondary: #8e98f3;
-  --carousel-color-white: #ffffff;
+  /* Color */
+  --vc-clr-primary: #642afb;
+  --vc-clr-secondary: #8e98f3;
+  --vc-clr-white: #ffffff;
+
+  /* Icon */
+  --vc-icn-width: 1.2em;
 
   /* Navigation */
-  --carousel-nav-width: 30px;
-  --carousel-nav-color: #ffffff;
-  --carousel-nav-bg-color: var(--carousel-color-primary);
+  --vc-nav-width: 30px;
+  --vc-nav-color: #ffffff;
+  --vc-nav-background-color: var(--vc-clr-primary);
 
   /* Pagination */
-  --carousel-pagination-width: 10px;
-  --carousel-pagination-height: 5px;
-  --carousel-pagination-margin: 5px;
-  --carousel-pagination-border-radius: 0;
-  --carousel-pagination-bg-color: var(--carousel-color-secondary);
-  --carousel-pagination-active-color: var(--carousel-color-primary);
+  --vc-pgn-width: 10px;
+  --vc-pgn-height: 5px;
+  --vc-pgn-margin: 5px;
+  --vc-pgn-border-radius: 0;
+  --vc-pgn-background-color: var(--vc-clr-secondary);
+  --vc-pgn-active-color: var(--vc-clr-primary);
 }
