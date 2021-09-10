@@ -4,14 +4,15 @@
   list-style: none;
 }
 .carousel__pagination-button {
-  margin: 5px;
-  width: 10px;
-  height: 5px;
+  margin: var(--carousel-pagination-margin);
+  width: var(--carousel-pagination-width);
+  height: var(--carousel-pagination-height);
+  border-radius: var(--carousel-pagination-height);
   border: 0;
   cursor: pointer;
-  background-color: var(--carousel-color-secondary);
+  background-color: var(--carousel-pagination-bg-color);
 }
 
 .carousel__pagination-button--active {
-  background-color: var(--carousel-color-primary);
+  background-color: var(--carousel-pagination-active-color);
 }

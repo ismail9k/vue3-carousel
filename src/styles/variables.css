@@ -3,7 +3,17 @@
   --carousel-color-primary: #642afb;
   --carousel-color-secondary: #8e98f3;
   --carousel-color-white: #ffffff;
-  
+
   /* Navigation */
   --carousel-nav-width: 30px;
+  --carousel-nav-color: #ffffff;
+  --carousel-nav-bg-color: var(--carousel-color-primary);
+
+  /* Pagination */
+  --carousel-pagination-width: 10px;
+  --carousel-pagination-height: 5px;
+  --carousel-pagination-margin: 5px;
+  --carousel-pagination-border-radius: 0;
+  --carousel-pagination-bg-color: var(--carousel-color-secondary);
+  --carousel-pagination-active-color: var(--carousel-color-primary);
 }
