@@ -48,6 +48,14 @@ export default defineComponent({
         return ['start', 'end', 'center'].includes(value);
       },
     },
+    // control snap position alignment -> center with odevity
+    snapAlignCenterMode: {
+      default: 'odd',
+      validator(value: string) {
+        // The value must match one of these strings
+        return ['odd', 'even'].includes(value);
+      },
+    },
     // sliding transition time in ms
     transition: {
       default: 300,
@@ -346,7 +354,9 @@ export default defineComponent({
     const slidesToScroll = computed((): number => {
       let output = slidesBuffer.value.indexOf(currentSlide.value);
       if (config.snapAlign === 'center') {
-        output -= (config.itemsToShow - 1) / 2;
+        // TODO can try to handle overflow-error
+        const odevity = config.snapAlignCenterMode == 'odd' ? 1 : 2;
+        output -= (config.itemsToShow - odevity) / 2;
       }
       if (config.snapAlign === 'end') {
         output -= config.itemsToShow - 1;
@@ -361,15 +371,13 @@ export default defineComponent({
     });
     provide('slidesToScroll', slidesToScroll);
 
-    const trackStyle = computed(
-      (): ElementStyleObject => {
-        const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
-        return {
-          transform: `translateX(${xScroll}px)`,
-          transition: `${isSliding.value ? config.transition : 0}ms`,
-        };
-      }
-    );
+    const trackStyle = computed((): ElementStyleObject => {
+      const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
+      return {
+        transform: `translateX(${xScroll}px)`,
+        transition: `${isSliding.value ? config.transition : 0}ms`,
+      };
+    });
 
     const slotsProps = reactive({ slideWidth, slidesCount, currentSlide });
     const slotSlides = slots.default || slots.slides;
