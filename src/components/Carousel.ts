@@ -296,12 +296,11 @@ export default defineComponent({
      */
     const isSliding = ref(false);
     function slideTo(slideIndex: number, mute = false): void {
-      if (currentSlide.value === slideIndex || isSliding.value) {
-        return;
-      }
-
       // Wrap slide index
       const lastSlideIndex = slidesCount.value - 1;
+      if (lastSlideIndex < 0 || currentSlide.value === slideIndex || isSliding.value) {
+        return;
+      }
       if (slideIndex > lastSlideIndex) {
         return slideTo(slideIndex - slidesCount.value);
       }
