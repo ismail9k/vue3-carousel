@@ -186,7 +186,8 @@ export default defineComponent({
       paginationCount.value = slides.value.length;
       slidesCount.value = slides.value.length;
       middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
-      currentSlide.value = Math.min(slidesCount.value - 1, currentSlide.value);
+      currentSlide.value =
+        slidesCount.value <= 0 ? 0 : Math.min(slidesCount.value - 1, currentSlide.value);
     }
 
     function updateSlidesBuffer(): void {
@@ -361,15 +362,13 @@ export default defineComponent({
     });
     provide('slidesToScroll', slidesToScroll);
 
-    const trackStyle = computed(
-      (): ElementStyleObject => {
-        const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
-        return {
-          transform: `translateX(${xScroll}px)`,
-          transition: `${isSliding.value ? config.transition : 0}ms`,
-        };
-      }
-    );
+    const trackStyle = computed((): ElementStyleObject => {
+      const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
+      return {
+        transform: `translateX(${xScroll}px)`,
+        transition: `${isSliding.value ? config.transition : 0}ms`,
+      };
+    });
 
     const slotsProps = reactive({ slideWidth, slidesCount, currentSlide });
     const slotSlides = slots.default || slots.slides;

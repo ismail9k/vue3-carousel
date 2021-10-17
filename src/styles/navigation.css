@@ -1,6 +1,6 @@
 .carousel__prev,
 .carousel__next {
-  background-color: var(--vc-nav-bg-color);
+  background-color: var(--vc-nav-background-color);
   border-radius: var(--vc-nav-width);
   width: var(--vc-nav-width);
   height: var(--vc-nav-width);
