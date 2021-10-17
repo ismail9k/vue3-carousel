@@ -45,7 +45,7 @@ export default defineComponent({
       default: 'center',
       validator(value: string) {
         // The value must match one of these strings
-        return ['start', 'end', 'center'].includes(value);
+        return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value);
       },
     },
     // sliding transition time in ms
@@ -346,10 +346,11 @@ export default defineComponent({
      */
     const slidesToScroll = computed((): number => {
       let output = slidesBuffer.value.indexOf(currentSlide.value);
-      if (config.snapAlign === 'center') {
+      if (config.snapAlign === 'center' || config.snapAlign === 'center-odd') {
         output -= (config.itemsToShow - 1) / 2;
-      }
-      if (config.snapAlign === 'end') {
+      } else if (config.snapAlign === 'center-even') {
+        output -= (config.itemsToShow - 2) / 2;
+      } else if (config.snapAlign === 'end') {
         output -= config.itemsToShow - 1;
       }
 
