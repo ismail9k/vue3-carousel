@@ -10,7 +10,7 @@
   border-radius: var(--vc-pgn-height);
   border: 0;
   cursor: pointer;
-  background-color: var(--vc-pgn-bg-color);
+  background-color: var(--vc-pgn-background-color);
 }
 
 .carousel__pagination-button--active {
