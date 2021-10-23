@@ -3,8 +3,8 @@ import { inject, ref, h } from 'vue';
 import { CarouselNav, VNode } from '../types';
 
 const Pagination = () => {
-  const slidesCount = inject('slidesCount', ref(1));
-  const paginationCount = inject('paginationCount', ref(1));
+  const maxSlide = inject('maxSlide', ref(1));
+  const minSlide = inject('minSlide', ref(1));
   const currentSlide = inject('currentSlide', ref(1));
   const nav: CarouselNav = inject('nav', {});
 
@@ -12,13 +12,22 @@ const Pagination = () => {
     nav.slideTo(slideNumber);
   }
 
+  const isActive = (slide: number): boolean => {
+    const val = currentSlide.value;
+    return (
+      val === slide ||
+      (val > maxSlide.value && slide >= maxSlide.value) ||
+      (val < minSlide.value && slide <= minSlide.value)
+    );
+  };
+
   const children: Array<VNode> = [];
-  for (let slide = 0; slide < paginationCount.value; slide++) {
+  for (let slide = minSlide.value; slide < maxSlide.value + 1; slide++) {
     const button = h('button', {
       type: 'button',
       class: {
         'carousel__pagination-button': true,
-        'carousel__pagination-button--active': currentSlide.value === slide,
+        'carousel__pagination-button--active': isActive(slide),
       },
       onClick: () => handleButtonClick(slide),
     });
