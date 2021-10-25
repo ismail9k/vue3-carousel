@@ -10,7 +10,8 @@ import {
   watch,
 } from 'vue';
 
-import counterFactory, { Counter } from '../partials/counter';
+import { defaultConfigs } from '@/partials/defaults';
+import counterFactory, { Counter } from '@/partials/counter';
 import {
   debounce,
   throttle,
@@ -18,7 +19,7 @@ import {
   getCurrentSlideIndex,
   getMaxSlideIndex,
   getMinSlideIndex,
-} from '../partials/utils';
+} from '@/partials/utils';
 
 import {
   Data,
@@ -27,29 +28,30 @@ import {
   Ref,
   CarouselNav,
   ElementStyleObject,
-} from '../types';
+  Breakpoints,
+} from '@/types';
 
 export default defineComponent({
   name: 'Carousel',
   props: {
     // count of items to showed per view
     itemsToShow: {
-      default: 1,
+      default: defaultConfigs.itemsToShow,
       type: Number,
     },
     // count of items to be scrolled
     itemsToScroll: {
-      default: 1,
+      default: defaultConfigs.itemsToScroll,
       type: Number,
     },
     // control infinite scrolling mode
     wrapAround: {
-      default: false,
+      default: defaultConfigs.wrapAround,
       type: Boolean,
     },
     // control snap position alignment
     snapAlign: {
-      default: 'center',
+      default: defaultConfigs.snapAlign,
       validator(value: string) {
         // The value must match one of these strings
         return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value);
@@ -57,29 +59,22 @@ export default defineComponent({
     },
     // sliding transition time in ms
     transition: {
-      default: 300,
+      default: defaultConfigs.transition,
       type: Number,
-    },
-    // an object to pass all settings
-    settings: {
-      default() {
-        return {};
-      },
-      type: Object,
     },
     // an object to store breakpoints
     breakpoints: {
-      default: null,
+      default: defaultConfigs.breakpoints,
       type: Object,
     },
     // time to auto advance slides in ms
     autoplay: {
-      default: 0,
+      default: defaultConfigs.autoplay,
       type: Number,
     },
     // pause autoplay when mouse hover over the carousel
     pauseAutoplayOnHover: {
-      default: false,
+      default: defaultConfigs.pauseAutoplayOnHover,
       type: Boolean,
     },
     // slide number number of initial slide
@@ -89,13 +84,20 @@ export default defineComponent({
     },
     // toggle mouse dragging.
     mouseDrag: {
-      default: true,
+      default: defaultConfigs.mouseDrag,
       type: Boolean,
     },
     // toggle mouse dragging.
     touchDrag: {
-      default: true,
+      default: defaultConfigs.touchDrag,
       type: Boolean,
+    },
+    // an object to pass all settings
+    settings: {
+      default() {
+        return {};
+      },
+      type: Object,
     },
   },
   setup(props: Data, { slots, emit }: SetupContext) {
@@ -106,25 +108,23 @@ export default defineComponent({
     const slidesCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
 
-    // current config
-    const config = reactive<CarouselConfig>({});
-    // generate carousel configs
-    let defaultConfig: CarouselConfig = {};
-    let breakpoints: CarouselConfig = ref({});
+    let breakpoints: Ref<Breakpoints> = ref({});
 
-    initDefaultConfigs();
-    updateConfig();
+    // generate carousel configs
+    let defaultConfig: CarouselConfig = { ...defaultConfigs };
+    // current config
+    const config = reactive<CarouselConfig>({ ...defaultConfigs });
 
     // Update the carousel on props change
     watch(props, () => {
       initDefaultConfigs();
-      updateConfig();
+      updateBreakpointsConfigs();
       updateSlidesData();
       updateSlideWidth();
     });
 
     // slides
-    const currentSlideIndex = ref(config.currentSlide ?? 0);
+    const currentSlideIndex = ref(config.modelValue ?? 0);
     const prevSlideIndex = ref(0);
     const middleSlideIndex = ref(0);
     const maxSlideIndex = ref(0);
@@ -143,21 +143,20 @@ export default defineComponent({
      */
     function initDefaultConfigs(): void {
       // generate carousel configs
-      defaultConfig = {
+      const mergedConfigs: CarouselConfig = {
         ...props,
         ...(props.settings as CarouselConfig),
-        currentSlide: props.modelValue,
       };
 
       // Set breakpoints
-      breakpoints = ref({ ...defaultConfig.breakpoints });
+      breakpoints = ref({ ...mergedConfigs.breakpoints });
 
       // remove extra values
-      defaultConfig = { ...defaultConfig, settings: undefined, breakpoints: undefined };
+      defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined };
     }
 
-    function updateConfig(): void {
-      const breakpointsArray = Object.keys(breakpoints.value)
+    function updateBreakpointsConfigs(): void {
+      const breakpointsArray: number[] = Object.keys(breakpoints.value)
         .map((key: string): number => Number(key))
         .sort((a: number, b: number) => +b - +a);
       let newConfig = { ...defaultConfig };
@@ -165,17 +164,24 @@ export default defineComponent({
       breakpointsArray.some((breakpoint): boolean => {
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches;
         if (isMatched) {
-          newConfig = { ...newConfig, ...breakpoints.value[breakpoint] };
+          newConfig = {
+            ...newConfig,
+            ...(breakpoints.value[breakpoint] as CarouselConfig),
+          };
           return true;
         }
         return false;
       });
-      Object.keys(newConfig).forEach((key): any => (config[key] = newConfig[key]));
+      let key: keyof CarouselConfig;
+      for (key in newConfig) {
+        // @ts-ignore
+        config[key] = newConfig[key];
+      }
     }
 
     const handleWindowResize = debounce(() => {
       if (breakpoints.value) {
-        updateConfig();
+        updateBreakpointsConfigs();
         updateSlidesData();
       }
       updateSlideWidth();
@@ -219,14 +225,15 @@ export default defineComponent({
 
     onMounted((): void => {
       if (breakpoints.value) {
-        updateConfig();
+        updateBreakpointsConfigs();
         updateSlidesData();
       }
       updateSlideWidth();
 
-      if (config.autoplay > 0) initializeAutoplay();
+      if (config.autoplay && config.autoplay > 0) {
+        initializeAutoplay();
+      }
 
-      // @ts-ignore
       window.addEventListener('resize', handleWindowResize, { passive: true });
     });
 
@@ -271,7 +278,6 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
 
-      // @ts-ignore
       document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
@@ -293,7 +299,6 @@ export default defineComponent({
       dragged.x = 0;
       dragged.y = 0;
 
-      // @ts-ignore
       document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
       document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
     }
@@ -417,6 +422,8 @@ export default defineComponent({
       }
     });
 
+    initDefaultConfigs();
+    updateBreakpointsConfigs();
     updateSlidesBuffer();
 
     return () => {
