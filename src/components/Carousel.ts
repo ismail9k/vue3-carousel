@@ -11,7 +11,14 @@ import {
 } from 'vue';
 
 import counterFactory, { Counter } from '../partials/counter';
-import { debounce, throttle, getSlides } from '../partials/utils';
+import {
+  debounce,
+  throttle,
+  getSlides,
+  getCurrentSlideIndex,
+  getMaxSlideIndex,
+  getMinSlideIndex,
+} from '../partials/utils';
 
 import {
   Data,
@@ -97,7 +104,6 @@ export default defineComponent({
     const slidesBuffer: Ref<Array<number>> = ref([]);
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
-    const paginationCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
 
     // current config
@@ -118,16 +124,19 @@ export default defineComponent({
     });
 
     // slides
-    const currentSlide = ref(config.currentSlide ?? 0);
-    const prevSlide = ref(0);
-    const middleSlide = ref(0);
+    const currentSlideIndex = ref(config.currentSlide ?? 0);
+    const prevSlideIndex = ref(0);
+    const middleSlideIndex = ref(0);
+    const maxSlideIndex = ref(0);
+    const minSlideIndex = ref(0);
 
     provide('config', config);
     provide('slidesBuffer', slidesBuffer);
     provide('slidesCount', slidesCount);
-    provide('currentSlide', currentSlide);
+    provide('currentSlide', currentSlideIndex);
+    provide('maxSlide', maxSlideIndex);
+    provide('minSlide', minSlideIndex);
     provide('slidesCounter', slidesCounter);
-    provide('paginationCount', paginationCount);
 
     /**
      * Configs
@@ -183,17 +192,24 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
-      paginationCount.value = slides.value.length;
       slidesCount.value = slides.value.length;
-      middleSlide.value = Math.ceil((slidesCount.value - 1) / 2);
-      currentSlide.value =
-        slidesCount.value <= 0 ? 0 : Math.min(slidesCount.value - 1, currentSlide.value);
+      if (slidesCount.value <= 0) return;
+
+      middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2);
+      maxSlideIndex.value = getMaxSlideIndex(config, slidesCount.value);
+      minSlideIndex.value = getMinSlideIndex(config);
+      currentSlideIndex.value = getCurrentSlideIndex(
+        config,
+        currentSlideIndex.value,
+        maxSlideIndex.value,
+        minSlideIndex.value
+      );
     }
 
     function updateSlidesBuffer(): void {
       const slidesArray = [...Array(slidesCount.value).keys()];
       if (config.wrapAround) {
-        const shifts = currentSlide.value + middleSlide.value + 1;
+        const shifts = currentSlideIndex.value + middleSlideIndex.value + 1;
         for (let i = 0; i < shifts; i++) {
           slidesArray.push(Number(slidesArray.shift()));
         }
@@ -266,9 +282,12 @@ export default defineComponent({
       const tolerance = Math.sign(dragged.x) * 0.4;
       const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance);
 
-      let newSlide = currentSlide.value - draggedSlides;
-      if (!config.wrapAround)
-        newSlide = Math.max(Math.min(newSlide, slidesCount.value - 1), 0);
+      let newSlide = getCurrentSlideIndex(
+        config,
+        currentSlideIndex.value - draggedSlides,
+        maxSlideIndex.value,
+        minSlideIndex.value
+      );
       slideTo(newSlide);
 
       dragged.x = 0;
@@ -297,7 +316,7 @@ export default defineComponent({
      */
     const isSliding = ref(false);
     function slideTo(slideIndex: number, mute = false): void {
-      if (currentSlide.value === slideIndex || isSliding.value) {
+      if (currentSlideIndex.value === slideIndex || isSliding.value) {
         return;
       }
 
@@ -311,11 +330,11 @@ export default defineComponent({
       }
 
       isSliding.value = true;
-      prevSlide.value = currentSlide.value;
-      currentSlide.value = slideIndex;
+      prevSlideIndex.value = currentSlideIndex.value;
+      currentSlideIndex.value = slideIndex;
 
       if (!mute) {
-        emit('update:modelValue', currentSlide.value);
+        emit('update:modelValue', currentSlideIndex.value);
       }
       setTimeout((): void => {
         if (config.wrapAround) updateSlidesBuffer();
@@ -324,17 +343,17 @@ export default defineComponent({
     }
 
     function next(): void {
-      let nextSlide = currentSlide.value + config.itemsToScroll;
+      let nextSlide = currentSlideIndex.value + config.itemsToScroll;
       if (!config.wrapAround) {
-        nextSlide = Math.min(nextSlide, paginationCount.value - 1);
+        nextSlide = Math.min(nextSlide, maxSlideIndex.value);
       }
       slideTo(nextSlide);
     }
 
     function prev(): void {
-      let prevSlide = currentSlide.value - config.itemsToScroll;
+      let prevSlide = currentSlideIndex.value - config.itemsToScroll;
       if (!config.wrapAround) {
-        prevSlide = Math.max(prevSlide, 0);
+        prevSlide = Math.max(prevSlide, minSlideIndex.value);
       }
       slideTo(prevSlide);
     }
@@ -345,7 +364,7 @@ export default defineComponent({
      * Track style
      */
     const slidesToScroll = computed((): number => {
-      let output = slidesBuffer.value.indexOf(currentSlide.value);
+      let output = slidesBuffer.value.indexOf(currentSlideIndex.value);
       if (config.snapAlign === 'center' || config.snapAlign === 'center-odd') {
         output -= (config.itemsToShow - 1) / 2;
       } else if (config.snapAlign === 'center-even') {
@@ -371,7 +390,11 @@ export default defineComponent({
       };
     });
 
-    const slotsProps = reactive({ slideWidth, slidesCount, currentSlide });
+    const slotsProps = reactive({
+      slideWidth,
+      slidesCount,
+      currentSlide: currentSlideIndex,
+    });
     const slotSlides = slots.default || slots.slides;
     const slotAddons = slots.addons;
 
@@ -379,7 +402,7 @@ export default defineComponent({
       // Handel when slides added/removed
       const needToUpdate = slidesCount.value !== slides.value.length;
       const currentSlideUpdated =
-        props.modelValue !== undefined && currentSlide.value !== props.modelValue;
+        props.modelValue !== undefined && currentSlideIndex.value !== props.modelValue;
 
       if (currentSlideUpdated) {
         slideTo(Number(props.modelValue), true);

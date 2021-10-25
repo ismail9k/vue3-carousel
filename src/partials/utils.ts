@@ -1,4 +1,4 @@
-import { Component, RendererElement, RendererNode, VNode } from 'vue';
+import { CarouselConfig } from '../types';
 
 /**
  * return a debounced version of the function
@@ -43,4 +43,54 @@ export function getSlides(vNode: any[] | undefined) {
   if (vNode[0]?.type?.name === 'CarouselSlide') return vNode;
 
   return vNode[0]?.children || [];
+}
+
+export function getMaxSlideIndex(config: CarouselConfig, slidesCount: number): number {
+  if (config.wrapAround) {
+    return slidesCount - 1;
+  }
+  switch (config.snapAlign) {
+    case 'start':
+      return slidesCount - config.itemsToShow;
+    case 'end':
+      return slidesCount - 1;
+    case 'center':
+    case 'center-odd':
+      return slidesCount - Math.ceil(config.itemsToShow / 2);
+    case 'center-even':
+      return slidesCount - Math.ceil(config.itemsToShow / 2);
+    default:
+      return 0;
+  }
+}
+
+export function getMinSlideIndex(config: CarouselConfig): number {
+  if (config.wrapAround) {
+    return 0;
+  }
+  switch (config.snapAlign) {
+    case 'start':
+      return 0;
+    case 'end':
+      return config.itemsToShow - 1;
+    case 'center':
+    case 'center-odd':
+      return Math.floor((config.itemsToShow - 1) / 2);
+    case 'center-even':
+      return Math.floor((config.itemsToShow - 2) / 2);
+    default:
+      return 0;
+  }
+}
+
+export function getCurrentSlideIndex(
+  config: CarouselConfig,
+  val: number,
+  max: number,
+  min: number
+): number {
+  if (config.wrapAround) {
+    return val;
+  }
+  return Math.min(Math.max(val, min), max);
 }
