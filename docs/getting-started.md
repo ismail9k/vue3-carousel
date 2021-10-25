@@ -54,6 +54,7 @@ export default {
 | `wrapAround`           | false    | enable infinite scrolling mode.                                                        |
 | `snapAlign`            | 'center' | controls the carousel position alignment, can be 'start', 'end', 'center[-odd\|even]'  |
 | `transition`           | 300      | sliding transition time in ms.                                                         |
+| `autoplay`             | 0        | Auto play time in ms.                                                                  |
 | `settings`             | { }      | an object to pass all settings.                                                        |
 | `breakpoints`          | null     | an object to pass all the breakpoints settings.                                        |
 | `modelValue`           | 0        | index number of the initial slide. <Badge text="0.1.20"/>                              |
