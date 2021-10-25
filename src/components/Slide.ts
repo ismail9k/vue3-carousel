@@ -1,8 +1,9 @@
 import { defineComponent, inject, ref, computed, watchEffect, h, reactive } from 'vue';
 
-import { Counter } from '../partials/counter';
+import { Counter } from '@/partials/counter';
+import { defaultConfigs } from '@/partials/defaults';
 
-import { SetupContext, CarouselConfig, Ref, ElementStyleObject } from '../types';
+import { SetupContext, CarouselConfig, Ref, ElementStyleObject } from '@/types';
 
 export default defineComponent({
   name: 'CarouselSlide',
@@ -13,7 +14,7 @@ export default defineComponent({
     },
   },
   setup(props, { slots }: SetupContext) {
-    const config: CarouselConfig = inject('config', reactive({}));
+    const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }));
     const slidesBuffer: Ref<Array<number>> = inject('slidesBuffer', ref([]));
     const slidesCounter = inject('slidesCounter') as Counter;
     const currentSlide = inject('currentSlide', ref(0));
@@ -31,16 +32,14 @@ export default defineComponent({
       wrapOrder.value = slidesBuffer.value.indexOf(slideOrder);
     }
 
-    const slideStyle = computed(
-      (): ElementStyleObject => {
-        const items = config.itemsToShow;
-        const width = `${(1 / items) * 100}%`;
-        return {
-          width,
-          order: wrapOrder.value.toString(),
-        };
-      }
-    );
+    const slideStyle = computed((): ElementStyleObject => {
+      const items = config.itemsToShow;
+      const width = `${(1 / items) * 100}%`;
+      return {
+        width,
+        order: wrapOrder.value.toString(),
+      };
+    });
 
     const isActive = (): boolean => props.index === currentSlide.value;
     const isVisible = (): boolean => {
