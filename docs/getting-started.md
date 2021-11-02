@@ -60,7 +60,7 @@ export default {
 | `modelValue`           | 0        | index number of the initial slide. <Badge text="0.1.20"/>                              |
 | `mouseDrag`            | true     | toggle mouse dragging <Badge text="0.1.23"/>                                           |
 | `touchDrag`            | true     | toggle pointer touch dragging <Badge text="0.1.23"/>                                   |
-| `pauseAutoplayOnHover` | true     | toggle pointer touch dragging <Badge text="0.1.25"/>                                   |
+| `pauseAutoplayOnHover` | true     | toggle if auto play should pause on mouse hover <Badge text="0.1.25"/>                 |
 
 
 ## Slots
