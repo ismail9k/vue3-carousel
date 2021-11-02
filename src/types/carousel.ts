@@ -5,7 +5,7 @@ export interface CarouselConfig {
   modelValue?: number;
   transition?: number;
   autoplay?: number;
-  snapAlign?: 'start' | 'end' | 'center' | 'center-even' | 'center-odd';
+  snapAlign: 'start' | 'end' | 'center' | 'center-even' | 'center-odd';
   wrapAround?: boolean;
   pauseAutoplayOnHover?: boolean;
   mouseDrag?: boolean;

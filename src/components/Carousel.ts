@@ -214,10 +214,28 @@ export default defineComponent({
 
     function updateSlidesBuffer(): void {
       const slidesArray = [...Array(slidesCount.value).keys()];
-      if (config.wrapAround && slidesCount.value > config.itemsToShow) {
-        const shifts = currentSlideIndex.value + middleSlideIndex.value + 1;
-        for (let i = 0; i < shifts; i++) {
-          slidesArray.push(Number(slidesArray.shift()));
+      const shouldShiftSlides =
+        config.wrapAround && config.itemsToShow + 1 <= slidesCount.value;
+
+      if (shouldShiftSlides) {
+        const buffer = Math.round((slidesCount.value - config.itemsToShow) / 2);
+        let shifts = buffer - currentSlideIndex.value;
+
+        if (config.snapAlign === 'end') {
+          shifts += Math.floor(config.itemsToShow - 1);
+        } else if (config.snapAlign === 'center' || config.snapAlign === 'center-odd') {
+          shifts++;
+        }
+
+        // Check shifting directions
+        if (shifts < 0) {
+          for (let i = shifts; i < 0; i++) {
+            slidesArray.push(Number(slidesArray.shift()));
+          }
+        } else {
+          for (let i = 0; i < shifts; i++) {
+            slidesArray.unshift(Number(slidesArray.pop()));
+          }
         }
       }
       slidesBuffer.value = slidesArray;
