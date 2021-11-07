@@ -29,6 +29,7 @@ const Pagination = () => {
         'carousel__pagination-button': true,
         'carousel__pagination-button--active': isActive(slide),
       },
+      'aria-label': `Navigate to slide ${slide + 1}`,
       onClick: () => handleButtonClick(slide),
     });
     const item = h('li', { class: 'carousel__pagination-item', key: slide }, button);
