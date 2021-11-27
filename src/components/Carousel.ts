@@ -1,6 +1,7 @@
 import {
   defineComponent,
   onMounted,
+  onUnmounted,
   ref,
   reactive,
   provide,
@@ -107,6 +108,8 @@ export default defineComponent({
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
+    const autopayTimer: Ref<NodeJS.Timer | null> = ref(null)
+    const transitionTimer: Ref<NodeJS.Timer | null> = ref(null)
 
     let breakpoints: Ref<Breakpoints> = ref({});
 
@@ -255,6 +258,13 @@ export default defineComponent({
       window.addEventListener('resize', handleWindowResize, { passive: true });
     });
 
+    onUnmounted(() => {
+      if (transitionTimer.value) {
+        clearTimeout(transitionTimer.value);
+      }
+      resetAutoplayTimer(false);
+    });
+
     /**
      * Carousel Event listeners
      */
@@ -325,7 +335,7 @@ export default defineComponent({
      * Autoplay
      */
     function initializeAutoplay(): void {
-      setInterval(() => {
+      autopayTimer.value = setInterval(() => {
         if (config.pauseAutoplayOnHover && isHover.value) {
           return;
         }
@@ -334,11 +344,24 @@ export default defineComponent({
       }, config.autoplay);
     }
 
+    function resetAutoplayTimer(restart = true): void {
+      if (!autopayTimer.value) {
+        return
+      }
+
+      clearInterval(autopayTimer.value);
+      if (restart) {
+        initializeAutoplay();
+      }
+    }
+
     /**
      * Navigation function
      */
     const isSliding = ref(false);
     function slideTo(slideIndex: number, mute = false): void {
+      resetAutoplayTimer();
+
       if (currentSlideIndex.value === slideIndex || isSliding.value) {
         return;
       }
@@ -359,7 +382,7 @@ export default defineComponent({
       if (!mute) {
         emit('update:modelValue', currentSlideIndex.value);
       }
-      setTimeout((): void => {
+      transitionTimer.value = setTimeout((): void => {
         if (config.wrapAround) updateSlidesBuffer();
         isSliding.value = false;
       }, config.transition);
