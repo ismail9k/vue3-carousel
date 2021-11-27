@@ -108,8 +108,8 @@ export default defineComponent({
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
-    const autopayTimer: Ref<NodeJS.Timer | null> = ref(null)
-    const transitionTimer: Ref<NodeJS.Timer | null> = ref(null)
+    const autoplayTimer: Ref<NodeJS.Timer | null> = ref(null);
+    const transitionTimer: Ref<NodeJS.Timer | null> = ref(null);
 
     let breakpoints: Ref<Breakpoints> = ref({});
 
@@ -335,7 +335,7 @@ export default defineComponent({
      * Autoplay
      */
     function initializeAutoplay(): void {
-      autopayTimer.value = setInterval(() => {
+      autoplayTimer.value = setInterval(() => {
         if (config.pauseAutoplayOnHover && isHover.value) {
           return;
         }
@@ -345,11 +345,11 @@ export default defineComponent({
     }
 
     function resetAutoplayTimer(restart = true): void {
-      if (!autopayTimer.value) {
-        return
+      if (!autoplayTimer.value) {
+        return;
       }
 
-      clearInterval(autopayTimer.value);
+      clearInterval(autoplayTimer.value);
       if (restart) {
         initializeAutoplay();
       }
