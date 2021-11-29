@@ -221,7 +221,9 @@ export default defineComponent({
         config.wrapAround && config.itemsToShow + 1 <= slidesCount.value;
 
       if (shouldShiftSlides) {
-        const buffer = Math.round((slidesCount.value - config.itemsToShow) / 2);
+        const buffer = config.itemsToShow !== 1
+          ? Math.round((slidesCount.value - config.itemsToShow) / 2)
+          : 0;
         let shifts = buffer - currentSlideIndex.value;
 
         if (config.snapAlign === 'end') {
