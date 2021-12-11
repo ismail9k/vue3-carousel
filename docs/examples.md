@@ -148,6 +148,68 @@ export default defineComponent({
 </script>
 ```
 
+## [HiddenArrows](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleHiddenArrows.vue)
+
+<ExampleHiddenArrows></ExampleHiddenArrows>
+
+```vue
+<template>
+  <Carousel :settings="settings" :breakpoints="breakpoints">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+    </template>
+  </Carousel>
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+import { Carousel, Navigation, Slide } from 'vue3-carousel';
+
+import 'vue3-carousel/dist/carousel.css';
+
+export default defineComponent({
+  name: 'Breakpoints',
+  components: {
+    Carousel,
+    Slide,
+    Navigation,
+  },
+  data: () => ({
+    // carousel settings
+    settings: {
+      itemsToShow: 1,
+      snapAlign: 'center',
+    },
+    // breakpoints are mobile first
+    // any settings not specified will fallback to the carousel settings
+    breakpoints: {
+      // 700px and up
+      700: {
+        itemsToShow: 3.5,
+        snapAlign: 'center',
+      },
+      // 1024 and up
+      1024: {
+        itemsToShow: 5,
+        snapAlign: 'start',
+      },
+    },
+  }),
+});
+</script>
+
+<style>
+.carousel__prev--in-active,
+.carousel__next--in-active {
+  display: none;
+}
+</style>
+```
+
 ## [Pagination](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleBreakpoints.vue)
 
 <ExamplePagination></ExamplePagination>
@@ -296,6 +358,7 @@ export default defineComponent({
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
 import ExampleBreakpoints from './examples/ExampleBreakpoints.vue';
+import ExampleHiddenArrows from './examples/ExampleHiddenArrows.vue';
 import ExamplePagination from './examples/ExamplePagination.vue';
 import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
@@ -305,6 +368,7 @@ export default {
     ExampleBasic,
     ExampleWrapAround,
     ExampleBreakpoints,
+    ExampleHiddenArrows,
     ExampleAutoplay,
     ExamplePagination,
     ExampleActiveClasses,
