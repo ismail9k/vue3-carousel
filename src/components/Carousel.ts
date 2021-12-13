@@ -297,9 +297,9 @@ export default defineComponent({
     }, 16);
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      if (!isTouch) event.preventDefault();
-
       isTouch = event.type === 'touchstart';
+
+      if (!isTouch) event.preventDefault();
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return;
       }
