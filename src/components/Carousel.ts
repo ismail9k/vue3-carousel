@@ -101,7 +101,7 @@ export default defineComponent({
       type: Object,
     },
   },
-  setup(props: Data, { slots, emit }: SetupContext) {
+  setup(props: Data, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
     const slides: Ref<any> = ref([]);
     const slidesBuffer: Ref<Array<number>> = ref([]);
@@ -221,9 +221,10 @@ export default defineComponent({
         config.wrapAround && config.itemsToShow + 1 <= slidesCount.value;
 
       if (shouldShiftSlides) {
-        const buffer = config.itemsToShow !== 1
-          ? Math.round((slidesCount.value - config.itemsToShow) / 2)
-          : 0;
+        const buffer =
+          config.itemsToShow !== 1
+            ? Math.round((slidesCount.value - config.itemsToShow) / 2)
+            : 0;
         let shifts = buffer - currentSlideIndex.value;
 
         if (config.snapAlign === 'end') {
@@ -468,6 +469,25 @@ export default defineComponent({
     initDefaultConfigs();
     updateBreakpointsConfigs();
     updateSlidesBuffer();
+
+    expose({
+      updateBreakpointsConfigs,
+      updateSlidesData,
+      updateSlideWidth,
+      updateSlidesBuffer,
+      slideTo,
+      next,
+      prev,
+      data: {
+        config,
+        slidesBuffer,
+        slidesCount,
+        currentSlide: currentSlideIndex,
+        maxSlide: maxSlideIndex,
+        minSlide: minSlideIndex,
+        middleSlide: middleSlideIndex,
+      },
+    });
 
     return () => {
       const slidesElements = getSlides(slotSlides?.(slotsProps));
