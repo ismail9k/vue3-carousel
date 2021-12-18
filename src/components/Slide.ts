@@ -1,6 +1,5 @@
-import { defineComponent, inject, ref, computed, watchEffect, h, reactive } from 'vue';
+import { defineComponent, inject, ref, computed, watch, h, reactive } from 'vue';
 
-import { Counter } from '@/partials/counter';
 import { defaultConfigs } from '@/partials/defaults';
 
 import { SetupContext, CarouselConfig, Ref, ElementStyleObject } from '@/types';
@@ -16,20 +15,17 @@ export default defineComponent({
   setup(props, { slots }: SetupContext) {
     const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }));
     const slidesBuffer: Ref<Array<number>> = inject('slidesBuffer', ref([]));
-    const slidesCounter = inject('slidesCounter') as Counter;
     const currentSlide = inject('currentSlide', ref(0));
     const slidesToScroll = inject('slidesToScroll', ref(0));
-
-    const slideOrder: number = slidesCounter.value;
-    const wrapOrder: Ref<number> = ref(slideOrder);
+    const wrapOrder: Ref<number> = ref(props.index);
 
     if (config.wrapAround) {
       updateOrder();
-      watchEffect(updateOrder);
+      watch(slidesBuffer, updateOrder);
     }
 
     function updateOrder(): void {
-      wrapOrder.value = slidesBuffer.value.indexOf(slideOrder);
+      wrapOrder.value = slidesBuffer.value.indexOf(props.index);
     }
 
     const slideStyle = computed((): ElementStyleObject => {

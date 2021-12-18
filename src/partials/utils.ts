@@ -35,7 +35,7 @@ export function throttle(fn: (...args: any[]) => unknown, limit: number): typeof
   };
 }
 
-export function getSlides(vNode: any[] | undefined) {
+export function getSlidesVNodes(vNode: any[] | undefined) {
   // Return empty array if there's any node
   if (!vNode) return [];
 
@@ -93,4 +93,37 @@ export function getCurrentSlideIndex(
     return val;
   }
   return Math.min(Math.max(val, min), max);
+}
+
+
+export function getSlidesToScroll({
+  slidesBuffer,
+  currentSlide,
+  snapAlign,
+  itemsToShow,
+  wrapAround,
+  slidesCount,
+}: {
+  slidesBuffer: number[],
+  currentSlide: number,
+  itemsToShow: number,
+  wrapAround: boolean,
+  slidesCount: number,
+  snapAlign: string,
+}): number {
+  let output = slidesBuffer.indexOf(currentSlide);
+  if (snapAlign === 'center' || snapAlign === 'center-odd') {
+    output -= (itemsToShow - 1) / 2;
+  } else if (snapAlign === 'center-even') {
+    output -= (itemsToShow - 2) / 2;
+  } else if (snapAlign === 'end') {
+    output -= itemsToShow - 1;
+  }
+
+  if (!wrapAround) {
+    const max = slidesCount - itemsToShow;
+    const min = 0;
+    output = Math.max(Math.min(output, max), min);
+  }
+  return output;
 }
