@@ -12,7 +12,6 @@ import {
 } from 'vue';
 
 import { defaultConfigs } from '@/partials/defaults';
-import counterFactory, { Counter } from '@/partials/counter';
 import {
   debounce,
   throttle,
@@ -107,7 +106,6 @@ export default defineComponent({
     const slidesBuffer: Ref<Array<number>> = ref([]);
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
-    const slidesCounter: Counter = counterFactory();
     const autoplayTimer: Ref<NodeJS.Timer | null> = ref(null);
     const transitionTimer: Ref<NodeJS.Timer | null> = ref(null);
 
@@ -139,7 +137,6 @@ export default defineComponent({
     provide('currentSlide', currentSlideIndex);
     provide('maxSlide', maxSlideIndex);
     provide('minSlide', minSlideIndex);
-    provide('slidesCounter', slidesCounter);
 
     /**
      * Configs
