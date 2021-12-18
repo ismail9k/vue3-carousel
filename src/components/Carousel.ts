@@ -146,6 +146,8 @@ export default defineComponent({
 
       // remove extra values
       defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined };
+
+      bindConfigs(defaultConfig);
     }
 
     function updateBreakpointsConfigs(): void {
@@ -165,8 +167,12 @@ export default defineComponent({
         }
         return false;
       });
-      let key: keyof CarouselConfig;
-      for (key in newConfig) {
+      
+      bindConfigs(newConfig);
+    }
+
+    function bindConfigs(newConfig: CarouselConfig): void {
+      for (let key in newConfig) {
         // @ts-ignore
         config[key] = newConfig[key];
       }
@@ -422,7 +428,6 @@ export default defineComponent({
 
     function initCarousel(): void {
       initDefaultConfigs();
-      updateSlidesBuffer();
     }
 
     function restartCarousel(): void {

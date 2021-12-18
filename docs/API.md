@@ -37,10 +37,9 @@ Update all the slide related date includes:
 
 ### initCarousel()
 
-Init the carousel settings, internally it calls:
+Init the carousel configs, internally it calls:
 
 * `initDefaultConfigs`
-* `updateSlidesBuffer`
 
 ### restartCarousel()
 

@@ -1,5 +1,5 @@
 <template>
-  <Carousel :items-to-show="3">
+  <Carousel :items-to-show="3" id="hideArrowsExample">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
@@ -27,8 +27,8 @@ export default defineComponent({
 </script>
 
 <style>
-.carousel__prev--in-active,
-.carousel__next--in-active {
+#hideArrowsExample .carousel__prev--in-active,
+#hideArrowsExample .carousel__next--in-active {
   display: none;
 }
 </style>
