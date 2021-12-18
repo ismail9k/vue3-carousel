@@ -422,15 +422,17 @@ export default defineComponent({
 
     function initCarousel(): void {
       initDefaultConfigs();
-      updateBreakpointsConfigs();
       updateSlidesBuffer();
     }
+
     function restartCarousel(): void {
       initDefaultConfigs();
       updateBreakpointsConfigs();
       updateSlidesData();
+      updateSlidesBuffer();
       updateSlideWidth();
     }
+
     function updateCarousel(): void {
       updateSlidesData();
       updateSlidesBuffer();

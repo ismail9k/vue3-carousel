@@ -17,7 +17,7 @@ import { Carousel, Slide, Navigation } from '../../dist/carousel.es';
 import '../../dist/carousel.css';
 
 export default defineComponent({
-  name: 'Breakpoints',
+  name: 'HiddenArrows',
   components: {
     Carousel,
     Slide,

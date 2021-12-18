@@ -40,7 +40,6 @@ Update all the slide related date includes:
 Init the carousel settings, internally it calls:
 
 * `initDefaultConfigs`
-* `updateBreakpointsConfigs`
 * `updateSlidesBuffer`
 
 ### restartCarousel()
@@ -49,6 +48,7 @@ Restart the carousel settings and data, internally it calls:
 
 * `initDefaultConfigs`
 * `updateBreakpointsConfigs`
+* `updateSlidesBuffer`
 * `updateSlidesData`
 * `updateSlideWidth`
 
