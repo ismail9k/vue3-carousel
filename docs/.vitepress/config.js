@@ -17,6 +17,7 @@ module.exports = {
         { text: 'Home', link: '/' },
         { text: 'Getting Started', link: '/getting-started' },
         { text: 'Examples', link: '/examples' },
+        { text: 'API', link: '/api' },
       ],
     },
   },

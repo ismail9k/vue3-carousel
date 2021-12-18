@@ -12,14 +12,14 @@ import {
 } from 'vue';
 
 import { defaultConfigs } from '@/partials/defaults';
-import counterFactory, { Counter } from '@/partials/counter';
 import {
   debounce,
   throttle,
-  getSlides,
+  getSlidesVNodes,
   getCurrentSlideIndex,
   getMaxSlideIndex,
   getMinSlideIndex,
+  getSlidesToScroll,
 } from '@/partials/utils';
 
 import {
@@ -101,13 +101,12 @@ export default defineComponent({
       type: Object,
     },
   },
-  setup(props: Data, { slots, emit }: SetupContext) {
+  setup(props: Data, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
     const slides: Ref<any> = ref([]);
     const slidesBuffer: Ref<Array<number>> = ref([]);
     const slideWidth: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
-    const slidesCounter: Counter = counterFactory();
     const autoplayTimer: Ref<NodeJS.Timer | null> = ref(null);
     const transitionTimer: Ref<NodeJS.Timer | null> = ref(null);
 
@@ -117,14 +116,6 @@ export default defineComponent({
     let defaultConfig: CarouselConfig = { ...defaultConfigs };
     // current config
     const config = reactive<CarouselConfig>({ ...defaultConfigs });
-
-    // Update the carousel on props change
-    watch(props, () => {
-      initDefaultConfigs();
-      updateBreakpointsConfigs();
-      updateSlidesData();
-      updateSlideWidth();
-    });
 
     // slides
     const currentSlideIndex = ref(config.modelValue ?? 0);
@@ -139,7 +130,6 @@ export default defineComponent({
     provide('currentSlide', currentSlideIndex);
     provide('maxSlide', maxSlideIndex);
     provide('minSlide', minSlideIndex);
-    provide('slidesCounter', slidesCounter);
 
     /**
      * Configs
@@ -221,9 +211,10 @@ export default defineComponent({
         config.wrapAround && config.itemsToShow + 1 <= slidesCount.value;
 
       if (shouldShiftSlides) {
-        const buffer = config.itemsToShow !== 1
-          ? Math.round((slidesCount.value - config.itemsToShow) / 2)
-          : 0;
+        const buffer =
+          config.itemsToShow !== 1
+            ? Math.round((slidesCount.value - config.itemsToShow) / 2)
+            : 0;
         let shifts = buffer - currentSlideIndex.value;
 
         if (config.snapAlign === 'end') {
@@ -411,23 +402,14 @@ export default defineComponent({
     /**
      * Track style
      */
-    const slidesToScroll = computed((): number => {
-      let output = slidesBuffer.value.indexOf(currentSlideIndex.value);
-      if (config.snapAlign === 'center' || config.snapAlign === 'center-odd') {
-        output -= (config.itemsToShow - 1) / 2;
-      } else if (config.snapAlign === 'center-even') {
-        output -= (config.itemsToShow - 2) / 2;
-      } else if (config.snapAlign === 'end') {
-        output -= config.itemsToShow - 1;
-      }
-
-      if (!config.wrapAround) {
-        const max = slidesCount.value - config.itemsToShow;
-        const min = 0;
-        output = Math.max(Math.min(output, max), min);
-      }
-      return output;
-    });
+    const slidesToScroll = computed(() => getSlidesToScroll({
+      slidesBuffer: slidesBuffer.value,
+      itemsToShow: config.itemsToShow,
+      snapAlign: config.snapAlign,
+      wrapAround: Boolean(config.wrapAround),
+      currentSlide: currentSlideIndex.value,
+      slidesCount: slidesCount.value,
+    }));
     provide('slidesToScroll', slidesToScroll);
 
     const trackStyle = computed((): ElementStyleObject => {
@@ -438,13 +420,27 @@ export default defineComponent({
       };
     });
 
-    const slotsProps = reactive({
-      slideWidth,
-      slidesCount,
-      currentSlide: currentSlideIndex,
-    });
-    const slotSlides = slots.default || slots.slides;
-    const slotAddons = slots.addons;
+    function initCarousel(): void {
+      initDefaultConfigs();
+      updateBreakpointsConfigs();
+      updateSlidesBuffer();
+    }
+    function restartCarousel(): void {
+      initDefaultConfigs();
+      updateBreakpointsConfigs();
+      updateSlidesData();
+      updateSlideWidth();
+    }
+    function updateCarousel(): void {
+      updateSlidesData();
+      updateSlidesBuffer();
+    }
+
+    // Update the carousel on props change
+    watch(props, restartCarousel);
+
+    // Init carousel
+    initCarousel();
 
     watchEffect((): void => {
       // Handel when slides added/removed
@@ -457,20 +453,42 @@ export default defineComponent({
       }
 
       if (needToUpdate) {
-        updateSlidesData();
-        updateSlidesBuffer();
-      }
-      if (slidesCounter.read) {
-        slidesCounter.value = slides.value.length - 1;
+        updateCarousel();
       }
     });
 
-    initDefaultConfigs();
-    updateBreakpointsConfigs();
-    updateSlidesBuffer();
+
+    const data = {
+      config,
+      slidesBuffer,
+      slidesCount,
+      slideWidth,
+      currentSlide: currentSlideIndex,
+      maxSlide: maxSlideIndex,
+      minSlide: minSlideIndex,
+      middleSlide: middleSlideIndex,
+    }
+    expose({
+      updateBreakpointsConfigs,
+      updateSlidesData,
+      updateSlideWidth,
+      updateSlidesBuffer,
+      initCarousel,
+      restartCarousel,
+      updateCarousel,
+      slideTo,
+      next,
+      prev,
+      nav,
+      data,
+    });
+
+    const slotSlides = slots.default || slots.slides;
+    const slotAddons = slots.addons;
+    const slotsProps = reactive(data);
 
     return () => {
-      const slidesElements = getSlides(slotSlides?.(slotsProps));
+      const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps));
       const addonsElements = slotAddons?.(slotsProps) || [];
       slides.value = slidesElements;
       // Bind slide order
