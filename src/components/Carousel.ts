@@ -23,7 +23,6 @@ import {
 } from '@/partials/utils';
 
 import {
-  Data,
   SetupContext,
   CarouselConfig,
   Ref,
@@ -101,7 +100,7 @@ export default defineComponent({
       type: Object,
     },
   },
-  setup(props: Data, { slots, emit, expose }: SetupContext) {
+  setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null);
     const slides: Ref<any> = ref([]);
     const slidesBuffer: Ref<Array<number>> = ref([]);
@@ -136,9 +135,9 @@ export default defineComponent({
      */
     function initDefaultConfigs(): void {
       // generate carousel configs
-      const mergedConfigs: CarouselConfig = {
+      const mergedConfigs = {
         ...props,
-        ...(props.settings as CarouselConfig),
+        ...props.settings,
       };
 
       // Set breakpoints
@@ -167,7 +166,7 @@ export default defineComponent({
         }
         return false;
       });
-      
+
       bindConfigs(newConfig);
     }
 
@@ -408,14 +407,16 @@ export default defineComponent({
     /**
      * Track style
      */
-    const slidesToScroll = computed(() => getSlidesToScroll({
-      slidesBuffer: slidesBuffer.value,
-      itemsToShow: config.itemsToShow,
-      snapAlign: config.snapAlign,
-      wrapAround: Boolean(config.wrapAround),
-      currentSlide: currentSlideIndex.value,
-      slidesCount: slidesCount.value,
-    }));
+    const slidesToScroll = computed(() =>
+      getSlidesToScroll({
+        slidesBuffer: slidesBuffer.value,
+        itemsToShow: config.itemsToShow,
+        snapAlign: config.snapAlign,
+        wrapAround: Boolean(config.wrapAround),
+        currentSlide: currentSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+    );
     provide('slidesToScroll', slidesToScroll);
 
     const trackStyle = computed((): ElementStyleObject => {
@@ -444,7 +445,7 @@ export default defineComponent({
     }
 
     // Update the carousel on props change
-    watch(props, restartCarousel);
+    watch(() => Object.values(props), restartCarousel);
 
     // Init carousel
     initCarousel();
@@ -464,7 +465,6 @@ export default defineComponent({
       }
     });
 
-
     const data = {
       config,
       slidesBuffer,
@@ -474,7 +474,7 @@ export default defineComponent({
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       middleSlide: middleSlideIndex,
-    }
+    };
     expose({
       updateBreakpointsConfigs,
       updateSlidesData,
