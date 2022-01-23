@@ -22,8 +22,11 @@
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@types/jest": "^26.0.24",
+    "@typescript-eslint/parser": "^5.10.0",
     "@vue/test-utils": "^2.0.0-rc.10",
     "eslint": "^7.32.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^8.3.0",
     "jest": "^27.0.6",
     "prettier": "^2.3.2",
     "rollup": "^2.56.2",

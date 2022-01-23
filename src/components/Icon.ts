@@ -1,19 +1,19 @@
-import { h } from 'vue';
+import { h } from 'vue'
 
-import icons from '../partials/icons';
+import icons from '../partials/icons'
 
-import { Data } from '../types';
+import { Data } from '../types'
 
 const Icon = (props: Data) => {
-  const iconName = props.name;
+  const iconName = props.name
   if (!iconName || typeof iconName !== 'string') {
-    return;
+    return
   }
-  const path = icons[iconName];
-  const pathEl = h('path', { d: path });
+  const path = icons[iconName]
+  const pathEl = h('path', { d: path })
 
-  const iconTitle = props.title || iconName;
-  const titleEl = h('title', null, iconName);
+  const iconTitle = props.title || iconName
+  const titleEl = h('title', null, iconName)
 
   return h(
     'svg',
@@ -21,11 +21,12 @@ const Icon = (props: Data) => {
       class: 'carousel__icon',
       viewBox: '0 0 24 24',
       role: 'img',
+      ariaLabel: iconTitle,
     },
     [titleEl, pathEl]
-  );
-};
+  )
+}
 
-Icon.props = { name: String, title: String };
+Icon.props = { name: String, title: String }
 
-export default Icon;
+export default Icon

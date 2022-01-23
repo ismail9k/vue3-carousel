@@ -5,6 +5,7 @@ import { CarouselConfig } from '../types';
  * @param fn
  * @param delay
  */
+// eslint-disable-next-line no-unused-vars
 export function debounce(fn: (...args: any[]) => unknown, delay: number): typeof fn {
   let timerId: ReturnType<typeof setTimeout> | null;
   return function (...args: any[]) {
@@ -23,6 +24,7 @@ export function debounce(fn: (...args: any[]) => unknown, delay: number): typeof
  * Throttling
  *
  */
+// eslint-disable-next-line no-unused-vars
 export function throttle(fn: (...args: any[]) => unknown, limit: number): typeof fn {
   let inThrottle: boolean;
   return function (...args: any[]) {

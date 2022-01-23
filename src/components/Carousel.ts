@@ -9,9 +9,9 @@ import {
   watchEffect,
   h,
   watch,
-} from 'vue';
+} from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults';
+import { defaultConfigs } from '@/partials/defaults'
 import {
   debounce,
   throttle,
@@ -20,7 +20,7 @@ import {
   getMaxSlideIndex,
   getMinSlideIndex,
   getSlidesToScroll,
-} from '@/partials/utils';
+} from '@/partials/utils'
 
 import {
   SetupContext,
@@ -29,7 +29,7 @@ import {
   CarouselNav,
   ElementStyleObject,
   Breakpoints,
-} from '@/types';
+} from '@/types'
 
 export default defineComponent({
   name: 'Carousel',
@@ -54,7 +54,7 @@ export default defineComponent({
       default: defaultConfigs.snapAlign,
       validator(value: string) {
         // The value must match one of these strings
-        return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value);
+        return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value)
       },
     },
     // sliding transition time in ms
@@ -95,40 +95,40 @@ export default defineComponent({
     // an object to pass all settings
     settings: {
       default() {
-        return {};
+        return {}
       },
       type: Object,
     },
   },
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
-    const root: Ref<Element | null> = ref(null);
-    const slides: Ref<any> = ref([]);
-    const slidesBuffer: Ref<Array<number>> = ref([]);
-    const slideWidth: Ref<number> = ref(0);
-    const slidesCount: Ref<number> = ref(1);
-    const autoplayTimer: Ref<NodeJS.Timer | null> = ref(null);
-    const transitionTimer: Ref<NodeJS.Timer | null> = ref(null);
+    const root: Ref<Element | null> = ref(null)
+    const slides: Ref<any> = ref([])
+    const slidesBuffer: Ref<Array<number>> = ref([])
+    const slideWidth: Ref<number> = ref(0)
+    const slidesCount: Ref<number> = ref(1)
+    const autoplayTimer: Ref<NodeJS.Timeout | null> = ref(null)
+    const transitionTimer: Ref<NodeJS.Timeout | null> = ref(null)
 
-    let breakpoints: Ref<Breakpoints> = ref({});
+    let breakpoints: Ref<Breakpoints> = ref({})
 
     // generate carousel configs
-    let __defaultConfig: CarouselConfig = { ...defaultConfigs };
+    let __defaultConfig: CarouselConfig = { ...defaultConfigs }
     // current config
-    const config = reactive<CarouselConfig>({ ...__defaultConfig });
+    const config = reactive<CarouselConfig>({ ...__defaultConfig })
 
     // slides
-    const currentSlideIndex = ref(config.modelValue ?? 0);
-    const prevSlideIndex = ref(0);
-    const middleSlideIndex = ref(0);
-    const maxSlideIndex = ref(0);
-    const minSlideIndex = ref(0);
+    const currentSlideIndex = ref(config.modelValue ?? 0)
+    const prevSlideIndex = ref(0)
+    const middleSlideIndex = ref(0)
+    const maxSlideIndex = ref(0)
+    const minSlideIndex = ref(0)
 
-    provide('config', config);
-    provide('slidesBuffer', slidesBuffer);
-    provide('slidesCount', slidesCount);
-    provide('currentSlide', currentSlideIndex);
-    provide('maxSlide', maxSlideIndex);
-    provide('minSlide', minSlideIndex);
+    provide('config', config)
+    provide('slidesBuffer', slidesBuffer)
+    provide('slidesCount', slidesCount)
+    provide('currentSlide', currentSlideIndex)
+    provide('maxSlide', maxSlideIndex)
+    provide('minSlide', minSlideIndex)
 
     /**
      * Configs
@@ -138,195 +138,195 @@ export default defineComponent({
       const mergedConfigs = {
         ...props,
         ...props.settings,
-      };
+      }
 
       // Set breakpoints
-      breakpoints = ref({ ...mergedConfigs.breakpoints });
+      breakpoints = ref({ ...mergedConfigs.breakpoints })
 
       // remove extra values
-      __defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined };
+      __defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined }
 
-      bindConfigs(__defaultConfig);
+      bindConfigs(__defaultConfig)
     }
 
     function updateBreakpointsConfigs(): void {
       const breakpointsArray: number[] = Object.keys(breakpoints.value)
         .map((key: string): number => Number(key))
-        .sort((a: number, b: number) => +b - +a);
-      let newConfig = { ...__defaultConfig };
+        .sort((a: number, b: number) => +b - +a)
+      let newConfig = { ...__defaultConfig }
 
       breakpointsArray.some((breakpoint): boolean => {
-        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches;
+        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
         if (isMatched) {
           newConfig = {
             ...newConfig,
             ...(breakpoints.value[breakpoint] as CarouselConfig),
-          };
-          return true;
+          }
+          return true
         }
-        return false;
-      });
+        return false
+      })
 
-      bindConfigs(newConfig);
+      bindConfigs(newConfig)
     }
 
     function bindConfigs(newConfig: CarouselConfig): void {
       for (let key in newConfig) {
         // @ts-ignore
-        config[key] = newConfig[key];
+        config[key] = newConfig[key]
       }
     }
 
     const handleWindowResize = debounce(() => {
       if (breakpoints.value) {
-        updateBreakpointsConfigs();
-        updateSlidesData();
+        updateBreakpointsConfigs()
+        updateSlidesData()
       }
-      updateSlideWidth();
-    }, 16);
+      updateSlideWidth()
+    }, 16)
 
     /**
      * Setup functions
      */
 
     function updateSlideWidth(): void {
-      if (!root.value) return;
-      const rect = root.value.getBoundingClientRect();
-      slideWidth.value = rect.width / config.itemsToShow;
+      if (!root.value) return
+      const rect = root.value.getBoundingClientRect()
+      slideWidth.value = rect.width / config.itemsToShow
     }
 
     function updateSlidesData(): void {
-      slidesCount.value = Math.max(slides.value.length, 1);
-      if (slidesCount.value <= 0) return;
+      slidesCount.value = Math.max(slides.value.length, 1)
+      if (slidesCount.value <= 0) return
 
-      middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2);
-      maxSlideIndex.value = getMaxSlideIndex(config, slidesCount.value);
-      minSlideIndex.value = getMinSlideIndex(config);
+      middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2)
+      maxSlideIndex.value = getMaxSlideIndex(config, slidesCount.value)
+      minSlideIndex.value = getMinSlideIndex(config)
       currentSlideIndex.value = getCurrentSlideIndex(
         config,
         currentSlideIndex.value,
         maxSlideIndex.value,
         minSlideIndex.value
-      );
+      )
     }
 
     function updateSlidesBuffer(): void {
-      const slidesArray = [...Array(slidesCount.value).keys()];
+      const slidesArray = [...Array(slidesCount.value).keys()]
       const shouldShiftSlides =
-        config.wrapAround && config.itemsToShow + 1 <= slidesCount.value;
+        config.wrapAround && config.itemsToShow + 1 <= slidesCount.value
 
       if (shouldShiftSlides) {
         const buffer =
           config.itemsToShow !== 1
             ? Math.round((slidesCount.value - config.itemsToShow) / 2)
-            : 0;
-        let shifts = buffer - currentSlideIndex.value;
+            : 0
+        let shifts = buffer - currentSlideIndex.value
 
         if (config.snapAlign === 'end') {
-          shifts += Math.floor(config.itemsToShow - 1);
+          shifts += Math.floor(config.itemsToShow - 1)
         } else if (config.snapAlign === 'center' || config.snapAlign === 'center-odd') {
-          shifts++;
+          shifts++
         }
 
         // Check shifting directions
         if (shifts < 0) {
           for (let i = shifts; i < 0; i++) {
-            slidesArray.push(Number(slidesArray.shift()));
+            slidesArray.push(Number(slidesArray.shift()))
           }
         } else {
           for (let i = 0; i < shifts; i++) {
-            slidesArray.unshift(Number(slidesArray.pop()));
+            slidesArray.unshift(Number(slidesArray.pop()))
           }
         }
       }
-      slidesBuffer.value = slidesArray;
+      slidesBuffer.value = slidesArray
     }
 
     onMounted((): void => {
       if (breakpoints.value) {
-        updateBreakpointsConfigs();
-        updateSlidesData();
+        updateBreakpointsConfigs()
+        updateSlidesData()
       }
-      updateSlideWidth();
+      updateSlideWidth()
 
       if (config.autoplay && config.autoplay > 0) {
-        initializeAutoplay();
+        initializeAutoplay()
       }
 
-      window.addEventListener('resize', handleWindowResize, { passive: true });
-    });
+      window.addEventListener('resize', handleWindowResize, { passive: true })
+    })
 
     onUnmounted(() => {
       if (transitionTimer.value) {
-        clearTimeout(transitionTimer.value);
+        clearTimeout(transitionTimer.value)
       }
-      resetAutoplayTimer(false);
-    });
+      resetAutoplayTimer(false)
+    })
 
     /**
      * Carousel Event listeners
      */
-    let isTouch = false;
-    const startPosition = { x: 0, y: 0 };
-    const endPosition = { x: 0, y: 0 };
-    const dragged = reactive({ x: 0, y: 0 });
-    const isDragging = ref(false);
-    const isHover = ref(false);
+    let isTouch = false
+    const startPosition = { x: 0, y: 0 }
+    const endPosition = { x: 0, y: 0 }
+    const dragged = reactive({ x: 0, y: 0 })
+    const isDragging = ref(false)
+    const isHover = ref(false)
 
     const handleMouseEnter = (): void => {
-      isHover.value = true;
-    };
+      isHover.value = true
+    }
     const handleMouseLeave = (): void => {
-      isHover.value = false;
-    };
+      isHover.value = false
+    }
 
     const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
-      if (!isTouch) event.preventDefault();
+      if (!isTouch) event.preventDefault()
 
-      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
-      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
-      const deltaX = endPosition.x - startPosition.x;
-      const deltaY = endPosition.y - startPosition.y;
+      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
+      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
+      const deltaX = endPosition.x - startPosition.x
+      const deltaY = endPosition.y - startPosition.y
 
-      dragged.y = deltaY;
-      dragged.x = deltaX;
-    }, 16);
+      dragged.y = deltaY
+      dragged.x = deltaX
+    }, 16)
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      isTouch = event.type === 'touchstart';
+      isTouch = event.type === 'touchstart'
 
-      if (!isTouch) event.preventDefault();
+      if (!isTouch) event.preventDefault()
       if ((!isTouch && event.button !== 0) || isSliding.value) {
-        return;
+        return
       }
 
-      isDragging.value = true;
-      startPosition.x = isTouch ? event.touches[0].clientX : event.clientX;
-      startPosition.y = isTouch ? event.touches[0].clientY : event.clientY;
+      isDragging.value = true
+      startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
+      startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag)
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     function handleDragEnd(): void {
-      isDragging.value = false;
+      isDragging.value = false
 
-      const tolerance = Math.sign(dragged.x) * 0.4;
-      const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance);
+      const tolerance = Math.sign(dragged.x) * 0.4
+      const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance)
 
       let newSlide = getCurrentSlideIndex(
         config,
         currentSlideIndex.value - draggedSlides,
         maxSlideIndex.value,
         minSlideIndex.value
-      );
-      slideTo(newSlide);
+      )
+      slideTo(newSlide)
 
-      dragged.x = 0;
-      dragged.y = 0;
+      dragged.x = 0
+      dragged.y = 0
 
-      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag);
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd);
+      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag)
+      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     /**
@@ -335,74 +335,74 @@ export default defineComponent({
     function initializeAutoplay(): void {
       autoplayTimer.value = setInterval(() => {
         if (config.pauseAutoplayOnHover && isHover.value) {
-          return;
+          return
         }
 
-        next();
-      }, config.autoplay);
+        next()
+      }, config.autoplay)
     }
 
     function resetAutoplayTimer(restart = true): void {
       if (!autoplayTimer.value) {
-        return;
+        return
       }
 
-      clearInterval(autoplayTimer.value);
+      clearInterval(autoplayTimer.value)
       if (restart) {
-        initializeAutoplay();
+        initializeAutoplay()
       }
     }
 
     /**
      * Navigation function
      */
-    const isSliding = ref(false);
+    const isSliding = ref(false)
     function slideTo(slideIndex: number, mute = false): void {
-      resetAutoplayTimer();
+      resetAutoplayTimer()
 
       if (currentSlideIndex.value === slideIndex || isSliding.value) {
-        return;
+        return
       }
 
       // Wrap slide index
-      const lastSlideIndex = slidesCount.value - 1;
+      const lastSlideIndex = slidesCount.value - 1
       if (slideIndex > lastSlideIndex) {
-        return slideTo(slideIndex - slidesCount.value);
+        return slideTo(slideIndex - slidesCount.value)
       }
       if (slideIndex < 0) {
-        return slideTo(slideIndex + slidesCount.value);
+        return slideTo(slideIndex + slidesCount.value)
       }
 
-      isSliding.value = true;
-      prevSlideIndex.value = currentSlideIndex.value;
-      currentSlideIndex.value = slideIndex;
+      isSliding.value = true
+      prevSlideIndex.value = currentSlideIndex.value
+      currentSlideIndex.value = slideIndex
 
       if (!mute) {
-        emit('update:modelValue', currentSlideIndex.value);
+        emit('update:modelValue', currentSlideIndex.value)
       }
       transitionTimer.value = setTimeout((): void => {
-        if (config.wrapAround) updateSlidesBuffer();
-        isSliding.value = false;
-      }, config.transition);
+        if (config.wrapAround) updateSlidesBuffer()
+        isSliding.value = false
+      }, config.transition)
     }
 
     function next(): void {
-      let nextSlide = currentSlideIndex.value + config.itemsToScroll;
+      let nextSlide = currentSlideIndex.value + config.itemsToScroll
       if (!config.wrapAround) {
-        nextSlide = Math.min(nextSlide, maxSlideIndex.value);
+        nextSlide = Math.min(nextSlide, maxSlideIndex.value)
       }
-      slideTo(nextSlide);
+      slideTo(nextSlide)
     }
 
     function prev(): void {
-      let prevSlide = currentSlideIndex.value - config.itemsToScroll;
+      let prevSlide = currentSlideIndex.value - config.itemsToScroll
       if (!config.wrapAround) {
-        prevSlide = Math.max(prevSlide, minSlideIndex.value);
+        prevSlide = Math.max(prevSlide, minSlideIndex.value)
       }
-      slideTo(prevSlide);
+      slideTo(prevSlide)
     }
-    const nav: CarouselNav = { slideTo, next, prev };
-    provide('nav', nav);
+    const nav: CarouselNav = { slideTo, next, prev }
+    provide('nav', nav)
 
     /**
      * Track style
@@ -416,54 +416,54 @@ export default defineComponent({
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
-    );
-    provide('slidesToScroll', slidesToScroll);
+    )
+    provide('slidesToScroll', slidesToScroll)
 
     const trackStyle = computed((): ElementStyleObject => {
-      const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
+      const xScroll = dragged.x - slidesToScroll.value * slideWidth.value
       return {
         transform: `translateX(${xScroll}px)`,
         transition: `${isSliding.value ? config.transition : 0}ms`,
-      };
-    });
+      }
+    })
 
     function initCarousel(): void {
-      initDefaultConfigs();
+      initDefaultConfigs()
     }
 
     function restartCarousel(): void {
-      initDefaultConfigs();
-      updateBreakpointsConfigs();
-      updateSlidesData();
-      updateSlidesBuffer();
-      updateSlideWidth();
+      initDefaultConfigs()
+      updateBreakpointsConfigs()
+      updateSlidesData()
+      updateSlidesBuffer()
+      updateSlideWidth()
     }
 
     function updateCarousel(): void {
-      updateSlidesData();
-      updateSlidesBuffer();
+      updateSlidesData()
+      updateSlidesBuffer()
     }
 
     // Update the carousel on props change
-    watch(() => Object.values(props), restartCarousel);
+    watch(() => Object.values(props), restartCarousel)
 
     // Init carousel
-    initCarousel();
+    initCarousel()
 
     watchEffect((): void => {
       // Handel when slides added/removed
-      const needToUpdate = slidesCount.value !== slides.value.length;
+      const needToUpdate = slidesCount.value !== slides.value.length
       const currentSlideUpdated =
-        props.modelValue !== undefined && currentSlideIndex.value !== props.modelValue;
+        props.modelValue !== undefined && currentSlideIndex.value !== props.modelValue
 
       if (currentSlideUpdated) {
-        slideTo(Number(props.modelValue), true);
+        slideTo(Number(props.modelValue), true)
       }
 
       if (needToUpdate) {
-        updateCarousel();
+        updateCarousel()
       }
-    });
+    })
 
     const data = {
       config,
@@ -474,7 +474,7 @@ export default defineComponent({
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       middleSlide: middleSlideIndex,
-    };
+    }
     expose({
       updateBreakpointsConfigs,
       updateSlidesData,
@@ -488,20 +488,20 @@ export default defineComponent({
       prev,
       nav,
       data,
-    });
+    })
 
-    const slotSlides = slots.default || slots.slides;
-    const slotAddons = slots.addons;
-    const slotsProps = reactive(data);
+    const slotSlides = slots.default || slots.slides
+    const slotAddons = slots.addons
+    const slotsProps = reactive(data)
 
     return () => {
-      const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps));
-      const addonsElements = slotAddons?.(slotsProps) || [];
-      slides.value = slidesElements;
+      const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
+      const addonsElements = slotAddons?.(slotsProps) || []
+      slides.value = slidesElements
       // Bind slide order
       slidesElements.forEach(
         (el: { props: { [key: string]: any } }, index: number) => (el.props.index = index)
-      );
+      )
       const trackEl = h(
         'ol',
         {
@@ -511,8 +511,8 @@ export default defineComponent({
           onTouchstart: config.touchDrag ? handleDragStart : null,
         },
         slidesElements
-      );
-      const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl);
+      )
+      const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl)
 
       return h(
         'section',
@@ -524,7 +524,7 @@ export default defineComponent({
           onMouseleave: handleMouseLeave,
         },
         [viewPortEl, addonsElements]
-      );
-    };
+      )
+    }
   },
-});
+})
