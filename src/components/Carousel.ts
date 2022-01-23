@@ -113,9 +113,9 @@ export default defineComponent({
     let breakpoints: Ref<Breakpoints> = ref({});
 
     // generate carousel configs
-    let defaultConfig: CarouselConfig = { ...defaultConfigs };
+    let __defaultConfig: CarouselConfig = { ...defaultConfigs };
     // current config
-    const config = reactive<CarouselConfig>({ ...defaultConfigs });
+    const config = reactive<CarouselConfig>({ ...__defaultConfig });
 
     // slides
     const currentSlideIndex = ref(config.modelValue ?? 0);
@@ -145,16 +145,16 @@ export default defineComponent({
       breakpoints = ref({ ...mergedConfigs.breakpoints });
 
       // remove extra values
-      defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined };
+      __defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined };
 
-      bindConfigs(defaultConfig);
+      bindConfigs(__defaultConfig);
     }
 
     function updateBreakpointsConfigs(): void {
       const breakpointsArray: number[] = Object.keys(breakpoints.value)
         .map((key: string): number => Number(key))
         .sort((a: number, b: number) => +b - +a);
-      let newConfig = { ...defaultConfig };
+      let newConfig = { ...__defaultConfig };
 
       breakpointsArray.some((breakpoint): boolean => {
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches;
@@ -197,7 +197,7 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
-      slidesCount.value = slides.value.length;
+      slidesCount.value = Math.max(slides.value.length, 1);
       if (slidesCount.value <= 0) return;
 
       middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2);
