@@ -9,6 +9,7 @@ import {
   watchEffect,
   h,
   watch,
+  nextTick,
 } from 'vue'
 
 import { defaultConfigs } from '@/partials/defaults'
@@ -247,7 +248,7 @@ export default defineComponent({
         updateBreakpointsConfigs()
         updateSlidesData()
       }
-      updateSlideWidth()
+      nextTick(() => setTimeout(updateSlideWidth, 16));
 
       if (config.autoplay && config.autoplay > 0) {
         initializeAutoplay()
