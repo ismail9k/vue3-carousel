@@ -27,3 +27,15 @@
   right: 0;
   transform: translate(50%, -50%);
 }
+
+.carousel--rtl .carousel__prev {
+  left: auto;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.carousel--rtl .carousel__next {
+  right: auto;
+  left: 0;
+  transform: translate(-50%, -50%);
+}

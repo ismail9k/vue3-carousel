@@ -1,4 +1,4 @@
-import { CarouselConfig } from '../types';
+import { CarouselConfig } from '../types'
 
 /**
  * return a debounced version of the function
@@ -7,16 +7,16 @@ import { CarouselConfig } from '../types';
  */
 // eslint-disable-next-line no-unused-vars
 export function debounce(fn: (...args: any[]) => unknown, delay: number): typeof fn {
-  let timerId: ReturnType<typeof setTimeout> | null;
+  let timerId: ReturnType<typeof setTimeout> | null
   return function (...args: any[]) {
     if (timerId) {
-      clearTimeout(timerId);
+      clearTimeout(timerId)
     }
     timerId = setTimeout(() => {
-      fn(...args);
-      timerId = null;
-    }, delay);
-  };
+      fn(...args)
+      timerId = null
+    }, delay)
+  }
 }
 
 /**
@@ -26,62 +26,62 @@ export function debounce(fn: (...args: any[]) => unknown, delay: number): typeof
  */
 // eslint-disable-next-line no-unused-vars
 export function throttle(fn: (...args: any[]) => unknown, limit: number): typeof fn {
-  let inThrottle: boolean;
+  let inThrottle: boolean
   return function (...args: any[]) {
-    const self = this;
+    const self = this
     if (!inThrottle) {
-      fn.apply(self, args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      fn.apply(self, args)
+      inThrottle = true
+      setTimeout(() => (inThrottle = false), limit)
     }
-  };
+  }
 }
 
 export function getSlidesVNodes(vNode: any[] | undefined) {
   // Return empty array if there's any node
-  if (!vNode) return [];
+  if (!vNode) return []
 
   // Check if the Slides components are added directly without v-for (#72)
-  if (vNode[0]?.type?.name === 'CarouselSlide') return vNode;
+  if (vNode[0]?.type?.name === 'CarouselSlide') return vNode
 
-  return vNode[0]?.children || [];
+  return vNode[0]?.children || []
 }
 
 export function getMaxSlideIndex(config: CarouselConfig, slidesCount: number): number {
   if (config.wrapAround) {
-    return slidesCount - 1;
+    return slidesCount - 1
   }
   switch (config.snapAlign) {
     case 'start':
-      return slidesCount - config.itemsToShow;
+      return slidesCount - config.itemsToShow
     case 'end':
-      return slidesCount - 1;
+      return slidesCount - 1
     case 'center':
     case 'center-odd':
-      return slidesCount - Math.ceil(config.itemsToShow / 2);
+      return slidesCount - Math.ceil(config.itemsToShow / 2)
     case 'center-even':
-      return slidesCount - Math.ceil(config.itemsToShow / 2);
+      return slidesCount - Math.ceil(config.itemsToShow / 2)
     default:
-      return 0;
+      return 0
   }
 }
 
 export function getMinSlideIndex(config: CarouselConfig): number {
   if (config.wrapAround) {
-    return 0;
+    return 0
   }
   switch (config.snapAlign) {
     case 'start':
-      return 0;
+      return 0
     case 'end':
-      return config.itemsToShow - 1;
+      return config.itemsToShow - 1
     case 'center':
     case 'center-odd':
-      return Math.floor((config.itemsToShow - 1) / 2);
+      return Math.floor((config.itemsToShow - 1) / 2)
     case 'center-even':
-      return Math.floor((config.itemsToShow - 2) / 2);
+      return Math.floor((config.itemsToShow - 2) / 2)
     default:
-      return 0;
+      return 0
   }
 }
 
@@ -92,11 +92,10 @@ export function getCurrentSlideIndex(
   min: number
 ): number {
   if (config.wrapAround) {
-    return val;
+    return val
   }
-  return Math.min(Math.max(val, min), max);
+  return Math.min(Math.max(val, min), max)
 }
-
 
 export function getSlidesToScroll({
   slidesBuffer,
@@ -106,31 +105,31 @@ export function getSlidesToScroll({
   wrapAround,
   slidesCount,
 }: {
-  slidesBuffer: number[],
-  currentSlide: number,
-  itemsToShow: number,
-  wrapAround: boolean,
-  slidesCount: number,
-  snapAlign: string,
+  slidesBuffer: number[]
+  currentSlide: number
+  itemsToShow: number
+  wrapAround: boolean
+  slidesCount: number
+  snapAlign: string
 }): number {
-  let output = slidesBuffer.indexOf(currentSlide);
+  let output = slidesBuffer.indexOf(currentSlide)
   
   if (output === -1) {
-    output = slidesBuffer.indexOf(Math.ceil(currentSlide));
+    output = slidesBuffer.indexOf(Math.ceil(currentSlide))
   }
-  
+
   if (snapAlign === 'center' || snapAlign === 'center-odd') {
-    output -= (itemsToShow - 1) / 2;
+    output -= (itemsToShow - 1) / 2
   } else if (snapAlign === 'center-even') {
-    output -= (itemsToShow - 2) / 2;
+    output -= (itemsToShow - 2) / 2
   } else if (snapAlign === 'end') {
-    output -= itemsToShow - 1;
+    output -= itemsToShow - 1
   }
 
   if (!wrapAround) {
-    const max = slidesCount - itemsToShow;
-    const min = 0;
-    output = Math.max(Math.min(output, max), min);
+    const max = slidesCount - itemsToShow
+    const min = 0
+    output = Math.max(Math.min(output, max), min)
   }
-  return output;
+  return output
 }

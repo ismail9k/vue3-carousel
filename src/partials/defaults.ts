@@ -1,4 +1,4 @@
-import { CarouselConfig } from '../types';
+import { CarouselConfig } from '../types'
 
 export const defaultConfigs: CarouselConfig = {
   itemsToShow: 1,
@@ -11,5 +11,6 @@ export const defaultConfigs: CarouselConfig = {
   pauseAutoplayOnHover: false,
   mouseDrag: true,
   touchDrag: true,
+  dir: 'ltr',
   breakpoints: undefined,
-};
+}
