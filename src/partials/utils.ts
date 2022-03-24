@@ -113,6 +113,11 @@ export function getSlidesToScroll({
   snapAlign: string
 }): number {
   let output = slidesBuffer.indexOf(currentSlide)
+  
+  if (output === -1) {
+    output = slidesBuffer.indexOf(Math.ceil(currentSlide))
+  }
+
   if (snapAlign === 'center' || snapAlign === 'center-odd') {
     output -= (itemsToShow - 1) / 2
   } else if (snapAlign === 'center-even') {
