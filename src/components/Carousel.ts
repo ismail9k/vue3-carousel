@@ -93,6 +93,14 @@ export default defineComponent({
       default: defaultConfigs.touchDrag,
       type: Boolean,
     },
+    // control snap position alignment
+    dir: {
+      default: defaultConfigs.dir,
+      validator(value: string) {
+        // The value must match one of these strings
+        return ['rtl', 'ltr'].includes(value)
+      },
+    },
     // an object to pass all settings
     settings: {
       default() {
@@ -248,7 +256,7 @@ export default defineComponent({
         updateBreakpointsConfigs()
         updateSlidesData()
       }
-      nextTick(() => setTimeout(updateSlideWidth, 16));
+      nextTick(() => setTimeout(updateSlideWidth, 16))
 
       if (config.autoplay && config.autoplay > 0) {
         initializeAutoplay()
@@ -311,9 +319,10 @@ export default defineComponent({
 
     function handleDragEnd(): void {
       isDragging.value = false
-
+      const direction = config.dir === 'rtl' ? -1 : 1
       const tolerance = Math.sign(dragged.x) * 0.4
-      const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance)
+      const draggedSlides =
+        Math.round(dragged.x / slideWidth.value + tolerance) * direction
 
       let newSlide = getCurrentSlideIndex(
         config,
@@ -421,9 +430,10 @@ export default defineComponent({
     provide('slidesToScroll', slidesToScroll)
 
     const trackStyle = computed((): ElementStyleObject => {
-      const xScroll = dragged.x - slidesToScroll.value * slideWidth.value
+      const direction = config.dir === 'rtl' ? -1 : 1
+      const xScroll = slidesToScroll.value * slideWidth.value * direction
       return {
-        transform: `translateX(${xScroll}px)`,
+        transform: `translateX(${dragged.x - xScroll}px)`,
         transition: `${isSliding.value ? config.transition : 0}ms`,
       }
     })
@@ -519,7 +529,11 @@ export default defineComponent({
         'section',
         {
           ref: root,
-          class: 'carousel',
+          class: {
+            carousel: true,
+            'carousel--rtl': config.dir === 'rtl',
+          },
+          dir: config.dir,
           'aria-label': 'Gallery',
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
