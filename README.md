@@ -18,7 +18,7 @@ https://ismail9k.github.io/vue3-carousel/
 - [x] Infinity scroll (wrapping around)
 - [x] Auto play
 - [x] Add classes for active and for visible slides
-- [ ] RTL
+- [x] RTL
 - [ ] Vertical scroll
 - [ ] Sync multiple carousel
 - [ ] Enrich a11y
