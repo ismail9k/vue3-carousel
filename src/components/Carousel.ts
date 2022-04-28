@@ -289,22 +289,9 @@ export default defineComponent({
       isHover.value = false
     }
 
-    const handleDrag = throttle((event: MouseEvent & TouchEvent): void => {
-      if (!isTouch) event.preventDefault()
-
-      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
-      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
-      const deltaX = endPosition.x - startPosition.x
-      const deltaY = endPosition.y - startPosition.y
-
-      dragged.y = deltaY
-      dragged.x = deltaX
-    }, 16)
-
     function handleDragStart(event: MouseEvent & TouchEvent): void {
       isTouch = event.type === 'touchstart'
 
-      if (!isTouch) event.preventDefault()
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return
       }
@@ -313,9 +300,19 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag)
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging, true)
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
     }
+
+    const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
+      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
+      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
+      const deltaX = endPosition.x - startPosition.x
+      const deltaY = endPosition.y - startPosition.y
+
+      dragged.y = deltaY
+      dragged.x = deltaX
+    }, 16)
 
     function handleDragEnd(): void {
       isDragging.value = false
@@ -330,13 +327,27 @@ export default defineComponent({
         maxSlideIndex.value,
         minSlideIndex.value
       )
+
+      // Prevent clicking if there is clicked slides
+      if (draggedSlides) {
+        const captureClick = (e: MouseEvent) => {
+          e.stopPropagation()
+          window.removeEventListener('click', captureClick, true)
+        }
+        window.addEventListener('click', captureClick, true)
+      }
+
       slideTo(newSlide)
 
       dragged.x = 0
       dragged.y = 0
 
-      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDrag)
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
+      document.removeEventListener(
+        isTouch ? 'touchmove' : 'mousemove',
+        handleDragging,
+        true
+      )
+      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
     }
 
     /**
