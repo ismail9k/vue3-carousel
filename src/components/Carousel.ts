@@ -279,7 +279,6 @@ export default defineComponent({
     const startPosition = { x: 0, y: 0 }
     const endPosition = { x: 0, y: 0 }
     const dragged = reactive({ x: 0, y: 0 })
-    const isDragging = ref(false)
     const isHover = ref(false)
 
     const handleMouseEnter = (): void => {
@@ -296,7 +295,6 @@ export default defineComponent({
         return
       }
 
-      isDragging.value = true
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
@@ -315,7 +313,6 @@ export default defineComponent({
     }, 16)
 
     function handleDragEnd(): void {
-      isDragging.value = false
       const direction = config.dir === 'rtl' ? -1 : 1
       const tolerance = Math.sign(dragged.x) * 0.4
       const draggedSlides =
