@@ -1,5 +1,23 @@
 # API <Badge text="Vue@3.2+"/> 
 
+> Note: To use the API methods, add a reference to the carousel element and then call methods from that reference.
+> 
+> Example:
+> ```html
+> <Carousel ref="myCarousel">
+>   ...
+> </Carousel>
+> ```
+> 
+> ```js
+> import { ref } from 'vue';
+> const myCarousel = ref(null);
+>
+> // Methods are available in this reference
+> myCarousel.next();
+> myCarousel.updateSlideWidth();
+> ....
+> ```
 ## Available methods
 
 ### slideTo(index: number)
