@@ -326,7 +326,7 @@ export default defineComponent({
       )
 
       // Prevent clicking if there is clicked slides
-      if (draggedSlides) {
+      if (draggedSlides && !isTouch) {
         const captureClick = (e: MouseEvent) => {
           e.stopPropagation()
           window.removeEventListener('click', captureClick, true)
