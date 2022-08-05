@@ -13,7 +13,7 @@ const Icon = (props: Data) => {
   const pathEl = h('path', { d: path })
 
   const iconTitle = props.title || iconName
-  const titleEl = h('title', null, iconName)
+  const titleEl = h('title', null, iconTitle)
 
   return h(
     'svg',
