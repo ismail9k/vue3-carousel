@@ -41,7 +41,7 @@ export default [
   },
   {
     input: 'dist/dts/index.d.ts',
-    output: [{ file: 'dist/carousel.d.ts', format: 'es' }],C
+    output: [{ file: 'dist/carousel.d.ts', format: 'es' }],
     external: [/\.css$/],
     plugins: [dts(), del({ hook: 'buildEnd', targets: 'dist/dts', runOnce: true })],
   },
