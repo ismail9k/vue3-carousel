@@ -1,0 +1,1 @@
+import{_ as a,o as t,c as s,t as _,n}from"./app.e0cba8ab.js";const c={name:"Badge",props:{text:"",type:""}};function o(r,p,e,d,l,i){return t(),s("span",{class:n(["badge",e.type])},_(e.text),3)}var m=a(c,[["render",o],["__scopeId","data-v-771392e0"]]);export{m as B};
