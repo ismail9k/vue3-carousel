@@ -333,6 +333,56 @@ export default defineComponent({
 
 ```
 
+
+## [Custom Navigation](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleCustomNavigation.vue)
+
+<ExampleCustomNavigation></ExampleCustomNavigation>
+
+```vue
+<template>
+  <Carousel ref="carousel" v-model="currentSlide">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide - 1 }}</div>
+    </Slide>
+
+    ...
+  </Carousel>
+
+  <div>
+    <button @click="next">Next</button>
+    <input type="number" min="0" max="9" v-model="currentSlide" />
+    <button @click="prev">Prev</button>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from 'vue'
+import { Carousel, Slide } from 'vue3-carousel';
+
+import 'vue3-carousel/dist/carousel.css';
+
+
+export default defineComponent({
+  name: 'Basic',
+  components: {
+    Carousel,
+    Slide,
+  },
+  data: () => ({
+    currentSlide: 0,
+  }),
+  methods: {
+    next() {
+      this.$refs.carousel.next()
+    },
+    prev() {
+      this.$refs.carousel.prev()
+    },
+  },
+})
+</script>
+```
+
 <script>
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
@@ -341,6 +391,7 @@ import ExampleHiddenArrows from './examples/ExampleHiddenArrows.vue';
 import ExamplePagination from './examples/ExamplePagination.vue';
 import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
+import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 
 export default {
   components: {
@@ -351,6 +402,7 @@ export default {
     ExampleAutoplay,
     ExamplePagination,
     ExampleActiveClasses,
+    ExampleCustomNavigation,
   }
 }
 </script>
