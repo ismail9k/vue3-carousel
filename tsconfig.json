@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitThis": false,
     "declaration": true,
-    "declarationDir": "./dist",
+    "declarationDir": "./dist/dts",
     "baseUrl": ".",
     "outDir": "./dist",
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
@@ -16,6 +16,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
