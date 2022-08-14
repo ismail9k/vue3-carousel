@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { Carousel, Navigation, Slide } from '../../dist/carousel.es';
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
 
-import '../../dist/carousel.css';
+import '../../dist/carousel.css'
 
 export default defineComponent({
   name: 'WrapAround',
@@ -23,5 +23,5 @@ export default defineComponent({
     Slide,
     Navigation,
   },
-});
+})
 </script>
