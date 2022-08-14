@@ -1,5 +1,5 @@
 <template>
-  <Carousel dir="rtl">
+  <Carousel>
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
