@@ -10,6 +10,7 @@ import {
   h,
   watch,
   nextTick,
+  withModifiers,
 } from 'vue'
 
 import { defaultConfigs } from '@/partials/defaults'
@@ -295,6 +296,10 @@ export default defineComponent({
         return
       }
 
+      if (!isTouch) {
+        event.preventDefault()
+      }
+
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
@@ -526,8 +531,12 @@ export default defineComponent({
         {
           class: 'carousel__track',
           style: trackStyle.value,
-          onMousedown: config.mouseDrag ? handleDragStart : null,
-          onTouchstart: config.touchDrag ? handleDragStart : null,
+          onMousedown: config.mouseDrag
+            ? withModifiers(handleDragStart, ['capture'])
+            : null,
+          onTouchstart: config.touchDrag
+            ? withModifiers(handleDragStart, ['capture'])
+            : null,
         },
         slidesElements
       )
