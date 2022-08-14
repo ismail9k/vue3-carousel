@@ -12,10 +12,10 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { Carousel, Navigation, Pagination, Slide } from '../../dist/carousel.es';
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Pagination, Slide } from '../../dist/carousel.es'
 
-import '../../dist/carousel.css';
+import '../../dist/carousel.css'
 
 export default defineComponent({
   name: 'ExamplePagination',
@@ -23,7 +23,7 @@ export default defineComponent({
     Carousel,
     Slide,
     Navigation,
-    Pagination
+    Pagination,
   },
   data: () => ({
     // carousel settings
@@ -32,5 +32,5 @@ export default defineComponent({
       snapAlign: 'center',
     },
   }),
-});
+})
 </script>
