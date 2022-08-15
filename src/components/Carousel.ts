@@ -14,6 +14,7 @@ import {
 } from 'vue'
 
 import { defaultConfigs } from '@/partials/defaults'
+import { carouselProps } from '@/partials/props'
 import {
   debounce,
   throttle,
@@ -35,81 +36,7 @@ import {
 
 export default defineComponent({
   name: 'Carousel',
-  props: {
-    // count of items to showed per view
-    itemsToShow: {
-      default: defaultConfigs.itemsToShow,
-      type: Number,
-    },
-    // count of items to be scrolled
-    itemsToScroll: {
-      default: defaultConfigs.itemsToScroll,
-      type: Number,
-    },
-    // control infinite scrolling mode
-    wrapAround: {
-      default: defaultConfigs.wrapAround,
-      type: Boolean,
-    },
-    // control snap position alignment
-    snapAlign: {
-      default: defaultConfigs.snapAlign,
-      validator(value: string) {
-        // The value must match one of these strings
-        return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value)
-      },
-    },
-    // sliding transition time in ms
-    transition: {
-      default: defaultConfigs.transition,
-      type: Number,
-    },
-    // an object to store breakpoints
-    breakpoints: {
-      default: defaultConfigs.breakpoints,
-      type: Object,
-    },
-    // time to auto advance slides in ms
-    autoplay: {
-      default: defaultConfigs.autoplay,
-      type: Number,
-    },
-    // pause autoplay when mouse hover over the carousel
-    pauseAutoplayOnHover: {
-      default: defaultConfigs.pauseAutoplayOnHover,
-      type: Boolean,
-    },
-    // slide number number of initial slide
-    modelValue: {
-      default: undefined,
-      type: Number,
-    },
-    // toggle mouse dragging.
-    mouseDrag: {
-      default: defaultConfigs.mouseDrag,
-      type: Boolean,
-    },
-    // toggle mouse dragging.
-    touchDrag: {
-      default: defaultConfigs.touchDrag,
-      type: Boolean,
-    },
-    // control snap position alignment
-    dir: {
-      default: defaultConfigs.dir,
-      validator(value: string) {
-        // The value must match one of these strings
-        return ['rtl', 'ltr'].includes(value)
-      },
-    },
-    // an object to pass all settings
-    settings: {
-      default() {
-        return {}
-      },
-      type: Object,
-    },
-  },
+  props: carouselProps,
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const slides: Ref<any> = ref([])
@@ -383,11 +310,11 @@ export default defineComponent({
      */
     const isSliding = ref(false)
     function slideTo(slideIndex: number, mute = false): void {
-      resetAutoplay()
-
       if (currentSlideIndex.value === slideIndex || isSliding.value) {
         return
       }
+
+      resetAutoplay()
 
       // Wrap slide index
       const lastSlideIndex = slidesCount.value - 1
@@ -472,7 +399,6 @@ export default defineComponent({
     }
 
     // Update the carousel on props change
-
     watch(() => Object.values(props), restartCarousel)
 
     // Init carousel
