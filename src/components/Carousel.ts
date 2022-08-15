@@ -113,11 +113,11 @@ export default defineComponent({
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const slides: Ref<any> = ref([])
-    const slidesBuffer: Ref<Array<number>> = ref([])
+    const slidesBuffer: Ref<number[]> = ref([])
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(1)
-    const autoplayTimer: Ref<NodeJS.Timeout | null> = ref(null)
-    const transitionTimer: Ref<NodeJS.Timeout | null> = ref(null)
+    let autoplayTimer: ReturnType<typeof setInterval> | null
+    let transitionTimer: ReturnType<typeof setTimeout>
 
     let breakpoints: Ref<Breakpoints> = ref({})
 
@@ -259,18 +259,18 @@ export default defineComponent({
       }
       nextTick(() => setTimeout(updateSlideWidth, 16))
 
-      if (config.autoplay && config.autoplay > 0) {
-        initializeAutoplay()
-      }
+      initAutoplay()
 
       window.addEventListener('resize', handleWindowResize, { passive: true })
     })
 
     onUnmounted(() => {
-      if (transitionTimer.value) {
-        clearTimeout(transitionTimer.value)
+      if (transitionTimer) {
+        clearTimeout(transitionTimer)
       }
-      resetAutoplayTimer(false)
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer)
+      }
     })
 
     /**
@@ -355,8 +355,13 @@ export default defineComponent({
     /**
      * Autoplay
      */
-    function initializeAutoplay(): void {
-      autoplayTimer.value = setInterval(() => {
+    function initAutoplay(): void {
+      if (!config.autoplay || config.autoplay <= 0) {
+        return
+      }
+
+      autoplayTimer = setInterval(() => {
+        console.log(config.pauseAutoplayOnHover)
         if (config.pauseAutoplayOnHover && isHover.value) {
           return
         }
@@ -365,15 +370,13 @@ export default defineComponent({
       }, config.autoplay)
     }
 
-    function resetAutoplayTimer(restart = true): void {
-      if (!autoplayTimer.value) {
-        return
+    function resetAutoplay(): void {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer)
+        autoplayTimer = null
       }
 
-      clearInterval(autoplayTimer.value)
-      if (restart) {
-        initializeAutoplay()
-      }
+      initAutoplay()
     }
 
     /**
@@ -381,7 +384,7 @@ export default defineComponent({
      */
     const isSliding = ref(false)
     function slideTo(slideIndex: number, mute = false): void {
-      resetAutoplayTimer()
+      resetAutoplay()
 
       if (currentSlideIndex.value === slideIndex || isSliding.value) {
         return
@@ -403,7 +406,7 @@ export default defineComponent({
       if (!mute) {
         emit('update:modelValue', currentSlideIndex.value)
       }
-      transitionTimer.value = setTimeout((): void => {
+      transitionTimer = setTimeout((): void => {
         if (config.wrapAround) updateSlidesBuffer()
         isSliding.value = false
       }, config.transition)
@@ -461,6 +464,7 @@ export default defineComponent({
       updateSlidesData()
       updateSlidesBuffer()
       updateSlideWidth()
+      resetAutoplay()
     }
 
     function updateCarousel(): void {
@@ -469,6 +473,7 @@ export default defineComponent({
     }
 
     // Update the carousel on props change
+
     watch(() => Object.values(props), restartCarousel)
 
     // Init carousel
