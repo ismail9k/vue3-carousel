@@ -361,7 +361,6 @@ export default defineComponent({
       }
 
       autoplayTimer = setInterval(() => {
-        console.log(config.pauseAutoplayOnHover)
         if (config.pauseAutoplayOnHover && isHover.value) {
           return
         }
