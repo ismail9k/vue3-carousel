@@ -6,7 +6,7 @@ import { defaultConfigs } from '@/partials/defaults'
 import { CarouselNav, CarouselConfig } from '../types'
 
 const Navigation = (props: any, { slots, attrs }: any) => {
-  const { next: slotNext, prev: slotPrev } = slots
+  const { next: slotNext, prev: slotPrev } = slots || {}
   const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
