@@ -399,7 +399,10 @@ export default defineComponent({
     }
 
     // Update the carousel on props change
-    watch(() => Object.values(props), restartCarousel)
+    Object.keys(carouselProps).forEach((prop) => {
+      if (['modelValue'].includes(prop)) return
+      watch(() => props[prop as keyof typeof carouselProps], restartCarousel)
+    })
 
     // Init carousel
     initCarousel()

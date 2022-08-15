@@ -10,9 +10,9 @@
   </Carousel>
 
   <div>
-    <button @click="next">Next</button>
-    <input type="number" min="0" max="9" v-model="currentSlide" />
     <button @click="prev">Prev</button>
+    <input type="number" min="0" max="9" v-model="currentSlide" />
+    <button @click="next">Next</button>
   </div>
 </template>
 
