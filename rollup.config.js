@@ -2,6 +2,7 @@ import css from 'rollup-plugin-css-only'
 import typescript from 'rollup-plugin-typescript2'
 import del from 'rollup-plugin-delete'
 import dts from 'rollup-plugin-dts'
+import { typescriptPaths } from 'rollup-plugin-typescript-paths'
 
 import pkg from './package.json'
 
@@ -43,6 +44,10 @@ export default [
     input: 'dist/dts/index.d.ts',
     output: [{ file: 'dist/carousel.d.ts', format: 'es' }],
     external: [/\.css$/],
-    plugins: [dts(), del({ hook: 'buildEnd', targets: 'dist/dts', runOnce: true })],
+    plugins: [
+      typescriptPaths({ preserveExtensions: true }),
+      dts(),
+      del({ hook: 'buildEnd', targets: 'dist/dts', runOnce: true }),
+    ],
   },
 ]
