@@ -9,8 +9,10 @@
 
   /* Navigation */
   --vc-nav-width: 30px;
-  --vc-nav-color: #ffffff;
-  --vc-nav-background-color: var(--vc-clr-primary);
+  --vc-nav-height: 30px;
+  --vc-nav-border-radius: var(--vc-nav-width);
+  --vc-nav-color: var(--vc-clr-white);
+  --vc-nav-background: var(--vc-clr-primary);
 
   /* Pagination */
   --vc-pgn-width: 10px;

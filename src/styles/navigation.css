@@ -1,9 +1,9 @@
 .carousel__prev,
 .carousel__next {
-  background-color: var(--vc-nav-background-color);
-  border-radius: var(--vc-nav-width);
+  background: var(--vc-nav-background);
+  border-radius: var(--vc-nav-border-radius);
   width: var(--vc-nav-width);
-  height: var(--vc-nav-width);
+  height: var(--vc-nav-height);
   text-align: center;
   font-size: calc(var(--vc-nav-width) * 2 / 3);
   padding: 0;
