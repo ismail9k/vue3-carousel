@@ -11,6 +11,9 @@ import {
   watch,
   nextTick,
   withModifiers,
+  cloneVNode,
+  DefineComponent,
+  VNode,
 } from 'vue'
 
 import { defaultConfigs } from '@/partials/defaults'
@@ -23,8 +26,9 @@ import {
   getMaxSlideIndex,
   getMinSlideIndex,
   getSlidesToScroll,
+  getNumberInRage,
 } from '@/partials/utils'
-
+import SlideComponent from './Slide'
 import {
   SetupContext,
   CarouselConfig,
@@ -40,7 +44,6 @@ export default defineComponent({
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const slides: Ref<any> = ref([])
-    const slidesBuffer: Ref<number[]> = ref([])
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(1)
     let autoplayTimer: ReturnType<typeof setInterval> | null
@@ -61,7 +64,6 @@ export default defineComponent({
     const minSlideIndex = ref(0)
 
     provide('config', config)
-    provide('slidesBuffer', slidesBuffer)
     provide('slidesCount', slidesCount)
     provide('currentSlide', currentSlideIndex)
     provide('maxSlide', maxSlideIndex)
@@ -145,38 +147,6 @@ export default defineComponent({
         maxSlideIndex.value,
         minSlideIndex.value
       )
-    }
-
-    function updateSlidesBuffer(): void {
-      const slidesArray = [...Array(slidesCount.value).keys()]
-      const shouldShiftSlides =
-        config.wrapAround && config.itemsToShow + 1 <= slidesCount.value
-
-      if (shouldShiftSlides) {
-        const buffer =
-          config.itemsToShow !== 1
-            ? Math.round((slidesCount.value - config.itemsToShow) / 2)
-            : 0
-        let shifts = buffer - currentSlideIndex.value
-
-        if (config.snapAlign === 'end') {
-          shifts += Math.floor(config.itemsToShow - 1)
-        } else if (config.snapAlign === 'center' || config.snapAlign === 'center-odd') {
-          shifts++
-        }
-
-        // Check shifting directions
-        if (shifts < 0) {
-          for (let i = shifts; i < 0; i++) {
-            slidesArray.push(Number(slidesArray.shift()))
-          }
-        } else {
-          for (let i = 0; i < shifts; i++) {
-            slidesArray.unshift(Number(slidesArray.pop()))
-          }
-        }
-      }
-      slidesBuffer.value = slidesArray
     }
 
     onMounted((): void => {
@@ -316,26 +286,26 @@ export default defineComponent({
 
       resetAutoplay()
 
-      // Wrap slide index
-      const lastSlideIndex = slidesCount.value - 1
-      if (slideIndex > lastSlideIndex) {
-        return slideTo(slideIndex - slidesCount.value)
-      }
-      if (slideIndex < 0) {
-        return slideTo(slideIndex + slidesCount.value)
+      let currentVal = slideIndex
+      if (!config.wrapAround) {
+        currentVal = getSlideInRange(slideIndex)
       }
 
       isSliding.value = true
       prevSlideIndex.value = currentSlideIndex.value
-      currentSlideIndex.value = slideIndex
+      currentSlideIndex.value = currentVal
 
       if (!mute) {
         emit('update:modelValue', currentSlideIndex.value)
       }
       transitionTimer = setTimeout((): void => {
-        if (config.wrapAround) updateSlidesBuffer()
         isSliding.value = false
+        currentSlideIndex.value = getSlideInRange(currentVal)
       }, config.transition)
+    }
+
+    function getSlideInRange(current: number): number {
+      return getNumberInRage(current, maxSlideIndex.value, minSlideIndex.value)
     }
 
     function next(): void {
@@ -361,7 +331,6 @@ export default defineComponent({
      */
     const slidesToScroll = computed(() =>
       getSlidesToScroll({
-        slidesBuffer: slidesBuffer.value,
         itemsToShow: config.itemsToShow,
         snapAlign: config.snapAlign,
         wrapAround: Boolean(config.wrapAround),
@@ -377,6 +346,8 @@ export default defineComponent({
       return {
         transform: `translateX(${dragged.x - xScroll}px)`,
         transition: `${isSliding.value ? config.transition : 0}ms`,
+        margin: `0 -${slidesCount.value * slideWidth.value}px`,
+        width: `100%`,
       }
     })
 
@@ -388,14 +359,12 @@ export default defineComponent({
       initDefaultConfigs()
       updateBreakpointsConfigs()
       updateSlidesData()
-      updateSlidesBuffer()
       updateSlideWidth()
       resetAutoplay()
     }
 
     function updateCarousel(): void {
       updateSlidesData()
-      updateSlidesBuffer()
     }
 
     // Update the carousel on props change
@@ -424,7 +393,6 @@ export default defineComponent({
 
     const data = {
       config,
-      slidesBuffer,
       slidesCount,
       slideWidth,
       currentSlide: currentSlideIndex,
@@ -436,7 +404,6 @@ export default defineComponent({
       updateBreakpointsConfigs,
       updateSlidesData,
       updateSlideWidth,
-      updateSlidesBuffer,
       initCarousel,
       restartCarousel,
       updateCarousel,
@@ -455,10 +422,16 @@ export default defineComponent({
       const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
       const addonsElements = slotAddons?.(slotsProps) || []
       slides.value = slidesElements
-      // Bind slide order
       slidesElements.forEach(
-        (el: { props: { [key: string]: any } }, index: number) => (el.props.index = index)
+        (el: typeof SlideComponent, index: number) => (el.props.index = index)
       )
+      const slidesBefore = slidesElements.map((el: VNode, index: number) =>
+        cloneVNode(el, { index: -slidesElements.length + index })
+      )
+      const slidesAfter = slidesElements.map((el: VNode, index: number) =>
+        cloneVNode(el, { index: slidesElements.length + index })
+      )
+      const output = [...slidesBefore, ...slidesElements, ...slidesAfter]
       const trackEl = h(
         'ol',
         {
@@ -471,7 +444,7 @@ export default defineComponent({
             ? withModifiers(handleDragStart, ['capture'])
             : null,
         },
-        slidesElements
+        output
       )
       const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl)
 

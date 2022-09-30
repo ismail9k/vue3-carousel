@@ -98,25 +98,19 @@ export function getCurrentSlideIndex(
 }
 
 export function getSlidesToScroll({
-  slidesBuffer,
   currentSlide,
   snapAlign,
   itemsToShow,
   wrapAround,
   slidesCount,
 }: {
-  slidesBuffer: number[]
   currentSlide: number
   itemsToShow: number
   wrapAround: boolean
   slidesCount: number
   snapAlign: string
 }): number {
-  let output = slidesBuffer.indexOf(currentSlide)
-  
-  if (output === -1) {
-    output = slidesBuffer.indexOf(Math.ceil(currentSlide))
-  }
+  let output = currentSlide
 
   if (snapAlign === 'center' || snapAlign === 'center-odd') {
     output -= (itemsToShow - 1) / 2
@@ -131,5 +125,16 @@ export function getSlidesToScroll({
     const min = 0
     output = Math.max(Math.min(output, max), min)
   }
+
   return output
+}
+
+export function getNumberInRage(current: number, max: number, min = 0): number {
+  if (current > max) {
+    return getNumberInRage(current - (max + 1), max, min)
+  }
+  if (current < min) {
+    return getNumberInRage(current + (max + 1), max, min)
+  }
+  return current
 }

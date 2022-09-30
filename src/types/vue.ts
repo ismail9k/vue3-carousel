@@ -1,5 +1,5 @@
-export { SetupContext, Ref, VNode, ComputedRef } from 'vue';
+export { SetupContext, Ref, VNode, ComputedRef, DefineComponent } from 'vue'
 
 export interface Data {
-  [key: string]: unknown;
+  [key: string]: unknown
 }
