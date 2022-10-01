@@ -13,10 +13,12 @@ import {
   withModifiers,
   cloneVNode,
   VNode,
+  SetupContext,
+  Ref,
 } from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
+import { defaultConfigs } from '@/partials/defaults'
 import {
   debounce,
   throttle,
@@ -28,14 +30,7 @@ import {
   mapNumberToRange,
 } from '@/partials/utils'
 import SlideComponent from './Slide'
-import {
-  SetupContext,
-  CarouselConfig,
-  Ref,
-  CarouselNav,
-  ElementStyleObject,
-  Breakpoints,
-} from '@/types'
+import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
 
 export default defineComponent({
   name: 'Carousel',

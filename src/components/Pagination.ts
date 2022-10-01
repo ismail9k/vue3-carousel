@@ -1,7 +1,7 @@
 import { mapNumberToRange } from '@/partials/utils'
-import { inject, ref, h } from 'vue'
+import { inject, ref, h, VNode } from 'vue'
 
-import { CarouselNav, VNode } from '../types'
+import { CarouselNav } from '../types'
 
 const Pagination = () => {
   const maxSlide = inject('maxSlide', ref(1))
