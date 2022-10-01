@@ -30,7 +30,7 @@ export default defineComponent({
     Navigation,
   },
   data: () => ({
-    currentSlide: 4,
+    currentSlide: 0,
   }),
   methods: {
     next() {
