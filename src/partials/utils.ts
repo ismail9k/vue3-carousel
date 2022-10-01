@@ -76,8 +76,9 @@ export function getMinSlideIndex(config: CarouselConfig): number {
       return config.itemsToShow - 1
     case 'center':
     case 'center-odd':
-    case 'center-even':
       return Math.floor((config.itemsToShow - 1) / 2)
+    case 'center-even':
+      return Math.floor((config.itemsToShow - 2) / 2)
     default:
       return 0
   }
