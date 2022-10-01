@@ -1,15 +1,16 @@
-import Carousel from '@/components/Carousel';
-import { mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils'
+
+import Carousel from '@/components/Carousel'
 
 describe('Carousel.ts', () => {
-  let wrapper: any;
+  let wrapper: any
 
   beforeEach(async () => {
-    wrapper = mount(Carousel);
-  });
+    wrapper = mount(Carousel)
+  })
 
   it('It renders correctly', () => {
-    const carousel = wrapper.find('.carousel');
-    expect(carousel.exists()).toBe(true);
-  });
-});
+    const carousel = wrapper.find('.carousel')
+    expect(carousel.exists()).toBe(true)
+  })
+})

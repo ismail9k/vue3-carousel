@@ -17,8 +17,8 @@ import {
   Ref,
 } from 'vue'
 
-import { carouselProps } from '@/partials/props'
 import { defaultConfigs } from '@/partials/defaults'
+import { carouselProps } from '@/partials/props'
 import {
   debounce,
   throttle,
@@ -29,8 +29,9 @@ import {
   getSlidesToScroll,
   mapNumberToRange,
 } from '@/partials/utils'
-import SlideComponent from './Slide'
 import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
+
+import SlideComponent from './Slide'
 
 export default defineComponent({
   name: 'Carousel',
@@ -44,7 +45,7 @@ export default defineComponent({
     // generate carousel configs
     let __defaultConfig: CarouselConfig = { ...defaultConfigs }
     // current config
-    const config = reactive<CarouselConfig>({ ...__defaultConfig })
+    const config = reactive<Partial<CarouselConfig>>({ ...__defaultConfig })
 
     // slides
     const currentSlideIndex = ref(config.modelValue ?? 0)
@@ -93,7 +94,7 @@ export default defineComponent({
         if (isMatched) {
           newConfig = {
             ...newConfig,
-            ...(breakpoints.value[breakpoint] as CarouselConfig),
+            ...breakpoints.value[breakpoint],
           }
           return true
         }
@@ -104,10 +105,9 @@ export default defineComponent({
     }
 
     function bindConfigs(newConfig: CarouselConfig): void {
-      for (let key in newConfig) {
-        // @ts-ignore
-        config[key] = newConfig[key]
-      }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      Object.entries(newConfig).forEach(([key, val]) => (config[key] = val))
     }
 
     const handleWindowResize = debounce(() => {

@@ -1,7 +1,6 @@
 import { defineComponent, inject, ref, computed, h, reactive, SetupContext } from 'vue'
 
 import { defaultConfigs } from '@/partials/defaults'
-
 import { CarouselConfig, ElementStyleObject } from '@/types'
 
 export default defineComponent({

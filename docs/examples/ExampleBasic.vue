@@ -1,9 +1,12 @@
 <template>
-  <Carousel>
-    <Slide v-for="slide in 10" :key="slide">
-      <div class="carousel__item">{{ slide }}</div>
+  <Carousel :items-to-show="3" :wrap-around="false">
+    <Slide key="sdfs">
+      <div class="carousel__item">{{ ddfds }}</div>
     </Slide>
 
+    <Slide key="sdfs">
+      <div class="carousel__item">{{ ddfds }}</div>
+    </Slide>
     <template #addons>
       <Navigation />
       <Pagination />

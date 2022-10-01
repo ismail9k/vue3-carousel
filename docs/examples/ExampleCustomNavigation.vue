@@ -1,5 +1,5 @@
 <template>
-  <Carousel ref="carousel" v-model="currentSlide">
+  <Carousel ref="carousel" v-model="currentSlide" snapAlign="start">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide - 1 }}</div>
     </Slide>
@@ -30,7 +30,7 @@ export default defineComponent({
     Navigation,
   },
   data: () => ({
-    currentSlide: 0,
+    currentSlide: 4,
   }),
   methods: {
     next() {

@@ -20,9 +20,9 @@
 
 <script>
 import { defineComponent } from 'vue'
-import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
+import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'Basic',
@@ -32,7 +32,7 @@ export default defineComponent({
     Pagination,
     Navigation,
   },
-});
+})
 </script>
 
 <style>
@@ -40,7 +40,7 @@ export default defineComponent({
   min-height: 200px;
   width: 100%;
   background-color: var(--vc-clr-primary);
-  color:  var(--vc-clr-white);
+  color: var(--vc-clr-white);
   font-size: 20px;
   border-radius: 8px;
   display: flex;
@@ -59,6 +59,7 @@ export default defineComponent({
 }
 </style>
 ```
+
 ## [Wrap Around](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleWrapAround.vue)
 
 <ExampleWrapAround></ExampleWrapAround>
@@ -77,10 +78,10 @@ export default defineComponent({
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { Carousel, Navigation, Slide } from 'vue3-carousel';
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'WrapAround',
@@ -89,7 +90,7 @@ export default defineComponent({
     Slide,
     Navigation,
   },
-});
+})
 </script>
 ```
 
@@ -111,10 +112,10 @@ export default defineComponent({
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { Carousel, Navigation, Slide } from 'vue3-carousel';
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'Breakpoints',
@@ -144,7 +145,7 @@ export default defineComponent({
       },
     },
   }),
-});
+})
 </script>
 ```
 
@@ -166,10 +167,10 @@ export default defineComponent({
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { Carousel, Navigation, Slide } from 'vue3-carousel';
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'Breakpoints',
@@ -178,7 +179,7 @@ export default defineComponent({
     Slide,
     Navigation,
   },
-});
+})
 </script>
 
 <style>
@@ -194,11 +195,10 @@ export default defineComponent({
 <ExamplePagination></ExamplePagination>
 
 ```vue
-
 <template>
-  <Carousel :settings='settings' :breakpoints='breakpoints'>
-    <Slide v-for='slide in 10' :key='slide'>
-      <div class='carousel__item'>{{ slide }}</div>
+  <Carousel :settings="settings" :breakpoints="breakpoints">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
     </Slide>
 
     <template #addons>
@@ -209,9 +209,9 @@ export default defineComponent({
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { Carousel, Navigation, Slide, Pagination } from 'vue3-carousel';
-import 'vue3-carousel/dist/carousel.css';
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Slide, Pagination } from 'vue3-carousel'
+import 'vue3-carousel/dist/carousel.css'
 export default defineComponent({
   name: 'ExamplePagination',
   components: {
@@ -241,7 +241,7 @@ export default defineComponent({
       },
     },
   }),
-});
+})
 </script>
 ```
 
@@ -264,9 +264,9 @@ export default defineComponent({
 
 <script>
 import { defineComponent } from 'vue'
-import { Carousel, Pagination, Slide } from 'vue3-carousel';
+import { Carousel, Pagination, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'Autoplay',
@@ -275,7 +275,7 @@ export default defineComponent({
     Slide,
     Pagination,
   },
-});
+})
 </script>
 ```
 
@@ -296,9 +296,9 @@ export default defineComponent({
 
 <script>
 import { defineComponent } from 'vue'
-import { Carousel, Pagination, Slide } from 'vue3-carousel';
+import { Carousel, Pagination, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'Autoplay',
@@ -307,7 +307,7 @@ export default defineComponent({
     Slide,
     Pagination,
   },
-});
+})
 </script>
 
 <style scoped>
@@ -330,9 +330,7 @@ export default defineComponent({
   transform: scale(1.1);
 }
 </style>
-
 ```
-
 
 ## [Custom Navigation](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleCustomNavigation.vue)
 
@@ -357,10 +355,9 @@ export default defineComponent({
 
 <script>
 import { defineComponent } from 'vue'
-import { Carousel, Slide } from 'vue3-carousel';
+import { Carousel, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css';
-
+import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
   name: 'Basic',

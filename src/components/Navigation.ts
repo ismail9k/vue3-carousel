@@ -1,9 +1,10 @@
 import { inject, ref, h, reactive } from 'vue'
 
-import Icon from './Icon'
 import { defaultConfigs } from '@/partials/defaults'
 
 import { CarouselNav, CarouselConfig } from '../types'
+
+import Icon from './Icon'
 
 const Navigation = (props: any, { slots, attrs }: any) => {
   const { next: slotNext, prev: slotPrev } = slots || {}

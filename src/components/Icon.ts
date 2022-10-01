@@ -1,7 +1,6 @@
 import { h } from 'vue'
 
 import icons from '../partials/icons'
-
 import { Data } from '../types'
 
 const Icon = (props: Data) => {
