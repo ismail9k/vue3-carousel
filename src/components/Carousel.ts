@@ -12,7 +12,6 @@ import {
   nextTick,
   withModifiers,
   cloneVNode,
-  DefineComponent,
   VNode,
 } from 'vue'
 
@@ -26,7 +25,7 @@ import {
   getMaxSlideIndex,
   getMinSlideIndex,
   getSlidesToScroll,
-  getNumberInRage,
+  mapNumberToRange,
 } from '@/partials/utils'
 import SlideComponent from './Slide'
 import {
@@ -46,11 +45,7 @@ export default defineComponent({
     const slides: Ref<any> = ref([])
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(1)
-    let autoplayTimer: ReturnType<typeof setInterval> | null
-    let transitionTimer: ReturnType<typeof setTimeout>
-
     let breakpoints: Ref<Breakpoints> = ref({})
-
     // generate carousel configs
     let __defaultConfig: CarouselConfig = { ...defaultConfigs }
     // current config
@@ -63,11 +58,15 @@ export default defineComponent({
     const maxSlideIndex = ref(0)
     const minSlideIndex = ref(0)
 
+    let autoplayTimer: ReturnType<typeof setInterval> | null
+    let transitionTimer: ReturnType<typeof setTimeout> | null
+
     provide('config', config)
     provide('slidesCount', slidesCount)
     provide('currentSlide', currentSlideIndex)
     provide('maxSlide', maxSlideIndex)
     provide('minSlide', minSlideIndex)
+    provide('slideWidth', slideWidth)
 
     /**
      * Configs
@@ -127,7 +126,6 @@ export default defineComponent({
     /**
      * Setup functions
      */
-
     function updateSlideWidth(): void {
       if (!root.value) return
       const rect = root.value.getBoundingClientRect()
@@ -220,13 +218,6 @@ export default defineComponent({
       const draggedSlides =
         Math.round(dragged.x / slideWidth.value + tolerance) * direction
 
-      let newSlide = getCurrentSlideIndex(
-        config,
-        currentSlideIndex.value - draggedSlides,
-        maxSlideIndex.value,
-        minSlideIndex.value
-      )
-
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
         const captureClick = (e: MouseEvent) => {
@@ -236,7 +227,7 @@ export default defineComponent({
         window.addEventListener('click', captureClick, true)
       }
 
-      slideTo(newSlide)
+      slideTo(currentSlideIndex.value - draggedSlides)
 
       dragged.x = 0
       dragged.y = 0
@@ -267,6 +258,10 @@ export default defineComponent({
     }
 
     function resetAutoplay(): void {
+      if (!config.autoplay || config.autoplay <= 0) {
+        return
+      }
+
       if (autoplayTimer) {
         clearInterval(autoplayTimer)
         autoplayTimer = null
@@ -284,14 +279,16 @@ export default defineComponent({
         return
       }
 
-      resetAutoplay()
-
-      let currentVal = slideIndex
-      if (!config.wrapAround) {
-        currentVal = getSlideInRange(slideIndex)
-      }
-
       isSliding.value = true
+
+      resetAutoplay()
+      const currentVal = getCurrentSlideIndex(
+        config,
+        slideIndex,
+        maxSlideIndex.value,
+        minSlideIndex.value
+      )
+
       prevSlideIndex.value = currentSlideIndex.value
       currentSlideIndex.value = currentVal
 
@@ -300,28 +297,22 @@ export default defineComponent({
       }
       transitionTimer = setTimeout((): void => {
         isSliding.value = false
-        currentSlideIndex.value = getSlideInRange(currentVal)
+        if (config.wrapAround) {
+          currentSlideIndex.value = mapNumberToRange(
+            currentVal,
+            maxSlideIndex.value,
+            minSlideIndex.value
+          )
+        }
       }, config.transition)
     }
 
-    function getSlideInRange(current: number): number {
-      return getNumberInRage(current, maxSlideIndex.value, minSlideIndex.value)
-    }
-
     function next(): void {
-      let nextSlide = currentSlideIndex.value + config.itemsToScroll
-      if (!config.wrapAround) {
-        nextSlide = Math.min(nextSlide, maxSlideIndex.value)
-      }
-      slideTo(nextSlide)
+      slideTo(currentSlideIndex.value + config.itemsToScroll)
     }
 
     function prev(): void {
-      let prevSlide = currentSlideIndex.value - config.itemsToScroll
-      if (!config.wrapAround) {
-        prevSlide = Math.max(prevSlide, minSlideIndex.value)
-      }
-      slideTo(prevSlide)
+      slideTo(currentSlideIndex.value - config.itemsToScroll)
     }
     const nav: CarouselNav = { slideTo, next, prev }
     provide('nav', nav)
@@ -346,7 +337,7 @@ export default defineComponent({
       return {
         transform: `translateX(${dragged.x - xScroll}px)`,
         transition: `${isSliding.value ? config.transition : 0}ms`,
-        margin: `0 -${slidesCount.value * slideWidth.value}px`,
+        margin: config.wrapAround ? `0 -${slidesCount.value * slideWidth.value}px` : '',
         width: `100%`,
       }
     })
@@ -421,17 +412,22 @@ export default defineComponent({
     return () => {
       const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
       const addonsElements = slotAddons?.(slotsProps) || []
-      slides.value = slidesElements
       slidesElements.forEach(
         (el: typeof SlideComponent, index: number) => (el.props.index = index)
       )
-      const slidesBefore = slidesElements.map((el: VNode, index: number) =>
-        cloneVNode(el, { index: -slidesElements.length + index })
-      )
-      const slidesAfter = slidesElements.map((el: VNode, index: number) =>
-        cloneVNode(el, { index: slidesElements.length + index })
-      )
-      const output = [...slidesBefore, ...slidesElements, ...slidesAfter]
+      let output = slidesElements
+      if (config.wrapAround) {
+        const slidesBefore = slidesElements.map((el: VNode, index: number) =>
+          cloneVNode(el, { index: -slidesElements.length + index, isClone: true })
+        )
+        const slidesAfter = slidesElements.map((el: VNode, index: number) =>
+          cloneVNode(el, { index: slidesElements.length + index, isClone: true })
+        )
+        output = [...slidesBefore, ...slidesElements, ...slidesAfter]
+      }
+
+      slides.value = slidesElements
+
       const trackEl = h(
         'ol',
         {

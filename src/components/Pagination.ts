@@ -1,4 +1,4 @@
-import { getNumberInRage } from '@/partials/utils'
+import { mapNumberToRange } from '@/partials/utils'
 import { inject, ref, h } from 'vue'
 
 import { CarouselNav, VNode } from '../types'
@@ -7,6 +7,7 @@ const Pagination = () => {
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))
+  const slidesCount = inject('slidesCount', ref(1))
   const nav: CarouselNav = inject('nav', {})
 
   function handleButtonClick(slideNumber: number): void {
@@ -14,7 +15,7 @@ const Pagination = () => {
   }
 
   const isActive = (slide: number): boolean => {
-    const val = getNumberInRage(currentSlide.value, maxSlide.value, minSlide.value)
+    const val = mapNumberToRange(currentSlide.value, slidesCount.value - 1, 0)
     return (
       val === slide ||
       (val > maxSlide.value && slide >= maxSlide.value) ||

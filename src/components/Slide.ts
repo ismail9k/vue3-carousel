@@ -11,26 +11,29 @@ export default defineComponent({
       type: Number,
       default: 1,
     },
+    isClone: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, { slots }: SetupContext) {
     const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
     const currentSlide = inject('currentSlide', ref(0))
     const slidesToScroll = inject('slidesToScroll', ref(0))
+    const slideWidth = inject('slideWidth', ref(0))
 
     const slideStyle = computed((): ElementStyleObject => {
-      const items = config.itemsToShow
-      const width = `${(1 / items) * 100}%`
       return {
-        width,
+        width: slideWidth.value ? `${slideWidth.value}px` : `100%`,
       }
     })
 
     const isActive = (): boolean => props.index === currentSlide.value
     const isVisible = (): boolean => {
-      const min = Math.ceil(slidesToScroll.value)
-      const max = Math.floor(slidesToScroll.value + config.itemsToShow)
+      const min = Math.floor(slidesToScroll.value)
+      const max = Math.ceil(slidesToScroll.value + config.itemsToShow - 1)
 
-      return currentSlide.value >= min && currentSlide.value <= max
+      return props.index >= min && props.index <= max
     }
     const isPrev = (): boolean => props.index === currentSlide.value - 1
     const isNext = (): boolean => props.index === currentSlide.value + 1
@@ -40,10 +43,10 @@ export default defineComponent({
         {
           style: slideStyle.value,
           class: {
-            'carousel_slide--clone': true,
             carousel__slide: true,
-            'carousel__slide--active': isActive(),
+            'carousel_slide--clone': props.isClone,
             'carousel__slide--visible': isVisible(),
+            'carousel__slide--active': isActive(),
             'carousel__slide--prev': isPrev(),
             'carousel__slide--next': isNext(),
           },

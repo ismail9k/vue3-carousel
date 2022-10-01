@@ -58,7 +58,6 @@ export function getMaxSlideIndex(config: CarouselConfig, slidesCount: number): n
       return slidesCount - 1
     case 'center':
     case 'center-odd':
-      return slidesCount - Math.ceil(config.itemsToShow / 2)
     case 'center-even':
       return slidesCount - Math.ceil(config.itemsToShow / 2)
     default:
@@ -77,9 +76,8 @@ export function getMinSlideIndex(config: CarouselConfig): number {
       return config.itemsToShow - 1
     case 'center':
     case 'center-odd':
-      return Math.floor((config.itemsToShow - 1) / 2)
     case 'center-even':
-      return Math.floor((config.itemsToShow - 2) / 2)
+      return Math.floor((config.itemsToShow - 1) / 2)
     default:
       return 0
   }
@@ -129,12 +127,12 @@ export function getSlidesToScroll({
   return output
 }
 
-export function getNumberInRage(current: number, max: number, min = 0): number {
+export function mapNumberToRange(current: number, max: number, min = 0): number {
   if (current > max) {
-    return getNumberInRage(current - (max + 1), max, min)
+    return mapNumberToRange(current - (max + 1), max, min)
   }
   if (current < min) {
-    return getNumberInRage(current + (max + 1), max, min)
+    return mapNumberToRange(current + (max + 1), max, min)
   }
   return current
 }
