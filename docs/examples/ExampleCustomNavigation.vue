@@ -23,7 +23,7 @@ import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css'
 
 export default defineComponent({
-  name: 'Basic',
+  name: 'CustomNavigation',
   components: {
     Carousel,
     Slide,

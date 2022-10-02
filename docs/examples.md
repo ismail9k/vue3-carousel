@@ -333,6 +333,31 @@ export default defineComponent({
   </div>
 </template>
 
+## [Gallery](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleGallery.vue)
+
+<ExampleGallery></ExampleGallery>
+
+```vue
+<template>
+  <Carousel id="gallery" :items-to-show="1" :wrap-around="false" v-model="currentSlide">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+  </Carousel>
+
+  <Carousel
+    id="thumbnails"
+    :items-to-show="4"
+    :wrap-around="true"
+    v-model="currentSlide"
+    ref="carousel"
+  >
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item" @click="slideTo(slide - 1)">{{ slide }}</div>
+    </Slide>
+  </Carousel>
+</template>
+
 <script>
 import { defineComponent } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
@@ -340,20 +365,18 @@ import { Carousel, Slide } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
 
 export default defineComponent({
-  name: 'Basic',
+  name: 'Gallery',
   components: {
     Carousel,
     Slide,
+    Navigation,
   },
   data: () => ({
     currentSlide: 0,
   }),
   methods: {
-    next() {
-      this.$refs.carousel.next()
-    },
-    prev() {
-      this.$refs.carousel.prev()
+    slideTo(val) {
+      this.currentSlide = val
     },
   },
 })
@@ -368,6 +391,7 @@ import ExamplePagination from './examples/ExamplePagination.vue';
 import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
+import ExampleGallery from './examples/ExampleGallery.vue';
 
 export default {
   components: {
@@ -378,6 +402,7 @@ export default {
     ExamplePagination,
     ExampleActiveClasses,
     ExampleCustomNavigation,
+    ExampleGallery,
   }
 }
 </script>
