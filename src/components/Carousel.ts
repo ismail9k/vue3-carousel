@@ -45,7 +45,7 @@ export default defineComponent({
     // generate carousel configs
     let __defaultConfig: CarouselConfig = { ...defaultConfigs }
     // current config
-    const config = reactive<Partial<CarouselConfig>>({ ...__defaultConfig })
+    const config = reactive<CarouselConfig>({ ...__defaultConfig })
 
     // slides
     const currentSlideIndex = ref(config.modelValue ?? 0)
@@ -269,7 +269,7 @@ export default defineComponent({
      * Navigation function
      */
     const isSliding = ref(false)
-    function slideTo(slideIndex: number, mute = false): void {
+    function slideTo(slideIndex: number): void {
       if (currentSlideIndex.value === slideIndex || isSliding.value) {
         return
       }
@@ -287,18 +287,16 @@ export default defineComponent({
       prevSlideIndex.value = currentSlideIndex.value
       currentSlideIndex.value = currentVal
 
-      if (!mute) {
-        emit('update:modelValue', currentSlideIndex.value)
-      }
       transitionTimer = setTimeout((): void => {
-        isSliding.value = false
+        const mappedNumber = mapNumberToRange(currentVal, maxSlideIndex.value)
+
         if (config.wrapAround) {
-          currentSlideIndex.value = mapNumberToRange(
-            currentVal,
-            maxSlideIndex.value,
-            minSlideIndex.value
-          )
+          currentSlideIndex.value = mappedNumber
         }
+
+        emit('update:modelValue', mappedNumber)
+
+        isSliding.value = false
       }, config.transition)
     }
 
@@ -311,6 +309,7 @@ export default defineComponent({
     }
     const nav: CarouselNav = { slideTo, next, prev }
     provide('nav', nav)
+    provide('isSliding', isSliding)
 
     /**
      * Track style
@@ -359,20 +358,21 @@ export default defineComponent({
       watch(() => props[prop as keyof typeof carouselProps], restartCarousel)
     })
 
+    watch(
+      () => props['modelValue'],
+      (val) => {
+        if (val !== currentSlideIndex.value) {
+          slideTo(Number(val))
+        }
+      }
+    )
+
     // Init carousel
     initCarousel()
 
     watchEffect((): void => {
       // Handel when slides added/removed
-      const needToUpdate = slidesCount.value !== slides.value.length
-      const currentSlideUpdated =
-        props.modelValue !== undefined && currentSlideIndex.value !== props.modelValue
-
-      if (currentSlideUpdated) {
-        slideTo(Number(props.modelValue), true)
-      }
-
-      if (needToUpdate) {
+      if (slidesCount.value !== slides.value.length) {
         updateCarousel()
       }
     })

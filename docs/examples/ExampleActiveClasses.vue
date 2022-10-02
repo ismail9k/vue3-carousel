@@ -1,5 +1,5 @@
 <template>
-  <Carousel :itemsToShow="3.95" :wrapAround="true">
+  <Carousel id="activeClasses" :itemsToShow="3.95" :wrapAround="true" :transition="500">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
@@ -28,23 +28,46 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-.carousel__slide > .carousel__item {
-  transform: scale(1);
-  opacity: 0.5;
-  transition: 0.5s;
-}
-.carousel__slide--visible > .carousel__item {
-  opacity: 1;
-  transform: rotateY(0);
-}
-.carousel__slide--next > .carousel__item {
-  transform: scale(0.9) translate(-10px);
-}
-.carousel__slide--prev > .carousel__item {
-  transform: scale(0.9) translate(10px);
-}
-.carousel__slide--active > .carousel__item {
-  transform: scale(1.1);
+<style lang="stylus">
+#activeClasses {
+  .carousel__slide {
+    padding: 5;
+  }
+
+  .carousel__viewport {
+    perspective: 2000px;
+  }
+
+  .carousel__track {
+    transform-style: preserve-3d;
+  }
+
+  .carousel__slide--sliding {
+    transition: 0.5s;
+  }
+
+  .carousel__slide {
+    opacity: 0.9;
+    transform: rotateY(-20deg) scale(0.9);
+  }
+
+  .carousel__slide--active ~ .carousel__slide {
+    transform: rotateY(20deg) scale(0.9);
+  }
+
+  .carousel__slide--prev {
+    opacity: 1;
+    transform: rotateY(-10deg) scale(0.95);
+  }
+
+  .carousel__slide--next {
+    opacity: 1;
+    transform: rotateY(10deg) scale(0.95);
+  }
+
+  .carousel__slide--active {
+    opacity: 1;
+    transform: rotateY(0) scale(1.1);
+  }
 }
 </style>

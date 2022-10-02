@@ -58,6 +58,7 @@ export function getMaxSlideIndex(config: CarouselConfig, slidesCount: number): n
       return slidesCount - 1
     case 'center':
     case 'center-odd':
+      return slidesCount - Math.ceil((config.itemsToShow - 0.5) / 2)
     case 'center-even':
       return slidesCount - Math.ceil(config.itemsToShow / 2)
     default:
