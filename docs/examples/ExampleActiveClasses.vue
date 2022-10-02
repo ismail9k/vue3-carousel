@@ -60,14 +60,14 @@ export default defineComponent({
     transform: rotateY(-10deg) scale(0.95);
   }
 
-  .carousel__slide--next {
+  .carousel__slide.carousel__slide--next {
     opacity: 1;
     transform: rotateY(10deg) scale(0.95);
   }
 
   .carousel__slide--active {
     opacity: 1;
-    transform: rotateY(0) scale(1.1);
+    transform: rotateY(0) scale(1);
   }
 }
 </style>

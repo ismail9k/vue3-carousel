@@ -11,7 +11,7 @@ Modern lightweight Vue 3 carousel component
 
 https://ismail9k.github.io/vue3-carousel/
 
-## TODO
+## Features
 
 - [x] Responsive breakpoints
 - [x] Mouse/touch dragging
@@ -19,9 +19,7 @@ https://ismail9k.github.io/vue3-carousel/
 - [x] Auto play
 - [x] Add classes for active and for visible slides
 - [x] RTL
-- [ ] Vertical scroll
-- [ ] Sync multiple carousel
-- [ ] Enrich a11y
+- [x] Enrich a11y
 
 ## Getting started
 

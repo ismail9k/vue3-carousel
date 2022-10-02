@@ -1,7 +1,7 @@
 :root {
   /* Color */
-  --vc-clr-primary: #642afb;
-  --vc-clr-secondary: #8e98f3;
+  --vc-clr-primary: #000;
+  --vc-clr-secondary: #090f207f;
   --vc-clr-white: #ffffff;
 
   /* Icon */
@@ -10,14 +10,15 @@
   /* Navigation */
   --vc-nav-width: 30px;
   --vc-nav-height: 30px;
-  --vc-nav-border-radius: var(--vc-nav-width);
-  --vc-nav-color: var(--vc-clr-white);
-  --vc-nav-background: var(--vc-clr-primary);
+  --vc-nav-border-radius: 0;
+  --vc-nav-color: var(--vc-clr-primary);
+  --vc-nav-color-hover: var(--vc-clr-secondary);
+  --vc-nav-background: transparent;
 
   /* Pagination */
-  --vc-pgn-width: 10px;
-  --vc-pgn-height: 5px;
-  --vc-pgn-margin: 5px;
+  --vc-pgn-width: 12px;
+  --vc-pgn-height: 4px;
+  --vc-pgn-margin: 4px;
   --vc-pgn-border-radius: 0;
   --vc-pgn-background-color: var(--vc-clr-secondary);
   --vc-pgn-active-color: var(--vc-clr-primary);

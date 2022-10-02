@@ -17,11 +17,7 @@ const Pagination = () => {
 
   const isActive = (slide: number): boolean => {
     const val = mapNumberToRange(currentSlide.value, slidesCount.value - 1, 0)
-    return (
-      val === slide ||
-      (val > maxSlide.value && slide >= maxSlide.value) ||
-      (val < minSlide.value && slide <= minSlide.value)
-    )
+    return val === slide
   }
 
   const children: Array<VNode> = []

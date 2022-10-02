@@ -31,6 +31,7 @@ import {
 } from '@/partials/utils'
 import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
 
+import ARIAComponent from './ARIA'
 import SlideComponent from './Slide'
 
 export default defineComponent({
@@ -449,10 +450,11 @@ export default defineComponent({
           },
           dir: config.dir,
           'aria-label': 'Gallery',
+          tabindex: '0',
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
         },
-        [viewPortEl, addonsElements]
+        [viewPortEl, addonsElements, h(ARIAComponent)]
       )
     }
   },

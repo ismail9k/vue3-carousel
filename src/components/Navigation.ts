@@ -23,7 +23,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
         'carousel__prev',
         !config.wrapAround &&
           currentSlide.value <= minSlide.value &&
-          'carousel__prev--in-active',
+          'carousel__prev--disabled',
         attrs?.class,
       ],
       'aria-label': `Navigate to previous slide`,
@@ -39,7 +39,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
         'carousel__next',
         !config.wrapAround &&
           currentSlide.value >= maxSlide.value &&
-          'carousel__next--in-active',
+          'carousel__next--disabled',
         attrs?.class,
       ],
       'aria-label': `Navigate to next slide`,

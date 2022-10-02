@@ -33,7 +33,7 @@ export default defineComponent({
       const min = Math.floor(slidesToScroll.value)
       const max = Math.ceil(slidesToScroll.value + config.itemsToShow - 1)
 
-      return props.index > min && props.index < max
+      return props.index >= min && props.index <= max
     }
     const isPrev = (): boolean => props.index === currentSlide.value - 1
     const isNext = (): boolean => props.index === currentSlide.value + 1
@@ -51,6 +51,7 @@ export default defineComponent({
             'carousel__slide--next': isNext(),
             'carousel__slide--sliding': isSliding.value,
           },
+          'aria-hidden': !isVisible(),
         },
         slots.default?.()
       )
