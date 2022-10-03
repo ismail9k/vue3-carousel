@@ -3,12 +3,12 @@ home: true
 actionText: Getting Started →
 actionLink: /getting-started
 features:
-- title: 🧁 Vue.js
-  details: Optimized to work with Vue 3 framework, not a wrapper for another library.
-- title: ♿ Accessible
-  details: Robust structure and Touch, Keyboard, Mouse Wheel, and Navigation support.
-- title: 📱 Responsive
-  details: Responsive breakpoints, to apply custom configurations for each screen size.
+  - title: 🧁 Vue.js
+    details: Optimized to work with Vue 3 framework, not a wrapper for another library.
+  - title: ♿ Accessible
+    details: Robust structure and Touch, Keyboard, Mouse Wheel, and Navigation support.
+  - title: 📱 Responsive
+    details: Responsive breakpoints, to apply custom configurations for each screen size.
 footer: MIT Licensed
 description: A customizable accessible carousel slider optimized for Vue
 meta:
@@ -49,8 +49,8 @@ yarn add vue3-carousel
 
 <script>
 // If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
-import 'vue3-carousel/dist/carousel.css';
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
+import 'vue3-carousel/dist/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
 export default {
   name: 'App',
@@ -60,6 +60,6 @@ export default {
     Pagination,
     Navigation,
   },
-};
+}
 </script>
 ```

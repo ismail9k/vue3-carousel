@@ -9,7 +9,7 @@ export default {
     text: '',
     type: '',
   },
-};
+}
 </script>
 
 <style scoped>

@@ -1,2 +1,2 @@
-export * from './vue';
-export * from './carousel';
+export * from './common'
+export * from './carousel'

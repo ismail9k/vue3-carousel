@@ -29,8 +29,8 @@ yarn add vue3-carousel
 
 <script>
 // If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
-import 'vue3-carousel/dist/carousel.css';
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
+import 'vue3-carousel/dist/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
 export default {
   name: 'App',
@@ -40,7 +40,7 @@ export default {
     Pagination,
     Navigation,
   },
-};
+}
 </script>
 ```
 
@@ -63,10 +63,10 @@ export default {
 | `pauseAutoplayOnHover` | true     | toggle if auto play should pause on mouse hover <Badge text="0.1.25"/>                 |
 | `dir`                  | ltr      | controls the carousel direction. Available values 'ltr', 'rtl' <Badge text="0.1.38"/>  |
 
-
 ## Slots
 
 ### Slides/Default
+
 Used to render the carousel items. You can use either the default slot or wrap element in `slides` slot.
 
 ```vue
@@ -78,7 +78,9 @@ Used to render the carousel items. You can use either the default slot or wrap e
   </template>
 </Carousel>
 ```
+
 ### Addons
+
 Used to add display carousel addons components.
 
 ```vue
@@ -98,7 +100,6 @@ Used to add display carousel addons components.
 | `slideWidth`   | the width of a single slide element. |
 | `currentSlide` | index number of the current slide.   |
 | `slidesCount`  | the count of all slides              |
-
 
 #### Example
 

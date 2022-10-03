@@ -1,14 +1,35 @@
 {
   "root": true,
+  "settings": {
+    "import/resolver": "typescript"
+  },
   "env": {
     "es6": true
   },
-  "plugins": ["prettier"],
-  "extends": ["plugin:vue/vue3-essential", "eslint:recommended"],
+  "extends": [
+    "plugin:vue/vue3-essential",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "prettier"
+  ],
+  "plugins": ["@typescript-eslint", "import"],
   "parserOptions": {
     "parser": "@typescript-eslint/parser"
   },
   "rules": {
-    "vue/multi-word-component-names": "off"
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
+        "alphabetize": { "order": "asc", "caseInsensitive": true },
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"]
+      }
+    ],
+    "vue/multi-word-component-names": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }

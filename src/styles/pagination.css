@@ -2,17 +2,29 @@
   display: flex;
   justify-content: center;
   list-style: none;
+  line-height: 0;
+  margin: 10px 0 0;
 }
+
 .carousel__pagination-button {
-  margin: var(--vc-pgn-margin);
+  display: block;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  padding: var(--vc-pgn-margin);
+  background: transparent;
+}
+
+.carousel__pagination-button::after {
+  display: block;
+  content: '';
   width: var(--vc-pgn-width);
   height: var(--vc-pgn-height);
-  border-radius: var(--vc-pgn-height);
-  border: 0;
-  cursor: pointer;
+  border-radius: var(--vc-pgn-border-radius);
   background-color: var(--vc-pgn-background-color);
 }
 
-.carousel__pagination-button--active {
+.carousel__pagination-button:hover::after,
+.carousel__pagination-button--active::after {
   background-color: var(--vc-pgn-active-color);
 }
