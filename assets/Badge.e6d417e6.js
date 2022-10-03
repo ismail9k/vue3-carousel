@@ -1,0 +1,1 @@
+import{_ as a,o as t,b as s,t as _,y as n}from"./plugin-vue_export-helper.b27dad8f.js";const o={name:"Badge",props:{text:"",type:""}};function r(c,p,e,d,l,i){return t(),s("span",{class:n(["badge",e.type])},_(e.text),3)}var m=a(o,[["render",r],["__scopeId","data-v-794a0e26"]]);export{m as B};
