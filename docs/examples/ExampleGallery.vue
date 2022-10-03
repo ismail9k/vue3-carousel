@@ -29,7 +29,6 @@ export default defineComponent({
   components: {
     Carousel,
     Slide,
-    Navigation,
   },
   data: () => ({
     currentSlide: 0,
