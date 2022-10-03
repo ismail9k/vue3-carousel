@@ -3,7 +3,7 @@
 <ExampleBasic></ExampleBasic>
 
 <script>
-import ExampleBasic from './examples/ExampleBasic.vue';
+import ExampleBasic from './examples/ExampleGallery.vue';
 
 export default {
   components: {
@@ -16,8 +16,8 @@ export default {
 .carousel__item {
   min-height: 200px;
   width: 100%;
-  background-color: var(--vc-clr-primary);
-  color:  var(--vc-clr-white);
+  background-color: #642afb;
+  color: #fff;
   font-size: 20px;
   border-radius: 8px;
   display: flex;
@@ -26,12 +26,6 @@ export default {
 }
 
 .carousel__slide {
-  padding: 10px;
-}
-
-.carousel__prev,
-.carousel__next {
-  box-sizing: content-box;
-  border: 5px solid white;
+  padding: 1px;
 }
 </style>
