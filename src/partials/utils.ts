@@ -47,39 +47,61 @@ export function getSlidesVNodes(vNode: any[] | undefined) {
   return vNode[0]?.children || []
 }
 
-export function getMaxSlideIndex(config: CarouselConfig, slidesCount: number): number {
+export function getMaxSlideIndex(
+  config: Partial<CarouselConfig>,
+  slidesCount: number
+): number {
   if (config.wrapAround) {
-    return slidesCount - 1
+    return Math.max(slidesCount - 1, 0)
   }
+
+  const itemsToShow = config.itemsToShow || 1
+  let slides
   switch (config.snapAlign) {
     case 'start':
-      return slidesCount - config.itemsToShow
+      slides = slidesCount - itemsToShow
+      break
     case 'end':
-      return slidesCount - 1
+      slides = slidesCount - 1
+      break
     case 'center':
     case 'center-odd':
-      return slidesCount - Math.ceil((config.itemsToShow - 0.5) / 2)
+      slides = slidesCount - Math.ceil((itemsToShow - 0.5) / 2)
+      break
     case 'center-even':
-      return slidesCount - Math.ceil(config.itemsToShow / 2)
+      slides = slidesCount - Math.ceil(itemsToShow / 2)
+      break
     default:
-      return 0
+      slides = 0
+      break
   }
+
+  return Math.max(slides, 0)
 }
 
-export function getMinSlideIndex(config: CarouselConfig): number {
+export function getMinSlideIndex(
+  config: Partial<CarouselConfig>,
+  slidesCount: number
+): number {
   if (config.wrapAround) {
     return 0
   }
+
+  const itemsToShow = config.itemsToShow || 1
+  if (itemsToShow > slidesCount) {
+    return 0
+  }
+
   switch (config.snapAlign) {
     case 'start':
       return 0
     case 'end':
-      return config.itemsToShow - 1
+      return itemsToShow - 1
     case 'center':
     case 'center-odd':
-      return Math.floor((config.itemsToShow - 1) / 2)
+      return Math.floor((itemsToShow - 1) / 2)
     case 'center-even':
-      return Math.floor((config.itemsToShow - 2) / 2)
+      return Math.floor((itemsToShow - 2) / 2)
     default:
       return 0
   }

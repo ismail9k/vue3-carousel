@@ -134,7 +134,7 @@ export default defineComponent({
 
       middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2)
       maxSlideIndex.value = getMaxSlideIndex(config, slidesCount.value)
-      minSlideIndex.value = getMinSlideIndex(config)
+      minSlideIndex.value = getMinSlideIndex(config, slidesCount.value)
       currentSlideIndex.value = getCurrentSlideIndex(
         config,
         currentSlideIndex.value,
