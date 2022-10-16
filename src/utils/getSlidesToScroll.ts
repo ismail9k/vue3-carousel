@@ -1,5 +1,7 @@
 import { CarouselConfig } from '@/types'
 
+import { getNumberInRange } from './getNumberInRange'
+
 type Args = {
   config: Partial<CarouselConfig>
   currentSlide: number
@@ -7,8 +9,7 @@ type Args = {
 }
 
 export function getSlidesToScroll({ config, currentSlide, slidesCount }: Args): number {
-  const { snapAlign, wrapAround } = config
-  const itemsToShow = config.itemsToShow || 1
+  const { snapAlign, wrapAround, itemsToShow = 1 } = config
   let output = currentSlide
 
   switch (snapAlign) {
@@ -29,11 +30,13 @@ export function getSlidesToScroll({ config, currentSlide, slidesCount }: Args): 
       break
   }
 
-  if (!wrapAround) {
-    const max = slidesCount - itemsToShow
-    const min = 0
-    output = Math.max(Math.min(output, max), min)
+  if (wrapAround) {
+    return output
   }
 
-  return output
+  return getNumberInRange({
+    val: output,
+    max: slidesCount - itemsToShow,
+    min: 0,
+  })
 }

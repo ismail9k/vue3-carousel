@@ -6,8 +6,7 @@ type Args = {
 }
 
 export function getMinSlideIndex({ config, slidesCount }: Args): number {
-  const { wrapAround, snapAlign } = config
-  const itemsToShow = config.itemsToShow || 1
+  const { wrapAround, snapAlign, itemsToShow = 1 } = config
   let output = 0
 
   if (wrapAround || itemsToShow > slidesCount) {

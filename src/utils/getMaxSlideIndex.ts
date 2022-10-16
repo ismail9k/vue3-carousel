@@ -6,36 +6,34 @@ type Args = {
 }
 
 export function getMaxSlideIndex({ config, slidesCount }: Args): number {
-  const { snapAlign, wrapAround } = config
+  const { snapAlign, wrapAround, itemsToShow = 1 } = config
   if (wrapAround) {
     return Math.max(slidesCount - 1, 0)
   }
 
-  const itemsToShow = config.itemsToShow || 1
-  let slides
-
+  let output
   switch (snapAlign) {
     case 'start':
-      slides = slidesCount - itemsToShow
+      output = slidesCount - itemsToShow
       break
 
     case 'end':
-      slides = slidesCount - 1
+      output = slidesCount - 1
       break
 
     case 'center':
     case 'center-odd':
-      slides = slidesCount - Math.ceil((itemsToShow - 0.5) / 2)
+      output = slidesCount - Math.ceil((itemsToShow - 0.5) / 2)
       break
 
     case 'center-even':
-      slides = slidesCount - Math.ceil(itemsToShow / 2)
+      output = slidesCount - Math.ceil(itemsToShow / 2)
       break
 
     default:
-      slides = 0
+      output = 0
       break
   }
 
-  return Math.max(slides, 0)
+  return Math.max(output, 0)
 }
