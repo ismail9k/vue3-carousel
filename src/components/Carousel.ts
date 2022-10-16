@@ -24,7 +24,7 @@ import {
   debounce,
   throttle,
   getSlidesVNodes,
-  getCurrentSlideIndex,
+  getNumberInRange,
   getMaxSlideIndex,
   getMinSlideIndex,
   getSlidesToScroll,
@@ -135,12 +135,13 @@ export default defineComponent({
       middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2)
       maxSlideIndex.value = getMaxSlideIndex({ config, slidesCount: slidesCount.value })
       minSlideIndex.value = getMinSlideIndex({ config, slidesCount: slidesCount.value })
-      currentSlideIndex.value = getCurrentSlideIndex(
-        config,
-        currentSlideIndex.value,
-        maxSlideIndex.value,
-        minSlideIndex.value
-      )
+      if (!config.wrapAround) {
+        currentSlideIndex.value = getNumberInRange({
+          val: currentSlideIndex.value,
+          max: maxSlideIndex.value,
+          min: minSlideIndex.value,
+        })
+      }
     }
 
     onMounted((): void => {
@@ -278,12 +279,13 @@ export default defineComponent({
       isSliding.value = true
 
       resetAutoplay()
-      const currentVal = getCurrentSlideIndex(
-        config,
-        slideIndex,
-        maxSlideIndex.value,
-        minSlideIndex.value
-      )
+      const currentVal = config.wrapAround
+        ? slideIndex
+        : getNumberInRange({
+            val: slideIndex,
+            max: maxSlideIndex.value,
+            min: minSlideIndex.value,
+          })
 
       prevSlideIndex.value = currentSlideIndex.value
       currentSlideIndex.value = currentVal
