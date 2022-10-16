@@ -163,6 +163,12 @@ export default defineComponent({
       if (autoplayTimer) {
         clearInterval(autoplayTimer)
       }
+
+      /**
+       * use the same options as in onMounted
+       * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener#Matching_event_listeners_for_removal
+       */
+      window.removeEventListener('resize', handleWindowResize, { passive: true } as unknown as EventListenerOptions)
     })
 
     /**
