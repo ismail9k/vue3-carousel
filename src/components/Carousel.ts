@@ -291,7 +291,11 @@ export default defineComponent({
       currentSlideIndex.value = currentVal
 
       transitionTimer = setTimeout((): void => {
-        const mappedNumber = mapNumberToRange(currentVal, maxSlideIndex.value)
+        const mappedNumber = mapNumberToRange({
+          val: currentVal,
+          max: maxSlideIndex.value,
+          min: 0,
+        })
 
         if (config.wrapAround) {
           currentSlideIndex.value = mappedNumber

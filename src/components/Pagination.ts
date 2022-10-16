@@ -8,7 +8,6 @@ const Pagination = () => {
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))
-  const slidesCount = inject('slidesCount', ref(1))
   const nav: CarouselNav = inject('nav', {})
 
   function handleButtonClick(slideNumber: number): void {
@@ -16,8 +15,13 @@ const Pagination = () => {
   }
 
   const isActive = (slide: number): boolean => {
-    const val = mapNumberToRange(currentSlide.value, slidesCount.value - 1, 0)
-    return val === slide
+    return (
+      mapNumberToRange({
+        val: currentSlide.value,
+        max: maxSlide.value,
+        min: 0,
+      }) === slide
+    )
   }
 
   const children: Array<VNode> = []
