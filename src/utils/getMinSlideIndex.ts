@@ -1,29 +1,41 @@
 import { CarouselConfig } from '../types'
 
-export function getMinSlideIndex(
-  config: Partial<CarouselConfig>,
+type Args = {
+  config: Partial<CarouselConfig>
   slidesCount: number
-): number {
-  if (config.wrapAround) {
-    return 0
-  }
+}
 
+export function getMinSlideIndex({ config, slidesCount }: Args): number {
+  const { wrapAround, snapAlign } = config
   const itemsToShow = config.itemsToShow || 1
-  if (itemsToShow > slidesCount) {
-    return 0
+  let output = 0
+
+  if (wrapAround || itemsToShow > slidesCount) {
+    return output
   }
 
-  switch (config.snapAlign) {
+  switch (snapAlign) {
     case 'start':
-      return 0
+      output = 0
+      break
+
     case 'end':
-      return itemsToShow - 1
+      output = itemsToShow - 1
+      break
+
     case 'center':
     case 'center-odd':
-      return Math.floor((itemsToShow - 1) / 2)
+      output = Math.floor((itemsToShow - 1) / 2)
+      break
+
     case 'center-even':
-      return Math.floor((itemsToShow - 2) / 2)
+      output = Math.floor((itemsToShow - 2) / 2)
+      break
+
     default:
-      return 0
+      output = 0
+      break
   }
+
+  return output
 }

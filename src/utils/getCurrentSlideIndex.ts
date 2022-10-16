@@ -1,7 +1,7 @@
-import { CarouselConfig } from '../types'
+import { CarouselConfig } from '@/types'
 
 export function getCurrentSlideIndex(
-  config: CarouselConfig,
+  config: Partial<CarouselConfig>,
   val: number,
   max: number,
   min: number

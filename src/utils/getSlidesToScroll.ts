@@ -1,24 +1,32 @@
-export function getSlidesToScroll({
-  currentSlide,
-  snapAlign,
-  itemsToShow,
-  wrapAround,
-  slidesCount,
-}: {
+import { CarouselConfig } from '@/types'
+
+type Args = {
+  config: Partial<CarouselConfig>
   currentSlide: number
-  itemsToShow: number
-  wrapAround: boolean
   slidesCount: number
-  snapAlign: string
-}): number {
+}
+
+export function getSlidesToScroll({ config, currentSlide, slidesCount }: Args): number {
+  const { snapAlign, wrapAround } = config
+  const itemsToShow = config.itemsToShow || 1
   let output = currentSlide
 
-  if (snapAlign === 'center' || snapAlign === 'center-odd') {
-    output -= (itemsToShow - 1) / 2
-  } else if (snapAlign === 'center-even') {
-    output -= (itemsToShow - 2) / 2
-  } else if (snapAlign === 'end') {
-    output -= itemsToShow - 1
+  switch (snapAlign) {
+    case 'center':
+    case 'center-odd':
+      output -= (itemsToShow - 1) / 2
+      break
+
+    case 'center-even':
+      output -= (itemsToShow - 2) / 2
+      break
+
+    case 'end':
+      output -= itemsToShow - 1
+      break
+
+    default:
+      break
   }
 
   if (!wrapAround) {

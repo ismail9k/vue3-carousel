@@ -1,16 +1,20 @@
 export type Breakpoints = { [key: number]: Partial<CarouselConfig> }
+
+export type SnapAlign = 'start' | 'end' | 'center' | 'center-even' | 'center-odd'
+
+export type Dir = 'rtl' | 'ltr'
 export interface CarouselConfig {
   itemsToShow: number
   itemsToScroll: number
   modelValue?: number
   transition?: number
   autoplay?: number
-  snapAlign: 'start' | 'end' | 'center' | 'center-even' | 'center-odd'
+  snapAlign: SnapAlign
   wrapAround?: boolean
   pauseAutoplayOnHover?: boolean
   mouseDrag?: boolean
   touchDrag?: boolean
-  dir: 'rtl' | 'ltr'
+  dir?: Dir
   breakpoints?: Breakpoints
   settings?: Partial<CarouselConfig>
 }

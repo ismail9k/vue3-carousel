@@ -133,8 +133,8 @@ export default defineComponent({
       if (slidesCount.value <= 0) return
 
       middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2)
-      maxSlideIndex.value = getMaxSlideIndex(config, slidesCount.value)
-      minSlideIndex.value = getMinSlideIndex(config, slidesCount.value)
+      maxSlideIndex.value = getMaxSlideIndex({ config, slidesCount: slidesCount.value })
+      minSlideIndex.value = getMinSlideIndex({ config, slidesCount: slidesCount.value })
       currentSlideIndex.value = getCurrentSlideIndex(
         config,
         currentSlideIndex.value,
@@ -317,9 +317,7 @@ export default defineComponent({
      */
     const slidesToScroll = computed(() =>
       getSlidesToScroll({
-        itemsToShow: config.itemsToShow,
-        snapAlign: config.snapAlign,
-        wrapAround: Boolean(config.wrapAround),
+        config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
