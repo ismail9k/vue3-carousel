@@ -10,19 +10,12 @@ const Pagination = () => {
   const currentSlide = inject('currentSlide', ref(1))
   const nav: CarouselNav = inject('nav', {})
 
-  function handleButtonClick(slideNumber: number): void {
-    nav.slideTo(slideNumber)
-  }
-
-  const isActive = (slide: number): boolean => {
-    return (
-      mapNumberToRange({
-        val: currentSlide.value,
-        max: maxSlide.value,
-        min: 0,
-      }) === slide
-    )
-  }
+  const isActive = (slide: number): boolean =>
+    mapNumberToRange({
+      val: currentSlide.value,
+      max: maxSlide.value,
+      min: 0,
+    }) === slide
 
   const children: Array<VNode> = []
   for (let slide = minSlide.value; slide < maxSlide.value + 1; slide++) {
@@ -33,7 +26,7 @@ const Pagination = () => {
         'carousel__pagination-button--active': isActive(slide),
       },
       'aria-label': `Navigate to slide ${slide + 1}`,
-      onClick: () => handleButtonClick(slide),
+      onClick: () => nav.slideTo(slide),
     })
     const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
     children.push(item)

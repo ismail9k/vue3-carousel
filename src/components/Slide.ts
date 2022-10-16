@@ -22,21 +22,22 @@ export default defineComponent({
     const slideWidth = inject('slideWidth', ref(0))
     const isSliding = inject('isSliding', ref(false))
 
-    const slideStyle = computed((): ElementStyleObject => {
-      return {
+    const slideStyle = computed(
+      (): ElementStyleObject => ({
         width: slideWidth.value ? `${slideWidth.value}px` : `100%`,
-      }
-    })
+      })
+    )
 
     const isActive = (): boolean => props.index === currentSlide.value
+    const isPrev = (): boolean => props.index === currentSlide.value - 1
+    const isNext = (): boolean => props.index === currentSlide.value + 1
     const isVisible = (): boolean => {
       const min = Math.floor(slidesToScroll.value)
       const max = Math.ceil(slidesToScroll.value + config.itemsToShow - 1)
 
       return props.index >= min && props.index <= max
     }
-    const isPrev = (): boolean => props.index === currentSlide.value - 1
-    const isNext = (): boolean => props.index === currentSlide.value + 1
+
     return () =>
       h(
         'li',

@@ -13,7 +13,9 @@ const Navigation = (props: any, { slots, attrs }: any) => {
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))
   const nav: CarouselNav = inject('nav', {})
-  const isRTL = config.dir === 'rtl'
+
+  const { dir, wrapAround } = config
+  const isRTL = dir === 'rtl'
 
   const prevButton = h(
     'button',
@@ -21,9 +23,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
       type: 'button',
       class: [
         'carousel__prev',
-        !config.wrapAround &&
-          currentSlide.value <= minSlide.value &&
-          'carousel__prev--disabled',
+        !wrapAround && currentSlide.value <= minSlide.value && 'carousel__prev--disabled',
         attrs?.class,
       ],
       'aria-label': `Navigate to previous slide`,
@@ -37,9 +37,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
       type: 'button',
       class: [
         'carousel__next',
-        !config.wrapAround &&
-          currentSlide.value >= maxSlide.value &&
-          'carousel__next--disabled',
+        !wrapAround && currentSlide.value >= maxSlide.value && 'carousel__next--disabled',
         attrs?.class,
       ],
       'aria-label': `Navigate to next slide`,
