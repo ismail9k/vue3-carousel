@@ -5,7 +5,7 @@ describe('getCurrentSlideIndex', () => {
     const val = 5
     const min = 0
     const max = 10
-    let results = getNumberInRange({ val, min, max })
+    const results = getNumberInRange({ val, min, max })
 
     expect(results).toBe(val)
   })
@@ -14,7 +14,7 @@ describe('getCurrentSlideIndex', () => {
     const val = 15
     const min = 0
     const max = 10
-    let results = getNumberInRange({ val, min, max })
+    const results = getNumberInRange({ val, min, max })
 
     expect(results).toBe(max)
   })
@@ -23,7 +23,7 @@ describe('getCurrentSlideIndex', () => {
     const val = 2
     const min = 5
     const max = 10
-    let results = getNumberInRange({ val, min, max })
+    const results = getNumberInRange({ val, min, max })
 
     expect(results).toBe(min)
   })
@@ -32,7 +32,7 @@ describe('getCurrentSlideIndex', () => {
     const val = 2
     const min = 10
     const max = 5
-    let results = getNumberInRange({ val, min, max })
+    const results = getNumberInRange({ val, min, max })
 
     expect(results).toBe(val)
   })

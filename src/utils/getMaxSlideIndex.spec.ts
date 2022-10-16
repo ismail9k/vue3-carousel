@@ -7,7 +7,7 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 0
       const config = { wrapAround: true, itemsToShow: 1 }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -15,7 +15,7 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 10
       const config = { wrapAround: true, itemsToShow: 1 }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(slidesCount - 1)
     })
@@ -26,7 +26,7 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 0
       const config = { wrapAround: false, itemsToShow: 1 }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -39,7 +39,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'start' as SnapAlign,
       }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(slidesCount - config.itemsToShow)
     })
@@ -52,7 +52,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'end' as SnapAlign,
       }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(slidesCount - 1)
     })
@@ -64,7 +64,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'center-odd' as SnapAlign,
       }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(slidesCount - Math.ceil((config.itemsToShow - 0.5) / 2))
     })
@@ -76,7 +76,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'center-even' as SnapAlign,
       }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(slidesCount - Math.ceil(config.itemsToShow / 2))
     })
@@ -85,7 +85,7 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 10
       const config = { wrapAround: false, itemsToShow: 1 }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -98,7 +98,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'start' as SnapAlign,
       }
 
-      let results = getMaxSlideIndex({ config, slidesCount })
+      const results = getMaxSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })

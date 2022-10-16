@@ -5,7 +5,7 @@ describe('getCurrentSlideIndex', () => {
     const val = 5
     const min = 0
     const max = 10
-    let results = mapNumberToRange({ val, min, max })
+    const results = mapNumberToRange({ val, min, max })
 
     expect(results).toBe(val)
   })
@@ -14,7 +14,7 @@ describe('getCurrentSlideIndex', () => {
     const val = 15
     const min = 0
     const max = 10
-    let results = mapNumberToRange({ val, min, max })
+    const results = mapNumberToRange({ val, min, max })
 
     expect(results).toBe(4)
   })
@@ -23,7 +23,7 @@ describe('getCurrentSlideIndex', () => {
     const val = -4
     const min = 0
     const max = 10
-    let results = mapNumberToRange({ val, min, max })
+    const results = mapNumberToRange({ val, min, max })
 
     expect(results).toBe(5)
   })

@@ -7,7 +7,7 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 0
       const config = { wrapAround: true, itemsToShow: 1 }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -15,7 +15,7 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 10
       const config = { wrapAround: true, itemsToShow: 1 }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -25,7 +25,7 @@ describe('getCurrentSlideIndex', () => {
     it('When slidesCount is 0 should return 0', () => {
       const slidesCount = 0
       const config = { wrapAround: false, itemsToShow: 1 }
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -38,7 +38,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'start' as SnapAlign,
       }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -51,7 +51,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'end' as SnapAlign,
       }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(config.itemsToShow - 1)
     })
@@ -63,7 +63,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'center-odd' as SnapAlign,
       }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(Math.floor((config.itemsToShow - 1) / 2))
     })
@@ -75,7 +75,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'center-even' as SnapAlign,
       }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
       expect(results).toBe(Math.floor((config.itemsToShow - 2) / 2))
     })
 
@@ -86,7 +86,7 @@ describe('getCurrentSlideIndex', () => {
         itemsToShow: 1,
       }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
@@ -99,7 +99,7 @@ describe('getCurrentSlideIndex', () => {
         snapAlign: 'center' as SnapAlign,
       }
 
-      let results = getMinSlideIndex({ config, slidesCount })
+      const results = getMinSlideIndex({ config, slidesCount })
 
       expect(results).toBe(0)
     })
