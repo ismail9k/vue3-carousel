@@ -332,6 +332,7 @@ export default defineComponent({
     <button @click="prev">Prev</button>
   </div>
 </template>
+```
 
 ## [Gallery](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleGallery.vue)
 

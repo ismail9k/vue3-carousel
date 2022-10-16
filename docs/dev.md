@@ -3,7 +3,7 @@
 <ExampleBasic></ExampleBasic>
 
 <script>
-import ExampleBasic from './examples/ExampleGallery.vue';
+import ExampleBasic from './examples/ExampleBasic.vue';
 
 export default {
   components: {

@@ -19,17 +19,17 @@ import {
 
 import { defaultConfigs } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
+import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
 import {
   debounce,
   throttle,
   getSlidesVNodes,
-  getCurrentSlideIndex,
+  getNumberInRange,
   getMaxSlideIndex,
   getMinSlideIndex,
   getSlidesToScroll,
   mapNumberToRange,
-} from '@/partials/utils'
-import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
+} from '@/utils'
 
 import ARIAComponent from './ARIA'
 import SlideComponent from './Slide'
@@ -133,14 +133,15 @@ export default defineComponent({
       if (slidesCount.value <= 0) return
 
       middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2)
-      maxSlideIndex.value = getMaxSlideIndex(config, slidesCount.value)
-      minSlideIndex.value = getMinSlideIndex(config)
-      currentSlideIndex.value = getCurrentSlideIndex(
-        config,
-        currentSlideIndex.value,
-        maxSlideIndex.value,
-        minSlideIndex.value
-      )
+      maxSlideIndex.value = getMaxSlideIndex({ config, slidesCount: slidesCount.value })
+      minSlideIndex.value = getMinSlideIndex({ config, slidesCount: slidesCount.value })
+      if (!config.wrapAround) {
+        currentSlideIndex.value = getNumberInRange({
+          val: currentSlideIndex.value,
+          max: maxSlideIndex.value,
+          min: minSlideIndex.value,
+        })
+      }
     }
 
     onMounted((): void => {
@@ -278,18 +279,23 @@ export default defineComponent({
       isSliding.value = true
 
       resetAutoplay()
-      const currentVal = getCurrentSlideIndex(
-        config,
-        slideIndex,
-        maxSlideIndex.value,
-        minSlideIndex.value
-      )
+      const currentVal = config.wrapAround
+        ? slideIndex
+        : getNumberInRange({
+            val: slideIndex,
+            max: maxSlideIndex.value,
+            min: minSlideIndex.value,
+          })
 
       prevSlideIndex.value = currentSlideIndex.value
       currentSlideIndex.value = currentVal
 
       transitionTimer = setTimeout((): void => {
-        const mappedNumber = mapNumberToRange(currentVal, maxSlideIndex.value)
+        const mappedNumber = mapNumberToRange({
+          val: currentVal,
+          max: maxSlideIndex.value,
+          min: 0,
+        })
 
         if (config.wrapAround) {
           currentSlideIndex.value = mappedNumber
@@ -317,9 +323,7 @@ export default defineComponent({
      */
     const slidesToScroll = computed(() =>
       getSlidesToScroll({
-        itemsToShow: config.itemsToShow,
-        snapAlign: config.snapAlign,
-        wrapAround: Boolean(config.wrapAround),
+        config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })

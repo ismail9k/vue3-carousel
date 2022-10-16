@@ -7,7 +7,6 @@ describe('Carousel.ts', () => {
 
   beforeAll(async () => {
     wrapper = mount(App)
-    console.log(wrapper.html())
   })
 
   it('It renders *five* slides correctly', () => {
