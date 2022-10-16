@@ -1,4 +1,4 @@
-import { getMaxSlideIndex } from '@/partials/utils'
+import { getMaxSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
   describe('warp-around: true', () => {

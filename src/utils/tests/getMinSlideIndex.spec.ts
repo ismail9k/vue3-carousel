@@ -1,4 +1,4 @@
-import { getMinSlideIndex } from '@/partials/utils'
+import { getMinSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
   describe('warp-around: true', () => {

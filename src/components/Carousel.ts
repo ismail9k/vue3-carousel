@@ -19,6 +19,7 @@ import {
 
 import { defaultConfigs } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
+import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
 import {
   debounce,
   throttle,
@@ -28,8 +29,7 @@ import {
   getMinSlideIndex,
   getSlidesToScroll,
   mapNumberToRange,
-} from '@/partials/utils'
-import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
+} from '@/utils'
 
 import ARIAComponent from './ARIA'
 import SlideComponent from './Slide'

@@ -1,6 +1,6 @@
 import { inject, ref, h, VNode } from 'vue'
 
-import { mapNumberToRange } from '@/partials/utils'
+import { mapNumberToRange } from '@/utils'
 
 import { CarouselNav } from '../types'
 
