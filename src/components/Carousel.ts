@@ -41,7 +41,7 @@ export default defineComponent({
     const root: Ref<Element | null> = ref(null)
     const slides: Ref<any> = ref([])
     const slideWidth: Ref<number> = ref(0)
-    const slidesCount: Ref<number> = ref(1)
+    const slidesCount: Ref<number> = ref(0)
     let breakpoints: Ref<Breakpoints> = ref({})
     // generate carousel configs
     let __defaultConfig: CarouselConfig = { ...defaultConfigs }
@@ -49,7 +49,7 @@ export default defineComponent({
     const config = reactive<CarouselConfig>({ ...__defaultConfig })
 
     // slides
-    const currentSlideIndex = ref(config.modelValue ?? 0)
+    const currentSlideIndex = ref(props.modelValue ?? 0)
     const prevSlideIndex = ref(0)
     const middleSlideIndex = ref(0)
     const maxSlideIndex = ref(0)
@@ -112,7 +112,7 @@ export default defineComponent({
     }
 
     const handleWindowResize = debounce(() => {
-      if (breakpoints.value) {
+      if (Object.keys(breakpoints.value).length) {
         updateBreakpointsConfigs()
         updateSlidesData()
       }
@@ -129,7 +129,6 @@ export default defineComponent({
     }
 
     function updateSlidesData(): void {
-      slidesCount.value = Math.max(slides.value.length, 1)
       if (slidesCount.value <= 0) return
 
       middleSlideIndex.value = Math.ceil((slidesCount.value - 1) / 2)
@@ -145,11 +144,14 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      if (breakpoints.value) {
+      if (Object.keys(breakpoints.value).length) {
         updateBreakpointsConfigs()
-        updateSlidesData()
       }
-      nextTick(() => setTimeout(updateSlideWidth, 16))
+
+      nextTick(() => {
+        updateSlidesData()
+        updateSlideWidth()
+      })
 
       initAutoplay()
 
@@ -168,7 +170,9 @@ export default defineComponent({
        * use the same options as in onMounted
        * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener#Matching_event_listeners_for_removal
        */
-      window.removeEventListener('resize', handleWindowResize, { passive: true } as unknown as EventListenerOptions)
+      window.removeEventListener('resize', handleWindowResize, {
+        passive: true,
+      } as unknown as EventListenerOptions)
     })
 
     /**
@@ -433,6 +437,7 @@ export default defineComponent({
       }
 
       slides.value = slidesElements
+      slidesCount.value = Math.max(slidesElements.length, 1)
 
       const trackEl = h(
         'ol',
