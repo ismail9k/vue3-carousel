@@ -22,7 +22,7 @@
 import { defineComponent } from 'vue'
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 
 export default defineComponent({
   name: 'Basic',
@@ -81,7 +81,7 @@ export default defineComponent({
 import { defineComponent } from 'vue'
 import { Carousel, Navigation, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 
 export default defineComponent({
   name: 'WrapAround',
@@ -115,7 +115,7 @@ export default defineComponent({
 import { defineComponent } from 'vue'
 import { Carousel, Navigation, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 
 export default defineComponent({
   name: 'Breakpoints',
@@ -170,7 +170,7 @@ export default defineComponent({
 <script>
 import { defineComponent } from 'vue'
 import { Carousel, Navigation, Slide, Pagination } from 'vue3-carousel'
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 export default defineComponent({
   name: 'ExamplePagination',
   components: {
@@ -225,7 +225,7 @@ export default defineComponent({
 import { defineComponent } from 'vue'
 import { Carousel, Pagination, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 
 export default defineComponent({
   name: 'Autoplay',
@@ -257,7 +257,7 @@ export default defineComponent({
 import { defineComponent } from 'vue'
 import { Carousel, Pagination, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 
 export default defineComponent({
   name: 'Autoplay',
@@ -363,7 +363,7 @@ export default defineComponent({
 import { defineComponent } from 'vue'
 import { Carousel, Slide } from 'vue3-carousel'
 
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 
 export default defineComponent({
   name: 'Gallery',
@@ -394,6 +394,7 @@ import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
 
+import '../dist/carousel.css'
 export default {
   components: {
     ExampleBasic,
@@ -412,7 +413,7 @@ export default {
 .carousel__item {
   min-height: 200px;
   width: 100%;
-  background-color: #642afb;
+  background-color: var(--vp-c-green);
   color: #fff;
   font-size: 20px;
   border-radius: 8px;
@@ -424,4 +425,22 @@ export default {
 .carousel__slide {
   padding: 1px;
 }
+
+.carousel__pagination {
+  list-style: none !important;
+}
+
+.carousel__pagination-item {
+  margin-top: 0 !important;
+}
+
+.carousel__track {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+.carousel__slide {
+  margin-top: 0 !important;
+}
+
 </style>
