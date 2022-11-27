@@ -151,6 +151,7 @@ export default defineComponent({
       nextTick(() => {
         updateSlidesData()
         updateSlideWidth()
+        emit('init')
       })
 
       initAutoplay()
@@ -282,13 +283,6 @@ export default defineComponent({
      */
     const isSliding = ref(false)
     function slideTo(slideIndex: number): void {
-      if (currentSlideIndex.value === slideIndex || isSliding.value) {
-        return
-      }
-
-      isSliding.value = true
-
-      resetAutoplay()
       const currentVal = config.wrapAround
         ? slideIndex
         : getNumberInRange({
@@ -297,23 +291,47 @@ export default defineComponent({
             min: minSlideIndex.value,
           })
 
+      if (currentSlideIndex.value === currentVal || isSliding.value) {
+        return
+      }
+
+      emit('slide-start', {
+        slidingToIndex: slideIndex,
+        currentSlideIndex: currentSlideIndex.value,
+        prevSlideIndex: prevSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+
+      isSliding.value = true
       prevSlideIndex.value = currentSlideIndex.value
       currentSlideIndex.value = currentVal
 
       transitionTimer = setTimeout((): void => {
-        const mappedNumber = mapNumberToRange({
-          val: currentVal,
-          max: maxSlideIndex.value,
-          min: 0,
-        })
-
         if (config.wrapAround) {
-          currentSlideIndex.value = mappedNumber
+          const mappedNumber = mapNumberToRange({
+            val: currentVal,
+            max: maxSlideIndex.value,
+            min: 0,
+          })
+
+          if (mappedNumber !== currentSlideIndex.value) {
+            currentSlideIndex.value = mappedNumber
+            emit('loop', {
+              currentSlideIndex: currentSlideIndex.value,
+              slidingToIndex: slideIndex,
+            })
+          }
         }
 
-        emit('update:modelValue', mappedNumber)
+        emit('update:modelValue', currentSlideIndex.value)
+        emit('slide-end', {
+          currentSlideIndex: currentSlideIndex.value,
+          prevSlideIndex: prevSlideIndex.value,
+          slidesCount: slidesCount.value,
+        })
 
         isSliding.value = false
+        resetAutoplay()
       }, config.transition)
     }
 
