@@ -7,4 +7,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* Fix iOS scrolling #22 */
+  transform: translateZ(0);
 }
