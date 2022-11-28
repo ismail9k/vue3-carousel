@@ -266,10 +266,6 @@ export default defineComponent({
     }
 
     function resetAutoplay(): void {
-      if (!config.autoplay || config.autoplay <= 0) {
-        return
-      }
-
       if (autoplayTimer) {
         clearInterval(autoplayTimer)
         autoplayTimer = null
