@@ -6,7 +6,6 @@ import {
   reactive,
   provide,
   computed,
-  watchEffect,
   h,
   watch,
   nextTick,
@@ -193,7 +192,7 @@ export default defineComponent({
     }
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      if (["INPUT", "TEXTAREA"].includes((event.target as HTMLElement).tagName)) {
+      if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
         return
       }
       isTouch = event.type === 'touchstart'
@@ -368,10 +367,6 @@ export default defineComponent({
       }
     })
 
-    function initCarousel(): void {
-      initDefaultConfigs()
-    }
-
     function restartCarousel(): void {
       initDefaultConfigs()
       updateBreakpointsConfigs()
@@ -380,16 +375,13 @@ export default defineComponent({
       resetAutoplay()
     }
 
-    function updateCarousel(): void {
-      updateSlidesData()
-    }
-
     // Update the carousel on props change
     Object.keys(carouselProps).forEach((prop) => {
       if (['modelValue'].includes(prop)) return
       watch(() => props[prop as keyof typeof carouselProps], restartCarousel)
     })
 
+    // Handle changing v-model value
     watch(
       () => props['modelValue'],
       (val) => {
@@ -399,15 +391,11 @@ export default defineComponent({
       }
     )
 
-    // Init carousel
-    initCarousel()
+    // Handel when slides added/removed
+    watch(slidesCount, updateSlidesData)
 
-    watchEffect((): void => {
-      // Handel when slides added/removed
-      if (slidesCount.value !== slides.value.length) {
-        updateCarousel()
-      }
-    })
+    // Init carousel
+    initDefaultConfigs()
 
     const data = {
       config,
@@ -425,9 +413,8 @@ export default defineComponent({
       updateBreakpointsConfigs,
       updateSlidesData,
       updateSlideWidth,
-      initCarousel,
+      initDefaultConfigs,
       restartCarousel,
-      updateCarousel,
       slideTo,
       next,
       prev,
@@ -448,10 +435,18 @@ export default defineComponent({
       let output = slidesElements
       if (config.wrapAround) {
         const slidesBefore = slidesElements.map((el: VNode, index: number) =>
-          cloneVNode(el, { index: -slidesElements.length + index, isClone: true })
+          cloneVNode(el, {
+            index: -slidesElements.length + index,
+            isClone: true,
+            key: `clone-before-${index}`,
+          })
         )
         const slidesAfter = slidesElements.map((el: VNode, index: number) =>
-          cloneVNode(el, { index: slidesElements.length + index, isClone: true })
+          cloneVNode(el, {
+            index: slidesElements.length + index,
+            isClone: true,
+            key: `clone-after-${index}`,
+          })
         )
         output = [...slidesBefore, ...slidesElements, ...slidesAfter]
       }
