@@ -9,7 +9,6 @@ import {
   h,
   watch,
   nextTick,
-  withModifiers,
   cloneVNode,
   VNode,
   SetupContext,
@@ -459,11 +458,11 @@ export default defineComponent({
         {
           class: 'carousel__track',
           style: trackStyle.value,
-          onMousedown: config.mouseDrag
-            ? withModifiers(handleDragStart, ['capture'])
+          onMousedownCapture: config.mouseDrag
+            ? handleDragStart
             : null,
-          onTouchstart: config.touchDrag
-            ? withModifiers(handleDragStart, ['capture'])
+          onTouchstartPassiveCapture: config.touchDrag
+            ? handleDragStart
             : null,
         },
         output
