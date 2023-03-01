@@ -149,6 +149,7 @@ export default defineComponent({
       nextTick(() => {
         updateSlidesData()
         updateSlideWidth()
+        createDragListener();
         emit('init')
       })
 
@@ -211,15 +212,19 @@ export default defineComponent({
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
     }
 
-    const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
-      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
-      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
-      const deltaX = endPosition.x - startPosition.x
-      const deltaY = endPosition.y - startPosition.y
+    let handleDragging = () => { /* */ }
+    function createDragListener() {
+     handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
+        endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
+        endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
+        const deltaX = endPosition.x - startPosition.x
+        const deltaY = endPosition.y - startPosition.y
 
-      dragged.y = deltaY
-      dragged.x = deltaX
-    }, 16)
+        dragged.y = deltaY
+        dragged.x = deltaX
+      }, config.throttle ?? 16);
+    }
+
 
     function handleDragEnd(): void {
       const direction = config.dir === 'rtl' ? -1 : 1

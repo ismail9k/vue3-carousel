@@ -16,6 +16,11 @@ export const carouselProps = {
     default: defaultConfigs.wrapAround,
     type: Boolean,
   },
+  // control max drag
+  throttle: {
+    default: defaultConfigs.throttle,
+    type: Number,
+  },
   // control snap position alignment
   snapAlign: {
     default: defaultConfigs.snapAlign,
