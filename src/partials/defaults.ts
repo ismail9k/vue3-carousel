@@ -8,6 +8,7 @@ export const defaultConfigs: CarouselConfig = {
   autoplay: 0,
   snapAlign: 'center',
   wrapAround: false,
+  throttle: 16,
   pauseAutoplayOnHover: false,
   mouseDrag: true,
   touchDrag: true,
