@@ -2,6 +2,7 @@
   position: relative;
   text-align: center;
   box-sizing: border-box;
+  overscroll-behavior: none;
 }
 
 .carousel * {

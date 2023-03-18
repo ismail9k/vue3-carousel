@@ -149,7 +149,6 @@ export default defineComponent({
       nextTick(() => {
         updateSlidesData()
         updateSlideWidth()
-        createDragListener();
         emit('init')
       })
 
@@ -166,13 +165,9 @@ export default defineComponent({
         clearInterval(autoplayTimer)
       }
 
-      /**
-       * use the same options as in onMounted
-       * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener#Matching_event_listeners_for_removal
-       */
       window.removeEventListener('resize', handleWindowResize, {
         passive: true,
-      } as unknown as EventListenerOptions)
+      } as EventListenerOptions)
     })
 
     /**
@@ -195,14 +190,11 @@ export default defineComponent({
       if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
         return
       }
+      event.preventDefault()
       isTouch = event.type === 'touchstart'
 
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return
-      }
-
-      if (!isTouch) {
-        event.preventDefault()
       }
 
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
@@ -212,19 +204,15 @@ export default defineComponent({
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
     }
 
-    let handleDragging = () => { /* */ }
-    function createDragListener() {
-     handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
-        endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
-        endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
-        const deltaX = endPosition.x - startPosition.x
-        const deltaY = endPosition.y - startPosition.y
+    const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
+      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
+      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
+      const deltaX = endPosition.x - startPosition.x
+      const deltaY = endPosition.y - startPosition.y
 
-        dragged.y = deltaY
-        dragged.x = deltaX
-      }, config.throttle ?? 16);
-    }
-
+      dragged.y = deltaY
+      dragged.x = deltaX
+    }, config.throttle)
 
     function handleDragEnd(): void {
       const direction = config.dir === 'rtl' ? -1 : 1
@@ -463,12 +451,8 @@ export default defineComponent({
         {
           class: 'carousel__track',
           style: trackStyle.value,
-          onMousedownCapture: config.mouseDrag
-            ? handleDragStart
-            : null,
-          onTouchstartPassiveCapture: config.touchDrag
-            ? handleDragStart
-            : null,
+          onMousedownCapture: config.mouseDrag ? handleDragStart : null,
+          onTouchstartCapture: config.touchDrag ? handleDragStart : null,
         },
         output
       )
