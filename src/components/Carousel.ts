@@ -83,6 +83,8 @@ export default defineComponent({
     }
 
     function updateBreakpointsConfigs(): void {
+      if (!Object.keys(breakpoints.value).length) return
+
       const breakpointsArray: number[] = Object.keys(breakpoints.value)
         .map((key: string): number => Number(key))
         .sort((a: number, b: number) => +b - +a)
@@ -110,10 +112,8 @@ export default defineComponent({
     }
 
     const handleWindowResize = debounce(() => {
-      if (Object.keys(breakpoints.value).length) {
-        updateBreakpointsConfigs()
-        updateSlidesData()
-      }
+      updateBreakpointsConfigs()
+      updateSlidesData()
       updateSlideWidth()
     }, 16)
 
@@ -142,15 +142,14 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      if (Object.keys(breakpoints.value).length) {
-        updateBreakpointsConfigs()
-      }
-
-      nextTick(() => {
-        updateSlidesData()
-        updateSlideWidth()
-        emit('init')
-      })
+      nextTick(() =>
+        setTimeout(() => {
+          updateBreakpointsConfigs()
+          updateSlidesData()
+          updateSlideWidth()
+          emit('init')
+        }, 16)
+      )
 
       initAutoplay()
 

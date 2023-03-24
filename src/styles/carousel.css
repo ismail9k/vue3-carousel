@@ -11,8 +11,8 @@
 
 .carousel__track {
   display: flex;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   position: relative;
 }
 
