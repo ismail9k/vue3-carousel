@@ -2,7 +2,6 @@
   position: relative;
   text-align: center;
   box-sizing: border-box;
-  overscroll-behavior: none;
 }
 
 .carousel * {
@@ -11,9 +10,10 @@
 
 .carousel__track {
   display: flex;
-  margin: 0 !important;
   padding: 0 !important;
   position: relative;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 .carousel__viewport {

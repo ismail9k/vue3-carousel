@@ -189,9 +189,10 @@ export default defineComponent({
       if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
         return
       }
-      event.preventDefault()
       isTouch = event.type === 'touchstart'
-
+      if (!isTouch) {
+        event.preventDefault()
+      }
       if ((!isTouch && event.button !== 0) || isSliding.value) {
         return
       }
@@ -451,7 +452,7 @@ export default defineComponent({
           class: 'carousel__track',
           style: trackStyle.value,
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
-          onTouchstartCapture: config.touchDrag ? handleDragStart : null,
+          onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },
         output
       )
