@@ -177,6 +177,7 @@ export default defineComponent({
     const endPosition = { x: 0, y: 0 }
     const dragged = reactive({ x: 0, y: 0 })
     const isHover = ref(false)
+    const isDragging = ref(false)
 
     const handleMouseEnter = (): void => {
       isHover.value = true
@@ -186,7 +187,9 @@ export default defineComponent({
     }
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement).tagName)) {
+      if (
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement).tagName)
+      ) {
         return
       }
       isTouch = event.type === 'touchstart'
@@ -205,6 +208,8 @@ export default defineComponent({
     }
 
     const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
+      isDragging.value = true
+
       endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
       const deltaX = endPosition.x - startPosition.x
@@ -234,6 +239,7 @@ export default defineComponent({
       dragged.x = 0
       dragged.y = 0
 
+      isDragging.value = false
       document.removeEventListener(
         isTouch ? 'touchmove' : 'mousemove',
         handleDragging,
@@ -464,6 +470,9 @@ export default defineComponent({
           ref: root,
           class: {
             carousel: true,
+            'is-sliding': isSliding.value,
+            'is-dragging': isDragging.value,
+            'is-hover': isHover.value,
             'carousel--rtl': config.dir === 'rtl',
           },
           dir: config.dir,

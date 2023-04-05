@@ -2,6 +2,12 @@
   position: relative;
   text-align: center;
   box-sizing: border-box;
+  touch-action: pan-y;
+  overscroll-behavior: none;
+}
+
+.carousel.is-dragging {
+  touch-action: none;
 }
 
 .carousel * {
@@ -12,8 +18,6 @@
   display: flex;
   padding: 0 !important;
   position: relative;
-  touch-action: none;
-  overscroll-behavior: none;
 }
 
 .carousel__viewport {
