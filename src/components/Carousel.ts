@@ -68,8 +68,8 @@ export default defineComponent({
      * Configs
      */
     function initDefaultConfigs(): void {
-      breakpoints = {...props.breakpoints};
-      __defaultConfig = { ...__defaultConfig,...props, breakpoints: undefined }
+      breakpoints = { ...props.breakpoints }
+      __defaultConfig = { ...__defaultConfig, ...props, breakpoints: undefined }
 
       bindConfigs(__defaultConfig)
     }
@@ -104,7 +104,6 @@ export default defineComponent({
 
     const handleWindowResize = debounce(() => {
       updateBreakpointsConfigs()
-      updateSlidesData()
       updateSlideWidth()
     }, 16)
 
@@ -133,18 +132,14 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      nextTick(() =>
-        setTimeout(() => {
-          updateBreakpointsConfigs()
-          updateSlidesData()
-          updateSlideWidth()
-          emit('init')
-        }, 16)
-      )
+      nextTick(() => updateSlideWidth())
+      // Overcome some edge cases
+      setTimeout(() => updateSlideWidth(), 1000)
 
+      updateBreakpointsConfigs()
       initAutoplay()
-
       window.addEventListener('resize', handleWindowResize, { passive: true })
+      emit('init')
     })
 
     onUnmounted(() => {
@@ -374,9 +369,10 @@ export default defineComponent({
     watch(
       () => props['modelValue'],
       (val) => {
-        if (val !== currentSlideIndex.value) {
-          slideTo(Number(val))
+        if (val === currentSlideIndex.value) {
+          return
         }
+        slideTo(Number(val))
       }
     )
 
