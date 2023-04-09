@@ -40,11 +40,12 @@ export default defineComponent({
     const slides: Ref<any> = ref([])
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
-    let breakpoints: Ref<Breakpoints> = ref({})
-    // generate carousel configs
-    let __defaultConfig: CarouselConfig = { ...defaultConfigs }
     // current config
-    const config = reactive<CarouselConfig>({ ...__defaultConfig })
+    const config = reactive<CarouselConfig>({ ...defaultConfigs })
+    // default carousel configs
+    let __defaultConfig: CarouselConfig = { ...defaultConfigs }
+    // breakpoints configs
+    let breakpoints: Breakpoints | undefined
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -67,39 +68,29 @@ export default defineComponent({
      * Configs
      */
     function initDefaultConfigs(): void {
-      // generate carousel configs
-      const mergedConfigs = {
-        ...props,
-        ...props.settings,
-      }
-
-      // Set breakpoints
-      breakpoints = ref({ ...mergedConfigs.breakpoints })
-
-      // remove extra values
-      __defaultConfig = { ...mergedConfigs, settings: undefined, breakpoints: undefined }
+      breakpoints = {...props.breakpoints};
+      __defaultConfig = { ...__defaultConfig,...props, breakpoints: undefined }
 
       bindConfigs(__defaultConfig)
     }
 
     function updateBreakpointsConfigs(): void {
-      if (!Object.keys(breakpoints.value).length) return
+      if (!breakpoints || !Object.keys(breakpoints).length) return
 
-      const breakpointsArray: number[] = Object.keys(breakpoints.value)
+      const breakpointsArray: number[] = Object.keys(breakpoints)
         .map((key: string): number => Number(key))
         .sort((a: number, b: number) => +b - +a)
-      let newConfig = { ...__defaultConfig }
 
+      let newConfig = { ...__defaultConfig }
       breakpointsArray.some((breakpoint): boolean => {
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
         if (isMatched) {
           newConfig = {
             ...newConfig,
-            ...breakpoints.value[breakpoint],
+            ...(breakpoints as Breakpoints)[breakpoint],
           }
-          return true
         }
-        return false
+        return isMatched
       })
 
       bindConfigs(newConfig)
