@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,N as l}from"./chunks/framework.b688ad8d.js";const h=JSON.parse('{"title":"Events","description":"","frontmatter":{},"headers":[],"relativePath":"api/events.md"}'),e={name:"api/events.md"},o=l("",15),t=[o];function p(c,r,i,d,D,F){return n(),a("div",null,t)}const C=s(e,[["render",p]]);export{h as __pageData,C as default};
