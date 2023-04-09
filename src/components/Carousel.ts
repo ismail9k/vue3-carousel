@@ -380,6 +380,7 @@ export default defineComponent({
     watch(slidesCount, updateSlidesData)
 
     // Init carousel
+    emit('before-init')
     initDefaultConfigs()
 
     const data = {

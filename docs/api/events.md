@@ -26,6 +26,10 @@ Events provides more flexibility to intercept carousel navigation changes
 </script>
 ```
 
+## `@before-init`
+
+Triggers before the carousel initialized
+
 ## `@init`
 
 Triggers once the carousel is mounted and completely initialized
