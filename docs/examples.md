@@ -100,7 +100,7 @@ export default defineComponent({
 
 ```vue
 <template>
-  <Carousel :settings="settings" :breakpoints="breakpoints">
+  <Carousel v-bind="settings" :breakpoints="breakpoints">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
@@ -155,7 +155,7 @@ export default defineComponent({
 
 ```vue
 <template>
-  <Carousel :settings="settings" :breakpoints="breakpoints">
+  <Carousel v-bind="settings" :breakpoints="breakpoints">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
