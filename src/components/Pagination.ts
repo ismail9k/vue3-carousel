@@ -1,10 +1,12 @@
-import { inject, ref, h, VNode } from 'vue'
+import { inject, ref, h, VNode, reactive } from 'vue'
 
 import { mapNumberToRange } from '@/utils'
 
-import { CarouselNav } from '../types'
+import { CarouselConfig, CarouselNav } from '../types'
+import { defaultConfigs } from '@/partials/defaults'
 
 const Pagination = () => {
+  const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))
@@ -25,7 +27,7 @@ const Pagination = () => {
         'carousel__pagination-button': true,
         'carousel__pagination-button--active': isActive(slide),
       },
-      'aria-label': `Navigate to slide ${slide + 1}`,
+      'aria-label': config.labels?.ariaNavigateToSlide + ' ' + (slide + 1).toString(),
       onClick: () => nav.slideTo(slide),
     })
     const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)

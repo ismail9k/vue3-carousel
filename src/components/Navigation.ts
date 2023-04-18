@@ -14,7 +14,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
   const currentSlide = inject('currentSlide', ref(1))
   const nav: CarouselNav = inject('nav', {})
 
-  const { dir, wrapAround } = config
+  const { dir, wrapAround, labels } = config
   const isRTL = dir === 'rtl'
 
   const prevButton = h(
@@ -26,7 +26,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
         !wrapAround && currentSlide.value <= minSlide.value && 'carousel__prev--disabled',
         attrs?.class,
       ],
-      'aria-label': `Navigate to previous slide`,
+      'aria-label': labels?.ariaPreviousSlide,
       onClick: nav.prev,
     },
     slotPrev?.() || h(Icon, { name: isRTL ? 'arrowRight' : 'arrowLeft' })
@@ -40,7 +40,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
         !wrapAround && currentSlide.value >= maxSlide.value && 'carousel__next--disabled',
         attrs?.class,
       ],
-      'aria-label': `Navigate to next slide`,
+      'aria-label': labels?.ariaNextSlide,
       onClick: nav.next,
     },
     slotNext?.() || h(Icon, { name: isRTL ? 'arrowLeft' : 'arrowRight' })

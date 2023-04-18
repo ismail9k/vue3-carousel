@@ -69,7 +69,19 @@ export default defineComponent({
      */
     function initDefaultConfigs(): void {
       breakpoints = { ...props.breakpoints }
-      __defaultConfig = { ...__defaultConfig, ...props, breakpoints: undefined }
+      __defaultConfig = {
+        ...__defaultConfig,
+        ...props,
+        labels: {
+          ...__defaultConfig.labels,
+          ...props.labels,
+          iconAriaLabels: {
+            ...__defaultConfig.labels?.iconAriaLabels,
+            ...props.labels?.iconAriaLabels,
+          }
+        },
+        breakpoints: undefined
+      }
 
       bindConfigs(__defaultConfig)
     }
@@ -464,7 +476,7 @@ export default defineComponent({
             'carousel--rtl': config.dir === 'rtl',
           },
           dir: config.dir,
-          'aria-label': 'Gallery',
+          'aria-label': config.labels?.ariaGallery,
           tabindex: '0',
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,

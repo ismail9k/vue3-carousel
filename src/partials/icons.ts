@@ -1,6 +1,14 @@
-interface Icons {
-  [key: string]: string
+export enum IconName {
+  arrowUp = 'arrowUp',
+  arrowDown = 'arrowDown',
+  arrowRight = 'arrowRight',
+  arrowLeft = 'arrowLeft',
 }
+
+export type Icons = {
+  [key in IconName]: string|undefined
+}
+
 const icons: Icons = {
   arrowUp: 'M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z',
   arrowDown: 'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z',
