@@ -343,9 +343,9 @@ export default defineComponent({
   <Carousel :i18n="{
     'ariaNextSlide': 'Zur nächsten Slide',
     'ariaPreviousSlide': 'Zur vorherigen Slide',
-    'ariaNavigateToSlide': 'Springe zu Slide',
+    'ariaNavigateToSlide': 'Springe zu Slide {slideNumber}',
     'ariaGallery': 'Galerie',
-    'itemXofY': 'Slide ${0} von ${1}',
+    'itemXofY': 'Slide {currentSlide} von {slidesCount}',
     'iconArrowUp': 'Pfeil nach oben',
     'iconArrowDown': 'Pfeil nach unten',
     'iconArrowRight': 'Pfeil nach rechts',
