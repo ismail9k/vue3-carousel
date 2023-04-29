@@ -1,8 +1,14 @@
-import { defineComponent, inject, ref, h } from 'vue'
+import { defineComponent, inject, ref, h, reactive } from 'vue'
+
+import { defaultConfigs } from '@/partials/defaults'
+import { i18nFormatter } from '@/utils/i18nFormater'
+
+import { CarouselConfig } from '../types'
 
 export default defineComponent({
   name: 'ARIA',
   setup() {
+    const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
     const currentSlide = inject('currentSlide', ref(0))
     const slidesCount = inject('slidesCount', ref(0))
 
@@ -14,7 +20,10 @@ export default defineComponent({
           'aria-live': 'polite',
           'aria-atomic': 'true',
         },
-        `Item ${currentSlide.value + 1} of ${slidesCount.value}`
+        i18nFormatter(config.i18n['itemXofY'], {
+          currentSlide: currentSlide.value + 1,
+          slidesCount: slidesCount.value,
+        })
       )
   },
 })

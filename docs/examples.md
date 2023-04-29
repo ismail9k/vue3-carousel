@@ -334,6 +334,28 @@ export default defineComponent({
 </template>
 ```
 
+## [Custom texts](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleCustomLabels.vue)
+
+<ExampleCustomLabels></ExampleCustomLabels>
+
+```vue
+<template>
+  <Carousel :i18n="{
+    'ariaNextSlide': 'Zur nächsten Slide',
+    'ariaPreviousSlide': 'Zur vorherigen Slide',
+    'ariaNavigateToSlide': 'Springe zu Slide',
+    'ariaGallery': 'Galerie',
+    'itemXofY': 'Slide ${0} von ${1}',
+    'iconArrowUp': 'Pfeil nach oben',
+    'iconArrowDown': 'Pfeil nach unten',
+    'iconArrowRight': 'Pfeil nach rechts',
+    'iconArrowLeft': 'Pfeil nach links',
+  }">
+    ...
+  </Carousel>
+</template>
+```
+
 ## [Gallery](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleGallery.vue)
 
 <ExampleGallery></ExampleGallery>
@@ -392,6 +414,7 @@ import ExamplePagination from './examples/ExamplePagination.vue';
 import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
+import ExampleCustomLabels from './examples/ExampleCustomLabels.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
 
 import '../dist/carousel.css'
@@ -404,6 +427,7 @@ export default {
     ExamplePagination,
     ExampleActiveClasses,
     ExampleCustomNavigation,
+    ExampleCustomLabels,
     ExampleGallery,
   }
 }

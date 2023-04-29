@@ -72,6 +72,11 @@ export const carouselProps = {
       return ['rtl', 'ltr'].includes(value)
     },
   },
+  // aria-labels and additional text labels
+  i18n: {
+    default: defaultConfigs.i18n,
+    type: Object,
+  },
   // an object to pass all settings
   settings: {
     default() {
