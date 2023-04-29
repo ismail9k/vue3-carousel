@@ -73,9 +73,9 @@ export const carouselProps = {
     },
   },
   // aria-labels and additional text labels
-  labels: {
-    default: defaultConfigs.labels,
-    type: Object
+  i18n: {
+    default: defaultConfigs.i18n,
+    type: Object,
   },
   // an object to pass all settings
   settings: {

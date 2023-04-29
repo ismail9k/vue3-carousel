@@ -1,9 +1,10 @@
 import { inject, ref, h, VNode, reactive } from 'vue'
 
+import { defaultConfigs } from '@/partials/defaults'
 import { mapNumberToRange } from '@/utils'
+import { i18nFormatter } from '@/utils/i18nFormater'
 
 import { CarouselConfig, CarouselNav } from '../types'
-import { defaultConfigs } from '@/partials/defaults'
 
 const Pagination = () => {
   const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
@@ -27,7 +28,9 @@ const Pagination = () => {
         'carousel__pagination-button': true,
         'carousel__pagination-button--active': isActive(slide),
       },
-      'aria-label': config.labels?.ariaNavigateToSlide + ' ' + (slide + 1).toString(),
+      'aria-label': i18nFormatter(config.i18n['ariaNavigateToSlide'], {
+        slideNumber: slide + 1,
+      }),
       onClick: () => nav.slideTo(slide),
     })
     const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)

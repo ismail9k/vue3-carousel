@@ -1,6 +1,9 @@
 import { defineComponent, inject, ref, h, reactive } from 'vue'
-import { CarouselConfig } from '../types'
+
 import { defaultConfigs } from '@/partials/defaults'
+import { i18nFormatter } from '@/utils/i18nFormater'
+
+import { CarouselConfig } from '../types'
 
 export default defineComponent({
   name: 'ARIA',
@@ -17,9 +20,10 @@ export default defineComponent({
           'aria-live': 'polite',
           'aria-atomic': 'true',
         },
-        config.labels?.itemXofY
-          ?.replace('${0}', (currentSlide.value + 1).toString())
-          .replace('${1}', (slidesCount.value).toString())
+        i18nFormatter(config.i18n['itemXofY'], {
+          currentSlide: currentSlide.value + 1,
+          slidesCount: slidesCount.value,
+        })
       )
   },
 })

@@ -14,17 +14,15 @@ export const defaultConfigs: CarouselConfig = {
   touchDrag: true,
   dir: 'ltr',
   breakpoints: undefined,
-  labels: {
+  i18n: {
     ariaNextSlide: 'Navigate to next slide',
     ariaPreviousSlide: 'Navigate to previous slide',
-    ariaNavigateToSlide: 'Navigate to slide',
+    ariaNavigateToSlide: 'Navigate to slide {slideNumber}',
     ariaGallery: 'Gallery',
-    itemXofY: `Item \${0} of \${1}`,
-    iconAriaLabels: {
-      arrowUp: 'Arrow pointing upwards',
-      arrowDown: 'Arrow pointing downwards',
-      arrowRight: 'Arrow pointing to the right',
-      arrowLeft: 'Arrow pointing to the left',
-    },
+    itemXofY: 'Item {currentSlide} of {slidesCount}',
+    iconArrowUp: 'Arrow pointing upwards',
+    iconArrowDown: 'Arrow pointing downwards',
+    iconArrowRight: 'Arrow pointing to the right',
+    iconArrowLeft: 'Arrow pointing to the left',
   },
 }

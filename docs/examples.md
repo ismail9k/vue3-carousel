@@ -340,18 +340,16 @@ export default defineComponent({
 
 ```vue
 <template>
-  <Carousel :labels="{
+  <Carousel :i18n="{
     'ariaNextSlide': 'Zur nächsten Slide',
     'ariaPreviousSlide': 'Zur vorherigen Slide',
     'ariaNavigateToSlide': 'Springe zu Slide',
     'ariaGallery': 'Galerie',
     'itemXofY': 'Slide ${0} von ${1}',
-    'iconAriaLabels': {
-      'arrowUp': 'Pfeil nach oben',
-      'arrowDown': 'Pfeil nach unten',
-      'arrowRight': 'Pfeil nach rechts',
-      'arrowLeft': 'Pfeil nach links',
-    }
+    'iconArrowUp': 'Pfeil nach oben',
+    'iconArrowDown': 'Pfeil nach unten',
+    'iconArrowRight': 'Pfeil nach rechts',
+    'iconArrowLeft': 'Pfeil nach links',
   }">
     ...
   </Carousel>

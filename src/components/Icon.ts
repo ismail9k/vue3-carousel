@@ -1,8 +1,9 @@
 import { h, inject, reactive } from 'vue'
 
-import icons, { IconName } from '../partials/icons'
-import { CarouselConfig, Data } from '../types'
 import { defaultConfigs } from '@/partials/defaults'
+
+import icons, { IconName } from '../partials/icons'
+import { CarouselConfig, Data, I18nKeys } from '../types'
 
 function isIconName(candidate: string): candidate is IconName {
   return candidate in IconName
@@ -10,7 +11,10 @@ function isIconName(candidate: string): candidate is IconName {
 
 const Icon = (props: Data) => {
   const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
-  const iconName = props.name
+  const iconName = String(props.name)
+  const iconI18n = `icon${
+    iconName.charAt(0).toUpperCase() + iconName.slice(1)
+  }` as I18nKeys
   if (!iconName || typeof iconName !== 'string' || !isIconName(iconName)) {
     return
   }
@@ -18,10 +22,7 @@ const Icon = (props: Data) => {
   const path = icons[iconName]
   const pathEl = h('path', { d: path })
 
-  const iconTitle = (props.title
-    || (config.labels?.iconAriaLabels ? config!.labels!.iconAriaLabels![iconName]! as string : undefined)
-    || iconName
-  ) as string
+  const iconTitle = config.i18n[iconI18n] || props.title || iconName
 
   const titleEl = h('title', iconTitle)
 

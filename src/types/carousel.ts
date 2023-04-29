@@ -1,11 +1,19 @@
-import { Icons } from '@/partials/icons'
-
 export type Breakpoints = { [key: number]: Partial<CarouselConfig> }
 
 export type SnapAlign = 'start' | 'end' | 'center' | 'center-even' | 'center-odd'
 
-
 export type Dir = 'rtl' | 'ltr'
+
+export type I18nKeys =
+  | 'ariaNextSlide'
+  | 'ariaPreviousSlide'
+  | 'ariaNavigateToSlide'
+  | 'ariaGallery'
+  | 'iconArrowUp'
+  | 'iconArrowDown'
+  | 'iconArrowRight'
+  | 'iconArrowLeft'
+  | 'itemXofY'
 export interface CarouselConfig {
   itemsToShow: number
   itemsToScroll: number
@@ -21,19 +29,7 @@ export interface CarouselConfig {
   dir?: Dir
   breakpoints?: Breakpoints
   settings?: Partial<CarouselConfig>
-  labels?: {
-    ariaNextSlide?: string
-    ariaPreviousSlide?: string
-    ariaNavigateToSlide?: string
-    ariaGallery?: string
-    itemXofY?: string
-    iconAriaLabels?: {
-      arrowUp?: string,
-      arrowDown?: string,
-      arrowRight?: string,
-      arrowLeft?: string,
-    }
-  }
+  i18n: { [key in I18nKeys]?: string }
 }
 
 export interface CarouselNav {

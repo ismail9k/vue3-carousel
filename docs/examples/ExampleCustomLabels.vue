@@ -1,17 +1,17 @@
 <template>
-  <Carousel :labels="{
-    'ariaNextSlide': 'Zur nächsten Slide',
-    'ariaPreviousSlide': 'Zur vorherigen Slide',
-    'ariaNavigateToSlide': 'Springe zu Slide',
-    'ariaGallery': 'Galerie',
-    'itemXofY': 'Slide ${0} von ${1}',
-    'iconAriaLabels': {
-      'arrowUp': 'Pfeil nach oben',
-      'arrowDown': 'Pfeil nach unten',
-      'arrowRight': 'Pfeil nach rechts',
-      'arrowLeft': 'Pfeil nach links',
-    }
-  }">
+  <Carousel
+    :i18n="{
+      ariaNextSlide: 'Zur nächsten Slide',
+      ariaPreviousSlide: 'Zur vorherigen Slide',
+      ariaNavigateToSlide: 'Springe zu Slide {slideNumber}',
+      ariaGallery: 'Galerie',
+      itemXofY: 'Slide {currentSlide} von {slidesCount}',
+      iconArrowUp: 'Pfeil nach oben',
+      iconArrowDown: 'Pfeil nach unten',
+      iconArrowRight: 'Pfeil nach rechts',
+      iconArrowLeft: 'Pfeil nach links',
+    }"
+  >
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
