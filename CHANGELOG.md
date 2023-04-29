@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.1) - 2023-04-29
+
+- Add MIT License (#305)
+- Support i18n for text and ARIA labels (#303) @thormeier
+
 ## [0.3.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.2.16) - 2023-04-09
 
 - Deprecation: remove settings prop in favor of v-bind
