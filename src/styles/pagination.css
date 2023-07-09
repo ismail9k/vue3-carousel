@@ -4,6 +4,7 @@
   list-style: none;
   line-height: 0;
   margin: 10px 0 0;
+  padding: 0;
 }
 
 .carousel__pagination-button {
