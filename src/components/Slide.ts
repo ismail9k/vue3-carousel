@@ -1,4 +1,4 @@
-import { defineComponent, inject, ref, h, reactive, SetupContext } from 'vue'
+import { defineComponent, inject, ref, h, reactive, SetupContext, computed, ComputedRef } from 'vue'
 
 import { defaultConfigs } from '@/partials/defaults'
 import { CarouselConfig } from '@/types'
@@ -21,15 +21,21 @@ export default defineComponent({
     const slidesToScroll = inject('slidesToScroll', ref(0))
     const isSliding = inject('isSliding', ref(false))
 
-    const isActive = (): boolean => props.index === currentSlide.value
-    const isPrev = (): boolean => props.index === currentSlide.value - 1
-    const isNext = (): boolean => props.index === currentSlide.value + 1
-    const isVisible = (): boolean => {
+    const isActive: ComputedRef<boolean> = computed(
+      () => props.index === currentSlide.value
+    )
+    const isPrev: ComputedRef<boolean> = computed(
+      () => props.index === currentSlide.value - 1
+    )
+    const isNext: ComputedRef<boolean> = computed(
+      () => props.index === currentSlide.value + 1
+    )
+    const isVisible: ComputedRef<boolean> = computed(() => {
       const min = Math.floor(slidesToScroll.value)
       const max = Math.ceil(slidesToScroll.value + config.itemsToShow - 1)
 
       return props.index >= min && props.index <= max
-    }
+    })
 
     return () =>
       h(
@@ -39,15 +45,22 @@ export default defineComponent({
           class: {
             carousel__slide: true,
             'carousel__slide--clone': props.isClone,
-            'carousel__slide--visible': isVisible(),
-            'carousel__slide--active': isActive(),
-            'carousel__slide--prev': isPrev(),
-            'carousel__slide--next': isNext(),
+            'carousel__slide--visible': isVisible.value,
+            'carousel__slide--active': isActive.value,
+            'carousel__slide--prev': isPrev.value,
+            'carousel__slide--next': isNext.value,
             'carousel__slide--sliding': isSliding.value,
           },
-          'aria-hidden': !isVisible(),
+          'aria-hidden': !isVisible.value,
         },
-        slots.default?.()
+        slots.default?.({
+          isActive: isActive.value,
+          isClone: props.isClone,
+          isPrev: isPrev.value,
+          isNext: isNext.value,
+          isSliding: isSliding.value,
+          isVisible: isVisible.value
+        })
       )
   },
 })
