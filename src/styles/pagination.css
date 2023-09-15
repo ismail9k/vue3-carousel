@@ -25,7 +25,12 @@
   background-color: var(--vc-pgn-background-color);
 }
 
-.carousel__pagination-button:hover::after,
 .carousel__pagination-button--active::after {
   background-color: var(--vc-pgn-active-color);
+}
+
+@media(hover: hover) {
+  .carousel__pagination-button:hover::after {
+    background-color: var(--vc-pgn-active-color);
+  }
 }
