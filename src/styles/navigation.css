@@ -20,11 +20,6 @@
   transform: translateY(-50%);
 }
 
-.carousel__prev:hover,
-.carousel__next:hover {
-  color: var(--vc-nav-color-hover);
-}
-
 .carousel__next--disabled,
 .carousel__prev--disabled {
   cursor: not-allowed;
@@ -47,4 +42,11 @@
 .carousel--rtl .carousel__next {
   right: auto;
   left: 0;
+}
+
+@media (hover: hover) {
+  .carousel__prev:hover,
+  .carousel__next:hover {
+    color: var(--vc-nav-color-hover);
+  }
 }
