@@ -112,6 +112,7 @@ export default defineComponent({
 
     const handleWindowResize = debounce(() => {
       updateBreakpointsConfigs()
+      updateSlidesData()
       updateSlideWidth()
     }, 16)
 
