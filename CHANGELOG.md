@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.2) - 2023-12-11
+
+- fix: Remove padding from carousel__pagination (#317) @ricardoboss
+- enhance: Slide Performance improvements and slot props support (#324) @craigrileyuk
+- enhance: Pagination apply hover classes only on supported devices (#341) @hhofner
+- fix: update slides data on window resize (#354) @RickRosendaal
+
 ## [0.3.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.1) - 2023-04-29
 
 - Add MIT License (#305)
