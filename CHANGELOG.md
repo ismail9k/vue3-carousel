@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.3) - 2024-04-02
+
+- Anchor links (a tags) redirect the app to the new page after dragging (#362) @Iran-110
+
 ## [0.3.2](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.2) - 2023-12-11
 
 - fix: Remove padding from carousel__pagination (#317) @ricardoboss
