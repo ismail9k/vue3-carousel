@@ -1,10 +1,10 @@
 import css from 'rollup-plugin-css-only'
-import typescript from 'rollup-plugin-typescript2'
 import del from 'rollup-plugin-delete'
 import dts from 'rollup-plugin-dts'
 import { typescriptPaths } from 'rollup-plugin-typescript-paths'
+import typescript from 'rollup-plugin-typescript2'
 
-import pkg from './package.json'
+import pkg from './package.json' assert { type: 'json' }
 
 const banner = `/**
  * Vue 3 Carousel ${pkg.version}
