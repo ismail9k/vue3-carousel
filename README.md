@@ -39,16 +39,16 @@ yarn add vue3-carousel
 
 ```vue
 <template>
-  <carousel :items-to-show="1.5">
-    <slide v-for="slide in 10" :key="slide">
+  <Carousel :items-to-show="1.5">
+    <Slide v-for="slide in 10" :key="slide">
       {{ slide }}
-    </slide>
+    </Slide>
 
     <template #addons>
-      <navigation />
-      <pagination />
+      <Navigation />
+      <Pagination />
     </template>
-  </carousel>
+  </Carousel>
 </template>
 
 <script>
