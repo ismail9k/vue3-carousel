@@ -91,6 +91,20 @@ export default defineComponent({
 
       let newConfig = { ...__defaultConfig }
       breakpointsArray.some((breakpoint): boolean => {
+        if (props.breakpointsToContainer) {
+          const containerElement = root.value?.parentElement  
+          if (containerElement) {
+            const containerWidth = containerElement.getBoundingClientRect().width
+            const isMatched = containerWidth >= breakpoint
+            if (isMatched) {
+              newConfig = {
+                ...newConfig,
+                ...(breakpoints as Breakpoints)[breakpoint],
+              }
+            }
+            return isMatched
+          }
+        }
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
         if (isMatched) {
           newConfig = {

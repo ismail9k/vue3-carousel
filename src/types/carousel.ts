@@ -28,6 +28,7 @@ export interface CarouselConfig {
   touchDrag?: boolean
   dir?: Dir
   breakpoints?: Breakpoints
+  breakpointsToContainer: boolean
   settings?: Partial<CarouselConfig>
   i18n: { [key in I18nKeys]?: string }
 }
