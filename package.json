@@ -1,6 +1,6 @@
 {
   "name": "vue3-carousel",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -19,6 +19,22 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ismail9k/vue3-carousel.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/carousel.d.ts",
+      "import": "./dist/carousel.es.js",
+      "require": "./dist/carousel.js"
+    },
+    "./dist/carousel": {
+      "types": "./dist/carousel.d.ts",
+      "import": "./dist/carousel.es.js",
+      "require": "./dist/carousel.js"
+    },
+    "./dist/*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
   },
   "main": "dist/carousel.js",
   "module": "dist/carousel.es.js",
