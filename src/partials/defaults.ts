@@ -14,6 +14,7 @@ export const defaultConfigs: CarouselConfig = {
   touchDrag: true,
   dir: 'ltr',
   breakpoints: undefined,
+  breakpointsToContainer: false,
   i18n: {
     ariaNextSlide: 'Navigate to next slide',
     ariaPreviousSlide: 'Navigate to previous slide',

@@ -39,6 +39,11 @@ export const carouselProps = {
     default: defaultConfigs.breakpoints,
     type: Object,
   },
+  // if true, the breakpoints will be applied to the container insetad of the browser window
+  breakpointsToContainer: {
+    default: defaultConfigs.breakpointsToContainer,
+    type: Boolean,
+  },
   // time to auto advance slides in ms
   autoplay: {
     default: defaultConfigs.autoplay,

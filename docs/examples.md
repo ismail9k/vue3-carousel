@@ -149,6 +149,70 @@ export default defineComponent({
 </script>
 ```
 
+## [Breakpoints: Container](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleBreakpoints.vue)
+
+<ExampleBreakpointsContainer></ExampleBreakpointsContainer>
+
+```vue
+<template>
+  <div class="container">
+    <Carousel v-bind="settings" :breakpoints="breakpoints">
+      <Slide v-for="slide in 10" :key="slide">
+        <div class="carousel__item">{{ slide }}</div>
+      </Slide>
+
+      <template #addons>
+        <Navigation />
+      </template>
+    </Carousel>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from 'vue'
+import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
+
+import '../../dist/carousel.css'
+
+export default defineComponent({
+  name: 'BreakpointsContainer',
+  components: {
+    Carousel,
+    Slide,
+    Navigation,
+  },
+  data: () => ({
+    // carousel settings
+    settings: {
+      itemsToShow: 1,
+      snapAlign: 'center',
+      breakpointsToContainer: true,
+    },
+    // breakpoints are mobile first
+    // any settings not specified will fallback to the carousel settings
+    breakpoints: {
+      // 600px and up
+      600: {
+        itemsToShow: 2.5,
+        snapAlign: 'center',
+      },
+      // 700px and up
+      700: {
+        itemsToShow: 3.5,
+        snapAlign: 'center',
+      },
+      // 1024 and up
+      1024: {
+        itemsToShow: 5,
+        snapAlign: 'start',
+      },
+    },
+  }),
+})
+</script>
+```
+  
+  
 ## [Pagination](https://github.com/ismail9k/vue3-carousel/blob/master/docs/examples/ExampleBreakpoints.vue)
 
 <ExamplePagination></ExamplePagination>
@@ -410,6 +474,7 @@ export default defineComponent({
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
 import ExampleBreakpoints from './examples/ExampleBreakpoints.vue';
+import ExampleBreakpointsContainer from './examples/ExampleBreakpointsContainer.vue';
 import ExamplePagination from './examples/ExamplePagination.vue';
 import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
@@ -423,6 +488,7 @@ export default {
     ExampleBasic,
     ExampleWrapAround,
     ExampleBreakpoints,
+    ExampleBreakpointsContainer,
     ExampleAutoplay,
     ExamplePagination,
     ExampleActiveClasses,
@@ -434,6 +500,10 @@ export default {
 </script>
 
 <style>
+:root {
+  --vp-c-green: #00b894;
+}
+
 .carousel__item {
   min-height: 200px;
   width: 100%;
