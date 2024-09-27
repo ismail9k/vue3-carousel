@@ -223,9 +223,10 @@ export default defineComponent({
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
         const captureClick = (e: MouseEvent) => {
-          window.removeEventListener('click', captureClick, true)
+          e.preventDefault();
+          window.removeEventListener('click', captureClick)
         }
-        window.addEventListener('click', captureClick, true)
+        window.addEventListener('click', captureClick)
       }
 
       slideTo(currentSlideIndex.value - draggedSlides)
