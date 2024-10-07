@@ -198,8 +198,8 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging, true)
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
