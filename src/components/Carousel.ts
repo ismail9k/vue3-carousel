@@ -236,10 +236,9 @@ export default defineComponent({
       isDragging.value = false
       document.removeEventListener(
         isTouch ? 'touchmove' : 'mousemove',
-        handleDragging,
-        true
+        handleDragging
       )
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
+      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     /**
