@@ -423,7 +423,7 @@ export default {
 .carousel__item {
   min-height: 200px;
   width: 100%;
-  background-color: var(--vp-c-green);
+  background-color: var(--vp-c-brand-1);
   color: #fff;
   font-size: 20px;
   border-radius: 8px;

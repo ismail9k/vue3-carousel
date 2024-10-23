@@ -1,6 +1,15 @@
-import { defineComponent, inject, ref, h, reactive, SetupContext, computed, ComputedRef } from 'vue'
+import {
+  defineComponent,
+  inject,
+  ref,
+  h,
+  reactive,
+  SetupContext,
+  computed,
+  ComputedRef,
+} from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults'
+import { defaultConfig } from '@/partials/defaults'
 import { CarouselConfig } from '@/types'
 
 export default defineComponent({
@@ -16,7 +25,7 @@ export default defineComponent({
     },
   },
   setup(props, { slots }: SetupContext) {
-    const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
+    const config: CarouselConfig = inject('config', reactive({ ...defaultConfig }))
     const currentSlide = inject('currentSlide', ref(0))
     const slidesToScroll = inject('slidesToScroll', ref(0))
     const isSliding = inject('isSliding', ref(false))
@@ -41,7 +50,7 @@ export default defineComponent({
       h(
         'li',
         {
-          style: {width: `${100 / config.itemsToShow}%`},
+          style: { width: `${100 / config.itemsToShow}%` },
           class: {
             carousel__slide: true,
             'carousel__slide--clone': props.isClone,
@@ -59,7 +68,7 @@ export default defineComponent({
           isPrev: isPrev.value,
           isNext: isNext.value,
           isSliding: isSliding.value,
-          isVisible: isVisible.value
+          isVisible: isVisible.value,
         })
       )
   },

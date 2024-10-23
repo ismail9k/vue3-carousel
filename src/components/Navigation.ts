@@ -1,6 +1,6 @@
 import { inject, ref, h, reactive } from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults'
+import { defaultConfig } from '@/partials/defaults'
 
 import { CarouselNav, CarouselConfig } from '../types'
 
@@ -8,7 +8,7 @@ import Icon from './Icon'
 
 const Navigation = (props: any, { slots, attrs }: any) => {
   const { next: slotNext, prev: slotPrev } = slots || {}
-  const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
+  const config: CarouselConfig = inject('config', reactive({ ...defaultConfig }))
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))

@@ -15,9 +15,9 @@ import {
   Ref,
 } from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults'
+import { defaultConfig } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
+import { CarouselConfig, CarouselNav, ElementStyleObject } from '@/types'
 import {
   debounce,
   throttle,
@@ -41,11 +41,7 @@ export default defineComponent({
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
     // current config
-    const config = reactive<CarouselConfig>({ ...defaultConfigs })
-    // default carousel configs
-    let __defaultConfig: CarouselConfig = { ...defaultConfigs }
-    // breakpoints configs
-    let breakpoints: Breakpoints | undefined
+    const config = reactive<CarouselConfig>({ ...defaultConfig })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -54,8 +50,8 @@ export default defineComponent({
     const maxSlideIndex = ref(0)
     const minSlideIndex = ref(0)
 
-    let autoplayTimer: ReturnType<typeof setInterval> | null
-    let transitionTimer: ReturnType<typeof setTimeout> | null
+    let autoplayTimer: ReturnType<typeof setInterval> | null = null
+    let transitionTimer: ReturnType<typeof setTimeout> | null = null
 
     provide('config', config)
     provide('slidesCount', slidesCount)
@@ -67,36 +63,24 @@ export default defineComponent({
     /**
      * Configs
      */
-    function initDefaultConfigs(): void {
-      breakpoints = { ...props.breakpoints }
-      __defaultConfig = {
-        ...__defaultConfig,
-        ...props,
-        i18n: {
-          ...__defaultConfig.i18n,
-          ...props.i18n,
-        },
-        breakpoints: undefined,
-      }
-
-      bindConfigs(__defaultConfig)
-    }
+    const breakpoints = computed(() => ({ ...props.breakpoints }))
+    const __defaultConfig = computed(() => ({
+      ...defaultConfig,
+      ...props,
+      i18n: { ...defaultConfig.i18n, ...props.i18n },
+      breakpoints: undefined,
+    }))
 
     function updateBreakpointsConfigs(): void {
-      if (!breakpoints || !Object.keys(breakpoints).length) return
+      const breakpointsArray = Object.keys(breakpoints.value || {})
+        .map((key) => Number(key))
+        .sort((a, b) => +b - +a)
 
-      const breakpointsArray: number[] = Object.keys(breakpoints)
-        .map((key: string): number => Number(key))
-        .sort((a: number, b: number) => +b - +a)
-
-      let newConfig = { ...__defaultConfig }
-      breakpointsArray.some((breakpoint): boolean => {
+      let newConfig = { ...__defaultConfig.value } as CarouselConfig
+      breakpointsArray.some((breakpoint) => {
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
         if (isMatched) {
-          newConfig = {
-            ...newConfig,
-            ...(breakpoints as Breakpoints)[breakpoint],
-          }
+          newConfig = { ...newConfig, ...breakpoints.value[breakpoint] }
         }
         return isMatched
       })
@@ -360,7 +344,6 @@ export default defineComponent({
     })
 
     function restartCarousel(): void {
-      initDefaultConfigs()
       updateBreakpointsConfigs()
       updateSlidesData()
       updateSlideWidth()
@@ -389,7 +372,6 @@ export default defineComponent({
 
     // Init carousel
     emit('before-init')
-    initDefaultConfigs()
 
     const data = {
       config,
@@ -407,7 +389,6 @@ export default defineComponent({
       updateBreakpointsConfigs,
       updateSlidesData,
       updateSlideWidth,
-      initDefaultConfigs,
       restartCarousel,
       slideTo,
       next,
