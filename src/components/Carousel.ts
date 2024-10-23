@@ -182,8 +182,8 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging, true)
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
@@ -207,9 +207,10 @@ export default defineComponent({
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
         const captureClick = (e: MouseEvent) => {
-          window.removeEventListener('click', captureClick, true)
+          e.preventDefault();
+          window.removeEventListener('click', captureClick)
         }
-        window.addEventListener('click', captureClick, true)
+        window.addEventListener('click', captureClick)
       }
 
       slideTo(currentSlideIndex.value - draggedSlides)
@@ -220,10 +221,9 @@ export default defineComponent({
       isDragging.value = false
       document.removeEventListener(
         isTouch ? 'touchmove' : 'mousemove',
-        handleDragging,
-        true
+        handleDragging
       )
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
+      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     /**
