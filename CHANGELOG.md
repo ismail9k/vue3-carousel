@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.4](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.3) - 2024-04-02
+## [0.4.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-10-23
+
+- feat: Stop using Capture phase events (#398) @coofercat
+- chore: Export all types (#397) @Tofandel
+- fix: Properly prevent click on drag finished (#396) @Tofandel
+- docs: update pagination example code to match the component (#395) @Tofandel
+- docs: update vitepress to version 1.3.4
+- feat: improvements in generating default config
+
+## [0.3.4](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.3.4) - 2024-04-02
 
 - Full support for esm (#373) @Iran-110
 
