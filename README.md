@@ -10,7 +10,7 @@ Modern lightweight Vue 3 carousel component
 
 ## Documentation
 
-https://ismail9k.github.io/vue3-carousel/
+https://vue3-carousel.ismail9k.com/
 
 ## Features
 
