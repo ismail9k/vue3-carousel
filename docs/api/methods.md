@@ -33,9 +33,9 @@ Slide to the previous slide
 
 Update `slideWidth` value based on `itemsToShow` and the current carousel width
 
-## updateBreakpointsConfigs()
+## updateBreakpointsConfig()
 
-Update the current carousel configs based on `breakpoints` settings and screen width
+Update the current carousel config based on `breakpoints` settings and screen width
 
 ## updateSlidesData()
 
@@ -46,7 +46,7 @@ Update all the slide related date includes:
 - `maxSlide`
 - `minSlide`
 
-## initDefaultConfigs()
+## initDefaultConfig()
 
 Init carousel default configurations
 
@@ -54,8 +54,8 @@ Init carousel default configurations
 
 Restart the carousel settings and data, internally it calls:
 
-- `initDefaultConfigs`
+- `initDefaultConfig`
 - `resetAutoplay`
-- `updateBreakpointsConfigs`
+- `updateBreakpointsConfig`
 - `updateSlidesData`
 - `updateSlideWidth`

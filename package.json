@@ -41,6 +41,7 @@
   "style": "dist/carousel.css",
   "types": "dist/carousel.d.ts",
   "devDependencies": {
+    "@stackblitz/sdk": "^1.11.0",
     "@types/jest": "^26.0.24",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",

@@ -61,7 +61,7 @@ export default defineComponent({
     provide('slideWidth', slideWidth)
 
     /**
-     * Configs
+     * Config
      */
     const breakpoints = computed(() => ({ ...props.breakpoints }))
     const __defaultConfig = computed(() => ({
@@ -71,7 +71,7 @@ export default defineComponent({
       breakpoints: undefined,
     }))
 
-    function updateBreakpointsConfigs(): void {
+    function updateBreakpointsConfig(): void {
       const breakpointsArray = Object.keys(breakpoints.value || {})
         .map((key) => Number(key))
         .sort((a, b) => +b - +a)
@@ -85,17 +85,17 @@ export default defineComponent({
         return isMatched
       })
 
-      bindConfigs(newConfig)
+      bindConfig(newConfig)
     }
 
-    function bindConfigs(newConfig: CarouselConfig): void {
+    function bindConfig(newConfig: CarouselConfig): void {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       Object.entries(newConfig).forEach(([key, val]) => (config[key] = val))
     }
 
     const handleWindowResize = debounce(() => {
-      updateBreakpointsConfigs()
+      updateBreakpointsConfig()
       updateSlidesData()
       updateSlideWidth()
     }, 16)
@@ -129,7 +129,7 @@ export default defineComponent({
       // Overcome some edge cases
       setTimeout(() => updateSlideWidth(), 1000)
 
-      updateBreakpointsConfigs()
+      updateBreakpointsConfig()
       initAutoplay()
       window.addEventListener('resize', handleWindowResize, { passive: true })
       emit('init')
@@ -207,7 +207,7 @@ export default defineComponent({
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
         const captureClick = (e: MouseEvent) => {
-          e.preventDefault();
+          e.preventDefault()
           window.removeEventListener('click', captureClick)
         }
         window.addEventListener('click', captureClick)
@@ -219,10 +219,7 @@ export default defineComponent({
       dragged.y = 0
 
       isDragging.value = false
-      document.removeEventListener(
-        isTouch ? 'touchmove' : 'mousemove',
-        handleDragging
-      )
+      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
       document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
@@ -344,7 +341,7 @@ export default defineComponent({
     })
 
     function restartCarousel(): void {
-      updateBreakpointsConfigs()
+      updateBreakpointsConfig()
       updateSlidesData()
       updateSlideWidth()
       resetAutoplay()
@@ -386,7 +383,7 @@ export default defineComponent({
       middleSlide: middleSlideIndex,
     }
     expose({
-      updateBreakpointsConfigs,
+      updateBreakpointsConfig,
       updateSlidesData,
       updateSlideWidth,
       restartCarousel,

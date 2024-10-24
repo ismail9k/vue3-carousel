@@ -1,4 +1,4 @@
-# Configs
+# Config
 
 
 ## Available Props

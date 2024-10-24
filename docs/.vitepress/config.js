@@ -18,7 +18,7 @@ module.exports = {
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Configs', link: '/configs' },
+          { text: 'Config', link: '/config' },
           { text: 'Examples', link: '/examples' },
         ],
       },
