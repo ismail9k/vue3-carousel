@@ -54,7 +54,7 @@
     "eslint-plugin-vue": "^8.3.0",
     "jest": "^27.0.6",
     "prettier": "^2.3.2",
-    "rollup": "^4.13.2",
+    "rollup": "^4.22.4",
     "rollup-plugin-css-only": "^4.5.2",
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-dts": "^6.1.0",
