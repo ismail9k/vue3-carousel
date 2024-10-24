@@ -1,1 +1,0 @@
-import{_ as s,c as a,o as i,a3 as t}from"./chunks/framework.DxrbrUn9.js";const g=JSON.parse('{"title":"Data","description":"","frontmatter":{},"headers":[],"relativePath":"api/data.md","filePath":"api/data.md"}'),e={name:"api/data.md"},l=t("",7),n=[l];function d(h,p,r,k,o,c){return i(),a("div",null,n)}const y=s(e,[["render",d]]);export{g as __pageData,y as default};
