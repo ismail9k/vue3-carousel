@@ -1,48 +1,54 @@
-<template>
-  <Carousel v-bind="settings" :breakpoints="breakpoints">
-    <Slide v-for="slide in 10" :key="slide">
-      <div class="carousel__item">{{ slide }}</div>
-    </Slide>
-
-    <template #addons>
-      <Navigation />
-    </template>
-  </Carousel>
-</template>
-
-<script>
-import { defineComponent } from 'vue'
+<script setup>
 import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
 
 import '../../dist/carousel.css'
 
-export default defineComponent({
-  name: 'Breakpoints',
-  components: {
-    Carousel,
-    Slide,
-    Navigation,
-  },
-  data: () => ({
-    // carousel settings
-    settings: {
-      itemsToShow: 1,
+// Carousel configuration
+const config = {
+  itemsToShow: 1,
+  snapAlign: 'center',
+eg
+  // 'breakpointMode' determines how the carousel breakpoints are calculated
+  // Acceptable values: 'window' (default) | 'carousel'
+  // 'window' - breakpoints are based on the viewport width
+  // 'carousel' - breakpoints are based on the carousel width
+  breakpointMode: 'carousel',
+
+  // Breakpoints are mobile-first
+  // Any settings not specified will fall back to the carousel's default settings
+  breakpoints: {
+    // 300px and up
+    300: {
+      itemsToShow: 2,
       snapAlign: 'center',
     },
-    // breakpoints are mobile first
-    // any settings not specified will fallback to the carousel settings
-    breakpoints: {
-      // 700px and up
-      700: {
-        itemsToShow: 3.5,
-        snapAlign: 'center',
-      },
-      // 1024 and up
-      1024: {
-        itemsToShow: 5,
-        snapAlign: 'start',
-      },
+    // 400px and up
+    400: {
+      itemsToShow: 3,
+      snapAlign: 'start',
     },
-  }),
-})
+    // 500px and up
+    500: {
+      itemsToShow: 4,
+      snapAlign: 'start',
+    },
+  },
+}
 </script>
+
+<template>
+  <!-- Resizable container for testing 'carousel' breakpointMode -->
+  <!-- Drag the right edge to adjust the width and see the breakpoints change -->
+  <div style="resize: horizontal; border: 2px dashed gray; overflow: auto">
+    <Carousel v-bind="config">
+      <Slide v-for="slide in 10" :key="slide">
+        <div class="carousel__item">{{ slide }}</div>
+      </Slide>
+      <template #addons>
+        <Navigation />
+      </template>
+    </Carousel>
+  </div>
+</template>
+
+

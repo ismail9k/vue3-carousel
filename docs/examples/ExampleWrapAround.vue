@@ -1,5 +1,15 @@
+<script setup>
+import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
+import '../../dist/carousel.css'
+
+const config = {
+  itemsToShow: 2.5,
+  wrapAround: true,
+}
+</script>
+
 <template>
-  <Carousel :items-to-show="2.5" :wrap-around="true">
+  <Carousel v-bind="config">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
@@ -9,19 +19,3 @@
     </template>
   </Carousel>
 </template>
-
-<script>
-import { defineComponent } from 'vue'
-import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
-
-import '../../dist/carousel.css'
-
-export default defineComponent({
-  name: 'WrapAround',
-  components: {
-    Carousel,
-    Slide,
-    Navigation,
-  },
-})
-</script>
