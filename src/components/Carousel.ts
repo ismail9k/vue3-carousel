@@ -61,16 +61,17 @@ export default defineComponent({
     provide('minSlide', minSlideIndex)
     provide('slideWidth', slideWidth)
 
+    const __defaultConfig = computed(() => ({
+      ...defaultConfig,
+      ...props,
+      i18n: { ...defaultConfig.i18n, ...props.i18n },
+      breakpoints: undefined,
+    }))
+
+    bindConfig(__defaultConfig.value)
+
     function updateBreakpointsConfig(): void {
       if (!props.breakpoints) return
-
-      // Set new config to the default config
-      let newConfig = {
-        ...defaultConfig,
-        ...props,
-        i18n: { ...defaultConfig.i18n, ...props.i18n },
-        breakpoints: undefined,
-      } as CarouselConfig
 
       // Determine the width source based on the 'breakpointMode' config
       const widthSource =
@@ -82,6 +83,7 @@ export default defineComponent({
         .map((key) => Number(key))
         .sort((a, b) => +b - +a)
 
+      let newConfig = { ...__defaultConfig.value } as CarouselConfig
       breakpointsArray.some((breakpoint) => {
         if (widthSource >= breakpoint) {
           newConfig = { ...newConfig, ...props.breakpoints?.[breakpoint] }
