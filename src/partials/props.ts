@@ -1,52 +1,63 @@
-import { defaultConfig } from '@/partials/defaults'
+import {
+  BREAKPOINT_MODE_OPTIONS,
+  DEFAULT_CONFIG,
+  DIR_OPTIONS,
+  SNAP_ALIGN_OPTIONS,
+} from '@/partials/defaults'
 
 export const carouselProps = {
   // count of items to showed per view
   itemsToShow: {
-    default: defaultConfig.itemsToShow,
+    default: DEFAULT_CONFIG.itemsToShow,
     type: Number,
   },
   // count of items to be scrolled
   itemsToScroll: {
-    default: defaultConfig.itemsToScroll,
+    default: DEFAULT_CONFIG.itemsToScroll,
     type: Number,
   },
   // control infinite scrolling mode
   wrapAround: {
-    default: defaultConfig.wrapAround,
+    default: DEFAULT_CONFIG.wrapAround,
     type: Boolean,
   },
   // control max drag
   throttle: {
-    default: defaultConfig.throttle,
+    default: DEFAULT_CONFIG.throttle,
     type: Number,
   },
   // control snap position alignment
   snapAlign: {
-    default: defaultConfig.snapAlign,
+    default: DEFAULT_CONFIG.snapAlign,
     validator(value: string) {
-      // The value must match one of these strings
-      return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value)
+      return SNAP_ALIGN_OPTIONS.includes(value)
     },
   },
   // sliding transition time in ms
   transition: {
-    default: defaultConfig.transition,
+    default: DEFAULT_CONFIG.transition,
     type: Number,
+  },
+  // controls the breakpoint mode relative to the carousel container or the viewport
+  breakpointMode: {
+    default: DEFAULT_CONFIG.breakpointMode,
+    validator(value: string) {
+      return BREAKPOINT_MODE_OPTIONS.includes(value)
+    },
   },
   // an object to store breakpoints
   breakpoints: {
-    default: defaultConfig.breakpoints,
+    default: DEFAULT_CONFIG.breakpoints,
     type: Object,
   },
   // time to auto advance slides in ms
   autoplay: {
-    default: defaultConfig.autoplay,
+    default: DEFAULT_CONFIG.autoplay,
     type: Number,
   },
   // pause autoplay when mouse hover over the carousel
   pauseAutoplayOnHover: {
-    default: defaultConfig.pauseAutoplayOnHover,
+    default: DEFAULT_CONFIG.pauseAutoplayOnHover,
     type: Boolean,
   },
   // slide number number of initial slide
@@ -56,32 +67,25 @@ export const carouselProps = {
   },
   // toggle mouse dragging.
   mouseDrag: {
-    default: defaultConfig.mouseDrag,
+    default: DEFAULT_CONFIG.mouseDrag,
     type: Boolean,
   },
   // toggle mouse dragging.
   touchDrag: {
-    default: defaultConfig.touchDrag,
+    default: DEFAULT_CONFIG.touchDrag,
     type: Boolean,
   },
   // control snap position alignment
   dir: {
-    default: defaultConfig.dir,
+    default: DEFAULT_CONFIG.dir,
     validator(value: string) {
       // The value must match one of these strings
-      return ['rtl', 'ltr'].includes(value)
+      return DIR_OPTIONS.includes(value)
     },
   },
   // aria-labels and additional text labels
   i18n: {
-    default: defaultConfig.i18n,
-    type: Object,
-  },
-  // an object to pass all settings
-  settings: {
-    default() {
-      return {}
-    },
+    default: DEFAULT_CONFIG.i18n,
     type: Object,
   },
 }

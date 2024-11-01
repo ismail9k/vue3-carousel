@@ -1,5 +1,18 @@
+<script setup>
+import '../../dist/carousel.css'
+import { ref } from 'vue'
+import { Carousel, Slide } from '../../dist/carousel.es'
+
+const carouselRef = ref()
+const currentSlide = ref(0)
+
+const next = () => carouselRef.value.next()
+const prev = () => carouselRef.value.prev()
+</script>
+
+
 <template>
-  <Carousel ref="carousel" v-model="currentSlide" snapAlign="start">
+  <Carousel ref="carouselRef" v-model="currentSlide" snapAlign="start">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide - 1 }}</div>
     </Slide>
@@ -16,29 +29,3 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
-import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
-
-import '../../dist/carousel.css'
-
-export default defineComponent({
-  name: 'CustomNavigation',
-  components: {
-    Carousel,
-    Slide,
-    Navigation,
-  },
-  data: () => ({
-    currentSlide: 0,
-  }),
-  methods: {
-    next() {
-      this.$refs.carousel.next()
-    },
-    prev() {
-      this.$refs.carousel.prev()
-    },
-  },
-})
-</script>

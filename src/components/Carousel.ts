@@ -15,7 +15,7 @@ import {
   Ref,
 } from 'vue'
 
-import { defaultConfig } from '@/partials/defaults'
+import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
 import { CarouselConfig, CarouselNav, ElementStyleObject } from '@/types'
 import {
@@ -40,8 +40,16 @@ export default defineComponent({
     const slides: Ref<any> = ref([])
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
-    // current config
-    const config = reactive<CarouselConfig>({ ...defaultConfig })
+
+    const fallbackConfig = computed(() => ({
+      ...DEFAULT_CONFIG,
+      ...props,
+      i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
+      breakpoints: undefined,
+    }))
+
+    // current active config
+    const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -52,6 +60,7 @@ export default defineComponent({
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
+    let resizeObserver: ResizeObserver | null = null
 
     provide('config', config)
     provide('slidesCount', slidesCount)
@@ -60,41 +69,32 @@ export default defineComponent({
     provide('minSlide', minSlideIndex)
     provide('slideWidth', slideWidth)
 
-    /**
-     * Config
-     */
-    const breakpoints = computed(() => ({ ...props.breakpoints }))
-    const __defaultConfig = computed(() => ({
-      ...defaultConfig,
-      ...props,
-      i18n: { ...defaultConfig.i18n, ...props.i18n },
-      breakpoints: undefined,
-    }))
-
     function updateBreakpointsConfig(): void {
-      const breakpointsArray = Object.keys(breakpoints.value || {})
+      if (!props.breakpoints) return
+
+      // Determine the width source based on the 'breakpointMode' config
+      const widthSource =
+        (config.breakpointMode === 'carousel'
+          ? root.value?.getBoundingClientRect().width
+          : window.innerWidth) || 0
+
+      const breakpointsArray = Object.keys(props.breakpoints || {})
         .map((key) => Number(key))
         .sort((a, b) => +b - +a)
 
-      let newConfig = { ...__defaultConfig.value } as CarouselConfig
+      let newConfig = { ...fallbackConfig.value } as CarouselConfig
       breakpointsArray.some((breakpoint) => {
-        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
-        if (isMatched) {
-          newConfig = { ...newConfig, ...breakpoints.value[breakpoint] }
+        if (widthSource >= breakpoint) {
+          newConfig = { ...newConfig, ...props.breakpoints?.[breakpoint] }
+          return true
         }
-        return isMatched
+        return false
       })
 
-      bindConfig(newConfig)
+      Object.assign(config, newConfig)
     }
 
-    function bindConfig(newConfig: CarouselConfig): void {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      Object.entries(newConfig).forEach(([key, val]) => (config[key] = val))
-    }
-
-    const handleWindowResize = debounce(() => {
+    const handleResize = debounce(() => {
       updateBreakpointsConfig()
       updateSlidesData()
       updateSlideWidth()
@@ -131,7 +131,14 @@ export default defineComponent({
 
       updateBreakpointsConfig()
       initAutoplay()
-      window.addEventListener('resize', handleWindowResize, { passive: true })
+
+      window.addEventListener('resize', handleResize, { passive: true })
+
+      resizeObserver = new ResizeObserver(handleResize)
+      if (root.value) {
+        resizeObserver.observe(root.value)
+      }
+
       emit('init')
     })
 
@@ -142,8 +149,12 @@ export default defineComponent({
       if (autoplayTimer) {
         clearInterval(autoplayTimer)
       }
+      if (resizeObserver && root.value) {
+        resizeObserver.unobserve(root.value)
+        resizeObserver = null
+      }
 
-      window.removeEventListener('resize', handleWindowResize, {
+      window.removeEventListener('resize', handleResize, {
         passive: true,
       } as EventListenerOptions)
     })

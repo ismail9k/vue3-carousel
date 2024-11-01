@@ -1,3 +1,8 @@
+<script setup>
+import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
+import '../../dist/carousel.css'
+</script>
+
 <template>
   <Carousel>
     <Slide v-for="slide in 10" :key="slide">
@@ -10,20 +15,3 @@
     </template>
   </Carousel>
 </template>
-
-<script>
-import { defineComponent } from 'vue'
-import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
-
-import '../../dist/carousel.css'
-
-export default defineComponent({
-  name: 'Basic',
-  components: {
-    Carousel,
-    Slide,
-    Pagination,
-    Navigation,
-  },
-})
-</script>
