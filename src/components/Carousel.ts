@@ -52,6 +52,7 @@ export default defineComponent({
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
+    let resizeObserver: ResizeObserver | null = null
 
     provide('config', config)
     provide('slidesCount', slidesCount)
@@ -60,50 +61,33 @@ export default defineComponent({
     provide('minSlide', minSlideIndex)
     provide('slideWidth', slideWidth)
 
-    /**
-     * Config
-     */
-    const breakpoints = computed(() => ({ ...props.breakpoints }))
-    const __defaultConfig = computed(() => ({
-      ...defaultConfig,
-      ...props,
-      i18n: { ...defaultConfig.i18n, ...props.i18n },
-      breakpoints: undefined,
-    }))
-
     function updateBreakpointsConfig(): void {
-      const breakpointsArray = Object.keys(breakpoints.value || {})
+      if (!props.breakpoints) return
+
+      // Set new config to the default config
+      let newConfig = {
+        ...defaultConfig,
+        ...props,
+        i18n: { ...defaultConfig.i18n, ...props.i18n },
+        breakpoints: undefined,
+      } as CarouselConfig
+
+      // Determine the width source based on the 'breakpointMode' config
+      const widthSource =
+        (config.breakpointMode === 'carousel'
+          ? root.value?.getBoundingClientRect().width
+          : window.innerWidth) || 0
+
+      const breakpointsArray = Object.keys(props.breakpoints || {})
         .map((key) => Number(key))
         .sort((a, b) => +b - +a)
 
-    function updateBreakpointsConfigs(): void {
-      if (!breakpoints || !Object.keys(breakpoints).length) return
-
-      const breakpointsArray: number[] = Object.keys(breakpoints)
-        .map((key: string): number => Number(key))
-        .sort((a: number, b: number) => +b - +a)
-
-      let newConfig = { ...__defaultConfig }
-      breakpointsArray.some((breakpoint): boolean => {
-        if (props.breakpointsToContainer) {
-          const containerElement = root.value?.parentElement  
-          if (containerElement) {
-            const containerWidth = containerElement.getBoundingClientRect().width
-            const isMatched = containerWidth >= breakpoint
-            if (isMatched) {
-              newConfig = {
-                ...newConfig,
-                ...(breakpoints as Breakpoints)[breakpoint],
-              }
-            }
-            return isMatched
-          }
+      breakpointsArray.some((breakpoint) => {
+        if (widthSource >= breakpoint) {
+          newConfig = { ...newConfig, ...props.breakpoints?.[breakpoint] }
+          return true
         }
-        const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
-        if (isMatched) {
-          newConfig = { ...newConfig, ...breakpoints.value[breakpoint] }
-        }
-        return isMatched
+        return false
       })
 
       bindConfig(newConfig)
@@ -152,7 +136,14 @@ export default defineComponent({
 
       updateBreakpointsConfig()
       initAutoplay()
+
       window.addEventListener('resize', handleWindowResize, { passive: true })
+
+      resizeObserver = new ResizeObserver(handleWindowResize)
+      if (root.value) {
+        resizeObserver.observe(root.value)
+      }
+
       emit('init')
     })
 
@@ -162,6 +153,10 @@ export default defineComponent({
       }
       if (autoplayTimer) {
         clearInterval(autoplayTimer)
+      }
+      if (resizeObserver && root.value) {
+        resizeObserver.unobserve(root.value)
+        resizeObserver = null
       }
 
       window.removeEventListener('resize', handleWindowResize, {

@@ -34,15 +34,17 @@ export const carouselProps = {
     default: defaultConfig.transition,
     type: Number,
   },
+  // controls the breakpoint mode relative to the carousel container or the viewport
+  breakpointMode: {
+    default: defaultConfig.breakpointMode,
+    validator(value: string) {
+      return ['window', 'carousel'].includes(value)
+    },
+  },
   // an object to store breakpoints
   breakpoints: {
     default: defaultConfig.breakpoints,
     type: Object,
-  },
-  // if true, the breakpoints will be applied to the container insetad of the browser window
-  breakpointsToContainer: {
-    default: defaultConfigs.breakpointsToContainer,
-    type: Boolean,
   },
   // time to auto advance slides in ms
   autoplay: {
@@ -80,13 +82,6 @@ export const carouselProps = {
   // aria-labels and additional text labels
   i18n: {
     default: defaultConfig.i18n,
-    type: Object,
-  },
-  // an object to pass all settings
-  settings: {
-    default() {
-      return {}
-    },
     type: Object,
   },
 }
