@@ -21,6 +21,11 @@ https://vue3-carousel.ismail9k.com/
 - [x] Add classes for active and for visible slides
 - [x] RTL
 - [x] Enrich a11y
+- [ ] Vertical Slides
+
+## Nuxt Module
+
+If you're using Nuxt and prefer to use it via module, please refer to [vue3-carousel-nuxt](https://github.com/gaetansenn/vue3-carousel-nuxt?tab=readme-ov-file)
 
 ## Getting started
 
@@ -38,8 +43,18 @@ yarn add vue3-carousel
 ### Basic Using
 
 ```vue
+<script setup>
+// If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
+import 'vue3-carousel/dist/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+
+const config = {
+  itemsToShow: 1.5
+}
+</script>
+
 <template>
-  <Carousel :items-to-show="1.5">
+  <Carousel v-bind="config">
     <Slide v-for="slide in 10" :key="slide">
       {{ slide }}
     </Slide>
@@ -50,20 +65,4 @@ yarn add vue3-carousel
     </template>
   </Carousel>
 </template>
-
-<script>
-// If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
-import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
-
-export default {
-  name: 'App',
-  components: {
-    Carousel,
-    Slide,
-    Pagination,
-    Navigation,
-  },
-}
-</script>
 ```
