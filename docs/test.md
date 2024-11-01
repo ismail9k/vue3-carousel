@@ -14,7 +14,7 @@
 
 ## Autoplay
 
-<ExampleAutoPlay />
+<ExampleAutoplay />
 
 ## Active Classes
 
@@ -32,7 +32,7 @@
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
 import ExampleBreakpoints from './examples/ExampleBreakpoints.vue';
-import ExampleAutoPlay from './examples/ExampleAutoPlay.vue';
+import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
@@ -42,7 +42,7 @@ export default {
     ExampleBasic,
     ExampleWrapAround,
     ExampleBreakpoints,
-    ExampleAutoPlay,
+    ExampleAutoplay,
     ExampleActiveClasses,
     ExampleCustomNavigation,
     ExampleGallery,
