@@ -1,6 +1,6 @@
 import { h, inject, reactive } from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults'
+import { defaultConfig } from '@/partials/defaults'
 
 import icons, { IconName } from '../partials/icons'
 import { CarouselConfig, Data, I18nKeys } from '../types'
@@ -10,7 +10,7 @@ function isIconName(candidate: string): candidate is IconName {
 }
 
 const Icon = (props: Data) => {
-  const config: CarouselConfig = inject('config', reactive({ ...defaultConfigs }))
+  const config: CarouselConfig = inject('config', reactive({ ...defaultConfig }))
   const iconName = String(props.name)
   const iconI18n = `icon${
     iconName.charAt(0).toUpperCase() + iconName.slice(1)

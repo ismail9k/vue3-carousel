@@ -3,8 +3,6 @@ module.exports = {
   title: 'Vue3-carousel',
   description: 'Vue.js 3 carousel component',
 
-  base: '/vue3-carousel/',
-
   themeConfig: {
     repo: 'ismail9k/vue3-carousel',
     docsRepo: 'ismail9k/vue3-carousel',
@@ -18,7 +16,7 @@ module.exports = {
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Configs', link: '/configs' },
+          { text: 'Config', link: '/config' },
           { text: 'Examples', link: '/examples' },
         ],
       },
@@ -32,4 +30,19 @@ module.exports = {
       },
     ],
   },
+
+  head: [
+    [
+      'script',
+      {
+        async: true,
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-37DX3WR4T0',
+      },
+    ],
+    [
+      'script',
+      {},
+      "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-37DX3WR4T0');",
+    ],
+  ],
 }

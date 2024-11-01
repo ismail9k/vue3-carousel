@@ -1,6 +1,6 @@
 import { CarouselConfig } from '../types'
 
-export const defaultConfigs: CarouselConfig = {
+export const defaultConfig: CarouselConfig = {
   itemsToShow: 1,
   itemsToScroll: 1,
   modelValue: 0,

@@ -15,9 +15,9 @@ import {
   Ref,
 } from 'vue'
 
-import { defaultConfigs } from '@/partials/defaults'
+import { defaultConfig } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselNav, ElementStyleObject, Breakpoints } from '@/types'
+import { CarouselConfig, CarouselNav, ElementStyleObject } from '@/types'
 import {
   debounce,
   throttle,
@@ -41,11 +41,7 @@ export default defineComponent({
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
     // current config
-    const config = reactive<CarouselConfig>({ ...defaultConfigs })
-    // default carousel configs
-    let __defaultConfig: CarouselConfig = { ...defaultConfigs }
-    // breakpoints configs
-    let breakpoints: Breakpoints | undefined
+    const config = reactive<CarouselConfig>({ ...defaultConfig })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -54,8 +50,8 @@ export default defineComponent({
     const maxSlideIndex = ref(0)
     const minSlideIndex = ref(0)
 
-    let autoplayTimer: ReturnType<typeof setInterval> | null
-    let transitionTimer: ReturnType<typeof setTimeout> | null
+    let autoplayTimer: ReturnType<typeof setInterval> | null = null
+    let transitionTimer: ReturnType<typeof setTimeout> | null = null
 
     provide('config', config)
     provide('slidesCount', slidesCount)
@@ -65,22 +61,20 @@ export default defineComponent({
     provide('slideWidth', slideWidth)
 
     /**
-     * Configs
+     * Config
      */
-    function initDefaultConfigs(): void {
-      breakpoints = { ...props.breakpoints }
-      __defaultConfig = {
-        ...__defaultConfig,
-        ...props,
-        i18n: {
-          ...__defaultConfig.i18n,
-          ...props.i18n,
-        },
-        breakpoints: undefined,
-      }
+    const breakpoints = computed(() => ({ ...props.breakpoints }))
+    const __defaultConfig = computed(() => ({
+      ...defaultConfig,
+      ...props,
+      i18n: { ...defaultConfig.i18n, ...props.i18n },
+      breakpoints: undefined,
+    }))
 
-      bindConfigs(__defaultConfig)
-    }
+    function updateBreakpointsConfig(): void {
+      const breakpointsArray = Object.keys(breakpoints.value || {})
+        .map((key) => Number(key))
+        .sort((a, b) => +b - +a)
 
     function updateBreakpointsConfigs(): void {
       if (!breakpoints || !Object.keys(breakpoints).length) return
@@ -107,25 +101,22 @@ export default defineComponent({
         }
         const isMatched = window.matchMedia(`(min-width: ${breakpoint}px)`).matches
         if (isMatched) {
-          newConfig = {
-            ...newConfig,
-            ...(breakpoints as Breakpoints)[breakpoint],
-          }
+          newConfig = { ...newConfig, ...breakpoints.value[breakpoint] }
         }
         return isMatched
       })
 
-      bindConfigs(newConfig)
+      bindConfig(newConfig)
     }
 
-    function bindConfigs(newConfig: CarouselConfig): void {
+    function bindConfig(newConfig: CarouselConfig): void {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       Object.entries(newConfig).forEach(([key, val]) => (config[key] = val))
     }
 
     const handleWindowResize = debounce(() => {
-      updateBreakpointsConfigs()
+      updateBreakpointsConfig()
       updateSlidesData()
       updateSlideWidth()
     }, 16)
@@ -159,7 +150,7 @@ export default defineComponent({
       // Overcome some edge cases
       setTimeout(() => updateSlideWidth(), 1000)
 
-      updateBreakpointsConfigs()
+      updateBreakpointsConfig()
       initAutoplay()
       window.addEventListener('resize', handleWindowResize, { passive: true })
       emit('init')
@@ -212,8 +203,8 @@ export default defineComponent({
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging, true)
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
@@ -237,9 +228,10 @@ export default defineComponent({
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
         const captureClick = (e: MouseEvent) => {
-          window.removeEventListener('click', captureClick, true)
+          e.preventDefault()
+          window.removeEventListener('click', captureClick)
         }
-        window.addEventListener('click', captureClick, true)
+        window.addEventListener('click', captureClick)
       }
 
       slideTo(currentSlideIndex.value - draggedSlides)
@@ -248,12 +240,8 @@ export default defineComponent({
       dragged.y = 0
 
       isDragging.value = false
-      document.removeEventListener(
-        isTouch ? 'touchmove' : 'mousemove',
-        handleDragging,
-        true
-      )
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd, true)
+      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
+      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
     }
 
     /**
@@ -374,8 +362,7 @@ export default defineComponent({
     })
 
     function restartCarousel(): void {
-      initDefaultConfigs()
-      updateBreakpointsConfigs()
+      updateBreakpointsConfig()
       updateSlidesData()
       updateSlideWidth()
       resetAutoplay()
@@ -403,7 +390,6 @@ export default defineComponent({
 
     // Init carousel
     emit('before-init')
-    initDefaultConfigs()
 
     const data = {
       config,
@@ -418,10 +404,9 @@ export default defineComponent({
       middleSlide: middleSlideIndex,
     }
     expose({
-      updateBreakpointsConfigs,
+      updateBreakpointsConfig,
       updateSlidesData,
       updateSlideWidth,
-      initDefaultConfigs,
       restartCarousel,
       slideTo,
       next,

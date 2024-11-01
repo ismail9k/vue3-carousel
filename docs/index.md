@@ -10,6 +10,9 @@ hero:
   - theme: brand
     text: Getting Started →
     link: /getting-started
+  - theme: alt
+    text: Examples
+    link: /examples
 features:
   - icon: 🧁
     title: Vue.js

@@ -1,29 +1,29 @@
-import { defaultConfigs } from '@/partials/defaults'
+import { defaultConfig } from '@/partials/defaults'
 
 export const carouselProps = {
   // count of items to showed per view
   itemsToShow: {
-    default: defaultConfigs.itemsToShow,
+    default: defaultConfig.itemsToShow,
     type: Number,
   },
   // count of items to be scrolled
   itemsToScroll: {
-    default: defaultConfigs.itemsToScroll,
+    default: defaultConfig.itemsToScroll,
     type: Number,
   },
   // control infinite scrolling mode
   wrapAround: {
-    default: defaultConfigs.wrapAround,
+    default: defaultConfig.wrapAround,
     type: Boolean,
   },
   // control max drag
   throttle: {
-    default: defaultConfigs.throttle,
+    default: defaultConfig.throttle,
     type: Number,
   },
   // control snap position alignment
   snapAlign: {
-    default: defaultConfigs.snapAlign,
+    default: defaultConfig.snapAlign,
     validator(value: string) {
       // The value must match one of these strings
       return ['start', 'end', 'center', 'center-even', 'center-odd'].includes(value)
@@ -31,12 +31,12 @@ export const carouselProps = {
   },
   // sliding transition time in ms
   transition: {
-    default: defaultConfigs.transition,
+    default: defaultConfig.transition,
     type: Number,
   },
   // an object to store breakpoints
   breakpoints: {
-    default: defaultConfigs.breakpoints,
+    default: defaultConfig.breakpoints,
     type: Object,
   },
   // if true, the breakpoints will be applied to the container insetad of the browser window
@@ -46,12 +46,12 @@ export const carouselProps = {
   },
   // time to auto advance slides in ms
   autoplay: {
-    default: defaultConfigs.autoplay,
+    default: defaultConfig.autoplay,
     type: Number,
   },
   // pause autoplay when mouse hover over the carousel
   pauseAutoplayOnHover: {
-    default: defaultConfigs.pauseAutoplayOnHover,
+    default: defaultConfig.pauseAutoplayOnHover,
     type: Boolean,
   },
   // slide number number of initial slide
@@ -61,17 +61,17 @@ export const carouselProps = {
   },
   // toggle mouse dragging.
   mouseDrag: {
-    default: defaultConfigs.mouseDrag,
+    default: defaultConfig.mouseDrag,
     type: Boolean,
   },
   // toggle mouse dragging.
   touchDrag: {
-    default: defaultConfigs.touchDrag,
+    default: defaultConfig.touchDrag,
     type: Boolean,
   },
   // control snap position alignment
   dir: {
-    default: defaultConfigs.dir,
+    default: defaultConfig.dir,
     validator(value: string) {
       // The value must match one of these strings
       return ['rtl', 'ltr'].includes(value)
@@ -79,7 +79,7 @@ export const carouselProps = {
   },
   // aria-labels and additional text labels
   i18n: {
-    default: defaultConfigs.i18n,
+    default: defaultConfig.i18n,
     type: Object,
   },
   // an object to pass all settings

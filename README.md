@@ -10,7 +10,7 @@ Modern lightweight Vue 3 carousel component
 
 ## Documentation
 
-https://ismail9k.github.io/vue3-carousel/
+https://vue3-carousel.ismail9k.com/
 
 ## Features
 
@@ -39,16 +39,16 @@ yarn add vue3-carousel
 
 ```vue
 <template>
-  <carousel :items-to-show="1.5">
-    <slide v-for="slide in 10" :key="slide">
+  <Carousel :items-to-show="1.5">
+    <Slide v-for="slide in 10" :key="slide">
       {{ slide }}
-    </slide>
+    </Slide>
 
     <template #addons>
-      <navigation />
-      <pagination />
+      <Navigation />
+      <Pagination />
     </template>
-  </carousel>
+  </Carousel>
 </template>
 
 <script>
