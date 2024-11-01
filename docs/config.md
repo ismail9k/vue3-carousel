@@ -1,25 +1,23 @@
 # Config
 
-
 ## Available Props
 
-| Prop                   | Default                          | Description                                                                                                  |
-| ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `itemsToShow`          | 1                                | count of items to showed per view (can be a fraction).                                                       |
-| `itemsToScroll`        | 1                                | number of slides to be scrolled                                                                              |
-| ~~`currentSlide`~~     | ~~0~~                            | ~~index number of the initial slide.~~ <Badge text="Deprecated 0.1.20" type="danger"/>                       |
-| `wrapAround`           | false                            | enable infinite scrolling mode.                                                                              |
-| `snapAlign`            | 'center'                         | controls the carousel position alignment, can be 'start', 'end', 'center-[odd\|even]'                        |
-| `transition`           | 300                              | sliding transition time in ms.                                                                               |
-| `autoplay`             | 0                                | Auto play time in ms.                                                                                        |
-| ~~`settings`~~         | ~~{ }~~                          | ~~an object to pass all settings.~~ <Badge text="Deprecated 0.3.0" type="danger"/>                           |
-| `breakpoints`          | null                             | an object to pass all the breakpoints settings.                                                              |
-| `modelValue`           | 0                                | index number of the initial slide. <Badge text="0.1.20"/>                                                    |
-| `mouseDrag`            | true                             | toggle mouse dragging <Badge text="0.1.23"/>                                                                 |
-| `touchDrag`            | true                             | toggle pointer touch dragging <Badge text="0.1.23"/>                                                         |
-| `pauseAutoplayOnHover` | false                            | toggle if auto play should pause on mouse hover <Badge text="0.1.25"/>                                       |
-| `dir`                  | ltr                              | controls the carousel direction. Available values 'ltr', 'rtl' <Badge text="0.1.38"/>                        |
-| `i18n`                 | [`{ ariaNextSlide: ...}`](#i18n) | Used to translate and/or change aria labels and additional texts used in the carousel. <Badge text="0.3.1"/> |
+| Prop                   | Default                          | Description                                                                                                             |
+| ---------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `itemsToShow`          | 1                                | count of items to showed per view (can be a fraction).                                                                  |
+| `itemsToScroll`        | 1                                | number of slides to be scrolled                                                                                         |
+| `wrapAround`           | false                            | enable infinite scrolling mode.                                                                                         |
+| `snapAlign`            | 'center'                         | controls the carousel position alignment, can be 'start', 'end', 'center-[odd\|even]'                                   |
+| `transition`           | 300                              | sliding transition time in ms.                                                                                          |
+| `autoplay`             | 0                                | Auto play time in ms.                                                                                                   |
+| `breakpointMode`       | 'viewport'                       | determines how the carousel breakpoints are calculated. acceptable values: 'viewport', 'carousel' <Badge text="0.5.0"/> |
+| `breakpoints`          | null                             | an object to pass all the breakpoints settings.                                                                         |
+| `modelValue`           | 0                                | index number of the initial slide. <Badge text="0.1.20"/>                                                               |
+| `mouseDrag`            | true                             | toggle mouse dragging <Badge text="0.1.23"/>                                                                            |
+| `touchDrag`            | true                             | toggle pointer touch dragging <Badge text="0.1.23"/>                                                                    |
+| `pauseAutoplayOnHover` | false                            | toggle if auto play should pause on mouse hover <Badge text="0.1.25"/>                                                  |
+| `dir`                  | ltr                              | controls the carousel direction. Available values 'ltr', 'rtl' <Badge text="0.1.38"/>                                   |
+| `i18n`                 | [`{ ariaNextSlide: ...}`](#i18n) | Used to translate and/or change aria labels and additional texts used in the carousel. <Badge text="0.3.1"/>            |
 
 ## Slots
 
