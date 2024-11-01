@@ -9,7 +9,7 @@ import {
   ComputedRef,
 } from 'vue'
 
-import { defaultConfig } from '@/partials/defaults'
+import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { CarouselConfig } from '@/types'
 
 export default defineComponent({
@@ -25,7 +25,7 @@ export default defineComponent({
     },
   },
   setup(props, { slots }: SetupContext) {
-    const config: CarouselConfig = inject('config', reactive({ ...defaultConfig }))
+    const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
     const currentSlide = inject('currentSlide', ref(0))
     const slidesToScroll = inject('slidesToScroll', ref(0))
     const isSliding = inject('isSliding', ref(false))

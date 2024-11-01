@@ -1,13 +1,13 @@
 import { inject, ref, h, VNode, reactive } from 'vue'
 
-import { defaultConfig } from '@/partials/defaults'
+import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { mapNumberToRange } from '@/utils'
 import { i18nFormatter } from '@/utils/i18nFormater'
 
 import { CarouselConfig, CarouselNav } from '../types'
 
 const Pagination = () => {
-  const config: CarouselConfig = inject('config', reactive({ ...defaultConfig }))
+  const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))

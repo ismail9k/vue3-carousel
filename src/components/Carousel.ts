@@ -15,7 +15,7 @@ import {
   Ref,
 } from 'vue'
 
-import { defaultConfig } from '@/partials/defaults'
+import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
 import { CarouselConfig, CarouselNav, ElementStyleObject } from '@/types'
 import {
@@ -41,7 +41,7 @@ export default defineComponent({
     const slideWidth: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
     // current config
-    const config = reactive<CarouselConfig>({ ...defaultConfig })
+    const config = reactive<CarouselConfig>({ ...DEFAULT_CONFIG })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -62,9 +62,9 @@ export default defineComponent({
     provide('slideWidth', slideWidth)
 
     const __defaultConfig = computed(() => ({
-      ...defaultConfig,
+      ...DEFAULT_CONFIG,
       ...props,
-      i18n: { ...defaultConfig.i18n, ...props.i18n },
+      i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
       breakpoints: undefined,
     }))
 

@@ -1,19 +1,19 @@
+import {
+  BREAKPOINT_MODE_OPTIONS,
+  DIR_OPTIONS,
+  SNAP_ALIGN_OPTIONS,
+  I18N_DEFAULT_CONFIG,
+} from '@/partials/defaults'
+
 export type Breakpoints = { [key: number]: Partial<CarouselConfig> }
 
-export type SnapAlign = 'start' | 'end' | 'center' | 'center-even' | 'center-odd'
+export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
-export type Dir = 'rtl' | 'ltr'
+export type Dir = (typeof DIR_OPTIONS)[number]
 
-export type I18nKeys =
-  | 'ariaNextSlide'
-  | 'ariaPreviousSlide'
-  | 'ariaNavigateToSlide'
-  | 'ariaGallery'
-  | 'iconArrowUp'
-  | 'iconArrowDown'
-  | 'iconArrowRight'
-  | 'iconArrowLeft'
-  | 'itemXofY'
+export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
+
+export type I18nKeys = keyof typeof I18N_DEFAULT_CONFIG
 export interface CarouselConfig {
   itemsToShow: number
   itemsToScroll: number

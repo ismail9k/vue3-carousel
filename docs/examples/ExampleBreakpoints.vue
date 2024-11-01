@@ -7,10 +7,10 @@ import '../../dist/carousel.css'
 const config = {
   itemsToShow: 1,
   snapAlign: 'center',
-eg
+
   // 'breakpointMode' determines how the carousel breakpoints are calculated
-  // Acceptable values: 'window' (default) | 'carousel'
-  // 'window' - breakpoints are based on the viewport width
+  // Acceptable values: 'viewport' (default) | 'carousel'
+  // 'viewport' - breakpoints are based on the viewport width
   // 'carousel' - breakpoints are based on the carousel width
   breakpointMode: 'carousel',
 
