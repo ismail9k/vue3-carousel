@@ -5,11 +5,6 @@ type Args = {
 }
 
 export function mapNumberToRange({ val, max, min = 0 }: Args): number {
-  if (val > max) {
-    return mapNumberToRange({ val: val - (max + 1), max, min })
-  }
-  if (val < min) {
-    return mapNumberToRange({ val: val + (max + 1), max, min })
-  }
-  return val
+  const mod = max + 1;
+  return ((val - min) % mod + mod) % mod + min
 }
