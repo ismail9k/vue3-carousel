@@ -46,7 +46,7 @@ describe('getCurrentSlideIndex', () => {
     expect(results).toBe(val)
   })
   
-  it('Keeps float values more than 1 over max', () => {
+  it('Wraps float values more than 1 over max', () => {
     const val = 21.4
     const min = 10
     const max = 20
