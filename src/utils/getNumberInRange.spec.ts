@@ -1,3 +1,5 @@
+import { expect, it, describe } from 'vitest'
+
 import { getNumberInRange } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {

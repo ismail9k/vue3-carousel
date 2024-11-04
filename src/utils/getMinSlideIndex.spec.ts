@@ -1,3 +1,5 @@
+import { expect, it, describe } from 'vitest'
+
 import { SnapAlign } from '@/types'
 import { getMinSlideIndex } from '@/utils'
 

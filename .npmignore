@@ -4,7 +4,6 @@ src
 docs
 demo
 scripts
-jest.*
 .*
 coverage
 .gitignore

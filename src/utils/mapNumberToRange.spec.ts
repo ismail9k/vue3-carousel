@@ -1,3 +1,5 @@
+import { expect, it, describe } from 'vitest'
+
 import { mapNumberToRange } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
