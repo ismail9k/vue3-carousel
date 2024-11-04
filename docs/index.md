@@ -13,6 +13,11 @@ hero:
   - theme: alt
     text: Examples
     link: /examples
+  - theme: alt
+    text: Github
+    link: https://github.com/ismail9k/vue3-carousel
+
+  
 features:
   - icon: 🧁
     title: Vue.js
@@ -23,6 +28,7 @@ features:
   - icon: 📱
     title: Responsive
     details: Responsive breakpoints, to apply custom configurations for each screen size.
+
 footer: MIT Licensed
 
 meta:

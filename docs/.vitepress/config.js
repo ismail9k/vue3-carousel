@@ -11,6 +11,8 @@ module.exports = {
     editLinks: true,
 
     nav: [{ text: 'Guide', link: '/getting-started' }],
+
+    socialLinks: [{ icon: 'github', link: 'https://github.com/ismail9k/vue3-carousel' }],
     sidebar: [
       {
         text: 'Introduction',
@@ -29,6 +31,10 @@ module.exports = {
         ],
       },
     ],
+
+    editLink: {
+      pattern: 'https://github.com/ismail9k/vue3-carousel/edit/master/docs/:path',
+    },
   },
 
   head: [
