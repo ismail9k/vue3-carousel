@@ -22,15 +22,17 @@ const Pagination = () => {
 
   const children: Array<VNode> = []
   for (let slide = minSlide.value; slide < maxSlide.value + 1; slide++) {
+    const buttonLabel = i18nFormatter(config.i18n['ariaNavigateToSlide'], {
+      slideNumber: slide + 1,
+    })
     const button = h('button', {
       type: 'button',
       class: {
         'carousel__pagination-button': true,
         'carousel__pagination-button--active': isActive(slide),
       },
-      'aria-label': i18nFormatter(config.i18n['ariaNavigateToSlide'], {
-        slideNumber: slide + 1,
-      }),
+      'aria-label': buttonLabel,
+      title: buttonLabel,
       onClick: () => nav.slideTo(slide),
     })
     const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
