@@ -27,6 +27,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
         attrs?.class,
       ],
       'aria-label': i18n['ariaPreviousSlide'],
+      title: i18n['ariaPreviousSlide'],
       onClick: nav.prev,
     },
     slotPrev?.() || h(Icon, { name: isRTL ? 'arrowRight' : 'arrowLeft' })
@@ -41,6 +42,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
         attrs?.class,
       ],
       'aria-label': i18n['ariaNextSlide'],
+      title: i18n['ariaNextSlide'],
       onClick: nav.next,
     },
     slotNext?.() || h(Icon, { name: isRTL ? 'arrowLeft' : 'arrowRight' })

@@ -26,13 +26,15 @@
 Used to render the carousel items. You can use either the default slot or wrap element in `slides` slot.
 
 ```vue
-<Carousel>
-  <template #slides>
-    <Slide v-for="slide in 10" :key="slide">
-      ...
-    </Slide>
-  </template>
-</Carousel>
+<template>
+  <Carousel>
+    <template #slides>
+      <Slide v-for="slide in 10" :key="slide">
+        ...
+      </Slide>
+    </template>
+  </Carousel>
+</template>
 ```
 
 ### Addons
@@ -40,13 +42,15 @@ Used to render the carousel items. You can use either the default slot or wrap e
 Used to add display carousel addons components.
 
 ```vue
-<Carousel>
-  ...
-  <template #addons>
-    <Navigation />
-    <Pagination />
-  </template>
-</Carousel>
+<template>
+  <Carousel>
+    ...
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
 ```
 
 ### Slots Attributes
@@ -59,41 +63,32 @@ Used to add display carousel addons components.
 
 #### Example
 
-```vue {6,7,8}
-<Carousel>
-  <Slide v-for="slide in slides" :key="slide">
-    <div class="carousel__item">{{ slide }}</div>
-  </Slide>
-
-  <template #addons="{ slidesCount }">
-    <Navigation v-if="slidesCount > 1" />
-  </template>
-</Carousel>
+```vue {7,8,9}
+<template>
+  <Carousel>
+    <Slide v-for="slide in slides" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+  
+    <template #addons="{ slidesCount }">
+      <Navigation v-if="slidesCount > 1" />
+    </template>
+  </Carousel>
+</template>
 ```
 
 ### I18n
 
-Avaialbe keys:
+Available keys:
 
-| Key                   | Defaults                               |
-| --------------------- | -------------------------------------- |
-| `ariaNextSlide`       | "Navigate to next slide"               |
-| `ariaPreviousSlide`   | "Navigate to previous slide"           |
-| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      |
-| `ariaGallery`         | "Gallery"                              |
-| `itemXofY`            | "Item {currentSlide} of {slidesCount}" |
-| `iconArrowUp`         | "Arrow pointing upwards"               |
-| `iconArrowDown`       | "Arrow pointing downwards"             |
-| `iconArrowRight`      | "Arrow pointing to the right"          |
-| `iconArrowLeft`       | "Arrow pointing to the left"           |
-
-
-<script>
-import Badge from './.vitepress/components/Badge.vue';
-
-export default {
-  components: {
-   Badge,
-  }
-}
-</script>
+| Key                   | Defaults                               | Description                                                                |
+| --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the “Next” navigation button.                |
+| `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the “Previous” navigation button.            |
+| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
+| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide’s position in the sequence. |
+| `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
+| `iconArrowDown`       | "Arrow pointing downwards"             | Sets title and aria-label for the downward-pointing arrow SVG icon.        |
+| `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
+| `iconArrowLeft`       | "Arrow pointing to the left"           | Sets title and aria-label for the left-pointing arrow SVG icon.            |
