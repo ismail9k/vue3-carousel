@@ -22,7 +22,7 @@ const config = {
 </template>
 
 
-<style lang="stylus" scoped>
+<style scoped>
 .carousel__slide {
   padding: 5;
 }
