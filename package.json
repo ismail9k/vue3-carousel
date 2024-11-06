@@ -1,6 +1,6 @@
 {
   "name": "vue3-carousel",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -24,12 +24,18 @@
     ".": {
       "types": "./dist/carousel.d.ts",
       "import": "./dist/carousel.es.js",
-      "require": "./dist/carousel.js"
+      "require": "./dist/carousel.js",
+      "browser": "./dist/carousel.min.js"
     },
     "./dist/carousel": {
       "types": "./dist/carousel.d.ts",
       "import": "./dist/carousel.es.js",
-      "require": "./dist/carousel.js"
+      "require": "./dist/carousel.js",
+      "browser": "./dist/carousel.min.js"
+    },
+    "./dist/carousel.min.js": {
+      "import": "./dist/carousel.es.min.js",
+      "require": "./dist/carousel.min.js"
     },
     "./dist/*.css": {
       "import": "./dist/*.css",
@@ -40,7 +46,10 @@
   "module": "dist/carousel.es.js",
   "style": "dist/carousel.css",
   "types": "dist/carousel.d.ts",
+  "unpkg": "dist/carousel.min.js",
+  "jsdelivr": "dist/carousel.min.js",
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@stackblitz/sdk": "^1.11.0",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
