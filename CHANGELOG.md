@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-11-06
+
+- Test: use vitest instead of jest in #418
+- Feat add title attribute for pagination and navigation buttons in #419
+
+## [0.5.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-10-23
+
+- Feat: Support Ability to Breakpoints Relative to The Carousel Width by @tarwin, @ismail9k in #408
+- Fix infinite recursion in mapNumberToRange by @Tofandel in #415
+
 ## [0.4.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-10-23
 
 - feat: Stop using Capture phase events (#398) @coofercat
