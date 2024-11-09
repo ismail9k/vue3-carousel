@@ -1,10 +1,11 @@
 <script setup>
 import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css'
+const config = {}
 </script>
 
 <template>
-  <Carousel>
+  <Carousel v-bind="config">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
