@@ -67,19 +67,15 @@ export default {
   align-items: center;
 }
 
-.carousel__slide {
-  padding: 1px;
+.vp-doc li {
+  list-style: none;
+}
+.vp-doc li + li,
+.vp-doc ol {
+  margin: 0;
 }
 
 .carousel__pagination {
-  list-style: none !important;
-}
-
-.carousel__pagination-item {
-  margin-top: 0 !important;
-}
-
-.carousel__slide {
-  margin-top: 0 !important;
+  margin: 10px 0 0 !important;
 }
 </style>
