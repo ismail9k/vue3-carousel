@@ -16,8 +16,9 @@ const galleryConfig = {
 }
 
 const thumbnailsConfig = {
-  itemsToShow: 4,
+  itemsToShow: 7,
   wrapAround: true,
+  gap: 10,
 }
 </script>
 
@@ -38,5 +39,15 @@ const thumbnailsConfig = {
     </template>
   </Carousel>
 </template>
+
+
+<style>
+#thumbnails {
+  margin-top: 10px;
+  .carousel__item {
+    min-height: 100px;
+  }
+}
+</style>
 
 
