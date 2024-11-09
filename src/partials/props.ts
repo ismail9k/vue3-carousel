@@ -26,6 +26,11 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.throttle,
     type: Number,
   },
+  // control the gap between slides
+  gap: {
+    default: DEFAULT_CONFIG.gap,
+    type: Number,
+  },
   // control snap position alignment
   snapAlign: {
     default: DEFAULT_CONFIG.snapAlign,

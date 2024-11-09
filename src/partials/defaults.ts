@@ -21,6 +21,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   modelValue: 0,
   transition: 300,
   autoplay: 0,
+  gap: 0,
   throttle: 16,
   wrapAround: false,
   pauseAutoplayOnHover: false,

@@ -20,6 +20,7 @@ export interface CarouselConfig {
   modelValue?: number
   transition?: number
   throttle: number
+  gap: number
   autoplay?: number
   snapAlign: SnapAlign
   wrapAround?: boolean
