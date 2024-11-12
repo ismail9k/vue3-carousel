@@ -5,6 +5,7 @@ import '../../dist/carousel.css'
 const config = {
   itemsToShow: 2.5,
   wrapAround: true,
+  gap: 5,  
 }
 </script>
 
