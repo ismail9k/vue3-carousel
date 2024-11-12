@@ -58,7 +58,7 @@ export default defineComponent({
       h(
         'li',
         {
-          style: { width: widthStyle },
+          style: { width: widthStyle.value },
           class: {
             carousel__slide: true,
             'carousel__slide--clone': props.isClone,
