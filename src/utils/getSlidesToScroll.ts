@@ -10,20 +10,24 @@ type Args = {
 
 export function getSlidesToScroll({ config, currentSlide, slidesCount }: Args): number {
   const { snapAlign, wrapAround, itemsToShow = 1 } = config
-  let output = currentSlide
+  let output = 0
 
   switch (snapAlign) {
+    case 'start':
+      output = currentSlide
+      break
+
     case 'center':
     case 'center-odd':
-      output -= (itemsToShow - 1) / 2
+      output = currentSlide - (itemsToShow - 1) / 2
       break
 
     case 'center-even':
-      output -= (itemsToShow - 2) / 2
+      output = currentSlide - (itemsToShow - 2) / 2
       break
 
     case 'end':
-      output -= itemsToShow - 1
+      output = currentSlide - itemsToShow - 1
       break
 
     default:

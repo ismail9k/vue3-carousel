@@ -1,6 +1,7 @@
 export * from './getMaxSlideIndex'
 export * from './getMinSlideIndex'
 export * from './getSlidesToScroll'
+export * from './getScrollGap'
 export * from './getSlidesVNodes'
 export * from './getNumberInRange'
 export * from './mapNumberToRange'

@@ -26,6 +26,7 @@ import {
   getMaxSlideIndex,
   getMinSlideIndex,
   getSlidesToScroll,
+  getScrollGap,
   mapNumberToRange,
 } from '@/utils'
 
@@ -338,21 +339,19 @@ export default defineComponent({
     /**
      * Track style
      */
-    const slidesToScroll = computed(() =>
-      getSlidesToScroll({
+    const xScroll = computed(() => {
+      const direction = config.dir === 'rtl' ? -1 : 1
+      const slidesToScroll = getSlidesToScroll({
         config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
-    )
-    provide('slidesToScroll', slidesToScroll)
 
-    const xScroll = computed(() => {
-      const direction = config.dir === 'rtl' ? -1 : 1
+      const gapToScroll = getScrollGap({ config, currentSlide: currentSlideIndex.value })
 
-      const totalWidthScrolled = slidesToScroll.value * effectiveSlideWidth.value
+      const totalScrolled = slidesToScroll * slideWidth.value + gapToScroll * config.gap
 
-      return totalWidthScrolled * direction
+      return totalScrolled * direction
     })
 
     const trackStyle = computed(
