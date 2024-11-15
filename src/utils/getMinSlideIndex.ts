@@ -5,36 +5,29 @@ type Args = {
   slidesCount: number
 }
 
+/**
+ * Determines the minimum slide index based on the configuration.
+ *
+ * @param {Args} args - The carousel configuration and slide count.
+ * @returns {number} The minimum slide index.
+ */
 export function getMinSlideIndex({ config, slidesCount }: Args): number {
-  const { wrapAround, snapAlign, itemsToShow = 1 } = config
-  let output = 0
+  const { snapAlign = 'N/A', wrapAround, itemsToShow = 1 } = config
 
+  // If wrapAround is enabled or itemsToShow exceeds slidesCount, the minimum index is always 0
   if (wrapAround || itemsToShow > slidesCount) {
-    return output
+    return 0
   }
 
-  switch (snapAlign) {
-    case 'start':
-      output = 0
-      break
-
-    case 'end':
-      output = itemsToShow - 1
-      break
-
-    case 'center':
-    case 'center-odd':
-      output = Math.floor((itemsToShow - 1) / 2)
-      break
-
-    case 'center-even':
-      output = Math.floor((itemsToShow - 2) / 2)
-      break
-
-    default:
-      output = 0
-      break
+  // Map of snapAlign to offset calculations
+  const snapAlignCalculations: Record<string, number> = {
+    start: 0,
+    end: Math.floor(itemsToShow - 1),
+    center: Math.floor((itemsToShow - 1) / 2),
+    'center-odd': Math.floor((itemsToShow - 1) / 2),
+    'center-even': Math.floor((itemsToShow - 2) / 2),
   }
 
-  return output
+  // Return the calculated offset or default to 0 for invalid snapAlign values
+  return snapAlignCalculations[snapAlign as string] ?? 0
 }

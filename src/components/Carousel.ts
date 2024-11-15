@@ -25,8 +25,8 @@ import {
   getNumberInRange,
   getMaxSlideIndex,
   getMinSlideIndex,
-  getSlidesToScroll,
   mapNumberToRange,
+  getScrolledIndex,
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
@@ -61,6 +61,8 @@ export default defineComponent({
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
     let resizeObserver: ResizeObserver | null = null
+
+    const effectiveSlideWidth = computed(() => slideWidth.value + config.gap)
 
     provide('config', config)
     provide('slidesCount', slidesCount)
@@ -106,7 +108,12 @@ export default defineComponent({
     function updateSlideWidth(): void {
       if (!root.value) return
       const rect = root.value.getBoundingClientRect()
-      slideWidth.value = rect.width / config.itemsToShow
+
+      // Calculate the total gap space
+      const totalGap = (config.itemsToShow - 1) * config.gap
+
+      // Adjust the slide width to account for the gap
+      slideWidth.value = (rect.width - totalGap) / config.itemsToShow
     }
 
     function updateSlidesData(): void {
@@ -213,7 +220,7 @@ export default defineComponent({
       const direction = config.dir === 'rtl' ? -1 : 1
       const tolerance = Math.sign(dragged.x) * 0.4
       const draggedSlides =
-        Math.round(dragged.x / slideWidth.value + tolerance) * direction
+        Math.round(dragged.x / effectiveSlideWidth.value + tolerance) * direction
 
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
@@ -331,25 +338,33 @@ export default defineComponent({
     /**
      * Track style
      */
-    const slidesToScroll = computed(() =>
-      getSlidesToScroll({
+
+    const xScroll = computed(() => {
+      const direction = config.dir === 'rtl' ? -1 : 1
+
+      const scrolledIndex = getScrolledIndex({
         config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
-    )
-    provide('slidesToScroll', slidesToScroll)
 
-    const trackStyle = computed((): ElementStyleObject => {
-      const direction = config.dir === 'rtl' ? -1 : 1
-      const xScroll = slidesToScroll.value * slideWidth.value * direction
-      return {
-        transform: `translateX(${dragged.x - xScroll}px)`,
-        transition: `${isSliding.value ? config.transition : 0}ms`,
-        margin: config.wrapAround ? `0 -${slidesCount.value * slideWidth.value}px` : '',
-        width: `100%`,
-      }
+      // Calculate the total scroll offset
+      const totalOffset = scrolledIndex * effectiveSlideWidth.value
+
+      return totalOffset * direction
     })
+
+    const trackStyle = computed(
+      (): ElementStyleObject => ({
+        transform: `translateX(${dragged.x - xScroll.value}px)`,
+        transition: `${isSliding.value ? config.transition : 0}ms`,
+        margin: config.wrapAround
+          ? `0 -${slidesCount.value * effectiveSlideWidth.value}px`
+          : '',
+        width: `100%`,
+        gap: `${config.gap}px`,
+      })
+    )
 
     function restartCarousel(): void {
       updateBreakpointsConfig()

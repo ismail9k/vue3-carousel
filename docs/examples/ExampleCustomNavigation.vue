@@ -1,7 +1,7 @@
 <script setup>
 import '../../dist/carousel.css'
 import { ref } from 'vue'
-import { Carousel, Slide } from '../../dist/carousel.es'
+import { Carousel, Slide, Navigation } from '../../dist/carousel.es'
 
 const carouselRef = ref()
 const currentSlide = ref(0)
