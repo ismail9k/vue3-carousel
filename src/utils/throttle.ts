@@ -4,17 +4,15 @@
  *
  */
 // eslint-disable-next-line no-unused-vars
-export function throttle(fn: (...args: any[]) => unknown, limit: number): typeof fn {
-  let inThrottle: boolean
-  if (!limit) {
-    return fn;
-  }
+export function throttle(fn: (...args: any[]) => unknown): typeof fn {
+  let isRunning = false
   return function (...args: any[]) {
-    const self = this
-    if (!inThrottle) {
-      fn.apply(self, args)
-      inThrottle = true
-      setTimeout(() => (inThrottle = false), limit)
+    if (!isRunning) {
+      isRunning = true
+      requestAnimationFrame(() => {
+        fn.apply(this, args)
+        isRunning = false
+      })
     }
   }
 }
