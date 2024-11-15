@@ -14,11 +14,11 @@ export function getMaxSlideIndex({ config, slidesCount }: Args): number {
   let output
   switch (snapAlign) {
     case 'start':
-      output = slidesCount - itemsToShow
+      output = Math.ceil(slidesCount - itemsToShow)
       break
 
     case 'end':
-      output = slidesCount - 1
+      output = Math.ceil(slidesCount - 1)
       break
 
     case 'center':

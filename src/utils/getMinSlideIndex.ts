@@ -19,7 +19,7 @@ export function getMinSlideIndex({ config, slidesCount }: Args): number {
       break
 
     case 'end':
-      output = itemsToShow - 1
+      output = Math.floor(itemsToShow - 1)
       break
 
     case 'center':

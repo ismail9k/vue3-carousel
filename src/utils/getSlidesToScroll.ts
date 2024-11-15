@@ -27,7 +27,7 @@ export function getSlidesToScroll({ config, currentSlide, slidesCount }: Args): 
       break
 
     case 'end':
-      output = currentSlide - itemsToShow - 1
+      output = currentSlide - (itemsToShow - 1)
       break
 
     default:
