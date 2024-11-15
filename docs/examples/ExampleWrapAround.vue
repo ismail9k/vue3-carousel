@@ -2,28 +2,32 @@
 import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css'
 const config1 = {
-  itemsToShow: 2.5,
+  itemsToShow: 3,
   modelValue: 2,
   snapAlign: 'start',
   wrapAround: true,
+  gap: 20,
 }
 const config2 = {
-  itemsToShow: 2.5,
+  itemsToShow: 3,
   modelValue: 2,
   snapAlign: 'center-odd',
   wrapAround: true,
+  gap: 20,
 }
 const config3 = {
-  itemsToShow: 2.5,
+  itemsToShow: 3,
   modelValue: 2,
   snapAlign: 'center-even',
   wrapAround: true,
+  gap: 20,
 }
 const config4 = {
-  itemsToShow: 2.5,
-  modelValue: 3,
+  itemsToShow: 3,
+  modelValue: 2,
   snapAlign: 'end',
   wrapAround: true,
+  gap: 20,
 }
 </script>
 

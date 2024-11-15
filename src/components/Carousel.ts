@@ -25,9 +25,8 @@ import {
   getNumberInRange,
   getMaxSlideIndex,
   getMinSlideIndex,
-  getSlidesToScroll,
-  getScrollGap,
   mapNumberToRange,
+  getScrolledIndex,
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
@@ -111,7 +110,7 @@ export default defineComponent({
       const rect = root.value.getBoundingClientRect()
 
       // Calculate the total gap space
-      const totalGap = (Math.ceil(config.itemsToShow) - 1) * config.gap
+      const totalGap = (config.itemsToShow - 1) * config.gap
 
       // Adjust the slide width to account for the gap
       slideWidth.value = (rect.width - totalGap) / config.itemsToShow
@@ -339,19 +338,20 @@ export default defineComponent({
     /**
      * Track style
      */
+
     const xScroll = computed(() => {
       const direction = config.dir === 'rtl' ? -1 : 1
-      const slidesToScroll = getSlidesToScroll({
+
+      const scrolledIndex = getScrolledIndex({
         config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
 
-      const gapToScroll = getScrollGap({ config, currentSlide: currentSlideIndex.value })
+      // Calculate the total scroll offset
+      const totalOffset = scrolledIndex * effectiveSlideWidth.value
 
-      const totalScrolled = slidesToScroll * slideWidth.value + gapToScroll * config.gap
-
-      return totalScrolled * direction
+      return totalOffset * direction
     })
 
     const trackStyle = computed(
