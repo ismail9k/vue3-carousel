@@ -18,6 +18,7 @@
 | `pauseAutoplayOnHover` | false                            | toggle if auto play should pause on mouse hover <Badge text="0.1.25"/>                                                  |
 | `dir`                  | ltr                              | controls the carousel direction. Available values 'ltr', 'rtl' <Badge text="0.1.38"/>                                   |
 | `i18n`                 | [`{ ariaNextSlide: ...}`](#i18n) | Used to translate and/or change aria labels and additional texts used in the carousel. <Badge text="0.3.1"/>            |
+| `gap`                  | 0                                | Used to add gap between the slides. <Badge text="0.6.0"/>                                                               |
 
 ## Slots
 
