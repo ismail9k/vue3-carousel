@@ -8,10 +8,7 @@ type Args = {
   slidesCount: number
 }
 
-export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): number {
-  const { snapAlign = 'start', wrapAround, itemsToShow = 1 } = config
-
-  // Calculate the slide offset based on snapAlign
+const calculateOffset = (snapAlign: string, itemsToShow: number): number => {
   const offsetMap: Record<string, number> = {
     start: 0,
     center: (itemsToShow - 1) / 2,
@@ -19,14 +16,23 @@ export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): n
     'center-even': (itemsToShow - 2) / 2,
     end: itemsToShow - 1,
   }
+  return offsetMap[snapAlign] ?? 0 // Fallback to 0 for unknown snapAlign
+}
 
-  const offset = offsetMap[snapAlign] || 0
-  const scrolledIndex = currentSlide - offset
-  return !wrapAround
-    ? getNumberInRange({
-        val: currentSlide - offset,
-        max: slidesCount - itemsToShow,
-        min: 0,
-      })
-    : scrolledIndex
+export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): number {
+  const { snapAlign = 'N/A', wrapAround, itemsToShow = 1 } = config
+
+  // Calculate the offset based on snapAlign
+  const offset = calculateOffset(snapAlign, itemsToShow)
+
+  // Compute the index with or without wrapAround
+  if (!wrapAround) {
+    return getNumberInRange({
+      val: currentSlide - offset,
+      max: slidesCount - itemsToShow,
+      min: 0,
+    })
+  }
+
+  return currentSlide - offset
 }
