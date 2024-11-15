@@ -19,7 +19,6 @@ export interface CarouselConfig {
   itemsToScroll: number
   modelValue?: number
   transition?: number
-  throttle: number
   gap: number
   autoplay?: number
   snapAlign: SnapAlign

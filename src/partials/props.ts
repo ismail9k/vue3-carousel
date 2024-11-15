@@ -21,11 +21,6 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.wrapAround,
     type: Boolean,
   },
-  // control max drag
-  throttle: {
-    default: DEFAULT_CONFIG.throttle,
-    type: Number,
-  },
   // control the gap between slides
   gap: {
     default: DEFAULT_CONFIG.gap,

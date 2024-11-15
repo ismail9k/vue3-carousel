@@ -214,7 +214,7 @@ export default defineComponent({
 
       dragged.y = deltaY
       dragged.x = deltaX
-    }, config.throttle)
+    })
 
     function handleDragEnd(): void {
       const direction = config.dir === 'rtl' ? -1 : 1
