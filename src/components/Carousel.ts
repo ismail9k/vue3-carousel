@@ -38,8 +38,9 @@ export default defineComponent({
   props: carouselProps,
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
+    const viewport: Ref<Element | null> = ref(null)
     const slides: Ref<any> = ref([])
-    const slideWidth: Ref<number> = ref(0)
+    const slideSize: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
 
     const fallbackConfig = computed(() => ({
@@ -63,7 +64,7 @@ export default defineComponent({
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
     let resizeObserver: ResizeObserver | null = null
 
-    const effectiveSlideWidth = computed(() => slideWidth.value + config.gap)
+    const effectiveSlideSize = computed(() => slideSize.value + config.gap)
 
     const normalizeDir = computed((): string => {
       const dir = config.dir || 'lrt'
@@ -84,7 +85,7 @@ export default defineComponent({
     provide('currentSlide', currentSlideIndex)
     provide('maxSlide', maxSlideIndex)
     provide('minSlide', minSlideIndex)
-    provide('slideWidth', slideWidth)
+    provide('slideSize', slideSize)
     provide('isVertical', isVertical)
 
     function updateBreakpointsConfig(): void {
@@ -115,21 +116,25 @@ export default defineComponent({
     const handleResize = debounce(() => {
       updateBreakpointsConfig()
       updateSlidesData()
-      updateSlideWidth()
+      updateSlideSize()
     }, 16)
 
     /**
      * Setup functions
      */
-    function updateSlideWidth(): void {
-      if (!root.value) return
-      const rect = root.value.getBoundingClientRect()
+    function updateSlideSize(): void {
+      if (!viewport.value) return
+      const rect = viewport.value.getBoundingClientRect()
 
       // Calculate the total gap space
       const totalGap = (config.itemsToShow - 1) * config.gap
 
-      // Adjust the slide width to account for the gap
-      slideWidth.value = (rect.width - totalGap) / config.itemsToShow
+      // Calculate size based on orientation
+      if (isVertical.value) {
+        slideSize.value = (rect.height - totalGap) / config.itemsToShow
+      } else {
+        slideSize.value = (rect.width - totalGap) / config.itemsToShow
+      }
     }
 
     function updateSlidesData(): void {
@@ -148,9 +153,9 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      nextTick(() => updateSlideWidth())
+      nextTick(() => updateSlideSize())
       // Overcome some edge cases
-      setTimeout(() => updateSlideWidth(), 1000)
+      setTimeout(() => updateSlideSize(), 1000)
 
       updateBreakpointsConfig()
       initAutoplay()
@@ -236,7 +241,7 @@ export default defineComponent({
       const direction = normalizeDir.value === 'rtl' ? -1 : 1
       const tolerance = Math.sign(dragged.x) * 0.4
       const draggedSlides =
-        Math.round(dragged.x / effectiveSlideWidth.value + tolerance) * direction
+        Math.round(dragged.x / effectiveSlideSize.value + tolerance) * direction
 
       // Prevent clicking if there is clicked slides
       if (draggedSlides && !isTouch) {
@@ -354,37 +359,35 @@ export default defineComponent({
     /**
      * Track style
      */
-
-    const scrolledIndex = computed(() =>
-      getScrolledIndex({
+    const trackTransform: ComputedRef<string> = computed(() => {
+      // Calculate the scrolled index based on configuration and current state
+      const scrolledIndex = getScrolledIndex({
         config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
-    )
 
-    const xScroll: ComputedRef<number> = computed(() => {
-      const direction = normalizeDir.value === 'rtl' ? -1 : 1
+      // Determine direction multiplier (-1 for RTL or BTT, 1 for others)
+      const directionMultiplier = ['rtl', 'btt'].includes(normalizeDir.value) ? -1 : 1
 
-      const totalOffset = scrolledIndex.value * effectiveSlideWidth.value
+      // Total offset calculated as the product of the scrolled index and slide size
+      const totalOffset = scrolledIndex * effectiveSlideSize.value * directionMultiplier
 
-      return totalOffset * direction
-    })
+      // Adjust the dragged offset to include user interaction
+      const dragOffset = isVertical.value ? dragged.y : dragged.x
 
-    const translate: ComputedRef<string> = computed(() => {
-      if (isVertical.value) {
-        return `translateY(${dragged.y}px)`
-      }
-
-      return `translateX(${dragged.x - xScroll.value}px)`
+      // Return the appropriate transform style based on orientation
+      return isVertical.value
+        ? `translateY(${dragOffset - totalOffset}px)`
+        : `translateX(${dragOffset - totalOffset}px)`
     })
 
     const trackStyle = computed(
       (): ElementStyleObject => ({
-        transform: translate.value,
+        transform: trackTransform.value,
         transition: `${isSliding.value ? config.transition : 0}ms`,
         margin: config.wrapAround
-          ? `0 -${slidesCount.value * effectiveSlideWidth.value}px`
+          ? `0 -${slidesCount.value * effectiveSlideSize.value}px`
           : '',
         width: `100%`,
         gap: `${config.gap}px`,
@@ -394,7 +397,7 @@ export default defineComponent({
     function restartCarousel(): void {
       updateBreakpointsConfig()
       updateSlidesData()
-      updateSlideWidth()
+      updateSlideSize()
       resetAutoplay()
     }
 
@@ -424,7 +427,7 @@ export default defineComponent({
     const data = {
       config,
       slidesCount,
-      slideWidth,
+      slideSize,
       next,
       prev,
       slideTo,
@@ -436,7 +439,7 @@ export default defineComponent({
     expose({
       updateBreakpointsConfig,
       updateSlidesData,
-      updateSlideWidth,
+      updateSlideSize,
       restartCarousel,
       slideTo,
       next,
@@ -487,7 +490,7 @@ export default defineComponent({
         },
         output
       )
-      const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl)
+      const viewPortEl = h('div', { class: 'carousel__viewport', ref: viewport }, trackEl)
 
       return h(
         'section',

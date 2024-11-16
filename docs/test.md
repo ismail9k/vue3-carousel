@@ -4,29 +4,7 @@
 
 <ExampleBasic />
 
-## Wrap Around
 
-<ExampleWrapAround />
-
-## Breakpoints
-
-<ExampleBreakpoints />
-
-## Autoplay
-
-<ExampleAutoplay />
-
-## Active Classes
-
-<ExampleActiveClasses />
-
-## Custom Navigation
-
-<ExampleCustomNavigation />
-
-## Gallery
-
-<ExampleGallery />
 
 <script>
 import ExampleBasic from './examples/ExampleBasic.vue';
@@ -56,7 +34,7 @@ export default {
 }
 
 .carousel__item {
-  min-height: 200px;
+height: 100%;
   width: 100%;
   background-color: var(--brand-color);
   color: #fff;

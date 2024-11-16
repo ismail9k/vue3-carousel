@@ -30,7 +30,7 @@ export default defineComponent({
     const slidesToScroll = inject('slidesToScroll', ref(0))
     const isSliding = inject('isSliding', ref(false))
     const isVertical = inject('isVertical', ref(false))
-    const slideWidth = inject('slideWidth', ref(0))
+    const slideSize = inject('slideSize', ref(0))
 
     const isActive: ComputedRef<boolean> = computed(
       () => props.index === currentSlide.value
@@ -48,14 +48,14 @@ export default defineComponent({
       return props.index >= min && props.index <= max
     })
 
-    const slideStyle: ComputedRef<{}> = computed(() => {
-      if (isVertical.value) {
-        const height = `${100 / config.itemsToShow}%`
-        return { height }
-      }
-      const width = config.gap ? `${slideWidth.value}px` : `${100 / config.itemsToShow}%`
+    const slideStyle: ComputedRef<Record<string, string>> = computed(() => {
+      const dimension = config.gap
+        ? `${slideSize.value}px`
+        : `${100 / config.itemsToShow}%`
 
-      return { width }
+      return isVertical.value
+        ? { height: dimension, width: '' }
+        : { width: dimension, height: '' }
     })
 
     return () =>
