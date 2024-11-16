@@ -54,6 +54,9 @@
 }
 
 .carousel.is-vertical {
+  .carousel {
+    height: var(--vc-trk-min-height);
+  }
   .carousel__track {
     height: var(--vc-trk-min-height);
   }

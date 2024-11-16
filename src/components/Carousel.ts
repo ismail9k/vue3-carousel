@@ -357,44 +357,6 @@ export default defineComponent({
     provide('nav', nav)
     provide('isSliding', isSliding)
 
-    /**
-     * Track style
-     */
-    const trackTransform: ComputedRef<string> = computed(() => {
-      // Calculate the scrolled index based on configuration and current state
-      const scrolledIndex = getScrolledIndex({
-        config,
-        currentSlide: currentSlideIndex.value,
-        slidesCount: slidesCount.value,
-      })
-
-      // Determine direction multiplier (-1 for RTL or BTT, 1 for others)
-      const directionMultiplier = ['rtl', 'btt'].includes(normalizeDir.value) ? -1 : 1
-
-      // Total offset calculated as the product of the scrolled index and slide size
-      const totalOffset = scrolledIndex * effectiveSlideSize.value * directionMultiplier
-
-      // Adjust the dragged offset to include user interaction
-      const dragOffset = isVertical.value ? dragged.y : dragged.x
-
-      // Return the appropriate transform style based on orientation
-      return isVertical.value
-        ? `translateY(${dragOffset - totalOffset}px)`
-        : `translateX(${dragOffset - totalOffset}px)`
-    })
-
-    const trackStyle = computed(
-      (): ElementStyleObject => ({
-        transform: trackTransform.value,
-        transition: `${isSliding.value ? config.transition : 0}ms`,
-        margin: config.wrapAround
-          ? `0 -${slidesCount.value * effectiveSlideSize.value}px`
-          : '',
-        width: `100%`,
-        gap: `${config.gap}px`,
-      })
-    )
-
     function restartCarousel(): void {
       updateBreakpointsConfig()
       updateSlidesData()
@@ -481,11 +443,44 @@ export default defineComponent({
       slides.value = slidesElements
       slidesCount.value = Math.max(slidesElements.length, 1)
 
+      /**
+       * Track style
+       */
+      const trackTransform: ComputedRef<string> = computed(() => {
+        // Calculate the scrolled index with wrapping offset if applicable
+        const scrolledIndex = getScrolledIndex({
+          config,
+          currentSlide: currentSlideIndex.value,
+          slidesCount: slidesCount.value,
+        })
+
+        const cloneOffset = config.wrapAround ? slidesCount.value : 0
+
+        // Determine direction multiplier for orientation
+        const isReverseDirection = ['rtl', 'btt'].includes(normalizeDir.value)
+        const directionMultiplier = isReverseDirection ? -1 : 1
+
+        // Calculate the total offset for slide transformation
+        const totalOffset =
+          (scrolledIndex + cloneOffset) * effectiveSlideSize.value * directionMultiplier
+
+        // Include user drag interaction offset
+        const dragOffset = isVertical.value ? dragged.y : dragged.x
+
+        // Generate the appropriate CSS transformation
+        const translateAxis = isVertical.value ? 'Y' : 'X'
+        return `translate${translateAxis}(${dragOffset - totalOffset}px)`
+      })
+
       const trackEl = h(
         'ol',
         {
           class: 'carousel__track',
-          style: trackStyle.value,
+          style: {
+            transform: trackTransform.value,
+            transition: `${isSliding.value ? config.transition : 0}ms`,
+            gap: `${config.gap}px`,
+          },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },
