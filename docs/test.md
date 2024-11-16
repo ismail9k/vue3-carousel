@@ -4,7 +4,29 @@
 
 <ExampleBasic />
 
+## Wrap Around
 
+<ExampleWrapAround />
+
+## Breakpoints
+
+<ExampleBreakpoints />
+
+## Autoplay
+
+<ExampleAutoplay />
+
+## Active Classes
+
+<ExampleActiveClasses />
+
+## Custom Navigation
+
+<ExampleCustomNavigation />
+
+## Gallery
+
+<ExampleGallery />
 
 <script>
 import ExampleBasic from './examples/ExampleBasic.vue';
@@ -34,7 +56,7 @@ export default {
 }
 
 .carousel__item {
-height: 100%;
+  height: 100%;
   width: 100%;
   background-color: var(--brand-color);
   color: #fff;
@@ -45,6 +67,7 @@ height: 100%;
   align-items: center;
 }
 
+.vp-doc ol,
 .vp-doc li + li {
   margin: 0;
 }
