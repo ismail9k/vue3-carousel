@@ -14,7 +14,7 @@ const myCarousel = ref(null)
 
 // Methods are available in this reference
 myCarousel.next()
-myCarousel.updateSlideWidth()
+myCarousel.updateSlideSize()
 ```
 
 ## slideTo(index: number)
@@ -29,9 +29,13 @@ Slide to the next slide
 
 Slide to the previous slide
 
-## updateSlideWidth()
+## ~~updateSlideWidth()~~  <Badge type="danger" text="Rename to updateSlideSize"/>
 
-Update `slideWidth` value based on `itemsToShow` and the current carousel width
+~~Update `slideWidth` value based on `itemsToShow` and the current carousel width~~
+
+## updateSlideSize()
+
+Update `slideSize` value based on `itemsToShow`, `dir` and the current carousel width/height
 
 ## updateBreakpointsConfig()
 
@@ -58,4 +62,4 @@ Restart the carousel settings and data, internally it calls:
 - `resetAutoplay`
 - `updateBreakpointsConfig`
 - `updateSlidesData`
-- `updateSlideWidth`
+- `updateSlideSize`

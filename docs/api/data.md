@@ -21,12 +21,13 @@ if (myCarousel.data.currentSlide === 10) {
 
 ## Available Data
 
-| Data           | Description                        |
-| -------------- | ---------------------------------- |
-| `config`       | the current carousel configuration |
-| `slidesCount`  | slides total count                 |
-| `slideWidth`   | single slide width                 |
-| `currentSlide` | current slide index                |
-| `maxSlide`     | maximum slide index                |
-| `minSlide`     | minimum slide index                |
-| `middleSlide`  | middle slide index                 |
+| Data             | Description                                                                |
+| ---------------- | -------------------------------------------------------------------------- |
+| `config`         | the current carousel configuration                                         |
+| `slidesCount`    | slides total count                                                         |
+| ~~`slideWidth`~~ | ~~single slide width~~   <Badge type="danger" text="Rename to slideSize"/> |
+| `slideSize`      | single slide width or height                                               |
+| `currentSlide`   | current slide index                                                        |
+| `maxSlide`       | maximum slide index                                                        |
+| `minSlide`       | minimum slide index                                                        |
+| `middleSlide`    | middle slide index                                                         |
