@@ -18,7 +18,7 @@ import {
 
 import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselNav, ElementStyleObject } from '@/types'
+import { CarouselConfig, CarouselNav } from '@/types'
 import {
   debounce,
   throttle,
@@ -193,7 +193,6 @@ export default defineComponent({
      */
     let isTouch = false
     const startPosition = { x: 0, y: 0 }
-    const endPosition = { x: 0, y: 0 }
     const dragged = reactive({ x: 0, y: 0 })
     const isHover = ref(false)
     const isDragging = ref(false)
@@ -206,61 +205,88 @@ export default defineComponent({
     }
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      if (
-        ['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement).tagName)
-      ) {
-        return
-      }
-      isTouch = event.type === 'touchstart'
-      if (!isTouch) {
-        event.preventDefault()
-      }
-      if ((!isTouch && event.button !== 0) || isSliding.value) {
+      // Prevent drag initiation on input elements or if already sliding
+      const targetTagName = (event.target as HTMLElement).tagName
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTagName) || isSliding.value) {
         return
       }
 
+      // Detect if the event is a touchstart or mousedown event
+      isTouch = event.type === 'touchstart'
+
+      // For mouse events, prevent default to avoid text selection
+      if (!isTouch) {
+        event.preventDefault()
+        if (event.button !== 0) {
+          // Ignore non-left-click mouse events
+          return
+        }
+      }
+
+      // Initialize start positions for the drag
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
+      // Attach event listeners for dragging and drag end
+
+      const moveEvent = isTouch ? 'touchmove' : 'mousemove'
+      const endEvent = isTouch ? 'touchend' : 'mouseup'
+      document.addEventListener(moveEvent, handleDragging, { passive: false })
+      document.addEventListener(endEvent, handleDragEnd, { passive: true })
     }
 
     const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
       isDragging.value = true
 
-      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
-      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
-      const deltaX = endPosition.x - startPosition.x
-      const deltaY = endPosition.y - startPosition.y
+      // Get the current position based on the interaction type (touch or mouse)
+      const currentX = isTouch ? event.touches[0].clientX : event.clientX
+      const currentY = isTouch ? event.touches[0].clientY : event.clientY
 
-      dragged.y = deltaY
+      // Calculate deltas for X and Y axes
+      const deltaX = currentX - startPosition.x
+      const deltaY = currentY - startPosition.y
+
+      // Update dragged state reactively
       dragged.x = deltaX
+      dragged.y = deltaY
+
+      // Emit a drag event for further customization if needed
+      emit('drag', { deltaX, deltaY })
     })
 
     function handleDragEnd(): void {
-      const direction = normalizeDir.value === 'rtl' ? -1 : 1
-      const tolerance = Math.sign(dragged.x) * 0.4
-      const draggedSlides =
-        Math.round(dragged.x / effectiveSlideSize.value + tolerance) * direction
+      // Determine the active axis and direction multiplier
+      const dragAxis = isVertical.value ? 'y' : 'x'
+      const directionMultiplier = ['rtl', 'btt'].includes(normalizeDir.value) ? -1 : 1
 
-      // Prevent clicking if there is clicked slides
+      // Calculate dragged slides with a tolerance to account for incomplete drags
+      const tolerance = Math.sign(dragged[dragAxis]) * 0.4 // Smooth out small drags
+      const draggedSlides =
+        Math.round(dragged[dragAxis] / effectiveSlideSize.value + tolerance) *
+        directionMultiplier
+
+      // Prevent accidental clicks when there is a slide drag
       if (draggedSlides && !isTouch) {
-        const captureClick = (e: MouseEvent) => {
+        const preventClick = (e: MouseEvent) => {
           e.preventDefault()
-          window.removeEventListener('click', captureClick)
+          window.removeEventListener('click', preventClick)
         }
-        window.addEventListener('click', captureClick)
+        window.addEventListener('click', preventClick)
       }
 
-      slideTo(currentSlideIndex.value - draggedSlides)
+      // Slide to the appropriate slide index
+      const targetSlideIndex = currentSlideIndex.value - draggedSlides
+      slideTo(targetSlideIndex)
 
+      // Reset drag state
       dragged.x = 0
       dragged.y = 0
-
       isDragging.value = false
-      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
+
+      const moveEvent = isTouch ? 'touchmove' : 'mousemove'
+      const endEvent = isTouch ? 'touchend' : 'mouseup'
+      document.removeEventListener(moveEvent, handleDragging)
+      document.removeEventListener(endEvent, handleDragEnd)
     }
 
     /**
@@ -502,6 +528,9 @@ export default defineComponent({
               'is-hover': isHover.value,
             },
           ],
+          style: {
+            '--vc-trk-height': `${config.height}px`,
+          },
           dir: normalizeDir.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',

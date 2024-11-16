@@ -8,6 +8,10 @@
 
 <ExampleWrapAround />
 
+## Vertical
+
+<ExampleVertical />
+
 ## Breakpoints
 
 <ExampleBreakpoints />
@@ -28,6 +32,7 @@
 
 <ExampleGallery />
 
+
 <script>
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
@@ -36,6 +41,7 @@ import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
+import ExampleVertical from './examples/ExampleVertical.vue';
 
 export default {
   components: {
@@ -46,6 +52,7 @@ export default {
     ExampleActiveClasses,
     ExampleCustomNavigation,
     ExampleGallery,
+    ExampleVertical
   }
 }
 </script>

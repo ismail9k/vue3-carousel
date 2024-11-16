@@ -1,5 +1,5 @@
 :root {
-  --vc-trk-min-height: 200px;
+  --vc-trk-height: 200px;
 }
 
 .carousel {
@@ -23,7 +23,7 @@
   padding: 0 !important;
   margin: 0 !important;
   position: relative;
-  min-height: var(--vc-trk-min-height);
+  height: var(--vc-trk-height);
 }
 
 .carousel__viewport {
@@ -50,14 +50,5 @@
 .carousel.is-btt {
   .carousel__track {
     flex-direction: column-reverse;
-  }
-}
-
-.carousel.is-vertical {
-  .carousel {
-    height: var(--vc-trk-min-height);
-  }
-  .carousel__track {
-    height: var(--vc-trk-min-height);
   }
 }
