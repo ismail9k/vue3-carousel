@@ -34,14 +34,15 @@
   right: 0;
 }
 
-.carousel--rtl .carousel__prev {
-  left: auto;
-  right: 0;
-}
-
-.carousel--rtl .carousel__next {
-  right: auto;
-  left: 0;
+.carousel.is-rtl {
+  .carousel__prev {
+    left: auto;
+    right: 0;
+  }
+  .carousel__next {
+    right: auto;
+    left: 0;
+  }
 }
 
 @media (hover: hover) {

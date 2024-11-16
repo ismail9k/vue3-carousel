@@ -13,6 +13,7 @@ import {
   VNode,
   SetupContext,
   Ref,
+  ComputedRef,
 } from 'vue'
 
 import { DEFAULT_CONFIG } from '@/partials/defaults'
@@ -64,12 +65,27 @@ export default defineComponent({
 
     const effectiveSlideWidth = computed(() => slideWidth.value + config.gap)
 
+    const normalizeDir = computed((): string => {
+      const dir = config.dir || 'lrt'
+      const dirMap: Record<string, string> = {
+        'left-to-right': 'ltr',
+        'right-to-left': 'rtl',
+        'top-to-bottom': 'ttb',
+        'bottom-to-top': 'btt',
+      }
+
+      return dirMap[dir] || dir
+    })
+
+    const isVertical = computed(() => ['ttb', 'btt'].includes(normalizeDir.value))
+
     provide('config', config)
     provide('slidesCount', slidesCount)
     provide('currentSlide', currentSlideIndex)
     provide('maxSlide', maxSlideIndex)
     provide('minSlide', minSlideIndex)
     provide('slideWidth', slideWidth)
+    provide('isVertical', isVertical)
 
     function updateBreakpointsConfig(): void {
       if (!props.breakpoints) return
@@ -217,7 +233,7 @@ export default defineComponent({
     })
 
     function handleDragEnd(): void {
-      const direction = config.dir === 'rtl' ? -1 : 1
+      const direction = normalizeDir.value === 'rtl' ? -1 : 1
       const tolerance = Math.sign(dragged.x) * 0.4
       const draggedSlides =
         Math.round(dragged.x / effectiveSlideWidth.value + tolerance) * direction
@@ -339,24 +355,33 @@ export default defineComponent({
      * Track style
      */
 
-    const xScroll = computed(() => {
-      const direction = config.dir === 'rtl' ? -1 : 1
-
-      const scrolledIndex = getScrolledIndex({
+    const scrolledIndex = computed(() =>
+      getScrolledIndex({
         config,
         currentSlide: currentSlideIndex.value,
         slidesCount: slidesCount.value,
       })
+    )
 
-      // Calculate the total scroll offset
-      const totalOffset = scrolledIndex * effectiveSlideWidth.value
+    const xScroll: ComputedRef<number> = computed(() => {
+      const direction = normalizeDir.value === 'rtl' ? -1 : 1
+
+      const totalOffset = scrolledIndex.value * effectiveSlideWidth.value
 
       return totalOffset * direction
     })
 
+    const translate: ComputedRef<string> = computed(() => {
+      if (isVertical.value) {
+        return `translateY(${dragged.y}px)`
+      }
+
+      return `translateX(${dragged.x - xScroll.value}px)`
+    })
+
     const trackStyle = computed(
       (): ElementStyleObject => ({
-        transform: `translateX(${dragged.x - xScroll.value}px)`,
+        transform: translate.value,
         transition: `${isSliding.value ? config.transition : 0}ms`,
         margin: config.wrapAround
           ? `0 -${slidesCount.value * effectiveSlideWidth.value}px`
@@ -468,14 +493,16 @@ export default defineComponent({
         'section',
         {
           ref: root,
-          class: {
-            carousel: true,
-            'is-sliding': isSliding.value,
-            'is-dragging': isDragging.value,
-            'is-hover': isHover.value,
-            'carousel--rtl': config.dir === 'rtl',
-          },
-          dir: config.dir,
+          class: [
+            'carousel',
+            `is-${normalizeDir.value}`,
+            {
+              'is-sliding': isSliding.value,
+              'is-dragging': isDragging.value,
+              'is-hover': isHover.value,
+            },
+          ],
+          dir: normalizeDir.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
           onMouseenter: handleMouseEnter,

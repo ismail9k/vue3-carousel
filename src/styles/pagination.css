@@ -1,7 +1,7 @@
 .carousel__pagination {
   display: flex;
   justify-content: center;
-  list-style: none;
+  list-style: none !important;
   line-height: 0;
   margin: 10px 0 0;
   padding: 0;
@@ -29,7 +29,7 @@
   background-color: var(--vc-pgn-active-color);
 }
 
-@media(hover: hover) {
+@media (hover: hover) {
   .carousel__pagination-button:hover::after {
     background-color: var(--vc-pgn-active-color);
   }

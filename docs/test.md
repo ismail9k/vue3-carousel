@@ -67,11 +67,7 @@ export default {
   align-items: center;
 }
 
-.vp-doc li {
-  list-style: none;
-}
-.vp-doc li + li,
-.vp-doc ol {
+.vp-doc li + li {
   margin: 0;
 }
 

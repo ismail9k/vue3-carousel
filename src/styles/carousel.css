@@ -17,6 +17,7 @@
 .carousel__track {
   display: flex;
   padding: 0 !important;
+  margin: 0 !important;
   position: relative;
 }
 
@@ -33,4 +34,18 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+.carousel.is-ttb {
+  .carousel__track {
+    flex-direction: column;
+    height: 200px;
+  }
+}
+
+.carousel.is-btt {
+  .carousel__track {
+    flex-direction: column-reverse;
+    height: 200px;
+  }
 }

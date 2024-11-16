@@ -29,6 +29,7 @@ export default defineComponent({
     const currentSlide = inject('currentSlide', ref(0))
     const slidesToScroll = inject('slidesToScroll', ref(0))
     const isSliding = inject('isSliding', ref(false))
+    const isVertical = inject('isVertical', ref(false))
     const slideWidth = inject('slideWidth', ref(0))
 
     const isActive: ComputedRef<boolean> = computed(
@@ -47,18 +48,21 @@ export default defineComponent({
       return props.index >= min && props.index <= max
     })
 
-    const widthStyle: ComputedRef<string> = computed(() => {
-      if (config.gap) {
-        return `${slideWidth.value}px`
+    const slideStyle: ComputedRef<{}> = computed(() => {
+      if (isVertical.value) {
+        const height = `${100 / config.itemsToShow}%`
+        return { height }
       }
-      return `${100 / config.itemsToShow}%`
+      const width = config.gap ? `${slideWidth.value}px` : `${100 / config.itemsToShow}%`
+
+      return { width }
     })
 
     return () =>
       h(
         'li',
         {
-          style: { width: widthStyle.value },
+          style: slideStyle.value,
           class: {
             carousel__slide: true,
             'carousel__slide--clone': props.isClone,
