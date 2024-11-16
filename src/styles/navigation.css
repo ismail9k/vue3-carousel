@@ -1,3 +1,12 @@
+:root {
+  --vc-nav-width: 30px;
+  --vc-nav-height: 30px;
+  --vc-nav-border-radius: 0;
+  --vc-nav-color: var(--vc-clr-primary);
+  --vc-nav-color-hover: var(--vc-clr-secondary);
+  --vc-nav-background: transparent;
+}
+
 .carousel__prev,
 .carousel__next {
   box-sizing: content-box;
@@ -42,6 +51,34 @@
   .carousel__next {
     right: auto;
     left: 0;
+  }
+}
+
+.carousel.is-vertical {
+  .carousel__prev,
+  .carousel__next {
+    left: auto;
+    top: auto;
+    right: 0;
+    transform: translateY(0);
+  }
+}
+
+.carousel.is-btt {
+  .carousel__prev {
+    bottom: 0;
+  }
+  .carousel__next {
+    top: 0;
+  }
+}
+
+.carousel.is-ttb {
+  .carousel__prev {
+    top: 0;
+  }
+  .carousel__next {
+    bottom: 0;
   }
 }
 

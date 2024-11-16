@@ -1,3 +1,7 @@
+:root {
+  --vc-icn-width: 1.2em;
+}
+
 .carousel__icon {
   width: var(--vc-icn-width);
   height: var(--vc-icn-width);

@@ -87,6 +87,7 @@ export default defineComponent({
     provide('minSlide', minSlideIndex)
     provide('slideSize', slideSize)
     provide('isVertical', isVertical)
+    provide('normalizeDir', normalizeDir)
 
     function updateBreakpointsConfig(): void {
       if (!props.breakpoints) return
@@ -500,6 +501,7 @@ export default defineComponent({
             'carousel',
             `is-${normalizeDir.value}`,
             {
+              'is-vertical': isVertical.value,
               'is-sliding': isSliding.value,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
