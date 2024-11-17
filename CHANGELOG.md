@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.7.1) - 2024-11-17
+
+- Feat support vertical slides by n #423
+- Feat support config carousel height
+- Fix assets build
+
 ## [0.7.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.7.0) - 2024-11-17
 
 - Feat: support vertical slides in #423
