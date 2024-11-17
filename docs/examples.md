@@ -8,6 +8,10 @@
 
 <Example id="vue3-carousel-example-wrap-around" />
 
+## Vertical
+
+<Example id="vue3-carousel-example-vertical" />
+
 ## Breakpoints
 
 <Example id="vue3-carousel-example-breakpoints" ></Example>

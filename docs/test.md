@@ -8,6 +8,10 @@
 
 <ExampleWrapAround />
 
+## Vertical
+
+<ExampleVertical />
+
 ## Breakpoints
 
 <ExampleBreakpoints />
@@ -28,6 +32,7 @@
 
 <ExampleGallery />
 
+
 <script>
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
@@ -36,6 +41,7 @@ import ExampleAutoplay from './examples/ExampleAutoplay.vue';
 import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
+import ExampleVertical from './examples/ExampleVertical.vue';
 
 export default {
   components: {
@@ -46,6 +52,7 @@ export default {
     ExampleActiveClasses,
     ExampleCustomNavigation,
     ExampleGallery,
+    ExampleVertical
   }
 }
 </script>
@@ -55,8 +62,12 @@ export default {
   --brand-color: #535bf2;
 }
 
+.carousel__track {
+  min-height: 200px
+}
+
 .carousel__item {
-  min-height: 200px;
+  height: 100%;
   width: 100%;
   background-color: var(--brand-color);
   color: #fff;
@@ -67,11 +78,8 @@ export default {
   align-items: center;
 }
 
-.vp-doc li {
-  list-style: none;
-}
-.vp-doc li + li,
-.vp-doc ol {
+.vp-doc ol,
+.vp-doc li + li {
   margin: 0;
 }
 

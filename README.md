@@ -21,7 +21,7 @@ https://vue3-carousel.ismail9k.com/
 - [x] Add classes for active and for visible slides
 - [x] RTL
 - [x] Enrich a11y
-- [ ] Vertical Slides
+- [x] Vertical Slides
 
 ## Nuxt Module
 

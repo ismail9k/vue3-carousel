@@ -1,7 +1,14 @@
 <script setup>
 import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css'
-const config = {}
+const config = {
+  dir: 'top-to-bottom',
+  wrapAround: true,
+  itemsToShow: 2,
+  snapAlign: 'center',
+  gap: 5,
+  height: 300,
+}
 </script>
 
 <template>

@@ -2,7 +2,16 @@ import { CarouselConfig } from '../types'
 
 export const SNAP_ALIGN_OPTIONS = ['center', 'start', 'end', 'center-even', 'center-odd']
 export const BREAKPOINT_MODE_OPTIONS = ['viewport', 'carousel']
-export const DIR_OPTIONS = ['ltr', 'rtl']
+export const DIR_OPTIONS = [
+  'ltr',
+  'left-to-right',
+  'rtl',
+  'right-to-left',
+  'ttb',
+  'top-to-bottom',
+  'btt',
+  'bottom-to-top',
+]
 export const I18N_DEFAULT_CONFIG = {
   ariaNextSlide: 'Navigate to next slide',
   ariaPreviousSlide: 'Navigate to previous slide',
@@ -22,6 +31,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   transition: 300,
   autoplay: 0,
   gap: 0,
+  height: 'auto',
   wrapAround: false,
   pauseAutoplayOnHover: false,
   mouseDrag: true,

@@ -11,11 +11,31 @@ const Navigation = (props: any, { slots, attrs }: any) => {
   const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
+  const normalizeDir = inject('normalizeDir', ref('ltr'))
   const currentSlide = inject('currentSlide', ref(1))
   const nav: CarouselNav = inject('nav', {})
 
-  const { dir, wrapAround, i18n } = config
-  const isRTL = dir === 'rtl'
+  const { wrapAround, i18n } = config
+  const getPrevIcon = (): string => {
+    const directionIcons: Record<string, string> = {
+      ltr: 'arrowLeft',
+      rtl: 'arrowRight',
+      ttb: 'arrowUp',
+      btt: 'arrowDown',
+    }
+
+    return directionIcons[normalizeDir.value]
+  }
+  const getNextIcon = (): string => {
+    const directionIcons: Record<string, string> = {
+      ltr: 'arrowRight',
+      rtl: 'arrowLeft',
+      ttb: 'arrowDown',
+      btt: 'arrowUp',
+    }
+
+    return directionIcons[normalizeDir.value]
+  }
 
   const prevButton = h(
     'button',
@@ -30,7 +50,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
       title: i18n['ariaPreviousSlide'],
       onClick: nav.prev,
     },
-    slotPrev?.() || h(Icon, { name: isRTL ? 'arrowRight' : 'arrowLeft' })
+    slotPrev?.() || h(Icon, { name: getPrevIcon() })
   )
   const nextButton = h(
     'button',
@@ -45,7 +65,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
       title: i18n['ariaNextSlide'],
       onClick: nav.next,
     },
-    slotNext?.() || h(Icon, { name: isRTL ? 'arrowLeft' : 'arrowRight' })
+    slotNext?.() || h(Icon, { name: getNextIcon() })
   )
 
   return [prevButton, nextButton]
