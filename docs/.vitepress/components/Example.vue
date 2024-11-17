@@ -33,7 +33,7 @@ const props = defineProps({
   },
   height: {
     type: [String, Number],
-    default: 350,
+    default: 260,
   },
 })
 
