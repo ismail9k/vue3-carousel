@@ -33,6 +33,7 @@ const config = {
 
 .carousel__track {
   transform-style: preserve-3d;
+  width: 100%;
 }
 
 .carousel__slide--sliding {

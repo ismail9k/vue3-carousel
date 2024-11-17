@@ -1,10 +1,23 @@
+:root {
+  --vc-pgn-width: 12px;
+  --vc-pgn-height: 4px;
+  --vc-pgn-margin: 4px;
+  --vc-pgn-border-radius: 0;
+  --vc-pgn-background-color: var(--vc-clr-secondary);
+  --vc-pgn-active-color: var(--vc-clr-primary);
+}
+
 .carousel__pagination {
   display: flex;
   justify-content: center;
-  list-style: none;
+  list-style: none !important;
   line-height: 0;
-  margin: 10px 0 0;
-  padding: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .carousel__pagination-button {
@@ -29,7 +42,7 @@
   background-color: var(--vc-pgn-active-color);
 }
 
-@media(hover: hover) {
+@media (hover: hover) {
   .carousel__pagination-button:hover::after {
     background-color: var(--vc-pgn-active-color);
   }

@@ -13,11 +13,12 @@ import {
   VNode,
   SetupContext,
   Ref,
+  ComputedRef,
 } from 'vue'
 
 import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselNav, ElementStyleObject } from '@/types'
+import { CarouselConfig, CarouselNav } from '@/types'
 import {
   debounce,
   throttle,
@@ -37,8 +38,9 @@ export default defineComponent({
   props: carouselProps,
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
+    const viewport: Ref<Element | null> = ref(null)
     const slides: Ref<any> = ref([])
-    const slideWidth: Ref<number> = ref(0)
+    const slideSize: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
 
     const fallbackConfig = computed(() => ({
@@ -62,14 +64,30 @@ export default defineComponent({
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
     let resizeObserver: ResizeObserver | null = null
 
-    const effectiveSlideWidth = computed(() => slideWidth.value + config.gap)
+    const effectiveSlideSize = computed(() => slideSize.value + config.gap)
+
+    const normalizeDir = computed((): string => {
+      const dir = config.dir || 'lrt'
+      const dirMap: Record<string, string> = {
+        'left-to-right': 'ltr',
+        'right-to-left': 'rtl',
+        'top-to-bottom': 'ttb',
+        'bottom-to-top': 'btt',
+      }
+
+      return dirMap[dir] || dir
+    })
+
+    const isVertical = computed(() => ['ttb', 'btt'].includes(normalizeDir.value))
 
     provide('config', config)
     provide('slidesCount', slidesCount)
     provide('currentSlide', currentSlideIndex)
     provide('maxSlide', maxSlideIndex)
     provide('minSlide', minSlideIndex)
-    provide('slideWidth', slideWidth)
+    provide('slideSize', slideSize)
+    provide('isVertical', isVertical)
+    provide('normalizeDir', normalizeDir)
 
     function updateBreakpointsConfig(): void {
       if (!props.breakpoints) return
@@ -99,21 +117,25 @@ export default defineComponent({
     const handleResize = debounce(() => {
       updateBreakpointsConfig()
       updateSlidesData()
-      updateSlideWidth()
+      updateSlideSize()
     }, 16)
 
     /**
      * Setup functions
      */
-    function updateSlideWidth(): void {
-      if (!root.value) return
-      const rect = root.value.getBoundingClientRect()
+    function updateSlideSize(): void {
+      if (!viewport.value) return
+      const rect = viewport.value.getBoundingClientRect()
 
       // Calculate the total gap space
       const totalGap = (config.itemsToShow - 1) * config.gap
 
-      // Adjust the slide width to account for the gap
-      slideWidth.value = (rect.width - totalGap) / config.itemsToShow
+      // Calculate size based on orientation
+      if (isVertical.value) {
+        slideSize.value = (rect.height - totalGap) / config.itemsToShow
+      } else {
+        slideSize.value = (rect.width - totalGap) / config.itemsToShow
+      }
     }
 
     function updateSlidesData(): void {
@@ -132,9 +154,9 @@ export default defineComponent({
     }
 
     onMounted((): void => {
-      nextTick(() => updateSlideWidth())
+      nextTick(() => updateSlideSize())
       // Overcome some edge cases
-      setTimeout(() => updateSlideWidth(), 1000)
+      setTimeout(() => updateSlideSize(), 1000)
 
       updateBreakpointsConfig()
       initAutoplay()
@@ -171,7 +193,6 @@ export default defineComponent({
      */
     let isTouch = false
     const startPosition = { x: 0, y: 0 }
-    const endPosition = { x: 0, y: 0 }
     const dragged = reactive({ x: 0, y: 0 })
     const isHover = ref(false)
     const isDragging = ref(false)
@@ -184,61 +205,88 @@ export default defineComponent({
     }
 
     function handleDragStart(event: MouseEvent & TouchEvent): void {
-      if (
-        ['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement).tagName)
-      ) {
-        return
-      }
-      isTouch = event.type === 'touchstart'
-      if (!isTouch) {
-        event.preventDefault()
-      }
-      if ((!isTouch && event.button !== 0) || isSliding.value) {
+      // Prevent drag initiation on input elements or if already sliding
+      const targetTagName = (event.target as HTMLElement).tagName
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTagName) || isSliding.value) {
         return
       }
 
+      // Detect if the event is a touchstart or mousedown event
+      isTouch = event.type === 'touchstart'
+
+      // For mouse events, prevent default to avoid text selection
+      if (!isTouch) {
+        event.preventDefault()
+        if (event.button !== 0) {
+          // Ignore non-left-click mouse events
+          return
+        }
+      }
+
+      // Initialize start positions for the drag
       startPosition.x = isTouch ? event.touches[0].clientX : event.clientX
       startPosition.y = isTouch ? event.touches[0].clientY : event.clientY
 
-      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
-      document.addEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
+      // Attach event listeners for dragging and drag end
+
+      const moveEvent = isTouch ? 'touchmove' : 'mousemove'
+      const endEvent = isTouch ? 'touchend' : 'mouseup'
+      document.addEventListener(moveEvent, handleDragging, { passive: false })
+      document.addEventListener(endEvent, handleDragEnd, { passive: true })
     }
 
     const handleDragging = throttle((event: MouseEvent & TouchEvent): void => {
       isDragging.value = true
 
-      endPosition.x = isTouch ? event.touches[0].clientX : event.clientX
-      endPosition.y = isTouch ? event.touches[0].clientY : event.clientY
-      const deltaX = endPosition.x - startPosition.x
-      const deltaY = endPosition.y - startPosition.y
+      // Get the current position based on the interaction type (touch or mouse)
+      const currentX = isTouch ? event.touches[0].clientX : event.clientX
+      const currentY = isTouch ? event.touches[0].clientY : event.clientY
 
-      dragged.y = deltaY
+      // Calculate deltas for X and Y axes
+      const deltaX = currentX - startPosition.x
+      const deltaY = currentY - startPosition.y
+
+      // Update dragged state reactively
       dragged.x = deltaX
+      dragged.y = deltaY
+
+      // Emit a drag event for further customization if needed
+      emit('drag', { deltaX, deltaY })
     })
 
     function handleDragEnd(): void {
-      const direction = config.dir === 'rtl' ? -1 : 1
-      const tolerance = Math.sign(dragged.x) * 0.4
-      const draggedSlides =
-        Math.round(dragged.x / effectiveSlideWidth.value + tolerance) * direction
+      // Determine the active axis and direction multiplier
+      const dragAxis = isVertical.value ? 'y' : 'x'
+      const directionMultiplier = ['rtl', 'btt'].includes(normalizeDir.value) ? -1 : 1
 
-      // Prevent clicking if there is clicked slides
+      // Calculate dragged slides with a tolerance to account for incomplete drags
+      const tolerance = Math.sign(dragged[dragAxis]) * 0.4 // Smooth out small drags
+      const draggedSlides =
+        Math.round(dragged[dragAxis] / effectiveSlideSize.value + tolerance) *
+        directionMultiplier
+
+      // Prevent accidental clicks when there is a slide drag
       if (draggedSlides && !isTouch) {
-        const captureClick = (e: MouseEvent) => {
+        const preventClick = (e: MouseEvent) => {
           e.preventDefault()
-          window.removeEventListener('click', captureClick)
+          window.removeEventListener('click', preventClick)
         }
-        window.addEventListener('click', captureClick)
+        window.addEventListener('click', preventClick)
       }
 
-      slideTo(currentSlideIndex.value - draggedSlides)
+      // Slide to the appropriate slide index
+      const targetSlideIndex = currentSlideIndex.value - draggedSlides
+      slideTo(targetSlideIndex)
 
+      // Reset drag state
       dragged.x = 0
       dragged.y = 0
-
       isDragging.value = false
-      document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', handleDragging)
-      document.removeEventListener(isTouch ? 'touchend' : 'mouseup', handleDragEnd)
+
+      const moveEvent = isTouch ? 'touchmove' : 'mousemove'
+      const endEvent = isTouch ? 'touchend' : 'mouseup'
+      document.removeEventListener(moveEvent, handleDragging)
+      document.removeEventListener(endEvent, handleDragEnd)
     }
 
     /**
@@ -335,41 +383,10 @@ export default defineComponent({
     provide('nav', nav)
     provide('isSliding', isSliding)
 
-    /**
-     * Track style
-     */
-
-    const xScroll = computed(() => {
-      const direction = config.dir === 'rtl' ? -1 : 1
-
-      const scrolledIndex = getScrolledIndex({
-        config,
-        currentSlide: currentSlideIndex.value,
-        slidesCount: slidesCount.value,
-      })
-
-      // Calculate the total scroll offset
-      const totalOffset = scrolledIndex * effectiveSlideWidth.value
-
-      return totalOffset * direction
-    })
-
-    const trackStyle = computed(
-      (): ElementStyleObject => ({
-        transform: `translateX(${dragged.x - xScroll.value}px)`,
-        transition: `${isSliding.value ? config.transition : 0}ms`,
-        margin: config.wrapAround
-          ? `0 -${slidesCount.value * effectiveSlideWidth.value}px`
-          : '',
-        width: `100%`,
-        gap: `${config.gap}px`,
-      })
-    )
-
     function restartCarousel(): void {
       updateBreakpointsConfig()
       updateSlidesData()
-      updateSlideWidth()
+      updateSlideSize()
       resetAutoplay()
     }
 
@@ -399,7 +416,7 @@ export default defineComponent({
     const data = {
       config,
       slidesCount,
-      slideWidth,
+      slideSize,
       next,
       prev,
       slideTo,
@@ -411,7 +428,7 @@ export default defineComponent({
     expose({
       updateBreakpointsConfig,
       updateSlidesData,
-      updateSlideWidth,
+      updateSlideSize,
       restartCarousel,
       slideTo,
       next,
@@ -452,30 +469,71 @@ export default defineComponent({
       slides.value = slidesElements
       slidesCount.value = Math.max(slidesElements.length, 1)
 
+      /**
+       * Track style
+       */
+      const trackTransform: ComputedRef<string> = computed(() => {
+        // Calculate the scrolled index with wrapping offset if applicable
+        const scrolledIndex = getScrolledIndex({
+          config,
+          currentSlide: currentSlideIndex.value,
+          slidesCount: slidesCount.value,
+        })
+
+        const cloneOffset = config.wrapAround ? slidesCount.value : 0
+
+        // Determine direction multiplier for orientation
+        const isReverseDirection = ['rtl', 'btt'].includes(normalizeDir.value)
+        const directionMultiplier = isReverseDirection ? -1 : 1
+
+        // Calculate the total offset for slide transformation
+        const totalOffset =
+          (scrolledIndex + cloneOffset) * effectiveSlideSize.value * directionMultiplier
+
+        // Include user drag interaction offset
+        const dragOffset = isVertical.value ? dragged.y : dragged.x
+
+        // Generate the appropriate CSS transformation
+        const translateAxis = isVertical.value ? 'Y' : 'X'
+        return `translate${translateAxis}(${dragOffset - totalOffset}px)`
+      })
+
       const trackEl = h(
         'ol',
         {
           class: 'carousel__track',
-          style: trackStyle.value,
+          style: {
+            transform: trackTransform.value,
+            transition: `${isSliding.value ? config.transition : 0}ms`,
+            gap: `${config.gap}px`,
+          },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },
         output
       )
-      const viewPortEl = h('div', { class: 'carousel__viewport' }, trackEl)
+      const viewPortEl = h('div', { class: 'carousel__viewport', ref: viewport }, trackEl)
 
       return h(
         'section',
         {
           ref: root,
-          class: {
-            carousel: true,
-            'is-sliding': isSliding.value,
-            'is-dragging': isDragging.value,
-            'is-hover': isHover.value,
-            'carousel--rtl': config.dir === 'rtl',
+          class: [
+            'carousel',
+            `is-${normalizeDir.value}`,
+            {
+              'is-vertical': isVertical.value,
+              'is-sliding': isSliding.value,
+              'is-dragging': isDragging.value,
+              'is-hover': isHover.value,
+            },
+          ],
+          style: {
+            '--vc-trk-height': `${
+              typeof config.height === 'number' ? `${config.height}px` : config.height
+            }`,
           },
-          dir: config.dir,
+          dir: normalizeDir.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
           onMouseenter: handleMouseEnter,
