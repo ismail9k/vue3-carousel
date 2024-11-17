@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.6.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-11-15
+## [0.7.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.7.0) - 2024-11-17
+
+- Feat: support vertical slides in #423
+
+## [0.6.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.6.0) - 2024-11-15
 
 - Feat(utils): use requestAnimationFrame for throttle function in #422
 - Feat: support slides gap in #421
@@ -10,12 +14,12 @@ All notable changes to this project will be documented in this file.
 - Refactor(getMinSlideIndex): to use object instead of switch..case for clarity and maintainability
 - Refactor(getMaxSlideIndex): to use object instead of switch..case for clarity and maintainability
 
-## [0.5.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-11-06
+## [0.5.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.5.1) - 2024-11-06
 
 - Test: use vitest instead of jest in #418
 - Feat add title attribute for pagination and navigation buttons in #419
 
-## [0.5.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.4.0) - 2024-10-23
+## [0.5.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.5.0) - 2024-10-23
 
 - Feat: Support Ability to Breakpoints Relative to The Carousel Width by @tarwin, @ismail9k in #408
 - Fix infinite recursion in mapNumberToRange by @Tofandel in #415
