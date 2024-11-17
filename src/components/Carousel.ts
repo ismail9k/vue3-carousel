@@ -529,7 +529,9 @@ export default defineComponent({
             },
           ],
           style: {
-            '--vc-trk-height': `${config.height}px`,
+            '--vc-trk-height': `${
+              typeof config.height === 'number' ? `${config.height}px` : config.height
+            }`,
           },
           dir: normalizeDir.value,
           'aria-label': config.i18n['ariaGallery'],

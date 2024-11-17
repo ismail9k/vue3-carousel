@@ -62,6 +62,10 @@ export default {
   --brand-color: #535bf2;
 }
 
+.carousel__track {
+  min-height: 200px
+}
+
 .carousel__item {
   height: 100%;
   width: 100%;

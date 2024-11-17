@@ -29,7 +29,7 @@ export interface CarouselConfig {
   dir?: Dir
   breakpointMode?: string
   breakpoints?: Breakpoints
-  height: number
+  height: string | number
   i18n: { [key in I18nKeys]?: string }
 }
 
