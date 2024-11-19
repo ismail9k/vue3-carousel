@@ -29,7 +29,7 @@ export const carouselProps = {
   // control the gap between slides
   height: {
     default: DEFAULT_CONFIG.height,
-    type: Number,
+    type: [Number, String],
   },
   // control snap position alignment
   snapAlign: {
