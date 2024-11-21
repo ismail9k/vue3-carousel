@@ -58,8 +58,12 @@ export default defineComponent({
         : { width: dimension, height: '' }
     })
 
-    return () =>
-      h(
+    return () => {
+      if (!config.enabled) {
+        return slots.default?.()
+      }
+
+      return h(
         'li',
         {
           style: slideStyle.value,
@@ -83,5 +87,6 @@ export default defineComponent({
           isVisible: isVisible.value,
         })
       )
+    }
   },
 })

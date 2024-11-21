@@ -6,6 +6,11 @@ import {
 } from '@/partials/defaults'
 
 export const carouselProps = {
+  // enable/disable the carousel component
+  enabled: {
+    default: DEFAULT_CONFIG.enabled,
+    type: Boolean,
+  },
   // count of items to showed per view
   itemsToShow: {
     default: DEFAULT_CONFIG.itemsToShow,

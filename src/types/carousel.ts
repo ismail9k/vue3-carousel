@@ -15,6 +15,7 @@ export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
 
 export type I18nKeys = keyof typeof I18N_DEFAULT_CONFIG
 export interface CarouselConfig {
+  enabled: boolean
   itemsToShow: number
   itemsToScroll: number
   modelValue?: number

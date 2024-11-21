@@ -1,5 +1,6 @@
 # Test
 
+
 ## Basic
 
 <ExampleBasic />
@@ -24,6 +25,11 @@
 
 <ExampleActiveClasses />
 
+
+## Disabled
+
+<ExampleGallery />
+
 ## Custom Navigation
 
 <ExampleCustomNavigation />
@@ -42,6 +48,7 @@ import ExampleActiveClasses from './examples/ExampleActiveClasses.vue';
 import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
 import ExampleVertical from './examples/ExampleVertical.vue';
+import ExampleDisable from './examples/ExampleDisable.vue';
 
 export default {
   components: {
@@ -52,7 +59,8 @@ export default {
     ExampleActiveClasses,
     ExampleCustomNavigation,
     ExampleGallery,
-    ExampleVertical
+    ExampleVertical,
+    ExampleDisable
   }
 }
 </script>

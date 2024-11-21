@@ -90,8 +90,6 @@ export default defineComponent({
     provide('normalizeDir', normalizeDir)
 
     function updateBreakpointsConfig(): void {
-      if (!props.breakpoints) return
-
       // Determine the width source based on the 'breakpointMode' config
       const widthSource =
         (config.breakpointMode === 'carousel'
@@ -391,10 +389,7 @@ export default defineComponent({
     }
 
     // Update the carousel on props change
-    Object.keys(carouselProps).forEach((prop) => {
-      if (['modelValue'].includes(prop)) return
-      watch(() => props[prop as keyof typeof carouselProps], restartCarousel)
-    })
+    watch(() => ({ ...props }), restartCarousel, { deep: true })
 
     // Handle changing v-model value
     watch(
@@ -437,17 +432,51 @@ export default defineComponent({
       data,
     })
 
+    /**
+     * Track style
+     */
+    const trackTransform: ComputedRef<string> = computed(() => {
+      // Calculate the scrolled index with wrapping offset if applicable
+      const scrolledIndex = getScrolledIndex({
+        config,
+        currentSlide: currentSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+
+      const cloneOffset = config.wrapAround ? slidesCount.value : 0
+
+      // Determine direction multiplier for orientation
+      const isReverseDirection = ['rtl', 'btt'].includes(normalizeDir.value)
+      const directionMultiplier = isReverseDirection ? -1 : 1
+
+      // Calculate the total offset for slide transformation
+      const totalOffset =
+        (scrolledIndex + cloneOffset) * effectiveSlideSize.value * directionMultiplier
+
+      // Include user drag interaction offset
+      const dragOffset = isVertical.value ? dragged.y : dragged.x
+
+      // Generate the appropriate CSS transformation
+      const translateAxis = isVertical.value ? 'Y' : 'X'
+      return `translate${translateAxis}(${dragOffset - totalOffset}px)`
+    })
+
     const slotSlides = slots.default || slots.slides
     const slotAddons = slots.addons
     const slotsProps = reactive(data)
 
     return () => {
+      if (!config.enabled) {
+        return slotSlides?.()
+      }
+
       const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
       const addonsElements = slotAddons?.(slotsProps) || []
       slidesElements.forEach(
         (el: typeof SlideComponent, index: number) => (el.props.index = index)
       )
       let output = slidesElements
+
       if (config.wrapAround) {
         const slidesBefore = slidesElements.map((el: VNode, index: number) =>
           cloneVNode(el, {
@@ -468,35 +497,6 @@ export default defineComponent({
 
       slides.value = slidesElements
       slidesCount.value = Math.max(slidesElements.length, 1)
-
-      /**
-       * Track style
-       */
-      const trackTransform: ComputedRef<string> = computed(() => {
-        // Calculate the scrolled index with wrapping offset if applicable
-        const scrolledIndex = getScrolledIndex({
-          config,
-          currentSlide: currentSlideIndex.value,
-          slidesCount: slidesCount.value,
-        })
-
-        const cloneOffset = config.wrapAround ? slidesCount.value : 0
-
-        // Determine direction multiplier for orientation
-        const isReverseDirection = ['rtl', 'btt'].includes(normalizeDir.value)
-        const directionMultiplier = isReverseDirection ? -1 : 1
-
-        // Calculate the total offset for slide transformation
-        const totalOffset =
-          (scrolledIndex + cloneOffset) * effectiveSlideSize.value * directionMultiplier
-
-        // Include user drag interaction offset
-        const dragOffset = isVertical.value ? dragged.y : dragged.x
-
-        // Generate the appropriate CSS transformation
-        const translateAxis = isVertical.value ? 'Y' : 'X'
-        return `translate${translateAxis}(${dragOffset - totalOffset}px)`
-      })
 
       const trackEl = h(
         'ol',

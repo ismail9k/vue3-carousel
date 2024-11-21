@@ -25,6 +25,7 @@ export const I18N_DEFAULT_CONFIG = {
 }
 
 export const DEFAULT_CONFIG: CarouselConfig = {
+  enabled: true,
   itemsToShow: 1,
   itemsToScroll: 1,
   modelValue: 0,
