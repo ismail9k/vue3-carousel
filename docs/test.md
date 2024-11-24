@@ -28,7 +28,7 @@
 
 ## Disabled
 
-<ExampleGallery />
+<ExampleDisable />
 
 ## Custom Navigation
 

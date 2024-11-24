@@ -467,7 +467,14 @@ export default defineComponent({
 
     return () => {
       if (!config.enabled) {
-        return slotSlides?.()
+        return h(
+          'section',
+          {
+            ref: root,
+            class: ['carousel', 'is-disabled'],
+          },
+          slotSlides?.()
+        )
       }
 
       const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
