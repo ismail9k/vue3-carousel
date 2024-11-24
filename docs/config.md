@@ -4,6 +4,7 @@
 
 | Prop                   | Default                          | Description                                                                                                                                                                           |
 | ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`              | true                             | Controlled weather the carousel is enabled or disabled. <Badge text="0.8.0"/>                                                                                                         |
 | `itemsToShow`          | 1                                | Count of items to showed per view (can be a fraction).                                                                                                                                |
 | `itemsToScroll`        | 1                                | Number of slides to be scrolled                                                                                                                                                       |
 | `wrapAround`           | false                            | Enable infinite scrolling mode.                                                                                                                                                       |
