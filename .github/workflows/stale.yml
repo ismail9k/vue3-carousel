@@ -1,0 +1,23 @@
+name: Close manually labeled stale issues
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-label: "😐 stale"
+          days-before-close: 30 # Closes 30 days after being labeled
+          close-issue-message: >
+            This issue has been automatically closed because it was marked as stale
+            and no activity was detected for 30 days. If this was closed in error,
+            please reopen or comment. Thank you!
+          only-issues: true # Only applies to issues, not pull requests
+          exempt-issue-labels: "" # No exemptions
+          operations-per-run: 50 # Adjust based on the size of your repository
