@@ -30,7 +30,7 @@
 
 ## Gallery
 
-<Example id="vue3-carousel-example-gallery" :height="400" />
+<Example id="vue3-carousel-example-gallery" :height="500" />
 
 <script>
 import Example from './.vitepress/components/Example.vue';
