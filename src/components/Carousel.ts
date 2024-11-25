@@ -479,9 +479,13 @@ export default defineComponent({
 
       const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
       const addonsElements = slotAddons?.(slotsProps) || []
-      slidesElements.forEach(
-        (el: typeof SlideComponent, index: number) => (el.props.index = index)
-      )
+      slidesElements.forEach((el: typeof SlideComponent, index: number) => {
+        if (el.props) {
+          el.props.index = index
+        } else {
+          el.props = { index }
+        }
+      })
       let output = slidesElements
 
       if (config.wrapAround) {
