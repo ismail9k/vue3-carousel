@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css'
+const config = {}
 const enabled = ref(true)
-const config = { enabled }
 </script>
 
 <template>
@@ -12,7 +12,7 @@ const config = { enabled }
     <input id="status-checkbox" type="checkbox" v-model="enabled" />
   </div>
 
-  <Carousel v-bind="config">
+  <Carousel v-bind="config" :enabled="enabled">
     <Slide v-for="slide in 10" :key="slide">
       <div class="carousel__item">{{ slide }}</div>
     </Slide>
