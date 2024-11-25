@@ -13,7 +13,7 @@ const Navigation = (props: any, { slots, attrs }: any) => {
   const minSlide = inject('minSlide', ref(1))
   const normalizeDir = inject('normalizeDir', ref('ltr'))
   const currentSlide = inject('currentSlide', ref(1))
-  const nav: CarouselNav = inject('nav', {})
+  const nav: CarouselNav = inject('nav', {} as CarouselNav)
 
   const { wrapAround, i18n } = config
   const getPrevIcon = (): string => {

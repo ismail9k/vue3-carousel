@@ -18,7 +18,7 @@ import {
 
 import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselNav } from '@/types'
+import { CarouselConfig, CarouselExposed, CarouselNav } from '@/types'
 import {
   debounce,
   throttle,
@@ -36,6 +36,15 @@ import SlideComponent from './Slide'
 export default defineComponent({
   name: 'Carousel',
   props: carouselProps,
+  emits: [
+    'init',
+    'drag',
+    'slide-start',
+    'loop',
+    'update:modelValue',
+    'slide-end',
+    'before-init',
+  ],
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
@@ -412,15 +421,13 @@ export default defineComponent({
       config,
       slidesCount,
       slideSize,
-      next,
-      prev,
-      slideTo,
       currentSlide: currentSlideIndex,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       middleSlide: middleSlideIndex,
     }
-    expose({
+
+    expose<CarouselExposed>({
       updateBreakpointsConfig,
       updateSlidesData,
       updateSlideSize,

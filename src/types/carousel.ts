@@ -1,3 +1,5 @@
+import { Ref } from 'vue'
+
 import {
   BREAKPOINT_MODE_OPTIONS,
   DIR_OPTIONS,
@@ -34,10 +36,29 @@ export interface CarouselConfig {
   i18n: { [key in I18nKeys]?: string }
 }
 
+// Carousel navigation methods
 export interface CarouselNav {
-  [key: string]: any
+  slideTo: (index: number) => void
+  next: () => void
+  prev: () => void
 }
 
-export interface ElementStyleObject {
-  [key: string]: any
+export interface CarouselExposed {
+  updateBreakpointsConfig: () => void
+  updateSlidesData: () => void
+  updateSlideSize: () => void
+  restartCarousel: () => void
+  slideTo: (index: number) => void
+  next: () => void
+  prev: () => void
+  nav: CarouselNav
+  data: {
+    config: CarouselConfig
+    slidesCount: Ref<number>
+    slideSize: Ref<number>
+    currentSlide: Ref<number>
+    maxSlide: Ref<number>
+    minSlide: Ref<number>
+    middleSlide: Ref<number>
+  }
 }
