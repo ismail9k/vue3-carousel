@@ -1,7 +1,8 @@
 module.exports = {
   lang: 'en-US',
   title: 'Vue3-carousel',
-  description: 'Vue.js 3 carousel component',
+  description:
+    'A highly customizable, lightweight Vue 3 carousel component for your next awesome project.',
 
   themeConfig: {
     repo: 'ismail9k/vue3-carousel',
@@ -38,6 +39,7 @@ module.exports = {
   },
 
   head: [
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
     [
       'script',
       {
