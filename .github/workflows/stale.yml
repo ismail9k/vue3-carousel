@@ -12,12 +12,13 @@ jobs:
       - uses: actions/stale@v8
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          stale-issue-label: "😐 stale"
+          stale-issue-label: "😐 stale" # Only issues with this label are processed
+          days-before-stale: -1 # Disables adding the "stale" label automatically
           days-before-close: 30 # Closes 30 days after being labeled
           close-issue-message: >
-            This issue has been automatically closed because it was marked as stale
+            This issue has been automatically closed because it was manually marked as stale
             and no activity was detected for 30 days. If this was closed in error,
             please reopen or comment. Thank you!
-          only-issues: true # Only applies to issues, not pull requests
-          exempt-issue-labels: "" # No exemptions
-          operations-per-run: 50 # Adjust based on the size of your repository
+          only-issues: true # Only processes issues, not PRs
+          exempt-issue-labels: "" # No exempt labels
+          operations-per-run: 50 # Only 50 issues per run
