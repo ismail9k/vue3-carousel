@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.8.1) - 2024-11-26
+
+- fix: cannot set properties on null (setting 'index') issue by @ismail9k in #427
+- Better support for typescript and add CarouselExposed type by @ismail9k in #429
+
 ## [0.8.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.8.0) - 2024-11-24
 
 - fix: invalid type for prop height by @aovcina in #425
