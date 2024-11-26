@@ -5,5 +5,5 @@ import Navigation from './components/Navigation'
 import Pagination from './components/Pagination'
 import Slide from './components/Slide'
 
-export * from '@/types'
+export type * from '@/types'
 export { Carousel, Slide, Navigation, Pagination, Icon }

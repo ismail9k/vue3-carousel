@@ -11,7 +11,7 @@ const Pagination = () => {
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
   const currentSlide = inject('currentSlide', ref(1))
-  const nav: CarouselNav = inject('nav', {})
+  const nav: CarouselNav = inject('nav', {} as CarouselNav)
 
   const isActive = (slide: number): boolean =>
     mapNumberToRange({
