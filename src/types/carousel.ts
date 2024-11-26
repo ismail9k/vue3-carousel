@@ -36,29 +36,29 @@ export interface CarouselConfig {
   i18n: { [key in I18nKeys]?: string }
 }
 
-// Carousel navigation methods
 export interface CarouselNav {
   slideTo: (index: number) => void
   next: () => void
   prev: () => void
 }
 
-export interface CarouselExposed {
+export interface CarouselData {
+  config: CarouselConfig
+  slidesCount: Ref<number>
+  slideSize: Ref<number>
+  currentSlide: Ref<number>
+  maxSlide: Ref<number>
+  minSlide: Ref<number>
+  middleSlide: Ref<number>
+}
+
+export interface CarouselMethods extends CarouselNav {
   updateBreakpointsConfig: () => void
   updateSlidesData: () => void
   updateSlideSize: () => void
   restartCarousel: () => void
-  slideTo: (index: number) => void
-  next: () => void
-  prev: () => void
+}
+export interface CarouselExposed extends CarouselMethods {
   nav: CarouselNav
-  data: {
-    config: CarouselConfig
-    slidesCount: Ref<number>
-    slideSize: Ref<number>
-    currentSlide: Ref<number>
-    maxSlide: Ref<number>
-    minSlide: Ref<number>
-    middleSlide: Ref<number>
-  }
+  data: CarouselData
 }
