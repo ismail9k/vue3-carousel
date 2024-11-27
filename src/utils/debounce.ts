@@ -1,18 +1,19 @@
 /**
- * return a debounced version of the function
- * @param fn
- * @param delay
+ * Returns a debounced version of the function using requestAnimationFrame.
+ *
+ * @param fn - The function to debounce.
  */
-// eslint-disable-next-line no-unused-vars
-export function debounce(fn: (...args: any[]) => unknown, delay: number): typeof fn {
-  let timerId: ReturnType<typeof setTimeout> | null
+export function debounce(fn: (...args: any[]) => unknown): (...args: any[]) => void {
+  let frameId: number | null = null
+
   return function (...args: any[]) {
-    if (timerId) {
-      clearTimeout(timerId)
+    if (frameId) {
+      cancelAnimationFrame(frameId)
     }
-    timerId = setTimeout(() => {
+
+    frameId = requestAnimationFrame(() => {
       fn(...args)
-      timerId = null
-    }, delay)
+      frameId = null
+    })
   }
 }

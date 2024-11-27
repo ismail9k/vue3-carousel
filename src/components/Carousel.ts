@@ -125,7 +125,7 @@ export default defineComponent({
       updateBreakpointsConfig()
       updateSlidesData()
       updateSlideSize()
-    }, 16)
+    })
 
     /**
      * Setup functions
@@ -168,8 +168,6 @@ export default defineComponent({
       updateBreakpointsConfig()
       initAutoplay()
 
-      window.addEventListener('resize', handleResize, { passive: true })
-
       resizeObserver = new ResizeObserver(handleResize)
       if (root.value) {
         resizeObserver.observe(root.value)
@@ -189,10 +187,6 @@ export default defineComponent({
         resizeObserver.unobserve(root.value)
         resizeObserver = null
       }
-
-      window.removeEventListener('resize', handleResize, {
-        passive: true,
-      } as EventListenerOptions)
     })
 
     /**
