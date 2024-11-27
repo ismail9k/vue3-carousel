@@ -1,43 +1,57 @@
-import { ComponentInternalInstance, ComputedRef, Reactive, Ref, ShallowReactive } from 'vue'
+import {
+  ComponentInternalInstance,
+  ComputedRef,
+  Reactive,
+  Ref,
+  ShallowReactive,
+} from 'vue'
 
 import {
   BREAKPOINT_MODE_OPTIONS,
   DIR_OPTIONS,
   SNAP_ALIGN_OPTIONS,
   I18N_DEFAULT_CONFIG,
-  NORMALIZED_DIR_OPTIONS, DIR_MAP,
+  NORMALIZED_DIR_OPTIONS,
+  DIR_MAP,
 } from '@/partials/defaults'
 
-export type Breakpoints = { [key: number]: Partial<Omit<CarouselConfig, 'breakpoints' | 'modelValue' | 'breakpointMode'>> }
+export type Breakpoints = {
+  [key: number]: Partial<
+    Omit<CarouselConfig, 'breakpoints' | 'modelValue' | 'breakpointMode'>
+  >
+}
 
-export type SnapAlign = typeof SNAP_ALIGN_OPTIONS[number]
+export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
-export type Dir = typeof DIR_OPTIONS[number]
+export type Dir = (typeof DIR_OPTIONS)[number]
 
-export type BreakpointMode = typeof BREAKPOINT_MODE_OPTIONS[number]
+export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
 
-export type NormalizedDir = typeof NORMALIZED_DIR_OPTIONS[number]
+export type NormalizedDir = (typeof NORMALIZED_DIR_OPTIONS)[number]
 
 export type NonNormalizedDir = keyof typeof DIR_MAP
 
 export type I18nKeys = keyof typeof I18N_DEFAULT_CONFIG
 
 export type InjectedCarousel = Reactive<{
-  config: CarouselConfig,
-  viewport: Ref<Element | null>,
+  config: CarouselConfig
+  viewport: Ref<Element | null>
   slides: ShallowReactive<Array<ComponentInternalInstance>>
-  slidesCount: ComputedRef<number>,
-  currentSlide: Ref<number>,
+  slidesCount: ComputedRef<number>
+  currentSlide: Ref<number>
   scrolledIndex: Ref<number>
-  maxSlide: ComputedRef<number>,
-  minSlide: ComputedRef<number>,
-  slideSize: Ref<number>,
-  isVertical: ComputedRef<boolean>,
-  normalizedDir: ComputedRef<NormalizedDir>,
-  nav: CarouselNav,
-  isSliding: Ref<boolean>,
-  registerSlide: (slide: ComponentInternalInstance, indexCb: (idx: number) => void) => void,
-  unregisterSlide: (slide: ComponentInternalInstance) => void,
+  maxSlide: ComputedRef<number>
+  minSlide: ComputedRef<number>
+  slideSize: Ref<number>
+  isVertical: ComputedRef<boolean>
+  normalizedDir: ComputedRef<NormalizedDir>
+  nav: CarouselNav
+  isSliding: Ref<boolean>
+  registerSlide: (
+    slide: ComponentInternalInstance,
+    indexCb: (idx: number) => void
+  ) => void
+  unregisterSlide: (slide: ComponentInternalInstance) => void
 }>
 export interface CarouselConfig {
   enabled: boolean

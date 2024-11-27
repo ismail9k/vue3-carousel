@@ -1,4 +1,4 @@
-import { CarouselConfig } from '../types'
+import { CarouselConfig } from '@/shared'
 
 type Args = {
   config: Partial<CarouselConfig>

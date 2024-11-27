@@ -53,7 +53,7 @@ export default defineComponent({
     'slide-end',
     'before-init',
   ],
-  setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
+  setup(props: CarouselProps, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
     const slides = shallowReactive<Array<ComponentInternalInstance>>([])
@@ -179,14 +179,16 @@ export default defineComponent({
         if (config.height !== 'auto') {
           let height
           if (typeof config.height === 'string') {
-            height = parseInt(config.height).toString() !== config.height
-              ? viewport.value.getBoundingClientRect().height
-              : parseInt(config.height)
+            height =
+              parseInt(config.height).toString() !== config.height
+                ? viewport.value.getBoundingClientRect().height
+                : parseInt(config.height)
           } else {
             height = config.height
           }
 
-          slideSize.value = (height / multiplierHeight - totalGap.value) / config.itemsToShow
+          slideSize.value =
+            (height / multiplierHeight - totalGap.value) / config.itemsToShow
         }
       } else {
         const width = viewport.value.getBoundingClientRect().width
@@ -619,7 +621,8 @@ export default defineComponent({
         return `${slideSize.value * config.itemsToShow + totalGap.value}px`
       }
       return config.height !== 'auto'
-        ? typeof config.height === 'number' || parseInt(config.height).toString() === config.height
+        ? typeof config.height === 'number' ||
+          parseInt(config.height).toString() === config.height
           ? `${config.height}px`
           : config.height
         : undefined
@@ -727,7 +730,7 @@ export default defineComponent({
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
         },
-        [viewPortEl, addonsElements, h(ARIAComponent)]
+        [viewPortEl, addonsElements, h(ARIA)]
       )
     }
   },

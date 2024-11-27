@@ -9,12 +9,16 @@ import {
   getCurrentInstance,
   onUnmounted,
   provide,
-  useId, onMounted, VNode,
+  useId,
+  onMounted,
+  VNode,
 } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
 
-export default defineComponent({
+import { SlideProps } from './Slide.types'
+
+export const Slide = defineComponent({
   name: 'CarouselSlide',
   props: {
     isClone: {
@@ -56,9 +60,13 @@ export default defineComponent({
     )
 
     const slideStyle = computed(() => {
-      const dimension = carousel.config.gap > 0 && carousel.config.itemsToShow > 1
-        ? `calc(${100 / carousel.config.itemsToShow}% - ${carousel.config.gap * (carousel.config.itemsToShow - 1) / carousel.config.itemsToShow}px)`
-        : `${100 / carousel.config.itemsToShow}%`
+      const dimension =
+        carousel.config.gap > 0 && carousel.config.itemsToShow > 1
+          ? `calc(${100 / carousel.config.itemsToShow}% - ${
+              (carousel.config.gap * (carousel.config.itemsToShow - 1)) /
+              carousel.config.itemsToShow
+            }px)`
+          : `${100 / carousel.config.itemsToShow}%`
 
       return carousel.isVertical ? { height: dimension } : { width: dimension }
     })
@@ -72,7 +80,7 @@ export default defineComponent({
       })
     } else {
       const makeUnfocusable = (node: VNode) => {
-        [
+        ;[
           ...node?.el?.querySelectorAll(
             'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
           ),

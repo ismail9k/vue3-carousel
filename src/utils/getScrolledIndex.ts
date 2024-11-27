@@ -37,7 +37,7 @@ export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): n
     return mapNumberToRange({
       val: currentSlide - offset,
       max: slidesCount + itemsToShow,
-      min: 0 - itemsToShow
+      min: 0 - itemsToShow,
     })
   }
 }
