@@ -1,18 +1,18 @@
 /**
- * return a throttle version of the function
- * Throttling
+ * Returns a throttled version of the function using requestAnimationFrame.
  *
+ * @param fn - The function to throttle.
  */
-// eslint-disable-next-line no-unused-vars
-export function throttle(fn: (...args: any[]) => unknown): typeof fn {
-  let isRunning = false
+export function throttle(fn: (...args: any[]) => unknown): (...args: any[]) => void {
+  let isThrottled = false
+
   return function (...args: any[]) {
-    if (!isRunning) {
-      isRunning = true
-      requestAnimationFrame(() => {
-        fn.apply(this, args)
-        isRunning = false
-      })
-    }
+    if (isThrottled) return
+
+    isThrottled = true
+    requestAnimationFrame(() => {
+      fn(...args)
+      isThrottled = false
+    })
   }
 }
