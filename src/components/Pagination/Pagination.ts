@@ -1,12 +1,13 @@
 import { inject, ref, h, VNode, reactive } from 'vue'
 
-import { DEFAULT_CONFIG } from '@/partials/defaults'
-import { mapNumberToRange } from '@/utils'
-import { i18nFormatter } from '@/utils/i18nFormater'
+import { DEFAULT_CONFIG, CarouselConfig } from '@/shared'
+import { mapNumberToRange, i18nFormatter } from '@/utils'
 
-import { CarouselConfig, CarouselNav } from '../types'
+import { CarouselNav } from '../Carousel'
 
-const Pagination = () => {
+import { PaginationProps } from './Pagination.types'
+
+export const Pagination = (props: PaginationProps) => {
   const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
   const maxSlide = inject('maxSlide', ref(1))
   const minSlide = inject('minSlide', ref(1))
@@ -41,5 +42,3 @@ const Pagination = () => {
 
   return h('ol', { class: 'carousel__pagination' }, children)
 }
-
-export default Pagination

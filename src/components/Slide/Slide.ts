@@ -9,10 +9,11 @@ import {
   ComputedRef,
 } from 'vue'
 
-import { DEFAULT_CONFIG } from '@/partials/defaults'
-import { CarouselConfig } from '@/types'
+import { CarouselConfig, DEFAULT_CONFIG } from '@/shared'
 
-export default defineComponent({
+import { SlideProps } from './Slide.types'
+
+export const Slide = defineComponent({
   name: 'CarouselSlide',
   props: {
     index: {
@@ -24,7 +25,7 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(props, { slots }: SetupContext) {
+  setup(props: SlideProps, { slots }: SetupContext) {
     const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
     const currentSlide = inject('currentSlide', ref(0))
     const slidesToScroll = inject('slidesToScroll', ref(0))
@@ -44,8 +45,9 @@ export default defineComponent({
     const isVisible: ComputedRef<boolean> = computed(() => {
       const min = Math.floor(slidesToScroll.value)
       const max = Math.ceil(slidesToScroll.value + config.itemsToShow - 1)
+      const index = props.index ?? 0
 
-      return props.index >= min && props.index <= max
+      return index >= min && index <= max
     })
 
     const slideStyle: ComputedRef<Record<string, string>> = computed(() => {

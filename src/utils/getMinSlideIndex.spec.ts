@@ -1,6 +1,6 @@
 import { expect, it, describe } from 'vitest'
 
-import { SnapAlign } from '@/types'
+import { SnapAlign } from '@/shared'
 import { getMinSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {

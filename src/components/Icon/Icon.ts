@@ -1,15 +1,21 @@
 import { h, inject, reactive } from 'vue'
 
-import { DEFAULT_CONFIG } from '@/partials/defaults'
+import { CarouselConfig, DEFAULT_CONFIG, I18nKeys } from '@/shared'
 
-import icons, { IconName } from '../partials/icons'
-import { CarouselConfig, Data, I18nKeys } from '../types'
+import { IconName, IconProps } from './Icon.types'
 
 function isIconName(candidate: string): candidate is IconName {
   return candidate in IconName
 }
 
-const Icon = (props: Data) => {
+export const icons = {
+  arrowUp: 'M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z',
+  arrowDown: 'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z',
+  arrowRight: 'M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z',
+  arrowLeft: 'M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z',
+}
+
+export const Icon = (props: IconProps) => {
   const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
   const iconName = String(props.name)
   const iconI18n = `icon${
@@ -39,5 +45,3 @@ const Icon = (props: Data) => {
 }
 
 Icon.props = { name: String, title: String }
-
-export default Icon

@@ -1,9 +1,9 @@
-import './styles'
-import Carousel from './components/Carousel'
-import Icon from './components/Icon'
-import Navigation from './components/Navigation'
-import Pagination from './components/Pagination'
-import Slide from './components/Slide'
+// Components
+export * from './components/Carousel'
+export * from './components/Icon'
+export * from './components/Navigation'
+export * from './components/Pagination'
+export * from './components/Slide'
+export * from './components/ARIA'
 
-export type * from '@/types'
-export { Carousel, Slide, Navigation, Pagination, Icon }
+import './theme.css'

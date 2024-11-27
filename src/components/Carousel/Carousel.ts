@@ -16,9 +16,9 @@ import {
   ComputedRef,
 } from 'vue'
 
-import { DEFAULT_CONFIG } from '@/partials/defaults'
-import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselData, CarouselExposed, CarouselNav } from '@/types'
+import { ARIA } from '@/components/ARIA'
+import { Slide } from '@/components/Slide'
+import { CarouselConfig } from '@/shared/types'
 import {
   debounce,
   throttle,
@@ -30,10 +30,16 @@ import {
   getScrolledIndex,
 } from '@/utils'
 
-import ARIAComponent from './ARIA'
-import SlideComponent from './Slide'
+import { carouselProps, DEFAULT_CONFIG } from '../../shared/defaults'
 
-export default defineComponent({
+import {
+  CarouselData,
+  CarouselExposed,
+  CarouselNav,
+  CarouselProps,
+} from './Carousel.types'
+
+export const Carousel = defineComponent({
   name: 'Carousel',
   props: carouselProps,
   emits: [
@@ -45,10 +51,10 @@ export default defineComponent({
     'slide-end',
     'before-init',
   ],
-  setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
+  setup(props: CarouselProps, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
-    const slides: Ref<any> = ref([])
+    const slides: Ref<Array<VNode>> = ref([])
     const slideSize: Ref<number> = ref(0)
     const slidesCount: Ref<number> = ref(0)
 
@@ -480,7 +486,7 @@ export default defineComponent({
       const slidesElements = getSlidesVNodes(slotSlides?.(data))
       const addonsElements = slotAddons?.(data) || []
 
-      slidesElements.forEach((el: typeof SlideComponent, index: number) => {
+      slidesElements.forEach((el: typeof Slide, index: number) => {
         if (el.props) {
           el.props.index = index
         } else {
@@ -551,7 +557,7 @@ export default defineComponent({
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
         },
-        [viewPortEl, addonsElements, h(ARIAComponent)]
+        [viewPortEl, addonsElements, h(ARIA)]
       )
     }
   },

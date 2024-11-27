@@ -1,12 +1,10 @@
 import { inject, ref, h, reactive } from 'vue'
 
-import { DEFAULT_CONFIG } from '@/partials/defaults'
+import { CarouselNav } from '@/components/Carousel'
+import { Icon } from '@/components/Icon/'
+import { DEFAULT_CONFIG, CarouselConfig } from '@/shared'
 
-import { CarouselNav, CarouselConfig } from '../types'
-
-import Icon from './Icon'
-
-const Navigation = (props: any, { slots, attrs }: any) => {
+export const Navigation = (props: any, { slots, attrs }: any) => {
   const { next: slotNext, prev: slotPrev } = slots || {}
   const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
   const maxSlide = inject('maxSlide', ref(1))
@@ -70,5 +68,3 @@ const Navigation = (props: any, { slots, attrs }: any) => {
 
   return [prevButton, nextButton]
 }
-
-export default Navigation
