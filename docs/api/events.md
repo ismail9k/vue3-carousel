@@ -1,59 +1,77 @@
 # Events
 
-Events provides more flexibility to intercept carousel navigation changes
+Carousel events provide flexibility to intercept and react to navigation changes, offering greater control and customization options.
 
-## How To Use Events
+## How to Use Events
 
-```html
-<Carousel
-  @init="handleInit"
-  @slide-start="handleSlideStart"
->
-  ...
-</Carousel>
+```vue
+<template>
+  <Carousel
+    @init="handleInit"
+    @slide-start="handleSlideStart"
+  >
+    ...
+  </Carousel>
+</template>
 
 <script>
-  export default defineComponent({
-    methods: {
-      handleInit() {
-        console.log('created')
-      },
-      handleSlideStart(data) {
-        console.log('slide-start', data)
-      },
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  methods: {
+    handleInit() {
+      console.log('Carousel initialized');
     },
-  })
+    handleSlideStart(data) {
+      console.log('Slide started:', data);
+    },
+  },
+});
 </script>
 ```
 
-## `@before-init`
+## Event Reference
 
-Triggers before the carousel initialized
+### @before-init
 
-## `@init`
+Triggered before the carousel is initialized. Use this to perform any setup tasks required before the carousel is ready.
 
-Triggers once the carousel is mounted and completely initialized
+### @init
 
-## `@slide-start`
+Triggered once the carousel is mounted and fully initialized. This is ideal for executing post-initialization logic.
 
-Triggers at the binging of sliding function. it emits the following data:
+### slide-start
 
-- `slidingToIndex`
-- `currentSlideIndex`
-- `prevSlideIndex`
-- `slidesCount`
-  
-## `@slide-end`
+Triggered at the beginning of the sliding function. Emits the following data:
 
-Triggers after finishing of sliding function and the current slide has been update. it emits the following data:
+- `slidingToIndex`: The index of the slide the carousel is moving to.
+- `currentSlideIndex`: The current slide index before the transition starts.
+- `prevSlideIndex`: The index of the slide before the current one.
+- `slidesCount`: The total number of slides in the carousel.
 
-- `currentSlideIndex`
-- `prevSlideIndex`
-- `slidesCount`
-  
-## `@loop`
+### @slide-end
 
-Triggers after the carousel is going to loop over, only on `wrap-around` mode. it emits the following data:
+Triggered after the sliding animation completes and the current slide is updated. Emits the following data:
 
-- `slidingToIndex`
-- `currentSlideIndex`
+- `currentSlideIndex`: The updated current slide index.
+- `prevSlideIndex`: The index of the slide before the transition.
+- `slidesCount`: The total number of slides in the carousel.
+
+### @loop
+
+Triggered when the carousel loops over (wraps around), only in wrap-around mode. Emits the following data:
+
+- `slidingToIndex`: The index of the slide the carousel loops to.
+- `currentSlideIndex`: The current slide index before the loop occurs.
+
+### @drag
+
+Triggered while the carousel is being dragged, providing live positional data. Emits the following:
+
+- `x`: The horizontal drag position.
+- `y`: The vertical drag position.
+
+## Notes
+
+- Events are reactive and can be used to trigger animations, analytics, or other custom behaviors.
+- Ensure your event handlers account for edge cases, such as looping or rapid navigation.
