@@ -1,4 +1,4 @@
-import { Ref } from 'vue'
+import { Reactive, Ref } from 'vue'
 
 import {
   BREAKPOINT_MODE_OPTIONS,
@@ -60,5 +60,5 @@ export interface CarouselMethods extends CarouselNav {
 }
 export interface CarouselExposed extends CarouselMethods {
   nav: CarouselNav
-  data: CarouselData
+  data: Reactive<CarouselData>
 }

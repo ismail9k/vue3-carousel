@@ -18,7 +18,7 @@ import {
 
 import { DEFAULT_CONFIG } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
-import { CarouselConfig, CarouselExposed, CarouselNav } from '@/types'
+import { CarouselConfig, CarouselData, CarouselExposed, CarouselNav } from '@/types'
 import {
   debounce,
   throttle,
@@ -417,7 +417,7 @@ export default defineComponent({
     // Init carousel
     emit('before-init')
 
-    const data = {
+    const data = reactive<CarouselData>({
       config,
       slidesCount,
       slideSize,
@@ -425,7 +425,7 @@ export default defineComponent({
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       middleSlide: middleSlideIndex,
-    }
+    })
 
     expose<CarouselExposed>({
       updateBreakpointsConfig,
@@ -468,11 +468,10 @@ export default defineComponent({
       return `translate${translateAxis}(${dragOffset - totalOffset}px)`
     })
 
-    const slotSlides = slots.default || slots.slides
-    const slotAddons = slots.addons
-    const slotsProps = reactive(data)
-
     return () => {
+      const slotSlides = slots.default || slots.slides
+      const slotAddons = slots.addons
+
       if (!config.enabled) {
         return h(
           'section',
@@ -484,8 +483,9 @@ export default defineComponent({
         )
       }
 
-      const slidesElements = getSlidesVNodes(slotSlides?.(slotsProps))
-      const addonsElements = slotAddons?.(slotsProps) || []
+      const slidesElements = getSlidesVNodes(slotSlides?.(data))
+      const addonsElements = slotAddons?.(data) || []
+
       slidesElements.forEach((el: typeof SlideComponent, index: number) => {
         if (el.props) {
           el.props.index = index
