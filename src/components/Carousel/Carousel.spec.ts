@@ -1,8 +1,7 @@
+import { mount } from '@vue/test-utils'
 import { expect, it, describe, beforeEach } from 'vitest'
 
-import { mount } from '@vue/test-utils'
-
-import Carousel from '@/components/Carousel'
+import { Carousel } from '@/components/Carousel'
 
 describe('Carousel.ts', () => {
   let wrapper: any
