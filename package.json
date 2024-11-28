@@ -47,12 +47,12 @@
     },
     "./carousel.css": "./dist/carousel.css"
   },
-  "main": "dist/carousel.js",
-  "module": "dist/carousel.es.js",
-  "style": "dist/carousel.css",
-  "types": "dist/carousel.d.ts",
-  "unpkg": "dist/carousel.min.js",
-  "jsdelivr": "dist/carousel.min.js",
+  "main": "./dist/carousel.js",
+  "module": "./dist/carousel.es.js",
+  "style": "./dist/carousel.css",
+  "types": "./dist/carousel.d.ts",
+  "unpkg": "./dist/carousel.min.js",
+  "jsdelivr": "./dist/carousel.min.js",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
@@ -84,9 +84,10 @@
     "vue": "^3.2.0"
   },
   "browserslist": [
-    "> 1%",
+    "> 0.5%",
     "last 2 versions",
-    "not dead"
+    "not dead",
+    "not IE 11"
   ],
   "license": "MIT",
   "resolutions": {
