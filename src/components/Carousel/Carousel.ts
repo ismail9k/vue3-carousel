@@ -37,6 +37,7 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
+  toPx,
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
@@ -720,7 +721,7 @@ export default defineComponent({
             },
           ],
           style: {
-            '--vc-trk-height': trackHeight.value,
+            '--vc-trk-height': toPx(config.height),
           },
           dir: normalizedDir.value,
           'aria-label': config.i18n['ariaGallery'],
