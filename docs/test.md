@@ -1,6 +1,5 @@
 # Test
 
-
 ## Basic
 
 <ExampleBasic />
@@ -25,7 +24,6 @@
 
 <ExampleActiveClasses />
 
-
 ## Disabled
 
 <ExampleDisable />
@@ -38,8 +36,7 @@
 
 <ExampleGallery />
 
-
-<script>
+<script setup>
 import ExampleBasic from './examples/ExampleBasic.vue';
 import ExampleWrapAround from './examples/ExampleWrapAround.vue';
 import ExampleBreakpoints from './examples/ExampleBreakpoints.vue';
@@ -49,20 +46,6 @@ import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
 import ExampleVertical from './examples/ExampleVertical.vue';
 import ExampleDisable from './examples/ExampleDisable.vue';
-
-export default {
-  components: {
-    ExampleBasic,
-    ExampleWrapAround,
-    ExampleBreakpoints,
-    ExampleAutoplay,
-    ExampleActiveClasses,
-    ExampleCustomNavigation,
-    ExampleGallery,
-    ExampleVertical,
-    ExampleDisable
-  }
-}
 </script>
 
 <style>

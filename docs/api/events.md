@@ -5,25 +5,23 @@ Events provides more flexibility to intercept carousel navigation changes
 ## How To Use Events
 
 ```html
+<script setup>
+
+const handleInit = () => {
+  console.log('created')
+}
+const handleSlideStart = (data) => {
+  console.log('slide-start', data)
+}
+
+</script>
+
 <Carousel
   @init="handleInit"
   @slide-start="handleSlideStart"
 >
   ...
 </Carousel>
-
-<script>
-  export default defineComponent({
-    methods: {
-      handleInit() {
-        console.log('created')
-      },
-      handleSlideStart(data) {
-        console.log('slide-start', data)
-      },
-    },
-  })
-</script>
 ```
 
 ## `@before-init`
