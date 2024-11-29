@@ -21,7 +21,11 @@ export default defineComponent({
     }
   },
   setup(props: IconProps) {
-    const carousel = inject(injectCarousel, null)
+    const carousel = inject(injectCarousel)
+    
+    if (!carousel) {
+      return null // Don't render, let vue warn about the missing provide
+    }
 
     return () => {
       const iconName = String(props.name)
