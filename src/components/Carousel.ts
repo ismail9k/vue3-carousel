@@ -371,7 +371,7 @@ export default defineComponent({
 
       // Initialize start positions for the drag
       startPosition.x = 'touches' in event ? event.touches[0].clientX : event.clientX
-      startPosition.y = 'touches' in event ? event.touches[0].clientX : event.clientX
+      startPosition.y = 'touches' in event ? event.touches[0].clientY : event.clientY
 
       // Attach event listeners for dragging and drag end
 
