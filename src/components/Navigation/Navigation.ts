@@ -3,8 +3,11 @@ import { inject, ref, h, reactive } from 'vue'
 import { CarouselNav } from '@/components/Carousel'
 import { Icon } from '@/components/Icon/'
 import { DEFAULT_CONFIG, CarouselConfig } from '@/shared'
+import { generateStyleVars } from '@/utils'
 
-export const Navigation = (props: any, { slots, attrs }: any) => {
+import { NavigationProps } from './Navigation.types'
+
+export const Navigation = (props: NavigationProps, { slots, attrs }: any) => {
   const { next: slotNext, prev: slotPrev } = slots || {}
   const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
   const maxSlide = inject('maxSlide', ref(1))
@@ -35,6 +38,28 @@ export const Navigation = (props: any, { slots, attrs }: any) => {
     return directionIcons[normalizeDir.value]
   }
 
+  const { width, height, borderRadius, color, colorHover, background } = props
+  const style = generateStyleVars('nav', {
+    width,
+    height,
+    borderRadius,
+    color,
+    colorHover,
+    background,
+  })
+
+  const handlePrevClick = () => {
+    if (!props.disableOnClick) {
+      nav.prev()
+    }
+  }
+
+  const handleNextClick = () => {
+    if (!props.disableOnClick) {
+      nav.next()
+    }
+  }
+
   const prevButton = h(
     'button',
     {
@@ -44,9 +69,10 @@ export const Navigation = (props: any, { slots, attrs }: any) => {
         !wrapAround && currentSlide.value <= minSlide.value && 'carousel__prev--disabled',
         attrs?.class,
       ],
+      style,
       'aria-label': i18n['ariaPreviousSlide'],
       title: i18n['ariaPreviousSlide'],
-      onClick: nav.prev,
+      onClick: handlePrevClick,
     },
     slotPrev?.() || h(Icon, { name: getPrevIcon() })
   )
@@ -59,12 +85,20 @@ export const Navigation = (props: any, { slots, attrs }: any) => {
         !wrapAround && currentSlide.value >= maxSlide.value && 'carousel__next--disabled',
         attrs?.class,
       ],
+      style,
       'aria-label': i18n['ariaNextSlide'],
       title: i18n['ariaNextSlide'],
-      onClick: nav.next,
+      onClick: handleNextClick,
     },
     slotNext?.() || h(Icon, { name: getNextIcon() })
   )
 
-  return [prevButton, nextButton]
+  return h(
+    'div',
+    {
+      class: 'carousel__navigation-wrapper',
+      style,
+    },
+    [prevButton, nextButton]
+  )
 }

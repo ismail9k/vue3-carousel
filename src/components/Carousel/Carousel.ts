@@ -28,7 +28,7 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
-  toPx,
+  generateStyleVars,
 } from '@/utils'
 
 import { carouselProps, DEFAULT_CONFIG } from '../../shared/defaults'
@@ -547,9 +547,7 @@ export const Carousel = defineComponent({
               'is-hover': isHover.value,
             },
           ],
-          style: {
-            '--vc-trk-height': toPx(config.height),
-          },
+          style: generateStyleVars('trk', { height: config.height }),
           dir: normalizeDir.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
