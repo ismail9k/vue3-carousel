@@ -18,6 +18,7 @@ import {
   shallowReactive,
 } from 'vue'
 
+
 import { injectCarousel } from '@/injectSymbols'
 import { DEFAULT_CONFIG, DIR_MAP } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
@@ -40,6 +41,7 @@ import {
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
+
 
 export default defineComponent({
   name: 'VueCarousel',
@@ -176,39 +178,15 @@ export default defineComponent({
 
       // Calculate size based on orientation
       if (isVertical.value) {
-        const track = viewport.value.querySelector('.carousel__track')
         if (config.height !== 'auto') {
           let height
           if (typeof config.height === 'string') {
-            const fakeEl = document.createElement('div')
-            fakeEl.style.height = trackHeight.value!
-            track?.append(fakeEl)
-            height = fakeEl.getBoundingClientRect().height
-            track?.removeChild(fakeEl)
+            height = viewport.value.getBoundingClientRect().height
           } else {
             height = config.height
           }
 
-          slideSize.value =
-            (height / multiplierWidth - totalGap.value) / config.itemsToShow
-        } else if (slides.length) {
-          const height =
-            slides.reduce((total, slide) => {
-              const el = slide.vnode.el
-              if (!el) {
-                return total
-              }
-              const cloned = el.cloneNode(true)
-              cloned.style.width = null
-              cloned.style.height = 'auto'
-              track?.append(cloned)
-
-              const height = cloned.getBoundingClientRect().height
-
-              track?.removeChild(cloned)
-              return total + height
-            }, 0) / slides.length
-          slideSize.value = height / multiplierHeight
+          slideSize.value = (height / multiplierWidth - totalGap.value) / config.itemsToShow
         }
       } else {
         const width = viewport.value.getBoundingClientRect().width
@@ -627,8 +605,8 @@ export default defineComponent({
     expose<CarouselExposed>({
       updateBreakpointsConfig,
       updateSlidesData,
-      restartCarousel,
       updateSlideSize,
+      restartCarousel,
       slideTo,
       next,
       prev,
@@ -641,7 +619,7 @@ export default defineComponent({
         return `${slideSize.value * config.itemsToShow + totalGap.value}px`
       }
       return config.height !== 'auto'
-        ? typeof config.height === 'number'
+        ? typeof config.height === 'number' || parseInt(config.height) == config.height
           ? `${config.height}px`
           : config.height
         : undefined
@@ -675,7 +653,7 @@ export default defineComponent({
       const slotSlides = slots.default || slots.slides
       const slotAddons = slots.addons
 
-      let output: VNode[] | Array<Array<VNode>> = slotSlides?.() || []
+      let output: VNode[] | Array<Array<VNode>> = slotSlides?.(data) || []
       if (!config.enabled || !output.length) {
         return h(
           'section',

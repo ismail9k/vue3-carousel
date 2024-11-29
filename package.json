@@ -45,8 +45,7 @@
       "require": "./dist/*.css",
       "import": "./dist/*.css"
     },
-       "./carousel.css": "./dist/carousel.css"
-    }
+    "./carousel.css": "./dist/carousel.css"
   },
   "main": "dist/carousel.js",
   "module": "dist/carousel.es.js",
