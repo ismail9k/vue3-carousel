@@ -40,7 +40,7 @@ export default defineComponent({
       const path = icons[iconName]
       const pathEl = h('path', { d: path })
 
-      const iconTitle: string = carousel?.config.i18n[iconI18n] || props.title || iconName
+      const iconTitle: string = carousel.config.i18n[iconI18n] || props.title || iconName
 
       const titleEl = h('title', iconTitle)
 
