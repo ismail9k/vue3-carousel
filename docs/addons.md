@@ -24,6 +24,6 @@ import { Navigation } from 'vue3-carousel'
 
 ### Config
 
-| Prop | Default | Description |
-| ---- | ------- | ----------- |
-| `dd` | dd      | d           |
+| Prop             | Default | Description                  |
+| ---------------- | ------- | ---------------------------- |
+| `disableOnClick` | false   | Disables navigation on click |

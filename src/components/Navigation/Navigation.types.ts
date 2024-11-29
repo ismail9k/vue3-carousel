@@ -5,4 +5,5 @@ export interface NavigationProps {
   color: string
   colorHover: string
   background: string
+  disableOnClick?: boolean
 }

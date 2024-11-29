@@ -37,7 +37,7 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
-  toPx,
+  generateStyleVars,
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
