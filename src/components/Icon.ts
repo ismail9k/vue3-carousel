@@ -1,46 +1,45 @@
 import { defineComponent, h, inject, PropType } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
+import { DEFAULT_CONFIG } from '@/partials/defaults'
 import icons, { IconName, IconNameValue } from '@/partials/icons'
-import { I18nKeys } from '@/types'
 
 function isIconName(candidate: string): candidate is IconName {
   return candidate in IconName
 }
 
-type IconProps = { name: IconNameValue, title?: string }
+export type IconProps = { name: IconNameValue, title?: string }
+
+const iconI18n = <Name extends IconNameValue>(name: Name) => `icon${name.charAt(0).toUpperCase() + name.slice(1)}` as `icon${Capitalize<Name>}`
+
+const validateIconName = (value: IconNameValue) => {
+  return value && isIconName(value)
+}
 
 export default defineComponent({
   props: {
     name: {
       type: String as PropType<IconNameValue>,
       required: true,
+      validator: validateIconName
     },
     title: {
       type: String,
+      default: (props: {name: IconNameValue}) => props.name ? DEFAULT_CONFIG.i18n[iconI18n(props.name)] : ''
     }
   },
   setup(props: IconProps) {
-    const carousel = inject(injectCarousel)
-    
-    if (!carousel) {
-      return null // Don't render, let vue warn about the missing provide
-    }
+    const carousel = inject(injectCarousel, null)
 
     return () => {
-      const iconName = String(props.name)
-      const iconI18n = `icon${
-        iconName.charAt(0).toUpperCase() + iconName.slice(1)
-      }` as I18nKeys
-
-      if (!iconName || !isIconName(iconName)) {
+      const iconName = props.name
+      if (!validateIconName(iconName))
         return
-      }
 
       const path = icons[iconName]
       const pathEl = h('path', { d: path })
 
-      const iconTitle: string = carousel.config.i18n[iconI18n] || props.title || iconName
+      const iconTitle: string = carousel?.config.i18n[iconI18n(iconName)] || props.title || iconName
 
       const titleEl = h('title', iconTitle)
 

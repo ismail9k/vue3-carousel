@@ -33,7 +33,7 @@
         :items-to-show="itemsToShow"
         :items-to-scroll="itemsToScroll"
         :gap="10"
-        :height="parseInt(height) || 'auto'"
+        :height="height || 'auto'"
         :autoplay="autoplay ? parseInt(autoplay) : null"
         :pause-autoplay-on-hover="true"
         :wrap-around="wrapAround"
