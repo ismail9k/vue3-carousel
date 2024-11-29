@@ -1,7 +1,3 @@
-:root {
-  --vc-trk-height: auto;
-}
-
 .carousel {
   position: relative;
   text-align: center;
@@ -23,7 +19,8 @@
   padding: 0 !important;
   margin: 0 !important;
   position: relative;
-  height: var(--vc-trk-height);
+  transition: transform ease-out;
+  height: var(--vc-trk-height, auto);
 }
 
 .carousel__viewport {

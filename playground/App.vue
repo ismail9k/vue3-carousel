@@ -1,0 +1,123 @@
+<template>
+  <div>
+    <fieldset>
+      <label
+        >Snap Align
+        <select v-model="snapAlign">
+          <option v-for="opt in SNAP_ALIGN_OPTIONS" :value="opt" :key="opt">{{opt}}</option>
+        </select>
+      </label>
+      <label
+    >Direction
+      <select v-model="dir">
+        <option v-for="opt in Object.keys(DIR_MAP)" :value="opt" :key="opt">{{opt}}</option>
+      </select>
+    </label>
+      <label>Items to show: <input type="number" v-model="itemsToShow" /></label>
+      <label>Items to scroll: <input type="number" v-model="itemsToScroll" /></label>
+      <label
+      >Height:
+        <input v-model="height"/></label>
+      <label
+        >Autoplay time:
+        <input type="number" v-model="autoplay" step="100" min="0" max="10000"
+      /></label>
+      <label><input type="checkbox" v-model="wrapAround" />Wrap Around</label>
+      <label>Current slide: <input type="number" v-model="currentSlide" /></label>
+    </fieldset>
+    <div class="carousel-wrapper">
+      <VueCarousel
+        v-model="currentSlide"
+        :items-to-show="parseFloat(itemsToShow)"
+        :items-to-scroll="parseFloat(itemsToScroll)"
+        :gap="10"
+        :height="height || 'auto'"
+        :autoplay="autoplay ? parseInt(autoplay) : null"
+        :pause-autoplay-on-hover="true"
+        :wrap-around="wrapAround"
+        :dir="dir"
+        :snap-align="snapAlign"
+      >
+        <CarouselSlide v-for="i in 10" :key="i"  v-slot="{ isActive, isClone }">
+          <div class="carousel__item">{{ i }}<button>This is a button</button></div>
+        </CarouselSlide>
+        <template #addons>
+          <CarouselPagination />
+          <CarouselNavigation />
+        </template>
+      </VueCarousel>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import '@/styles'
+import {
+  Carousel as VueCarousel,
+  Slide as CarouselSlide,
+  Pagination as CarouselPagination,
+  Navigation as CarouselNavigation,
+} from '@/index'
+import { ref } from 'vue'
+
+import { DIR_MAP, SNAP_ALIGN_OPTIONS } from '@/partials/defaults'
+
+const currentSlide = ref(0)
+const snapAlign = ref('center')
+const itemsToScroll = ref(1)
+const itemsToShow = ref(1)
+const autoplay = ref()
+const wrapAround = ref(true)
+const height = ref('')
+const dir = ref('left-to-right')
+</script>
+
+<style lang="css">
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --brand-color: #535bf2;
+}
+
+fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.carousel-wrapper {
+  animation: pop-in 3s;
+}
+
+fieldset label {
+  display: inline-flex;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.carousel__item {
+  min-height: 200px;
+  width: 100%;
+  background-color: var(--brand-color);
+  color: #fff;
+  font-size: 20px;
+  border-radius: 8px;
+  flex-direction: column;
+  gap: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

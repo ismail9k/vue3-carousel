@@ -4,7 +4,7 @@ import { SnapAlign } from '@/types'
 import { getMaxSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
-  describe('warp-around: true', () => {
+  describe('wrap-around: true', () => {
     it('When slidesCount is 0 should return 0', () => {
       const slidesCount = 0
       const config = { wrapAround: true, itemsToShow: 1 }
@@ -23,7 +23,7 @@ describe('getCurrentSlideIndex', () => {
     })
   })
 
-  describe('warp-around: false', () => {
+  describe('wrap-around: false', () => {
     it('When slidesCount is 0 should return 0', () => {
       const slidesCount = 0
       const config = { wrapAround: false, itemsToShow: 1 }
@@ -38,7 +38,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'start' as SnapAlign,
+        snapAlign: 'start',
       }
 
       const results = getMaxSlideIndex({ config, slidesCount })
@@ -51,7 +51,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'end' as SnapAlign,
+        snapAlign: 'end',
       }
 
       const results = getMaxSlideIndex({ config, slidesCount })
@@ -62,34 +62,34 @@ describe('getCurrentSlideIndex', () => {
       const slidesCount = 10
       const config = {
         wrapAround: false,
-        itemsToShow: 5,
-        snapAlign: 'center-odd' as SnapAlign,
+        itemsToShow: 4.5,
+        snapAlign: 'center-odd',
       }
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
-      expect(results).toBe(slidesCount - Math.ceil((config.itemsToShow - 0.5) / 2))
+      expect(results).toBe(8)
     })
     it('When snapAlign is center-even should return (slidesCount - Math.ceil(itemsToShow / 2))', () => {
       const slidesCount = 10
       const config = {
         wrapAround: false,
-        itemsToShow: 5,
-        snapAlign: 'center-even' as SnapAlign,
+        itemsToShow: 4.5,
+        snapAlign: 'center-even',
       }
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
-      expect(results).toBe(slidesCount - Math.ceil(config.itemsToShow / 2))
+      expect(results).toBe(7)
     })
 
-    it('When snapAlign is missing should return 0', () => {
+    it('When snapAlign is missing should return slidesCount - 1', () => {
       const slidesCount = 10
       const config = { wrapAround: false, itemsToShow: 1 }
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
-      expect(results).toBe(0)
+      expect(results).toBe(9)
     })
 
     it('When itemsToShow > slidesCount should return max slide index', () => {
@@ -97,7 +97,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'start' as SnapAlign,
+        snapAlign: 'start',
       }
 
       const results = getMaxSlideIndex({ config, slidesCount })

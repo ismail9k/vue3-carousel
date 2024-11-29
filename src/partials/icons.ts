@@ -5,8 +5,10 @@ export enum IconName {
   arrowLeft = 'arrowLeft',
 }
 
+export type IconNameValue = `${IconName}`;
+
 export type Icons = {
-  [key in IconName]: string|undefined
+  [key in IconName]: string
 }
 
 const icons: Icons = {

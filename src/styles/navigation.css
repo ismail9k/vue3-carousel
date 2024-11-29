@@ -59,8 +59,9 @@
   .carousel__next {
     left: auto;
     top: auto;
-    right: 0;
-    transform: translateY(0);
+    right: 50%;
+    transform: translate(50%);
+    margin: 5px auto;
   }
 }
 

@@ -1,4 +1,5 @@
 import { CarouselConfig } from '@/types'
+import { mapNumberToRange } from '@/utils/mapNumberToRange'
 
 import { getNumberInRange } from './getNumberInRange'
 
@@ -20,7 +21,7 @@ const calculateOffset = (snapAlign: string, itemsToShow: number): number => {
 }
 
 export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): number {
-  const { snapAlign = 'N/A', wrapAround, itemsToShow = 1 } = config
+  const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // Calculate the offset based on snapAlign
   const offset = calculateOffset(snapAlign, itemsToShow)
@@ -32,7 +33,11 @@ export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): n
       max: slidesCount - itemsToShow,
       min: 0,
     })
+  } else {
+    return mapNumberToRange({
+      val: currentSlide - offset,
+      max: slidesCount + itemsToShow,
+      min: 0 - itemsToShow
+    })
   }
-
-  return currentSlide - offset
 }

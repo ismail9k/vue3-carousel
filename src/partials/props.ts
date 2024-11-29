@@ -1,9 +1,12 @@
+import { PropType } from 'vue'
+
 import {
   BREAKPOINT_MODE_OPTIONS,
   DEFAULT_CONFIG,
   DIR_OPTIONS,
   SNAP_ALIGN_OPTIONS,
 } from '@/partials/defaults'
+import { BreakpointMode, Dir, SnapAlign } from '@/types'
 
 export const carouselProps = {
   // enable/disable the carousel component
@@ -39,7 +42,7 @@ export const carouselProps = {
   // control snap position alignment
   snapAlign: {
     default: DEFAULT_CONFIG.snapAlign,
-    validator(value: string) {
+    validator(value: SnapAlign) {
       return SNAP_ALIGN_OPTIONS.includes(value)
     },
   },
@@ -51,7 +54,7 @@ export const carouselProps = {
   // controls the breakpoint mode relative to the carousel container or the viewport
   breakpointMode: {
     default: DEFAULT_CONFIG.breakpointMode,
-    validator(value: string) {
+    validator(value: BreakpointMode) {
       return BREAKPOINT_MODE_OPTIONS.includes(value)
     },
   },
@@ -87,8 +90,9 @@ export const carouselProps = {
   },
   // control snap position alignment
   dir: {
+    type: String as PropType<Dir>,
     default: DEFAULT_CONFIG.dir,
-    validator(value: string) {
+    validator(value: Dir) {
       // The value must match one of these strings
       return DIR_OPTIONS.includes(value)
     },
@@ -96,6 +100,6 @@ export const carouselProps = {
   // aria-labels and additional text labels
   i18n: {
     default: DEFAULT_CONFIG.i18n,
-    type: Object,
+    type: Object as PropType<typeof DEFAULT_CONFIG.i18n>,
   },
 }

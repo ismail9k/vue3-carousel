@@ -1,5 +1,6 @@
 import { resolve } from 'path'
 
+import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 
 import { compilerOptions } from './tsconfig.json'
@@ -14,6 +15,7 @@ const resolvePaths = () => {
 }
 
 export default defineConfig({
+  plugins: [vue()],
   test: {
     setupFiles: ['./vitest.setup.ts'],
     environment: 'jsdom',
