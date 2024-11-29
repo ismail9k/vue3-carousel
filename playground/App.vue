@@ -4,20 +4,22 @@
       <label
         >Snap Align
         <select v-model="snapAlign">
-          <option v-for="opt in SNAP_ALIGN_OPTIONS" :value="opt" :key="opt">{{opt}}</option>
+          <option v-for="opt in SNAP_ALIGN_OPTIONS" :value="opt" :key="opt">
+            {{ opt }}
+          </option>
         </select>
       </label>
       <label
-    >Direction
-      <select v-model="dir">
-        <option v-for="opt in Object.keys(DIR_MAP)" :value="opt" :key="opt">{{opt}}</option>
-      </select>
-    </label>
+        >Direction
+        <select v-model="dir">
+          <option v-for="opt in Object.keys(DIR_MAP)" :value="opt" :key="opt">
+            {{ opt }}
+          </option>
+        </select>
+      </label>
       <label>Items to show: <input type="number" v-model="itemsToShow" /></label>
       <label>Items to scroll: <input type="number" v-model="itemsToScroll" /></label>
-      <label
-      >Height:
-        <input v-model="height"/></label>
+      <label>Height: <input v-model="height" type="number" /></label>
       <label
         >Autoplay time:
         <input type="number" v-model="autoplay" step="100" min="0" max="10000"
@@ -28,17 +30,17 @@
     <div class="carousel-wrapper">
       <VueCarousel
         v-model="currentSlide"
-        :items-to-show="parseFloat(itemsToShow)"
-        :items-to-scroll="parseFloat(itemsToScroll)"
+        :items-to-show="itemsToShow"
+        :items-to-scroll="itemsToScroll"
         :gap="10"
-        :height="height || 'auto'"
+        :height="parseInt(height) || 'auto'"
         :autoplay="autoplay ? parseInt(autoplay) : null"
         :pause-autoplay-on-hover="true"
         :wrap-around="wrapAround"
         :dir="dir"
         :snap-align="snapAlign"
       >
-        <CarouselSlide v-for="i in 10" :key="i"  v-slot="{ isActive, isClone }">
+        <CarouselSlide v-for="i in 10" :key="i" v-slot="{ isActive, isClone }">
           <div class="carousel__item">{{ i }}<button>This is a button</button></div>
         </CarouselSlide>
         <template #addons>
@@ -68,7 +70,7 @@ const itemsToScroll = ref(1)
 const itemsToShow = ref(1)
 const autoplay = ref()
 const wrapAround = ref(true)
-const height = ref('')
+const height = ref('200')
 const dir = ref('left-to-right')
 </script>
 
@@ -93,8 +95,14 @@ fieldset {
 }
 
 @keyframes pop-in {
-  0% { opacity: 0; transform: scale(0); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .carousel-wrapper {
@@ -108,7 +116,6 @@ fieldset label {
 }
 
 .carousel__item {
-  min-height: 200px;
   width: 100%;
   height: 100%;
   background-color: var(--brand-color);

@@ -18,7 +18,6 @@ import {
   shallowReactive,
 } from 'vue'
 
-
 import { injectCarousel } from '@/injectSymbols'
 import { DEFAULT_CONFIG, DIR_MAP } from '@/partials/defaults'
 import { carouselProps } from '@/partials/props'
@@ -41,7 +40,6 @@ import {
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
-
 
 export default defineComponent({
   name: 'VueCarousel',
@@ -165,32 +163,13 @@ export default defineComponent({
      */
     function updateSlideSize(): void {
       if (!viewport.value) return
-      let multiplierWidth = 1
-      let multiplierHeight = 1
-      transformElements.forEach((el) => {
-        const transformArr = parseTransform(el)
-
-        if (transformArr.length == 6) {
-          multiplierWidth *= transformArr[0]
-          multiplierHeight *= transformArr[3]
-        }
-      })
 
       // Calculate size based on orientation
+      const { width, height } = viewport.value.getBoundingClientRect()
       if (isVertical.value) {
-        if (config.height !== 'auto') {
-          let height
-          if (typeof config.height === 'string') {
-            height = viewport.value.getBoundingClientRect().height
-          } else {
-            height = config.height
-          }
-
-          slideSize.value = (height / multiplierWidth - totalGap.value) / config.itemsToShow
-        }
+        slideSize.value = (height - totalGap.value) / config.itemsToShow
       } else {
-        const width = viewport.value.getBoundingClientRect().width
-        slideSize.value = (width / multiplierWidth - totalGap.value) / config.itemsToShow
+        slideSize.value = (width - totalGap.value) / config.itemsToShow
       }
     }
 
@@ -619,7 +598,7 @@ export default defineComponent({
         return `${slideSize.value * config.itemsToShow + totalGap.value}px`
       }
       return config.height !== 'auto'
-        ? typeof config.height === 'number' || parseInt(config.height) == config.height
+        ? typeof config.height === 'number'
           ? `${config.height}px`
           : config.height
         : undefined
