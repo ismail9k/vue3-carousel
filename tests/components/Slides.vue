@@ -1,6 +1,6 @@
 <template>
   <Slide v-for="slide in slideNum" :key="slide">
-    {{slide}}
+    {{ slide }}
   </Slide>
 </template>
 
