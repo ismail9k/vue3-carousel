@@ -52,7 +52,7 @@ export const Navigation = defineComponent({
           ],
           'aria-label': i18n['ariaPreviousSlide'],
           title: i18n['ariaPreviousSlide'],
-          onClick: () => carousel.nav.prev(),
+          onClick: props.disableOnClick ? undefined : carousel.nav.prev,
         },
         slotPrev?.() || h(Icon, { name: getPrevIcon() })
       )
@@ -69,7 +69,7 @@ export const Navigation = defineComponent({
           ],
           'aria-label': i18n['ariaNextSlide'],
           title: i18n['ariaNextSlide'],
-          onClick: () => carousel.nav.next(),
+          onClick: props.disableOnClick ? undefined : carousel.nav.next,
         },
         slotNext?.() || h(Icon, { name: getNextIcon() })
       )
