@@ -74,7 +74,7 @@
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-typescript-paths": "^1.5.0",
-    "typescript": "^5.4.3",
+    "typescript": "~5.1.6",
     "vite-tsconfig-paths": "^5.0.1",
     "vitepress": "^1.5.0",
     "vitest": "^2.1.6",
