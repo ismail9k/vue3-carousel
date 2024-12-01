@@ -1,4 +1,5 @@
 import { CarouselConfig } from '@/shared'
+
 import { getNumberInRange } from './getNumberInRange'
 import { mapNumberToRange } from './mapNumberToRange'
 
