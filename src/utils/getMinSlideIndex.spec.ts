@@ -1,6 +1,5 @@
 import { expect, it, describe } from 'vitest'
 
-import { SnapAlign } from '@/shared'
 import { getMinSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
@@ -37,7 +36,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'start' as SnapAlign,
+        snapAlign: 'start' as const,
       }
 
       const results = getMinSlideIndex({ config, slidesCount })
@@ -50,7 +49,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'end' as SnapAlign,
+        snapAlign: 'end' as const,
       }
 
       const results = getMinSlideIndex({ config, slidesCount })
@@ -62,7 +61,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'center-odd' as SnapAlign,
+        snapAlign: 'center-odd' as const,
       }
 
       const results = getMinSlideIndex({ config, slidesCount })
@@ -74,7 +73,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'center-even' as SnapAlign,
+        snapAlign: 'center-even' as const,
       }
 
       const results = getMinSlideIndex({ config, slidesCount })
@@ -98,7 +97,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 5,
-        snapAlign: 'center' as SnapAlign,
+        snapAlign: 'center' as const,
       }
 
       const results = getMinSlideIndex({ config, slidesCount })

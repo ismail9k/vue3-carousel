@@ -1,44 +1,48 @@
-import { inject, ref, h, VNode, reactive } from 'vue'
+import { inject, h, VNode, defineComponent } from 'vue'
 
-import { DEFAULT_CONFIG, CarouselConfig } from '@/shared'
+import { injectCarousel } from '@/shared/injectSymbols'
 import { mapNumberToRange, i18nFormatter } from '@/utils'
 
-import { CarouselNav } from '../Carousel'
+export const Pagination = defineComponent({
+  name: 'CarouselPagination',
+  setup() {
+    const carousel = inject(injectCarousel)
 
-import { PaginationProps } from './Pagination.types'
+    if (!carousel) {
+      return null // Don't render, let vue warn about the missing provide
+    }
 
-export const Pagination = (props: PaginationProps) => {
-  const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
-  const maxSlide = inject('maxSlide', ref(1))
-  const minSlide = inject('minSlide', ref(1))
-  const currentSlide = inject('currentSlide', ref(1))
-  const nav: CarouselNav = inject('nav', {} as CarouselNav)
+    const isActive = (slide: number): boolean =>
+      mapNumberToRange({
+        val: carousel.currentSlide,
+        max: carousel.maxSlide,
+        min: 0,
+      }) === slide
 
-  const isActive = (slide: number): boolean =>
-    mapNumberToRange({
-      val: currentSlide.value,
-      max: maxSlide.value,
-      min: 0,
-    }) === slide
+    return () => {
+      const children: Array<VNode> = []
+      for (let slide = carousel.minSlide; slide <= carousel.maxSlide; slide++) {
+        const buttonLabel = i18nFormatter(carousel.config.i18n.ariaNavigateToSlide, {
+          slideNumber: slide + 1,
+        })
+        const active = isActive(slide)
+        const button = h('button', {
+          type: 'button',
+          class: {
+            'carousel__pagination-button': true,
+            'carousel__pagination-button--active': active,
+          },
+          'aria-label': buttonLabel,
+          'aria-pressed': active,
+          'aria-controls': carousel.slides[slide]?.exposed?.id,
+          title: buttonLabel,
+          onClick: () => carousel.nav.slideTo(slide),
+        })
+        const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
+        children.push(item)
+      }
 
-  const children: Array<VNode> = []
-  for (let slide = minSlide.value; slide < maxSlide.value + 1; slide++) {
-    const buttonLabel = i18nFormatter(config.i18n['ariaNavigateToSlide'], {
-      slideNumber: slide + 1,
-    })
-    const button = h('button', {
-      type: 'button',
-      class: {
-        'carousel__pagination-button': true,
-        'carousel__pagination-button--active': isActive(slide),
-      },
-      'aria-label': buttonLabel,
-      title: buttonLabel,
-      onClick: () => nav.slideTo(slide),
-    })
-    const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
-    children.push(item)
-  }
-
-  return h('ol', { class: 'carousel__pagination' }, children)
-}
+      return h('ol', { class: 'carousel__pagination' }, children)
+    }
+  },
+})

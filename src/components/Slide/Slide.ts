@@ -1,67 +1,105 @@
 import {
   defineComponent,
   inject,
-  ref,
   h,
-  reactive,
+  ref,
   SetupContext,
   computed,
   ComputedRef,
+  getCurrentInstance,
+  onUnmounted,
+  provide,
+  useId,
+  onMounted,
+  VNode,
 } from 'vue'
 
-import { CarouselConfig, DEFAULT_CONFIG } from '@/shared'
+import { injectCarousel } from '@/shared/injectSymbols'
 
 import { SlideProps } from './Slide.types'
 
 export const Slide = defineComponent({
   name: 'CarouselSlide',
   props: {
-    index: {
-      type: Number,
-      default: 1,
-    },
     isClone: {
       type: Boolean,
       default: false,
     },
+    id: {
+      type: String,
+      default: (props: { isClone?: boolean }) => (props.isClone ? undefined : useId()),
+    },
+    index: {
+      type: Number,
+      default: 0,
+    },
   },
-  setup(props: SlideProps, { slots }: SetupContext) {
-    const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
-    const currentSlide = inject('currentSlide', ref(0))
-    const slidesToScroll = inject('slidesToScroll', ref(0))
-    const isSliding = inject('isSliding', ref(false))
-    const isVertical = inject('isVertical', ref(false))
-    const slideSize = inject('slideSize', ref(0))
+  setup(props, { slots, expose }: SetupContext) {
+    const carousel = inject(injectCarousel)
+    provide(injectCarousel, undefined) // Don't provide for nested slides
+
+    if (!carousel) {
+      return null // Don't render, let vue warn about the missing provide
+    }
+
+    const index = ref(props.index)
 
     const isActive: ComputedRef<boolean> = computed(
-      () => props.index === currentSlide.value
+      () => index.value === carousel.currentSlide
     )
     const isPrev: ComputedRef<boolean> = computed(
-      () => props.index === currentSlide.value - 1
+      () => index.value === carousel.currentSlide - 1
     )
     const isNext: ComputedRef<boolean> = computed(
-      () => props.index === currentSlide.value + 1
+      () => index.value === carousel.currentSlide + 1
     )
-    const isVisible: ComputedRef<boolean> = computed(() => {
-      const min = Math.floor(slidesToScroll.value)
-      const max = Math.ceil(slidesToScroll.value + config.itemsToShow - 1)
-      const index = props.index ?? 0
+    const isVisible: ComputedRef<boolean> = computed(
+      () =>
+        index.value >= Math.floor(carousel.scrolledIndex) &&
+        index.value < Math.ceil(carousel.scrolledIndex) + carousel.config.itemsToShow
+    )
 
-      return index >= min && index <= max
+    const slideStyle = computed(() => {
+      const dimension =
+        carousel.config.gap > 0 && carousel.config.itemsToShow > 1
+          ? `calc(${100 / carousel.config.itemsToShow}% - ${
+              (carousel.config.gap * (carousel.config.itemsToShow - 1)) /
+              carousel.config.itemsToShow
+            }px)`
+          : `${100 / carousel.config.itemsToShow}%`
+
+      return carousel.isVertical ? { height: dimension } : { width: dimension }
     })
 
-    const slideStyle: ComputedRef<Record<string, string>> = computed(() => {
-      const dimension = config.gap
-        ? `${slideSize.value}px`
-        : `${100 / config.itemsToShow}%`
+    const instance = getCurrentInstance()!
 
-      return isVertical.value
-        ? { height: dimension, width: '' }
-        : { width: dimension, height: '' }
+    if (!props.isClone) {
+      carousel.registerSlide(instance, (resolvedIndex) => (index.value = resolvedIndex))
+      onUnmounted(() => {
+        carousel.unregisterSlide(instance)
+      })
+    } else {
+      const makeUnfocusable = (node: VNode) => {
+        ;[
+          ...node?.el?.querySelectorAll(
+            'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+          ),
+        ]
+          .filter((el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'))
+          .forEach((el) => el.setAttribute('tabindex', '-1'))
+      }
+      // Prevent cloned slides from being focusable
+      onMounted(() => {
+        makeUnfocusable(instance.vnode)
+      })
+    }
+
+    expose({
+      id: props.id,
     })
 
     return () => {
-      if (!config.enabled) {
+      if (!carousel.config.enabled) {
         return slots.default?.()
       }
 
@@ -76,16 +114,24 @@ export const Slide = defineComponent({
             'carousel__slide--active': isActive.value,
             'carousel__slide--prev': isPrev.value,
             'carousel__slide--next': isNext.value,
-            'carousel__slide--sliding': isSliding.value,
+            'carousel__slide--sliding': carousel.isSliding,
           },
-          'aria-hidden': !isVisible.value,
+          onFocusin: () => {
+            // Prevent the viewport being scrolled by the focus
+            if (carousel.viewport) {
+              carousel.viewport.scrollLeft = 0
+            }
+            carousel.nav.slideTo(index.value)
+          },
+          id: props.isClone ? undefined : props.id,
+          'aria-hidden': props.isClone || undefined,
         },
         slots.default?.({
           isActive: isActive.value,
           isClone: props.isClone,
           isPrev: isPrev.value,
           isNext: isNext.value,
-          isSliding: isSliding.value,
+          isSliding: carousel.isSliding,
           isVisible: isVisible.value,
         })
       )
