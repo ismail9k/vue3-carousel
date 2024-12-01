@@ -9,4 +9,3 @@ const { slideNum = 5 } = defineProps<{ slideNum: number }>()
     <Slides :slide-num="slideNum"></Slides>
   </Carousel>
 </template>
-

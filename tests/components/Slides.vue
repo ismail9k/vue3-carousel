@@ -8,3 +8,4 @@ const { slideNum = 5 } = defineProps<{ slideNum: number }>()
     {{ slide }}
   </Slide>
 </template>
+

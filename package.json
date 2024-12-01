@@ -89,5 +89,9 @@
     "not dead",
     "not IE 11"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "resolutions": {
+    "vite": "^6",
+    "esbuild": "^0.24.0"
+  }
 }

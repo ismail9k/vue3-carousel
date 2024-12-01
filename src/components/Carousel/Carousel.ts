@@ -143,6 +143,18 @@ export const Carousel = defineComponent({
       updateSlideSize()
     })
 
+    function parseTransform(el: HTMLElement) {
+      const transform = window.getComputedStyle(el).transform
+
+      //add sanity check
+      return transform
+        .split(/[(,)]/)
+        .slice(1, -1)
+        .map(function (v) {
+          return parseFloat(v)
+        })
+    }
+
     const totalGap = computed(() => (config.itemsToShow - 1) * config.gap)
     const transformElements = shallowReactive<Array<HTMLElement>>([])
 
@@ -151,13 +163,35 @@ export const Carousel = defineComponent({
      */
     function updateSlideSize(): void {
       if (!viewport.value) return
+      let multiplierWidth = 1
+      let multiplierHeight = 1
+      transformElements.forEach((el) => {
+        const transformArr = parseTransform(el)
+
+        if (transformArr.length == 6) {
+          multiplierWidth *= transformArr[0]
+          multiplierHeight *= transformArr[3]
+        }
+      })
 
       // Calculate size based on orientation
       const { width, height } = viewport.value.getBoundingClientRect()
       if (isVertical.value) {
-        slideSize.value = (height - totalGap.value) / config.itemsToShow
+        if (config.height !== 'auto') {
+          let height
+          if (typeof config.height === 'string') {
+            height = parseInt(config.height).toString() !== config.height
+              ? viewport.value.getBoundingClientRect().height
+              : parseInt(config.height)
+          } else {
+            height = config.height
+          }
+
+          slideSize.value = (height / multiplierHeight - totalGap.value) / config.itemsToShow
+        }
       } else {
-        slideSize.value = (width - totalGap.value) / config.itemsToShow
+        const width = viewport.value.getBoundingClientRect().width
+        slideSize.value = (width / multiplierWidth - totalGap.value) / config.itemsToShow
       }
     }
 
@@ -586,7 +620,7 @@ export const Carousel = defineComponent({
         return `${slideSize.value * config.itemsToShow + totalGap.value}px`
       }
       return config.height !== 'auto'
-        ? typeof config.height === 'number'
+        ? typeof config.height === 'number' || parseInt(config.height).toString() === config.height
           ? `${config.height}px`
           : config.height
         : undefined
