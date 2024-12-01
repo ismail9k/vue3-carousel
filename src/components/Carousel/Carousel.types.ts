@@ -1,12 +1,39 @@
-import { Reactive, Ref } from 'vue'
+import {
+  ComponentInternalInstance,
+  ComputedRef,
+  Reactive,
+  Ref,
+  ShallowReactive,
+} from 'vue'
 
-import { CarouselConfig } from '@/shared/types'
+import { CarouselConfig, NormalizedDir } from '@/shared/types'
 
 export interface CarouselNav {
   slideTo: (index: number) => void
-  next: () => void
-  prev: () => void
+  next: (skipTransition?: boolean) => void
+  prev: (skipTransition?: boolean) => void
 }
+
+export type InjectedCarousel = Reactive<{
+  config: CarouselConfig
+  viewport: Ref<Element | null>
+  slides: ShallowReactive<Array<ComponentInternalInstance>>
+  slidesCount: ComputedRef<number>
+  currentSlide: Ref<number>
+  scrolledIndex: Ref<number>
+  maxSlide: ComputedRef<number>
+  minSlide: ComputedRef<number>
+  slideSize: Ref<number>
+  isVertical: ComputedRef<boolean>
+  normalizedDir: ComputedRef<NormalizedDir>
+  nav: CarouselNav
+  isSliding: Ref<boolean>
+  registerSlide: (
+    slide: ComponentInternalInstance,
+    indexCb: (idx: number) => void
+  ) => void
+  unregisterSlide: (slide: ComponentInternalInstance) => void
+}>
 
 export interface CarouselData {
   config: CarouselConfig

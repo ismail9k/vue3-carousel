@@ -18,18 +18,15 @@ import {
   shallowReactive,
 } from 'vue'
 
+import { ARIA as ARIAComponent } from '@/components/ARIA'
 import { injectCarousel } from '@/injectSymbols'
-import { DEFAULT_CONFIG, DIR_MAP } from '@/partials/defaults'
-import { carouselProps } from '@/partials/props'
 import {
   CarouselConfig,
-  CarouselData,
-  CarouselExposed,
-  CarouselNav,
-  NormalizedDir,
-  InjectedCarousel,
+  DEFAULT_CONFIG,
+  DIR_MAP,
   NonNormalizedDir,
-} from '@/types'
+  NormalizedDir,
+} from '@/shared'
 import {
   throttle,
   getNumberInRange,
@@ -39,9 +36,15 @@ import {
   getScrolledIndex,
 } from '@/utils'
 
-import ARIAComponent from './ARIA'
+import {
+  CarouselData,
+  CarouselExposed,
+  CarouselNav,
+  InjectedCarousel,
+} from './Carousel.types'
+import { carouselProps } from './carouselProps'
 
-export default defineComponent({
+export const Carousel = defineComponent({
   name: 'VueCarousel',
   props: carouselProps,
   emits: [
@@ -175,7 +178,7 @@ export default defineComponent({
       })
 
       // Calculate size based on orientation
-      const { width, height } = viewport.value.getBoundingClientRect()
+
       if (isVertical.value) {
         if (config.height !== 'auto') {
           let height
@@ -721,7 +724,7 @@ export default defineComponent({
             },
           ],
           style: {
-            '--vc-trk-height': toPx(config.height),
+            '--vc-trk-height': trackHeight.value,
           },
           dir: normalizedDir.value,
           'aria-label': config.i18n['ariaGallery'],

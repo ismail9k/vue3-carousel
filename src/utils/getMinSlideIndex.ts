@@ -8,10 +8,10 @@ type GetMinSlideIndexArgs = {
 /**
  * Determines the minimum slide index based on the configuration.
  *
- * @param {Args} args - The carousel configuration and slide count.
+ * @param {GetMinSlideIndexArgs} args - The carousel configuration and slide count.
  * @returns {number} The minimum slide index.
  */
-export function getMinSlideIndex({ config, slidesCount }: Args): number {
+export function getMinSlideIndex({ config, slidesCount }: GetMinSlideIndexArgs): number {
   const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // If wrapAround is enabled or itemsToShow exceeds slidesCount, the minimum index is always 0

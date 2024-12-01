@@ -1,14 +1,15 @@
 import { inject, h, defineComponent } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
-import { IconNameValue } from '@/partials/icons'
-import type { NormalizedDir, VueClass } from '@/types'
+import { NormalizedDir } from '@/shared'
 
-import Icon from './Icon'
+import { Icon, IconNameValue } from '../Icon'
 
-export default defineComponent({
+import { NavigationProps } from './Navigation.types'
+
+export const Navigation = defineComponent({
   name: 'CarouselNavigation',
-  setup(props: { class?: VueClass }, { slots }) {
+  setup(props: NavigationProps, { slots }) {
     const carousel = inject(injectCarousel)
     if (!carousel) {
       return null // Don't render, let vue warn about the missing provide

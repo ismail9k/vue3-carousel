@@ -1,10 +1,8 @@
-import { CarouselConfig } from '@/types'
-import { mapNumberToRange } from '@/utils/mapNumberToRange'
-
+import { CarouselConfig } from '@/shared'
 import { getNumberInRange } from './getNumberInRange'
 import { mapNumberToRange } from './mapNumberToRange'
 
-type Args = {
+type GetScrolledIndexArgs = {
   config: Partial<CarouselConfig>
   currentSlide: number
   slidesCount: number
@@ -21,7 +19,11 @@ const calculateOffset = (snapAlign: string, itemsToShow: number): number => {
   return offsetMap[snapAlign] ?? 0 // Fallback to 0 for unknown snapAlign
 }
 
-export function getScrolledIndex({ config, currentSlide, slidesCount }: Args): number {
+export function getScrolledIndex({
+  config,
+  currentSlide,
+  slidesCount,
+}: GetScrolledIndexArgs): number {
   const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // Calculate the offset based on snapAlign

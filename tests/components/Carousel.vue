@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Carousel from '@/components/Carousel'
+import { Carousel } from '@/index'
 </script>
 
 <template>

@@ -1,9 +1,9 @@
 import { defineComponent, inject, h } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
-import { i18nFormatter } from '@/utils/i18nFormater'
+import { i18nFormatter } from '@/utils'
 
-export default defineComponent({
+export const ARIA = defineComponent({
   name: 'CarouselAria',
   setup() {
     const carousel = inject(injectCarousel)

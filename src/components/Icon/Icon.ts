@@ -1,14 +1,13 @@
 import { defineComponent, h, inject, PropType } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
-import { DEFAULT_CONFIG } from '@/partials/defaults'
-import icons, { IconName, IconNameValue } from '@/partials/icons'
+import { DEFAULT_CONFIG } from '@/shared/constants'
+
+import { IconName, IconNameValue, IconProps } from './Icon.types'
 
 function isIconName(candidate: string): candidate is IconName {
   return candidate in IconName
 }
-
-export type IconProps = { name: IconNameValue; title?: string }
 
 const iconI18n = <Name extends IconNameValue>(name: Name) =>
   `icon${name.charAt(0).toUpperCase() + name.slice(1)}` as `icon${Capitalize<Name>}`
@@ -17,7 +16,14 @@ const validateIconName = (value: IconNameValue) => {
   return value && isIconName(value)
 }
 
-export default defineComponent({
+export const icons = {
+  arrowUp: 'M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z',
+  arrowDown: 'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z',
+  arrowRight: 'M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z',
+  arrowLeft: 'M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z',
+}
+
+export const Icon = defineComponent({
   props: {
     name: {
       type: String as PropType<IconNameValue>,
@@ -35,7 +41,7 @@ export default defineComponent({
 
     return () => {
       const iconName = props.name
-      if (!validateIconName(iconName)) return
+      if (!iconName || !validateIconName(iconName)) return
 
       const path = icons[iconName]
       const pathEl = h('path', { d: path })

@@ -1,11 +1,9 @@
-import './styles'
+import './theme.css'
 
-import Carousel from './components/Carousel'
-import Icon from './components/Icon'
-import Navigation from './components/Navigation'
-import Pagination from './components/Pagination'
-import Slide from './components/Slide'
-import { injectCarousel } from './injectSymbols'
+export * from '@/components/Carousel'
+export * from '@/components/Icon'
+export * from '@/components/Navigation'
+export * from '@/components/Pagination'
+export * from '@/components/Slide'
 
-export type * from '@/types'
-export { Carousel, Slide, Navigation, Pagination, Icon, injectCarousel }
+export * from '@/shared'

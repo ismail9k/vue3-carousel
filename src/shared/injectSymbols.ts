@@ -1,6 +1,6 @@
-import { type InjectionKey } from 'vue'
+import { InjectionKey } from 'vue'
 
-import type { InjectedCarousel } from './types'
+import { InjectedCarousel } from '@/components/Carousel'
 
 // Use a symbol for inject provide to avoid any kind of collision with another lib
 // https://vuejs.org/guide/components/provide-inject#working-with-symbol-keys

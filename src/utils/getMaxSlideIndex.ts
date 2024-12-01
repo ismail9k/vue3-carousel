@@ -1,6 +1,6 @@
-import { CarouselConfig } from '@/types'
+import { CarouselConfig } from '@/shared'
 
-type Args = {
+type GetMaxSlideIndexArgs = {
   config: Partial<CarouselConfig>
   slidesCount: number
 }
@@ -11,7 +11,7 @@ type Args = {
  * @param {Args} args - The carousel configuration and slide count.
  * @returns {number} The maximum slide index.
  */
-export function getMaxSlideIndex({ config, slidesCount }: Args): number {
+export function getMaxSlideIndex({ config, slidesCount }: GetMaxSlideIndexArgs): number {
   const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // Map snapAlign values to calculation logic

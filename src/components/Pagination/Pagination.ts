@@ -1,10 +1,9 @@
 import { inject, h, VNode, defineComponent } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
-import { mapNumberToRange } from '@/utils'
-import { i18nFormatter } from '@/utils/i18nFormater'
+import { mapNumberToRange, i18nFormatter } from '@/utils'
 
-export default defineComponent({
+export const Pagination = defineComponent({
   name: 'CarouselPagination',
   setup() {
     const carousel = inject(injectCarousel)

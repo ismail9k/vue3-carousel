@@ -34,7 +34,7 @@ export const Slide = defineComponent({
       default: 0,
     },
   },
-  setup(props, { slots, expose }: SetupContext) {
+  setup(props: SlideProps, { slots, expose }: SetupContext) {
     const carousel = inject(injectCarousel)
     provide(injectCarousel, undefined) // Don't provide for nested slides
 
@@ -74,7 +74,10 @@ export const Slide = defineComponent({
     const instance = getCurrentInstance()!
 
     if (!props.isClone) {
-      carousel.registerSlide(instance, (resolvedIndex) => (index.value = resolvedIndex))
+      carousel.registerSlide(
+        instance,
+        (resolvedIndex: number) => (index.value = resolvedIndex)
+      )
       onUnmounted(() => {
         carousel.unregisterSlide(instance)
       })

@@ -1,3 +1,3 @@
 export * from './injectSymbols'
-export * from './defaults'
+export * from './constants'
 export * from './types'

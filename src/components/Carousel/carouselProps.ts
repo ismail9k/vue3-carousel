@@ -5,8 +5,8 @@ import {
   DEFAULT_CONFIG,
   DIR_OPTIONS,
   SNAP_ALIGN_OPTIONS,
-} from '@/partials/defaults'
-import { BreakpointMode, Dir, SnapAlign } from '@/types'
+} from '@/shared/constants'
+import { BreakpointMode, Dir, SnapAlign } from '@/shared/types'
 
 export const carouselProps = {
   // enable/disable the carousel component
