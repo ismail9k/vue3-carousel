@@ -12,7 +12,8 @@
     "outDir": "./dist",
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "rollup/parseAst": ["./node_modules/rollup/dist/parseAst"]
     }
   },
   "include": ["src"],

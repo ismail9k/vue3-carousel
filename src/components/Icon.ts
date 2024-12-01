@@ -1,43 +1,58 @@
-import { h, inject, reactive } from 'vue'
+import { defineComponent, h, inject, PropType } from 'vue'
 
+import { injectCarousel } from '@/injectSymbols'
 import { DEFAULT_CONFIG } from '@/partials/defaults'
-
-import icons, { IconName } from '../partials/icons'
-import { CarouselConfig, Data, I18nKeys } from '../types'
+import icons, { IconName, IconNameValue } from '@/partials/icons'
 
 function isIconName(candidate: string): candidate is IconName {
   return candidate in IconName
 }
 
-const Icon = (props: Data) => {
-  const config: CarouselConfig = inject('config', reactive({ ...DEFAULT_CONFIG }))
-  const iconName = String(props.name)
-  const iconI18n = `icon${
-    iconName.charAt(0).toUpperCase() + iconName.slice(1)
-  }` as I18nKeys
-  if (!iconName || typeof iconName !== 'string' || !isIconName(iconName)) {
-    return
-  }
+export type IconProps = { name: IconNameValue, title?: string }
 
-  const path = icons[iconName]
-  const pathEl = h('path', { d: path })
+const iconI18n = <Name extends IconNameValue>(name: Name) => `icon${name.charAt(0).toUpperCase() + name.slice(1)}` as `icon${Capitalize<Name>}`
 
-  const iconTitle = config.i18n[iconI18n] || props.title || iconName
-
-  const titleEl = h('title', iconTitle)
-
-  return h(
-    'svg',
-    {
-      class: 'carousel__icon',
-      viewBox: '0 0 24 24',
-      role: 'img',
-      'aria-label': iconTitle,
-    },
-    [titleEl, pathEl]
-  )
+const validateIconName = (value: IconNameValue) => {
+  return value && isIconName(value)
 }
 
-Icon.props = { name: String, title: String }
+export default defineComponent({
+  props: {
+    name: {
+      type: String as PropType<IconNameValue>,
+      required: true,
+      validator: validateIconName
+    },
+    title: {
+      type: String,
+      default: (props: {name: IconNameValue}) => props.name ? DEFAULT_CONFIG.i18n[iconI18n(props.name)] : ''
+    }
+  },
+  setup(props: IconProps) {
+    const carousel = inject(injectCarousel, null)
 
-export default Icon
+    return () => {
+      const iconName = props.name
+      if (!validateIconName(iconName))
+        return
+
+      const path = icons[iconName]
+      const pathEl = h('path', { d: path })
+
+      const iconTitle: string = carousel?.config.i18n[iconI18n(iconName)] || props.title || iconName
+
+      const titleEl = h('title', iconTitle)
+
+      return h(
+        'svg',
+        {
+          class: 'carousel__icon',
+          viewBox: '0 0 24 24',
+          role: 'img',
+          'aria-label': iconTitle,
+        },
+        [titleEl, pathEl],
+      )
+    }
+  }
+})

@@ -5,7 +5,7 @@ import { typescriptPaths } from 'rollup-plugin-typescript-paths'
 import typescript from '@rollup/plugin-typescript'
 import terser from '@rollup/plugin-terser'
 
-import pkg from './package.json' assert { type: 'json' }
+import pkg from './package.json' with { type: 'json' }
 
 const banner = `/**
  * Vue 3 Carousel ${pkg.version}

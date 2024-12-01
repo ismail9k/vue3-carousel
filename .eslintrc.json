@@ -19,6 +19,8 @@
     "parser": "@typescript-eslint/parser"
   },
   "rules": {
+    "no-console": "error",
+    "semi": ["error", "never", { "beforeStatementContinuationChars": "always" }],
     "import/order": [
       "error",
       {
@@ -27,9 +29,8 @@
         "groups": ["builtin", "external", "internal", "parent", "sibling", "index"]
       }
     ],
-    "vue/multi-word-component-names": "off",
-    "@typescript-eslint/ban-types": "off",
-    "@typescript-eslint/no-this-alias": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
   }
 }
