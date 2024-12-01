@@ -5,7 +5,9 @@ export enum IconName {
   arrowLeft = 'arrowLeft',
 }
 
+export type IconNameValue = `${IconName}`
+
 export interface IconProps {
   title?: string
-  name?: string
+  name?: IconNameValue
 }

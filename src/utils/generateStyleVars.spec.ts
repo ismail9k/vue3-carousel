@@ -46,8 +46,8 @@ describe('generateStyleVars', () => {
     const result = generateStyleVars(component, styles)
 
     expect(result).toEqual({
-      '--vc-button-width': '100',
-      '--vc-button-height': '50',
+      '--vc-button-width': '100px',
+      '--vc-button-height': '50px',
     })
   })
 

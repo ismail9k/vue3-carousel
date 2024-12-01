@@ -8,8 +8,6 @@ export interface CarouselNav {
   prev: () => void
 }
 
-export interface CarouselProps extends CarouselConfig {}
-
 export interface CarouselData {
   config: CarouselConfig
   slidesCount: Ref<number>

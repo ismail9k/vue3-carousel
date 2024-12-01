@@ -1,6 +1,6 @@
 import { CarouselConfig } from '@/shared'
 
-type Args = {
+type GetMinSlideIndexArgs = {
   config: Partial<CarouselConfig>
   slidesCount: number
 }

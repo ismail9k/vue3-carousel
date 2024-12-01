@@ -1,6 +1,6 @@
 import { expect, it, describe } from 'vitest'
 
-import { SnapAlign } from '@/shared'
+import { CarouselConfig } from '@/shared'
 import { getMaxSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
@@ -26,7 +26,7 @@ describe('getCurrentSlideIndex', () => {
   describe('wrap-around: false', () => {
     it('When slidesCount is 0 should return 0', () => {
       const slidesCount = 0
-      const config = { wrapAround: false, itemsToShow: 1 }
+      const config = { wrapAround: false, itemsToShow: 1 } as Partial<CarouselConfig>
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
@@ -43,7 +43,7 @@ describe('getCurrentSlideIndex', () => {
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
-      expect(results).toBe(slidesCount - config.itemsToShow)
+      expect(results).toBe(slidesCount - (config.itemsToShow ?? 0))
     })
 
     it('When snapAlign is end should return (slidesCount - 1)', () => {

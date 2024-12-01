@@ -1,5 +1,5 @@
-export * from './getMaxSlideIndex'
 export * from './getMinSlideIndex'
+export * from './getMaxSlideIndex'
 export * from './getScrolledIndex'
 export * from './getNumberInRange'
 export * from './mapNumberToRange'

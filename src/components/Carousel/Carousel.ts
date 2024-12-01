@@ -37,7 +37,6 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
-  generateStyleVars,
 } from '@/utils'
 
 import ARIAComponent from './ARIA'
@@ -54,7 +53,7 @@ export default defineComponent({
     'slide-end',
     'before-init',
   ],
-  setup(props: CarouselProps, { slots, emit, expose }: SetupContext) {
+  setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
     const slides = shallowReactive<Array<ComponentInternalInstance>>([])
@@ -176,6 +175,7 @@ export default defineComponent({
       })
 
       // Calculate size based on orientation
+      const { width, height } = viewport.value.getBoundingClientRect()
       if (isVertical.value) {
         if (config.height !== 'auto') {
           let height
@@ -731,7 +731,7 @@ export default defineComponent({
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
         },
-        [viewPortEl, addonsElements, h(ARIA)]
+        [viewPortEl, addonsElements, h(ARIAComponent)]
       )
     }
   },

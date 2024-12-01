@@ -2,6 +2,7 @@ import { CarouselConfig } from '@/types'
 import { mapNumberToRange } from '@/utils/mapNumberToRange'
 
 import { getNumberInRange } from './getNumberInRange'
+import { mapNumberToRange } from './mapNumberToRange'
 
 type Args = {
   config: Partial<CarouselConfig>
