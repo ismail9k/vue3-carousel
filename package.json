@@ -18,7 +18,8 @@
     "typecheck:watch": "tsc -p . --watch --preserveWatchOutput",
     "test": "vitest run",
     "test:update": "vitest run --u",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -70,6 +71,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vue": "^9.32.0",
     "globals": "^15.13.0",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "prettier": "^3.4.1",
     "rollup": "^4.28.0",
