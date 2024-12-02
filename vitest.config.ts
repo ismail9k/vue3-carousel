@@ -17,7 +17,7 @@ const resolvePaths = () => {
 export default defineConfig({
   plugins: [vue()],
   test: {
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: './vitest.setup.ts',
     environment: 'jsdom',
     globals: true,
     include: ['**/*.spec.{ts,tsx,js,jsx}'],

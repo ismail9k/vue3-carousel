@@ -1,6 +1,6 @@
+import { mount } from '@vue/test-utils'
 import { expect, it, describe, beforeAll } from 'vitest'
 
-import { mount } from '@vue/test-utils'
 
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'

@@ -84,9 +84,11 @@ export const Slide = defineComponent({
     } else {
       const makeUnfocusable = (node: VNode) => {
         ;[
-          ...node?.el?.querySelectorAll(
-            'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
-          ),
+          ...(node?.el
+            ? node.el.querySelectorAll(
+                'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+              )
+            : []),
         ]
           .filter((el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'))
           .forEach((el) => el.setAttribute('tabindex', '-1'))
