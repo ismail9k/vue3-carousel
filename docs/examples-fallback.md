@@ -1,38 +1,56 @@
-# Test
+# Examples
 
 ## Basic
+
+A simple implementation of the carousel with default settings.
 
 <ExampleBasic />
 
 ## Wrap Around
 
+Demonstrates a carousel with continuous wrap-around functionality.
+
 <ExampleWrapAround />
 
 ## Vertical
+
+Showcases a vertically scrolling carousel. Adjust the height to better fit your content.
 
 <ExampleVertical />
 
 ## Breakpoints
 
+An example of a responsive carousel with breakpoints for varying screen sizes.
+
 <ExampleBreakpoints />
 
 ## Autoplay
+
+Illustrates the carousel with autoplay functionality enabled.
 
 <ExampleAutoplay />
 
 ## Active Classes
 
+An example highlighting active items with custom classes.
+
 <ExampleActiveClasses />
 
 ## Disabled
+
+A demonstration of how to disable the carousel.
 
 <ExampleDisable />
 
 ## Custom Navigation
 
+A demonstration of the carousel with fully customizable navigation controls.
+
 <ExampleCustomNavigation />
 
 ## Gallery
+
+Transforms the carousel into a gallery-style component.
 
 <ExampleGallery />
 
