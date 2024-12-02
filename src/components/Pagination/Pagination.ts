@@ -3,9 +3,11 @@ import { inject, h, VNode, defineComponent } from 'vue'
 import { injectCarousel } from '@/injectSymbols'
 import { mapNumberToRange, i18nFormatter } from '@/utils'
 
+import { PaginationProps } from './Pagination.types'
+
 export const Pagination = defineComponent({
   name: 'CarouselPagination',
-  setup() {
+  setup(props: PaginationProps) {
     const carousel = inject(injectCarousel)
 
     if (!carousel) {
@@ -36,7 +38,7 @@ export const Pagination = defineComponent({
           'aria-pressed': active,
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
-          onClick: () => carousel.nav.slideTo(slide),
+          onClick: props.disableOnClick ? undefined : () => carousel.nav.slideTo(slide),
         })
         const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
         children.push(item)
