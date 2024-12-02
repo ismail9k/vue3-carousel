@@ -19,13 +19,17 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-      - run: npm install -g pnpm
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: pnpm run test
