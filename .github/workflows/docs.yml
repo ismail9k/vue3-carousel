@@ -9,17 +9,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: yarn build && yarn docs:build
+        run: pnpm build && pnpm docs:build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
