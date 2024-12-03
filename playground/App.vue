@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import '@/styles'
+import '@/theme.css'
 import {
   Carousel as VueCarousel,
   Slide as CarouselSlide,
@@ -62,7 +62,7 @@ import {
 } from '@/index'
 import { ref } from 'vue'
 
-import { DIR_MAP, SNAP_ALIGN_OPTIONS } from '@/partials/defaults'
+import { DIR_MAP, SNAP_ALIGN_OPTIONS } from '@/shared/constants'
 
 const currentSlide = ref(0)
 const snapAlign = ref('center')

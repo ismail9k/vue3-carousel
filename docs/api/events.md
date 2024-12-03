@@ -5,6 +5,15 @@ Carousel events provide flexibility to intercept and react to navigation changes
 ## How to Use Events
 
 ```vue
+<script setup>
+const handleInit = () => {
+  console.log('Carousel initialized')
+}
+const handleSlideStart = (data) => {
+  console.log('Slide started:', data)
+}
+</script>
+
 <template>
   <Carousel
     @init="handleInit"
@@ -13,21 +22,6 @@ Carousel events provide flexibility to intercept and react to navigation changes
     ...
   </Carousel>
 </template>
-
-<script>
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  methods: {
-    handleInit() {
-      console.log('Carousel initialized');
-    },
-    handleSlideStart(data) {
-      console.log('Slide started:', data);
-    },
-  },
-});
-</script>
 ```
 
 ## Event Reference

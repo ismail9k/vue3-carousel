@@ -9,7 +9,7 @@ const resolvePaths = () => {
   return Object.fromEntries(
     Object.entries(compilerOptions.paths || {}).map(([key, value]) => [
       key.replace('/*', ''),
-      resolve(__dirname, value[0].replace('/*', '')),
+      resolve(__dirname, value[0].replace('/*', '/')),
     ])
   )
 }
@@ -17,7 +17,7 @@ const resolvePaths = () => {
 export default defineConfig({
   plugins: [vue()],
   test: {
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: './vitest.setup.ts',
     environment: 'jsdom',
     globals: true,
     include: ['**/*.spec.{ts,tsx,js,jsx}'],

@@ -31,6 +31,10 @@ module.exports = {
           { text: 'Events', link: '/api/events' },
         ],
       },
+      {
+        text: 'Addons',
+        link: '/addons',
+      },
     ],
 
     editLink: {

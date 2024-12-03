@@ -1,6 +1,6 @@
+import { mount } from '@vue/test-utils'
 import { expect, it, describe, beforeAll } from 'vitest'
 
-import { mount } from '@vue/test-utils'
 
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
@@ -9,7 +9,7 @@ describe('Carousel.ts', () => {
   let wrapper: any
 
   beforeAll(async () => {
-    wrapper = mount(App, {props: {slideNum: 5}})
+    wrapper = mount(App, { props: { slideNum: 5 } })
   })
 
   it('It renders *five* slides correctly', () => {
@@ -32,7 +32,7 @@ describe('Slotted Carousel.ts', () => {
   let wrapper: any
 
   beforeAll(async () => {
-    wrapper = mount(SlottedApp, {props: {slideNum: 3}})
+    wrapper = mount(SlottedApp, { props: { slideNum: 3 } })
   })
 
   it('It renders *three* slides correctly', () => {
@@ -55,7 +55,9 @@ describe('Wrap around Carousel.ts', () => {
   let wrapper: any
 
   beforeAll(async () => {
-    wrapper = mount(App, {props: {wrapAround: true, itemsToShow: 3, slideNum: 9, modelValue: 8}})
+    wrapper = mount(App, {
+      props: { wrapAround: true, itemsToShow: 3, slideNum: 9, modelValue: 8 },
+    })
   })
 
   it('It renders wrapAround correctly', () => {
