@@ -89,10 +89,6 @@ import ExampleDisable from './examples/ExampleDisable.vue';
 
 .vp-doc ol,
 .vp-doc li + li {
-  margin: 0;
-}
-
-.carousel__pagination {
-  margin: 10px 0 0 !important;
+  margin: 0 !important;
 }
 </style>

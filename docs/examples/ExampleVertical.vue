@@ -7,7 +7,7 @@ const config = {
   itemsToShow: 2,
   snapAlign: 'center',
   gap: 5,
-  height: 300,
+  height: 350,
 }
 </script>
 
