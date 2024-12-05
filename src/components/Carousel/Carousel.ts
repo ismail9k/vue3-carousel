@@ -159,7 +159,7 @@ export const Carousel = defineComponent({
     }
 
     const totalGap = computed(() => (config.itemsToShow - 1) * config.gap)
-    const transformElements = shallowReactive<Array<HTMLElement>>([])
+    const transformElements = shallowReactive<Set<HTMLElement>>(new Set())
 
     /**
      * Setup functions
@@ -221,8 +221,8 @@ export const Carousel = defineComponent({
 
     const setAnimationInterval = (event: AnimationEvent | TransitionEvent) => {
       const target = event.target as HTMLElement
-      if (target && !transformElements.includes(target)) {
-        transformElements.push(target)
+      if (target) {
+        transformElements.add(target)
       }
       if (!animationInterval) {
         const stepAnimation = () => {
@@ -237,12 +237,9 @@ export const Carousel = defineComponent({
     const finishAnimation = (event: AnimationEvent | TransitionEvent) => {
       const target = event.target as HTMLElement
       if (target) {
-        const found = transformElements.indexOf(target)
-        if (found >= 0) {
-          transformElements.splice(found, 1)
-        }
+        transformElements.delete(target)
       }
-      if (animationInterval && transformElements.length === 0) {
+      if (animationInterval && transformElements.size === 0) {
         cancelAnimationFrame(animationInterval)
         updateSlideSize()
       }
