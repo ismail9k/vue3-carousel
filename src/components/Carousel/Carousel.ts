@@ -146,18 +146,6 @@ export const Carousel = defineComponent({
       updateSlideSize()
     })
 
-    function parseTransform(el: HTMLElement) {
-      const transform = window.getComputedStyle(el).transform
-
-      //add sanity check
-      return transform
-        .split(/[(,)]/)
-        .slice(1, -1)
-        .map(function (v) {
-          return parseFloat(v)
-        })
-    }
-
     const totalGap = computed(() => (config.itemsToShow - 1) * config.gap)
     const transformElements = shallowReactive<Set<HTMLElement>>(new Set())
 
@@ -167,13 +155,11 @@ export const Carousel = defineComponent({
     function updateSlideSize(): void {
       if (!viewport.value) return
       let multiplierWidth = 1
-      let multiplierHeight = 1
       transformElements.forEach((el) => {
-        const transformArr = parseTransform(el)
+        const transformArr = getTransformValues(el)
 
-        if (transformArr.length == 6) {
+        if (transformArr.length === 6) {
           multiplierWidth *= transformArr[0]
-          multiplierHeight *= transformArr[3]
         }
       })
 
@@ -191,8 +177,7 @@ export const Carousel = defineComponent({
             height = config.height
           }
 
-          slideSize.value =
-            (height / multiplierHeight - totalGap.value) / config.itemsToShow
+          slideSize.value = (height - totalGap.value) / config.itemsToShow
         }
       } else {
         const width = viewport.value.getBoundingClientRect().width
