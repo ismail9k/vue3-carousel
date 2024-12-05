@@ -34,6 +34,7 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
+  getTransformValues,
 } from '@/utils'
 
 import {
@@ -164,18 +165,12 @@ export const Carousel = defineComponent({
       })
 
       // Calculate size based on orientation
-
       if (isVertical.value) {
         if (config.height !== 'auto') {
-          let height
-          if (typeof config.height === 'string') {
-            height =
-              parseInt(config.height).toString() !== config.height
+          const height =
+            typeof config.height === 'string' && isNaN(parseInt(config.height))
                 ? viewport.value.getBoundingClientRect().height
-                : parseInt(config.height)
-          } else {
-            height = config.height
-          }
+              : parseInt(config.height as string)
 
           slideSize.value = (height - totalGap.value) / config.itemsToShow
         }
