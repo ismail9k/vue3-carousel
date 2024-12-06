@@ -1,5 +1,6 @@
 import { expect, it, describe } from 'vitest'
 
+import { SnapAlign } from '@/shared'
 import { getMinSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
@@ -97,7 +98,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 1,
-        snapAlign: 'foo'
+        snapAlign: 'foo' as SnapAlign
       } as const
 
       const results = getMinSlideIndex({ config, slidesCount })

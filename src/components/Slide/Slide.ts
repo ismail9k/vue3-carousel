@@ -14,6 +14,7 @@ import {
   VNode,
   onUpdated,
   watch,
+  DeepReadonly,
 } from 'vue'
 
 import { injectCarousel } from '@/shared'
@@ -36,7 +37,7 @@ export const Slide = defineComponent({
       default: 0,
     },
   },
-  setup(props: SlideProps, { slots, expose }: SetupContext) {
+  setup(props: DeepReadonly<SlideProps>, { slots, expose }: SetupContext) {
     const carousel = inject(injectCarousel)
     provide(injectCarousel, undefined) // Don't provide for nested slides
 

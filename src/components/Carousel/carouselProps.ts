@@ -103,4 +103,8 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.i18n,
     type: Object as PropType<typeof DEFAULT_CONFIG.i18n>,
   },
+  ignoreAnimations: {
+    default: false,
+    type: [Array, Boolean, String] as PropType<CarouselConfig['ignoreAnimations']>,
+  }
 }

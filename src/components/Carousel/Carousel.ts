@@ -16,7 +16,7 @@ import {
   watchEffect,
   shallowReactive,
   pushScopeId,
-  popScopeId,
+  getCurrentInstance,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
@@ -29,6 +29,7 @@ import {
   injectCarousel,
 } from '@/shared'
 import {
+  except,
   throttle,
   getNumberInRange,
   getMaxSlideIndex,
@@ -68,9 +69,9 @@ export const Carousel = defineComponent({
 
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
-      ...props,
+      // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
+      ...except(props, ['breakpoints', 'modelValue']),
       i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
-      breakpoints: undefined,
     }))
 
     // current active config
@@ -201,6 +202,17 @@ export const Carousel = defineComponent({
       }
     }
 
+    const ignoreAnimations = computed<false | string[]>(() => {
+      if (typeof props.ignoreAnimations === 'string') {
+        return props.ignoreAnimations.split(',')
+      } else if (Array.isArray(props.ignoreAnimations)) {
+        return props.ignoreAnimations
+      } else if (!props.ignoreAnimations) {
+        return []
+      }
+      return false
+    })
+
     watchEffect(() => updateSlidesData())
 
     watchEffect(() => {
@@ -210,11 +222,13 @@ export const Carousel = defineComponent({
 
     let animationInterval: number
 
-    const setAnimationInterval = (event: AnimationEvent | TransitionEvent) => {
+    const setAnimationInterval = (event: AnimationEvent) => {
       const target = event.target as HTMLElement
-      if (target) {
-        transformElements.add(target)
+      if (!target?.contains(root.value) || Array.isArray(ignoreAnimations.value) && ignoreAnimations.value.includes(event.animationName)) {
+        return;
       }
+
+      transformElements.add(target)
       if (!animationInterval) {
         const stepAnimation = () => {
           animationInterval = requestAnimationFrame(() => {
@@ -236,17 +250,29 @@ export const Carousel = defineComponent({
       }
     }
 
+
+    const mounted = ref(false)
+
+    if (typeof document !== "undefined") {
+      watchEffect(() => {
+        if (mounted.value && ignoreAnimations.value !== false) {
+          document.addEventListener('animationstart', setAnimationInterval)
+          document.addEventListener('animationend', finishAnimation)
+        } else {
+          document.removeEventListener('animationstart', setAnimationInterval)
+          document.removeEventListener('animationend', finishAnimation)
+        }
+      })
+    }
+
     updateBreakpointsConfig()
     onMounted((): void => {
+      mounted.value = true
       if (fallbackConfig.value.breakpointMode === 'carousel') {
         updateBreakpointsConfig()
       }
       initAutoplay()
 
-      if (document) {
-        document.addEventListener('animationstart', setAnimationInterval)
-        document.addEventListener('animationend', finishAnimation)
-      }
       if (root.value) {
         resizeObserver = new ResizeObserver(handleResize)
         resizeObserver.observe(root.value)
@@ -256,6 +282,7 @@ export const Carousel = defineComponent({
     })
 
     onBeforeUnmount(() => {
+      mounted.value = false
       // Empty the slides before they unregister for better performance
       slides.splice(0, slides.length)
       indexCbs.splice(0, indexCbs.length)
@@ -274,10 +301,8 @@ export const Carousel = defineComponent({
         resizeObserver = null
       }
 
-      if (document) {
+      if (typeof document !== "undefined") {
         handleBlur()
-        document.removeEventListener('animationstart', setAnimationInterval)
-        document.removeEventListener('animationend', finishAnimation)
       }
       if (root.value) {
         root.value.removeEventListener('transitionend', updateSlideSize)
@@ -683,7 +708,7 @@ export const Carousel = defineComponent({
         const toShow = clonedSlidesCount.value
         const slidesBefore = createCloneSlides({ slides, position: 'before', toShow })
         const slidesAfter = createCloneSlides({ slides, position: 'after', toShow })
-        popScopeId()
+        pushScopeId(getCurrentInstance()!.vnode.scopeId)
         output = [...slidesBefore, ...output, ...slidesAfter]
       }
 
