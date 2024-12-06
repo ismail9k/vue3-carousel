@@ -34,6 +34,7 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
+  except,
 } from '@/utils'
 
 import {
@@ -65,15 +66,18 @@ export const Carousel = defineComponent({
 
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
-      ...props,
+      // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
+      ...except(props, ['breakpoints', 'modelValue']),
       i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
-      breakpoints: undefined,
     }))
 
     // current active config
     const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
 
-    watch(fallbackConfig, () => Object.assign(config, fallbackConfig.value))
+    watch(fallbackConfig, () => {
+      Object.assign(config, fallbackConfig.value)
+      updateBreakpointsConfig()
+    })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -210,6 +214,17 @@ export const Carousel = defineComponent({
       }
     }
 
+    const ignoreAnimations = computed<false | string[]>(() => {
+      if (typeof props.ignoreAnimations === 'string') {
+        return props.ignoreAnimations.split(',')
+      } else if (Array.isArray(props.ignoreAnimations)) {
+        return props.ignoreAnimations
+      } else if (!props.ignoreAnimations) {
+        return []
+      }
+      return false
+    })
+
     watchEffect(() => updateSlidesData())
 
     watchEffect(() => {
@@ -219,8 +234,13 @@ export const Carousel = defineComponent({
 
     let animationInterval: number
 
-    const setAnimationInterval = (event: AnimationEvent | TransitionEvent) => {
+    const setAnimationInterval = (event: AnimationEvent) => {
       const target = event.target as HTMLElement
+      if (Array.isArray(ignoreAnimations.value) && ignoreAnimations.value.includes(event.animationName)
+        || window.getComputedStyle(target).animationIterationCount === 'infinite') {
+        return;
+      }
+
       if (target && !transformElements.includes(target)) {
         transformElements.push(target)
       }
@@ -248,14 +268,25 @@ export const Carousel = defineComponent({
       }
     }
 
+    const mounted = ref(false)
+
+    if (document) {
+      watchEffect(() => {
+        if (mounted.value && ignoreAnimations.value !== false) {
+          document.addEventListener('animationstart', setAnimationInterval)
+          document.addEventListener('animationend', finishAnimation)
+        } else {
+          document.removeEventListener('animationstart', setAnimationInterval)
+          document.removeEventListener('animationend', finishAnimation)
+        }
+      })
+    }
+
     onMounted((): void => {
       updateBreakpointsConfig()
       initAutoplay()
+      mounted.value = true
 
-      if (document) {
-        document.addEventListener('animationstart', setAnimationInterval)
-        document.addEventListener('animationend', finishAnimation)
-      }
       if (root.value) {
         resizeObserver = new ResizeObserver(handleResize)
         resizeObserver.observe(root.value)
@@ -265,6 +296,7 @@ export const Carousel = defineComponent({
     })
 
     onBeforeUnmount(() => {
+      mounted.value = false
       // Empty the slides before they unregister for better performance
       slides.splice(0, slides.length)
       indexCbs.splice(0, indexCbs.length)
@@ -285,8 +317,6 @@ export const Carousel = defineComponent({
 
       if (document) {
         document.removeEventListener('keydown', handleArrowKeys)
-        document.removeEventListener('animationstart', setAnimationInterval)
-        document.removeEventListener('animationend', finishAnimation)
       }
       if (root.value) {
         root.value.removeEventListener('transitionend', updateSlideSize)
@@ -688,6 +718,7 @@ export const Carousel = defineComponent({
           cloneVNode(vnode, {
             index: -slides.length + toShow + index,
             isClone: true,
+            id: undefined,
             key: `clone-before-${String(vnode.key)}`,
           })
         )
@@ -695,6 +726,7 @@ export const Carousel = defineComponent({
           cloneVNode(vnode, {
             index: slides.length + index,
             isClone: true,
+            id: undefined,
             key: `clone-after-${String(vnode.key)}`,
           })
         )

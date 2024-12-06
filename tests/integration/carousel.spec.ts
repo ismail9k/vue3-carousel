@@ -1,12 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { expect, it, describe, beforeAll } from 'vitest'
 
-
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
 
 describe('Carousel.ts', () => {
-  let wrapper: any
+  let wrapper: ReturnType<typeof mount<typeof App>>
 
   beforeAll(async () => {
     wrapper = mount(App, { props: { slideNum: 5 } })
@@ -29,7 +28,7 @@ describe('Carousel.ts', () => {
 })
 
 describe('Slotted Carousel.ts', () => {
-  let wrapper: any
+  let wrapper: ReturnType<typeof mount<typeof SlottedApp>>
 
   beforeAll(async () => {
     wrapper = mount(SlottedApp, { props: { slideNum: 3 } })
@@ -52,7 +51,7 @@ describe('Slotted Carousel.ts', () => {
 })
 
 describe('Wrap around Carousel.ts', () => {
-  let wrapper: any
+  let wrapper: ReturnType<typeof mount<typeof App>>
 
   beforeAll(async () => {
     wrapper = mount(App, {

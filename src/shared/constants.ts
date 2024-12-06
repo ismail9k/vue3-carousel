@@ -51,4 +51,5 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
   i18n: I18N_DEFAULT_CONFIG,
+  ignoreAnimations: false,
 }
