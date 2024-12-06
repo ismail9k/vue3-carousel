@@ -38,6 +38,7 @@
         :pause-autoplay-on-hover="true"
         :wrap-around="wrapAround"
         :dir="dir"
+        :breakpoints="breakpoints"
         :snap-align="snapAlign"
       >
         <CarouselSlide v-for="i in 10" :key="i" v-slot="{ isActive, isClone }">
@@ -49,7 +50,6 @@
         </template>
       </VueCarousel>
     </div>
-    <div class="spin"></div>
   </div>
 </template>
 
@@ -68,11 +68,29 @@ import { DIR_MAP, SNAP_ALIGN_OPTIONS } from '@/shared/constants'
 const currentSlide = ref(0)
 const snapAlign = ref('center')
 const itemsToScroll = ref(1)
-const itemsToShow = ref(2)
-const autoplay = ref(5000)
+const itemsToShow = ref(1)
+const autoplay = ref()
 const wrapAround = ref(true)
 const height = ref('200')
 const dir = ref('left-to-right')
+
+const breakpoints = {
+  500: {
+    itemsToShow: 3,
+  },
+  800: {
+    itemsToShow: 4,
+  },
+  1100: {
+    itemsToShow: 5,
+  },
+  1400: {
+    itemsToShow: 6,
+  },
+  1700: {
+    itemsToShow: 7,
+  },
+};
 </script>
 
 <style lang="css">
@@ -93,22 +111,6 @@ fieldset {
   flex-wrap: wrap;
   gap: 15px;
   margin-bottom: 10px;
-}
-
-.spin {
-  background: red;
-  width: 10px;
-  height: 10px;
-  animation: spin 3s infinite;
-}
-
-@keyframes spin {
-  0% {
-    rotate: 0;
-  }
-  100% {
-    rotate: 360deg;
-  }
 }
 
 @keyframes pop-in {

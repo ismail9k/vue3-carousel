@@ -34,6 +34,7 @@ import {
   getMinSlideIndex,
   mapNumberToRange,
   getScrolledIndex,
+  except,
 } from '@/utils'
 
 import {
@@ -65,15 +66,18 @@ export const Carousel = defineComponent({
 
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
-      ...props,
+      // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
+      ...except(props, ['breakpoints', 'modelValue']),
       i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
-      breakpoints: undefined,
     }))
 
     // current active config
     const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
 
-    watch(fallbackConfig, () => Object.assign(config, fallbackConfig.value))
+    watch(fallbackConfig, () => {
+      Object.assign(config, fallbackConfig.value)
+      updateBreakpointsConfig()
+    })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
