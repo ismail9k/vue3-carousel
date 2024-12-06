@@ -43,4 +43,5 @@ export interface CarouselConfig {
   breakpoints?: Breakpoints
   height: string | number
   i18n: { [key in I18nKeys]?: string }
+  ignoreAnimations: boolean | string[] | string
 }
