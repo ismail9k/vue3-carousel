@@ -118,6 +118,8 @@ export const Carousel = defineComponent({
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
 
+    const clonedSlidesCount = computed(() => config.itemsToShow + 1)
+
     function updateBreakpointsConfig(): void {
       // Determine the width source based on the 'breakpointMode' config
       const widthSource =
@@ -622,7 +624,7 @@ export const Carousel = defineComponent({
      */
     const trackTransform: ComputedRef<string> = computed(() => {
       // Calculate the scrolled index with wrapping offset if applicable
-      const cloneOffset = config.wrapAround ? config.itemsToShow : 0
+      const cloneOffset = config.wrapAround ? clonedSlidesCount.value : 0
 
       // Determine direction multiplier for orientation
       const directionMultiplier = isReversed.value ? -1 : 1
@@ -660,7 +662,7 @@ export const Carousel = defineComponent({
       const addonsElements = slotAddons?.(data) || []
 
       if (config.wrapAround) {
-        const toShow = Math.ceil(config.itemsToShow)
+        const toShow = Math.ceil(clonedSlidesCount.value)
         const slidesBefore = slides.slice(-toShow).map(({ vnode }, index: number) =>
           cloneVNode(vnode, {
             index: -slides.length + toShow + index,
