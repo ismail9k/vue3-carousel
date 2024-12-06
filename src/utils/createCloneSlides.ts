@@ -19,6 +19,7 @@ export function createCloneSlides({ slides, position, toShow }: CreateCloneSlide
     const props = {
       index,
       isClone: true,
+      id: undefined, // Make sure we don't duplicate the id which would be invalid html
       key: `clone-${position}-${i}`,
     }
     clones.push(

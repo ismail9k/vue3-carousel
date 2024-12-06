@@ -16,7 +16,7 @@ import {
   watchEffect,
   shallowReactive,
   pushScopeId,
-  popScopeId,
+  getCurrentInstance,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
@@ -29,6 +29,7 @@ import {
   NormalizedDir,
 } from '@/shared'
 import {
+  except,
   throttle,
   getNumberInRange,
   getMaxSlideIndex,
@@ -66,12 +67,15 @@ export const Carousel = defineComponent({
     const slideSize: Ref<number> = ref(0)
     const slidesCount = computed(() => slides.length)
 
-    const fallbackConfig = computed(() => ({
-      ...DEFAULT_CONFIG,
-      ...props,
-      i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
-      breakpoints: undefined,
-    }))
+    // Use an object reference so that strict equality doesn't cause ref to trigger on every recompute
+    const fallbackConfigTracker = { i18n: {} }
+    const fallbackConfig = computed(() => (Object.assign(
+      fallbackConfigTracker,
+      DEFAULT_CONFIG,
+      // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
+      except(props, ['breakpoints', 'modelValue']),
+      { i18n: Object.assign(fallbackConfigTracker.i18n, DEFAULT_CONFIG.i18n, props.i18n) },
+    )))
 
     // current active config
     const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
@@ -201,6 +205,17 @@ export const Carousel = defineComponent({
       }
     }
 
+    const ignoreAnimations = computed<false | string[]>(() => {
+      if (typeof props.ignoreAnimations === 'string') {
+        return props.ignoreAnimations.split(',')
+      } else if (Array.isArray(props.ignoreAnimations)) {
+        return props.ignoreAnimations
+      } else if (!props.ignoreAnimations) {
+        return []
+      }
+      return false
+    })
+
     watchEffect(() => updateSlidesData())
 
     watchEffect(() => {
@@ -210,8 +225,13 @@ export const Carousel = defineComponent({
 
     let animationInterval: number
 
-    const setAnimationInterval = (event: AnimationEvent | TransitionEvent) => {
+    const setAnimationInterval = (event: AnimationEvent) => {
       const target = event.target as HTMLElement
+      if (Array.isArray(ignoreAnimations.value) && ignoreAnimations.value.includes(event.animationName)
+        || window.getComputedStyle(target).animationIterationCount === 'infinite') {
+        return;
+      }
+
       if (target) {
         transformElements.add(target)
       }
@@ -236,6 +256,21 @@ export const Carousel = defineComponent({
       }
     }
 
+
+    const mounted = ref(false)
+
+    if (document) {
+      watchEffect(() => {
+        if (mounted.value && ignoreAnimations.value !== false) {
+          document.addEventListener('animationstart', setAnimationInterval)
+          document.addEventListener('animationend', finishAnimation)
+        } else {
+          document.removeEventListener('animationstart', setAnimationInterval)
+          document.removeEventListener('animationend', finishAnimation)
+        }
+      })
+    }
+
     updateBreakpointsConfig()
     onMounted((): void => {
       if (fallbackConfig.value.breakpointMode === 'carousel') {
@@ -243,10 +278,6 @@ export const Carousel = defineComponent({
       }
       initAutoplay()
 
-      if (document) {
-        document.addEventListener('animationstart', setAnimationInterval)
-        document.addEventListener('animationend', finishAnimation)
-      }
       if (root.value) {
         resizeObserver = new ResizeObserver(handleResize)
         resizeObserver.observe(root.value)
@@ -256,6 +287,7 @@ export const Carousel = defineComponent({
     })
 
     onBeforeUnmount(() => {
+      mounted.value = false
       // Empty the slides before they unregister for better performance
       slides.splice(0, slides.length)
       indexCbs.splice(0, indexCbs.length)
@@ -276,8 +308,6 @@ export const Carousel = defineComponent({
 
       if (document) {
         document.removeEventListener('keydown', handleArrowKeys)
-        document.removeEventListener('animationstart', setAnimationInterval)
-        document.removeEventListener('animationend', finishAnimation)
       }
       if (root.value) {
         root.value.removeEventListener('transitionend', updateSlideSize)
@@ -683,7 +713,7 @@ export const Carousel = defineComponent({
         const toShow = clonedSlidesCount.value
         const slidesBefore = createCloneSlides({ slides, position: 'before', toShow })
         const slidesAfter = createCloneSlides({ slides, position: 'after', toShow })
-        popScopeId()
+        pushScopeId(getCurrentInstance()!.vnode.scopeId)
         output = [...slidesBefore, ...output, ...slidesAfter]
       }
 
