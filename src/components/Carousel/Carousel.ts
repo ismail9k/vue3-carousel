@@ -372,6 +372,8 @@ export const Carousel = defineComponent({
     })
 
     function handleDragEnd(): void {
+      handleDragging.cancel()
+
       // Determine the active axis and direction multiplier
       const dragAxis = isVertical.value ? 'y' : 'x'
       const directionMultiplier = isReversed.value ? -1 : 1
