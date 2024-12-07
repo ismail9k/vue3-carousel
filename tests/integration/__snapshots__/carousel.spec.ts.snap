@@ -4,6 +4,7 @@ exports[`Wrap around Carousel.ts > It renders wrapAround correctly 1`] = `
 "<section class="carousel is-ltr" dir="ltr" aria-label="Gallery" tabindex="0">
   <div class="carousel__viewport">
     <ol class="carousel__track" style="transform: translateX(0px);">
+      <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">6 <input type="text" tabindex="-1"></li>
       <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">7 <input type="text" tabindex="-1"></li>
       <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">8 <input type="text" tabindex="-1"></li>
       <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">9 <input type="text" tabindex="-1"></li>
@@ -19,6 +20,7 @@ exports[`Wrap around Carousel.ts > It renders wrapAround correctly 1`] = `
       <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone carousel__slide--visible carousel__slide--next" aria-hidden="true">1 <input type="text" tabindex="-1"></li>
       <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">2 <input type="text" tabindex="-1"></li>
       <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">3 <input type="text" tabindex="-1"></li>
+      <li style="width: 33.333333333333336%;" class="carousel__slide carousel__slide--clone" aria-hidden="true">4 <input type="text" tabindex="-1"></li>
     </ol>
   </div><button type="button" class="carousel__prev" aria-label="Navigate to previous slide" title="Navigate to previous slide"><svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing to the left">
       <title>Arrow pointing to the left</title>

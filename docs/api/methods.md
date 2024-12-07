@@ -50,15 +50,15 @@ Update all the slide related date includes:
 - `maxSlide`
 - `minSlide`
 
-## initDefaultConfig()
+## ~~initDefaultConfig()~~ <Badge type="danger" text="This method is deprecated"/>
 
-Init carousel default configurations
+~~Init carousel default configurations~~
 
 ## restartCarousel()
 
 Restart the carousel settings and data, internally it calls:
 
-- `initDefaultConfig`
+- ~~`initDefaultConfig`~~
 - `resetAutoplay`
 - `updateBreakpointsConfig`
 - `updateSlidesData`
