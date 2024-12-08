@@ -1,5 +1,5 @@
 <script setup>
-import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
+import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
 import '../../dist/carousel.css'
 
 const config = {
@@ -24,7 +24,7 @@ const config = {
 
 <style scoped>
 .carousel__slide {
-  padding: 5;
+  padding: 5px;
 }
 
 .carousel__viewport {
