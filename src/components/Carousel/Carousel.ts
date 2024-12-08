@@ -35,6 +35,7 @@ import {
   mapNumberToRange,
   getScrolledIndex,
   getTransformValues,
+  getSlidesVNodes,
 } from '@/utils'
 
 import {
@@ -171,7 +172,7 @@ export const Carousel = defineComponent({
         if (config.height !== 'auto') {
           const height =
             typeof config.height === 'string' && isNaN(parseInt(config.height))
-                ? viewport.value.getBoundingClientRect().height
+              ? viewport.value.getBoundingClientRect().height
               : parseInt(config.height as string)
 
           slideSize.value = (height - totalGap.value) / config.itemsToShow
@@ -665,16 +666,18 @@ export const Carousel = defineComponent({
 
       if (config.wrapAround) {
         const toShow = Math.ceil(clonedSlidesCount.value)
-        const slidesBefore = slides.slice(-toShow).map(({ vnode }, index: number) =>
+        const outputSlides = getSlidesVNodes(output)
+
+        const slidesBefore = outputSlides.slice(-toShow).map((vnode, index: number) =>
           cloneVNode(vnode, {
-            index: -slides.length + toShow + index,
+            index: -toShow + index,
             isClone: true,
             key: `clone-before-${String(vnode.key)}`,
           })
         )
-        const slidesAfter = slides.slice(0, toShow).map(({ vnode }, index: number) =>
+        const slidesAfter = outputSlides.slice(0, toShow).map((vnode, index: number) =>
           cloneVNode(vnode, {
-            index: slides.length + index,
+            index: outputSlides.length + index,
             isClone: true,
             key: `clone-after-${String(vnode.key)}`,
           })
