@@ -19,6 +19,7 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
+import { Slide } from '@/components/Slide'
 import { injectCarousel } from '@/injectSymbols'
 import {
   CarouselConfig,
@@ -64,17 +65,21 @@ export const Carousel = defineComponent({
     const slideSize: Ref<number> = ref(0)
     const slidesCount = computed(() => slides.length)
 
+    const i18nTracker = {}
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
       ...props,
-      i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
+      i18n: Object.assign(i18nTracker, DEFAULT_CONFIG.i18n, props.i18n),
       breakpoints: undefined,
     }))
 
     // current active config
     const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
 
-    watch(fallbackConfig, () => Object.assign(config, fallbackConfig.value))
+    watch(fallbackConfig, () => {
+      Object.assign(config, fallbackConfig.value)
+      updateBreakpointsConfig()
+    })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -118,23 +123,24 @@ export const Carousel = defineComponent({
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
 
-    const clonedSlidesCount = computed(() => config.itemsToShow + 1)
+    const clonedSlidesCount = computed(() => Math.ceil(config.itemsToShow) + 1)
 
     function updateBreakpointsConfig(): void {
       // Determine the width source based on the 'breakpointMode' config
       const widthSource =
-        (config.breakpointMode === 'carousel'
+        (fallbackConfig.value.breakpointMode === 'carousel'
           ? root.value?.getBoundingClientRect().width
-          : window.innerWidth) || 0
+          : typeof window !== "undefined" ? window.innerWidth : 0) || 0
 
       const breakpointsArray = Object.keys(props.breakpoints || {})
         .map((key) => Number(key))
         .sort((a, b) => +b - +a)
 
-      let newConfig = { ...fallbackConfig.value } as CarouselConfig
+      const newConfig: CarouselConfig = { ...fallbackConfig.value } as CarouselConfig
       breakpointsArray.some((breakpoint) => {
         if (widthSource >= breakpoint) {
-          newConfig = { ...newConfig, ...props.breakpoints?.[breakpoint] }
+          Object.assign(newConfig, props.breakpoints![breakpoint]);
+          Object.assign(newConfig.i18n, fallbackConfig.value.i18n, props.breakpoints![breakpoint].i18n)
           return true
         }
         return false
@@ -171,7 +177,7 @@ export const Carousel = defineComponent({
         if (config.height !== 'auto') {
           const height =
             typeof config.height === 'string' && isNaN(parseInt(config.height))
-                ? viewport.value.getBoundingClientRect().height
+              ? viewport.value.getBoundingClientRect().height
               : parseInt(config.height as string)
 
           slideSize.value = (height - totalGap.value) / config.itemsToShow
@@ -227,8 +233,8 @@ export const Carousel = defineComponent({
       }
     }
 
+    updateBreakpointsConfig()
     onMounted((): void => {
-      updateBreakpointsConfig()
       initAutoplay()
 
       if (document) {
@@ -650,6 +656,7 @@ export const Carousel = defineComponent({
       const slotAddons = slots.addons
 
       let output: VNode[] | Array<Array<VNode>> = slotSlides?.(data) || []
+
       if (!config.enabled || !output.length) {
         return h(
           'section',
@@ -664,22 +671,26 @@ export const Carousel = defineComponent({
       const addonsElements = slotAddons?.(data) || []
 
       if (config.wrapAround) {
-        const toShow = Math.ceil(clonedSlidesCount.value)
-        const slidesBefore = slides.slice(-toShow).map(({ vnode }, index: number) =>
-          cloneVNode(vnode, {
-            index: -slides.length + toShow + index,
+        const toShow = clonedSlidesCount.value
+        const slidesBefore = []
+        for (let i = -toShow; i < 0; i++) {
+          const props = {
+            index: i,
             isClone: true,
-            key: `clone-before-${String(vnode.key)}`,
-          })
-        )
-        const slidesAfter = slides.slice(0, toShow).map(({ vnode }, index: number) =>
-          cloneVNode(vnode, {
-            index: slides.length + index,
+            key: `clone-before-${i}`,
+          };
+          slidesBefore.push(slides.length > 0 ? cloneVNode(slides[(i + slides.length) % slides.length].vnode, props) : h(Slide, props))
+        }
+        const slidesAfter = []
+        for (let i = 0; i < toShow; i++) {
+          const props = {
+            index: slides.length > 0 ? i + slides.length : i + 99999,
             isClone: true,
-            key: `clone-after-${String(vnode.key)}`,
-          })
-        )
-        output = [slidesBefore, output, slidesAfter]
+            key: `clone-after-${i}`,
+          };
+          slidesAfter.push(slides.length > 0 ? cloneVNode(slides[(i + slides.length) % slides.length].vnode, props) : h(Slide, props))
+        }
+        output = [...slidesBefore, ...output, ...slidesAfter]
       }
 
       const trackEl = h(
