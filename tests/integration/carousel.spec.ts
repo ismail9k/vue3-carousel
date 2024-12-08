@@ -3,8 +3,6 @@ import { expect, it, describe, beforeAll, vi, afterEach } from 'vitest'
 import { Component, createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import ExampleActiveClasses from '../../docs/examples/ExampleActiveClasses.vue'
-import ExampleBreakpoints from '../../docs/examples/ExampleActiveClasses.vue'
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
 
