@@ -16,6 +16,7 @@ import {
   ComponentInternalInstance,
   watchEffect,
   shallowReactive,
+  nextTick,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
@@ -227,7 +228,12 @@ export const Carousel = defineComponent({
       }
     }
 
+    const ssrReady = ref(false)
+
     onMounted((): void => {
+      nextTick(() => {
+        ssrReady.value = true
+      })
       updateBreakpointsConfig()
       initAutoplay()
 
@@ -650,6 +656,7 @@ export const Carousel = defineComponent({
       const slotAddons = slots.addons
 
       let output: VNode[] | Array<Array<VNode>> = slotSlides?.(data) || []
+
       if (!config.enabled || !output.length) {
         return h(
           'section',
@@ -663,11 +670,11 @@ export const Carousel = defineComponent({
 
       const addonsElements = slotAddons?.(data) || []
 
-      if (config.wrapAround) {
+      if (ssrReady.value && config.wrapAround) {
         const toShow = Math.ceil(clonedSlidesCount.value)
         const slidesBefore = slides.slice(-toShow).map(({ vnode }, index: number) =>
           cloneVNode(vnode, {
-            index: -slides.length + toShow + index,
+            index: -toShow + index,
             isClone: true,
             key: `clone-before-${String(vnode.key)}`,
           })
@@ -679,7 +686,7 @@ export const Carousel = defineComponent({
             key: `clone-after-${String(vnode.key)}`,
           })
         )
-        output = [slidesBefore, output, slidesAfter]
+        output = [...slidesBefore, ...output, ...slidesAfter]
       }
 
       const trackEl = h(
