@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { expect, it, describe, beforeAll, vi } from 'vitest'
+import { expect, it, describe, beforeAll, vi, afterEach } from 'vitest'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
@@ -67,22 +67,31 @@ describe('Wrap around Carousel.ts', () => {
 })
 
 describe('SSR Carousel', () => {
-  it('renders server side properly', async () => {
-    const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+  const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
+  afterEach(() => {
+    consoleMock.mockReset()
+  })
+
+  const renderSSR = async (component, props) => {
     const comp = {
       render() {
-        return h('div', { id: 'app' }, h(App, {
-          wrapAround: true,
-          modelValue: 1,
-          itemsToShow: 2,
-        }))
+        return h('div', { id: 'app' }, h(component, props))
       },
     }
     const app = createSSRApp(comp)
     const html = await renderToString(app)
     document.body.innerHTML = html
     const wrapper = await mount(comp, { attachTo: '#app' })
+    return [html, wrapper]
+  }
+
+  it('renders server side properly', async () => {
+    const [html, wrapper] = await renderSSR(App, {
+      wrapAround: true,
+      modelValue: 1,
+      itemsToShow: 2,
+    })
 
     expect(consoleMock).not.toHaveBeenCalled()
     expect(html).toMatchSnapshot()
@@ -90,20 +99,10 @@ describe('SSR Carousel', () => {
   })
 
   it('renders slotted server side properly', async () => {
-    const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-
-    const comp = {
-      render() {
-        return h('div', { id: 'app' }, h(SlottedApp, {
-          wrapAround: true,
-          slideNum: 5,
-        }))
-      },
-    }
-    const app = createSSRApp(comp)
-    const html = await renderToString(app)
-    document.body.innerHTML = html
-    const wrapper = await mount(comp, { attachTo: '#app' })
+    const [html, wrapper] = await renderSSR(SlottedApp, {
+      wrapAround: true,
+      slideNum: 5,
+    })
 
     expect(consoleMock).not.toHaveBeenCalled()
     expect(html).toMatchSnapshot()
