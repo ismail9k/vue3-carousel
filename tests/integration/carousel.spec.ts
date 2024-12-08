@@ -94,8 +94,8 @@ describe('SSR Carousel', () => {
     })
 
     expect(consoleMock).not.toHaveBeenCalled()
-    expect(html).toMatchSnapshot()
     expect(wrapper.html()).toMatchSnapshot()
+    expect(html).toMatchSnapshot()
   })
 
   it('renders slotted server side properly', async () => {
@@ -105,7 +105,7 @@ describe('SSR Carousel', () => {
     })
 
     expect(consoleMock).not.toHaveBeenCalled()
-    expect(html).toMatchSnapshot()
     expect(wrapper.html()).toMatchSnapshot()
+    expect(html).toMatchSnapshot()
   })
 })
