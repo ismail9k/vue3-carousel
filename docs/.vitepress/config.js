@@ -37,6 +37,10 @@ module.exports = {
       },
     ],
 
+    search: {
+      provider: 'local'
+    },
+
     editLink: {
       pattern: 'https://github.com/ismail9k/vue3-carousel/edit/master/docs/:path',
     },
