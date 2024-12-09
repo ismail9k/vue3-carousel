@@ -6,7 +6,7 @@ import {
   DIR_OPTIONS,
   SNAP_ALIGN_OPTIONS,
 } from '@/shared/constants'
-import { BreakpointMode, Dir, SnapAlign } from '@/shared/types'
+import { BreakpointMode, CarouselConfig, Dir, SnapAlign } from '@/shared/types'
 
 export const carouselProps = {
   // enable/disable the carousel component
@@ -61,7 +61,7 @@ export const carouselProps = {
   // an object to store breakpoints
   breakpoints: {
     default: DEFAULT_CONFIG.breakpoints,
-    type: Object,
+    type: Object as PropType<CarouselConfig['breakpoints']>,
   },
   // time to auto advance slides in ms
   autoplay: {
@@ -102,4 +102,8 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.i18n,
     type: Object as PropType<typeof DEFAULT_CONFIG.i18n>,
   },
+  ignoreAnimations: {
+    default: false,
+    type: [Array, Boolean, String] as PropType<CarouselConfig['ignoreAnimations']>,
+  }
 }

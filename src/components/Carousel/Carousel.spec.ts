@@ -4,7 +4,7 @@ import { expect, it, describe, beforeEach } from 'vitest'
 import { Carousel } from './Carousel'
 
 describe('Carousel.ts', () => {
-  let wrapper: any
+  let wrapper: ReturnType<typeof mount<typeof Carousel>>
 
   beforeEach(async () => {
     wrapper = mount(Carousel)

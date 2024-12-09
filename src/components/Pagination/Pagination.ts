@@ -1,4 +1,4 @@
-import { inject, h, VNode, defineComponent } from 'vue'
+import { inject, h, VNode, defineComponent, DeepReadonly } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
 import { mapNumberToRange, i18nFormatter } from '@/utils'
@@ -7,7 +7,12 @@ import { PaginationProps } from './Pagination.types'
 
 export const Pagination = defineComponent({
   name: 'CarouselPagination',
-  setup(props: PaginationProps) {
+  props: {
+    disableOnClick: {
+      type: Boolean,
+    },
+  },
+  setup(props: DeepReadonly<PaginationProps>) {
     const carousel = inject(injectCarousel)
 
     if (!carousel) {

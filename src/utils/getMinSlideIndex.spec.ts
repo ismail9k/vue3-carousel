@@ -37,7 +37,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'start',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -50,7 +50,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'end',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -62,7 +62,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'center-odd',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -74,7 +74,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'center-even',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
       expect(results).toBe(Math.floor((config.itemsToShow - 2) / 2))
@@ -85,7 +85,7 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 1,
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -98,7 +98,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'center',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 

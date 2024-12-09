@@ -22,11 +22,14 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9
       - run: pnpm install
 
-      - name: lining
+      - name: linting
         run: pnpm run lint
+
+      - name: type checks
+        run: pnpm run typecheck
 
       - name: test
         run: pnpm run test

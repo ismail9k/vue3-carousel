@@ -19,7 +19,7 @@ describe('Icon.ts', () => {
   })
 
   it('It should error if iconName is invalid', () => {
-    const wrapper = mount(Icon, { props: { name: 'foo' as any } })
+    const wrapper = mount(Icon, { props: { name: 'foo' as IconProps['name'] } })
     expect(wrapper.html()).toBe('')
     expect(consoleMock).toHaveBeenCalledOnce()
     expect(consoleMock.mock.calls[0][0]).toBe(
