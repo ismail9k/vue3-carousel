@@ -67,15 +67,12 @@ export const Carousel = defineComponent({
     const slideSize: Ref<number> = ref(0)
     const slidesCount = computed(() => slides.length)
 
-    // Use an object reference so that strict equality doesn't cause ref to trigger on every recompute
-    const fallbackConfigTracker = { i18n: {} }
-    const fallbackConfig = computed(() => (Object.assign(
-      fallbackConfigTracker,
-      DEFAULT_CONFIG,
+    const fallbackConfig = computed(() => ({
+      ...DEFAULT_CONFIG,
       // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
-      except(props, ['breakpoints', 'modelValue']),
-      { i18n: Object.assign(fallbackConfigTracker.i18n, DEFAULT_CONFIG.i18n, props.i18n) },
-    )))
+      ...except(props, ['breakpoints', 'modelValue']),
+      i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
+    }))
 
     // current active config
     const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
@@ -273,6 +270,7 @@ export const Carousel = defineComponent({
 
     updateBreakpointsConfig()
     onMounted((): void => {
+      mounted.value = true
       if (fallbackConfig.value.breakpointMode === 'carousel') {
         updateBreakpointsConfig()
       }
