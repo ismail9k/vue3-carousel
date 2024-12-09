@@ -8,7 +8,6 @@ import {
   computed,
   h,
   watch,
-  cloneVNode,
   VNode,
   SetupContext,
   Ref,
@@ -21,7 +20,6 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
-import { Slide } from '@/components/Slide'
 import { injectCarousel } from '@/injectSymbols'
 import {
   CarouselConfig,
@@ -38,6 +36,7 @@ import {
   mapNumberToRange,
   getScrolledIndex,
   getTransformValues,
+  createCloneSlides,
 } from '@/utils'
 
 import {
@@ -678,35 +677,12 @@ export const Carousel = defineComponent({
       const addonsElements = slotAddons?.(data) || []
 
       if (config.wrapAround) {
-        // Ensure scoped css tracks properly
-        pushScopeId(output.length > 0 ? output[0].scopeId : null)
+        // Ensure scoped CSS tracks properly
+        const scopeId = output.length > 0 ? output[0].scopeId : null
+        pushScopeId(scopeId)
         const toShow = clonedSlidesCount.value
-        const slidesBefore = []
-        for (let i = -toShow; i < 0; i++) {
-          const props = {
-            index: i,
-            isClone: true,
-            key: `clone-before-${i}`,
-          }
-          slidesBefore.push(
-            slides.length > 0
-              ? cloneVNode(slides[(i + slides.length) % slides.length].vnode, props)
-              : h(Slide, props)
-          )
-        }
-        const slidesAfter = []
-        for (let i = 0; i < toShow; i++) {
-          const props = {
-            index: slides.length > 0 ? i + slides.length : i + 99999,
-            isClone: true,
-            key: `clone-after-${i}`,
-          }
-          slidesAfter.push(
-            slides.length > 0
-              ? cloneVNode(slides[i % slides.length].vnode, props)
-              : h(Slide, props)
-          )
-        }
+        const slidesBefore = createCloneSlides({ slides, position: 'before', toShow })
+        const slidesAfter = createCloneSlides({ slides, position: 'after', toShow })
         popScopeId()
         output = [...slidesBefore, ...output, ...slidesAfter]
       }
