@@ -12,6 +12,8 @@ import {
   useId,
   onMounted,
   VNode,
+  onUpdated,
+  watch,
 } from 'vue'
 
 import { injectCarousel } from '@/injectSymbols'
@@ -43,6 +45,7 @@ export const Slide = defineComponent({
     }
 
     const index = ref(props.index)
+    watch(() => props.index, (i) => index.value = i)
 
     const isActive: ComputedRef<boolean> = computed(
       () => index.value === carousel.currentSlide
@@ -95,6 +98,9 @@ export const Slide = defineComponent({
       }
       // Prevent cloned slides from being focusable
       onMounted(() => {
+        makeUnfocusable(instance.vnode)
+      })
+      onUpdated(() => {
         makeUnfocusable(instance.vnode)
       })
     }
