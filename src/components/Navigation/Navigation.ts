@@ -1,7 +1,6 @@
 import { inject, h, defineComponent } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
-import { NormalizedDir } from '@/shared'
+import { NormalizedDir, injectCarousel } from '@/shared'
 
 import { Icon, IconNameValue } from '../Icon'
 

@@ -16,7 +16,7 @@ import {
   watch,
 } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
+import { injectCarousel } from '@/shared'
 
 import { SlideProps } from './Slide.types'
 
