@@ -20,13 +20,13 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
-import { injectCarousel } from '@/injectSymbols'
 import {
   CarouselConfig,
   DEFAULT_CONFIG,
   DIR_MAP,
   NonNormalizedDir,
   NormalizedDir,
+  injectCarousel,
 } from '@/shared'
 import {
   throttle,

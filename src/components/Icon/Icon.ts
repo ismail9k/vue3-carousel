@@ -1,7 +1,6 @@
 import { defineComponent, h, inject, PropType } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
-import { DEFAULT_CONFIG } from '@/shared/constants'
+import { DEFAULT_CONFIG, injectCarousel } from '@/shared'
 
 import { IconName, IconNameValue, IconProps } from './Icon.types'
 

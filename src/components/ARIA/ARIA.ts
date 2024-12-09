@@ -1,6 +1,6 @@
 import { defineComponent, inject, h } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
+import { injectCarousel } from '@/shared'
 import { i18nFormatter } from '@/utils'
 
 export const ARIA = defineComponent({

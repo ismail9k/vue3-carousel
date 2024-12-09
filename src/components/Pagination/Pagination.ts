@@ -1,6 +1,6 @@
 import { inject, h, VNode, defineComponent } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
+import { injectCarousel } from '@/shared'
 import { mapNumberToRange, i18nFormatter } from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
