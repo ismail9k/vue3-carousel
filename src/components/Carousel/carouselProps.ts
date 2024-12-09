@@ -61,7 +61,7 @@ export const carouselProps = {
   // an object to store breakpoints
   breakpoints: {
     default: DEFAULT_CONFIG.breakpoints,
-    type: Object,
+    type: Object as PropType<CarouselConfig['breakpoints']>,
   },
   // time to auto advance slides in ms
   autoplay: {

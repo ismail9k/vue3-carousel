@@ -256,7 +256,7 @@ export const Carousel = defineComponent({
 
     const mounted = ref(false)
 
-    if (document) {
+    if (typeof document !== "undefined") {
       watchEffect(() => {
         if (mounted.value && ignoreAnimations.value !== false) {
           document.addEventListener('animationstart', setAnimationInterval)
@@ -304,7 +304,7 @@ export const Carousel = defineComponent({
         resizeObserver = null
       }
 
-      if (document) {
+      if (typeof document !== "undefined") {
         document.removeEventListener('keydown', handleArrowKeys)
       }
       if (root.value) {

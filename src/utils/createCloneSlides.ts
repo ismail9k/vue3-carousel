@@ -24,7 +24,7 @@ export function createCloneSlides({ slides, position, toShow }: CreateCloneSlide
     }
     clones.push(
       slides.length > 0
-        ? cloneVNode(slides[(i + slides.length) % slides.length].vnode, props)
+        ? cloneVNode(slides[(i % slides.length + slides.length) % slides.length].vnode, props)
         : h(Slide, props)
     )
   }
