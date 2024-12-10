@@ -38,4 +38,11 @@ describe('getCurrentSlideIndex', () => {
 
     expect(results).toBe(val)
   })
+
+
+  it('doesn`t bound a NaN min or max', () => {
+    const val = 20
+    expect(getNumberInRange({ val, min: 0, max: NaN })).toBe(val)
+    expect(getNumberInRange({ val, min: NaN, max: 10 })).toBe(10)
+  })
 })

@@ -4,20 +4,20 @@ import { getNumberInRange } from './getNumberInRange'
 import { mapNumberToRange } from './mapNumberToRange'
 
 type GetScrolledIndexArgs = {
-  config: Partial<CarouselConfig>
+  config: Pick<CarouselConfig, 'itemsToShow' | 'wrapAround' | 'snapAlign'>
   currentSlide: number
   slidesCount: number
 }
 
-const calculateOffset = (snapAlign: string, itemsToShow: number): number => {
-  const offsetMap: Record<string, number> = {
-    start: 0,
-    center: (itemsToShow - 1) / 2,
-    'center-odd': (itemsToShow - 1) / 2,
-    'center-even': (itemsToShow - 2) / 2,
-    end: itemsToShow - 1,
+export const calculateOffset = (snapAlign: string, itemsToShow: number): number => {
+  switch (snapAlign) {
+    default:
+    case 'start': return 0
+    case 'center': return (itemsToShow - 1) / 2
+    case 'center-odd': return (itemsToShow - 1) / 2
+    case 'center-even': return (itemsToShow - 2) / 2
+    case 'end': return itemsToShow - 1
   }
-  return offsetMap[snapAlign] ?? 0 // Fallback to 0 for unknown snapAlign
 }
 
 export function getScrolledIndex({
