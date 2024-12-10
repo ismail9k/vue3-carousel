@@ -84,7 +84,7 @@ const handelButtonClick = () => {
           </div>
         </CarouselSlide>
         <template #addons>
-          <CarouselPagination />
+          <CarouselPagination paginated />
           <CarouselNavigation />
         </template>
       </VueCarousel>
