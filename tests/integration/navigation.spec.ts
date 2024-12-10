@@ -79,10 +79,23 @@ describe('Navigation.ts', () => {
 
   it('inherits attrs on buttons', async () => {
     const inject = makeCarouselInject()
-    const wrapper = await mount(Navigation, { props: { class: ['test-class', 'class-2'], 'data-test': 'foo' }, global: { provide: { [injectCarousel]: inject }} })
+    const wrapper = await mount(
+      Navigation,
+      {
+        props: { class: ['test-class', 'class-2'], 'data-test': 'foo' }, global: { provide: { [injectCarousel]: inject }} })
     expect(wrapper.find('.carousel__next').classes()).to.contain('test-class')
     expect(wrapper.find('.carousel__prev').classes()).to.contain('test-class')
     expect(wrapper.find('.carousel__prev').attributes()).to.contain({ 'data-test': 'foo' })
     expect(wrapper.find('.carousel__next').attributes()).to.contain({ 'data-test': 'foo' })
+  })
+
+  it('renders custom icons', async () => {
+    const inject = makeCarouselInject()
+    const wrapper = await mount(Navigation, {
+      global: { provide: { [injectCarousel]: inject } },
+      slots: { prev: ['icon-1'], next: ['icon-2'] }
+    })
+    expect(wrapper.find('.carousel__prev').text()).toBe('icon-1')
+    expect(wrapper.find('.carousel__next').text()).toBe('icon-2')
   })
 })

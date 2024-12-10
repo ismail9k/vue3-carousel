@@ -22,6 +22,7 @@ export default defineConfig({
     globals: true,
     include: ['**/*.spec.{ts,tsx,js,jsx}'],
     coverage: {
+      provider: 'v8',
       include: ['src/**/*.ts'],
     },
     alias: resolvePaths(),

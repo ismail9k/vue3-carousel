@@ -275,7 +275,7 @@ export const Carousel = defineComponent({
       }
 
       if (document) {
-        document.removeEventListener('keydown', handleArrowKeys)
+        handleBlur()
         document.removeEventListener('animationstart', setAnimationInterval)
         document.removeEventListener('animationend', finishAnimation)
       }

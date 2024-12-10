@@ -1,32 +1,59 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Test and Lint
+name: Test
 
 on:
   push:
     branches: ["master"]
   pull_request:
     branches: ["master"]
+  merge_group:
+    types: [checks_requested]
 
 jobs:
-  build:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+
+    steps:
+      - uses: ./.github/workflows/install.yml
+
+      - name: linting
+        run: pnpm run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+
+    steps:
+      - uses: ./.github/workflows/install.yml
+
+      - name: type checks
+        run: pnpm run typecheck
+
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      - run: pnpm install
-
-      - name: lining
-        run: pnpm run lint
+      - uses: ./.github/workflows/install.yml
 
       - name: test
-        run: pnpm run test
+        run: pnpm run test --reporter=junit --outputFile=./test-output.xml
+
+      - uses: actions/upload-artifact@v4  # upload coverage
+        with:
+          name: coverage-report
+          path: coverage/clover.xml
+
+      - uses: actions/upload-artifact@v4  # upload test results
+        if: success() || failure()        # run this step even if previous step failed
+        with:
+          name: test-results
+          path: test-output.xml
