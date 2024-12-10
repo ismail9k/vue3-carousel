@@ -45,6 +45,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['**/.vitepress/*', 'dist', 'node_modules'],
+    ignores: ['**/.vitepress/*', 'dist', 'node_modules', 'coverage'],
   }
 )

@@ -9,5 +9,5 @@ export type IconNameValue = `${IconName}`
 
 export interface IconProps {
   title?: string
-  name?: IconNameValue
+  name: IconNameValue
 }
