@@ -41,7 +41,7 @@ export const Slide = defineComponent({
     provide(injectCarousel, undefined) // Don't provide for nested slides
 
     if (!carousel) {
-      return null // Don't render, let vue warn about the missing provide
+      return () => '' // Don't render, let vue warn about the missing provide
     }
 
     const index = ref(props.index)

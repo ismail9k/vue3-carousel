@@ -9,7 +9,7 @@ export const ARIA = defineComponent({
     const carousel = inject(injectCarousel)
 
     if (!carousel) {
-      return
+      return () => ''
     }
 
     return () =>
