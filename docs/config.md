@@ -21,6 +21,7 @@
 | `i18n`                 | [`{ ariaNextSlide: ...}`](#i18n) | Used to translate and/or change aria labels and additional texts used in the carousel. <Badge text="0.3.1"/>                                                                          |
 | `gap`                  | 0                                | Used to add gap between the slides. <Badge text="0.6.0"/>                                                                                                                             |
 | `height`               | 'auto'                           | Carousel track height. <Badge text="0.7.0"/>                                                                                                                                          |
+| `ignoreAnimations`     | false                            | List of animation names to ignore for size calculations. Can be a boolean, string, or array of strings. <Badge text="0.9.0"/>                                                         |
 
 
 ## Slots
