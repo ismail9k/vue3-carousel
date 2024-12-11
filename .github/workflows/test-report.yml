@@ -1,0 +1,20 @@
+name: 'Test Report'
+on:
+  workflow_run:
+    workflows: ['Test']
+    types:
+      - completed
+permissions:
+  contents: read
+  actions: read
+  checks: write
+jobs:
+  test-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dorny/test-reporter@v1
+        with:
+          artifact: test-results            # artifact name
+          name: Tests results                  # Name of the check run which will be created
+          path: '*.xml'                     # Path to test results (inside artifact .zip)
+          reporter: jest-junit            # Format of test results

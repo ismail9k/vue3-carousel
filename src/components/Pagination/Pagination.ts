@@ -1,17 +1,25 @@
 import { inject, h, VNode, defineComponent } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
+import { injectCarousel } from '@/shared'
 import { mapNumberToRange, i18nFormatter } from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 
-export const Pagination = defineComponent({
+export const Pagination = defineComponent<PaginationProps>({
   name: 'CarouselPagination',
-  setup(props: PaginationProps) {
+  props: {
+    disableOnClick: {
+      type: Boolean,
+    },
+    paginated: {
+      type: Boolean
+    },
+  },
+  setup(props) {
     const carousel = inject(injectCarousel)
 
     if (!carousel) {
-      return null // Don't render, let vue warn about the missing provide
+      return () => '' // Don't render, let vue warn about the missing provide
     }
 
     const isActive = (slide: number): boolean =>
@@ -38,7 +46,8 @@ export const Pagination = defineComponent({
           'aria-pressed': active,
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
-          onClick: props.disableOnClick ? undefined : () => carousel.nav.slideTo(slide),
+          disabled: props.disableOnClick,
+          onClick: () => carousel.nav.slideTo(slide),
         })
         const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
         children.push(item)

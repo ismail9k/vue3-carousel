@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Navigation.ts > renders properly with a carousel 1`] = `
+"<button type="button" disabled="" aria-label="Navigate to previous slide" title="Navigate to previous slide" class="carousel__prev carousel__prev--disabled"><svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing to the left">
+    <title>Arrow pointing to the left</title>
+    <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path>
+  </svg></button>
+<button type="button" aria-label="Navigate to next slide" title="Navigate to next slide" class="carousel__next"><svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing to the right">
+    <title>Arrow pointing to the right</title>
+    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path>
+  </svg></button>"
+`;

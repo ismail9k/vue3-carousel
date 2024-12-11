@@ -1,32 +1,71 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Test and Lint
+name: Test
 
 on:
   push:
     branches: ["master"]
+    paths:
+      - .github/workflows/test.yml
+      - package.json
+      - pnpm-lock.yaml
+      - src/**
+      - tests/**
   pull_request:
     branches: ["master"]
+    paths:
+      - .github/workflows/test.yml
+      - package.json
+      - pnpm-lock.yaml
+      - src/**
+      - tests/**
+  merge_group:
+    types: [checks_requested]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        script: ['lint', 'typecheck', 'test']
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v3
         with:
           node-version: 20
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9
       - run: pnpm install
 
-      - name: lining
-        run: pnpm run lint
+      - name: linting
+        run: pnpm run ${{ matrix.script }} ${{ matrix.script == 'test' && '--coverage.reporter=clover --coverage.reporter=text --coverage.reporter=text-summary --reporter=junit' || ''}}
 
-      - name: test
-        run: pnpm run test
+      - uses: actions/upload-artifact@v4  # upload test results
+        if: matrix.script == 'test' && (success() || failure())       # run this step even if previous step failed
+        with:
+          name: test-results
+          path: junit-report.xml
+
+      - if: matrix.script == 'test'
+        uses: actions/upload-artifact@v4  # upload coverage
+        with:
+          name: coverage-report
+          path: coverage/clover.xml
+
+  coverage-report:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+
+      - name: Code Coverage Annotation
+        uses: tofandel/codecoverage@a1c2e343a2cfaf034ce2bf25a4cd939ea1f4c9ca
+        with:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          COVERAGE_FILE_PATH: "./clover.xml"
+          COVERAGE_FORMAT: "clover"

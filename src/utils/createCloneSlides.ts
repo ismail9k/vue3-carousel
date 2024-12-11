@@ -19,11 +19,12 @@ export function createCloneSlides({ slides, position, toShow }: CreateCloneSlide
     const props = {
       index,
       isClone: true,
+      id: undefined, // Make sure we don't duplicate the id which would be invalid html
       key: `clone-${position}-${i}`,
     }
     clones.push(
       slides.length > 0
-        ? cloneVNode(slides[(i + slides.length) % slides.length].vnode, props)
+        ? cloneVNode(slides[(i % slides.length + slides.length) % slides.length].vnode, props)
         : h(Slide, props)
     )
   }

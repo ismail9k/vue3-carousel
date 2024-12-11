@@ -20,9 +20,17 @@ export default defineConfig({
     setupFiles: './vitest.setup.ts',
     environment: 'jsdom',
     globals: true,
+    reporters: ['basic'],
     include: ['**/*.spec.{ts,tsx,js,jsx}'],
+    outputFile: {
+      junit: './junit-report.xml',
+    },
     coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      reporter: ['text', 'text-summary'],
       include: ['src/**/*.ts'],
+      exclude: ['*.spec.ts']
     },
     alias: resolvePaths(),
   },

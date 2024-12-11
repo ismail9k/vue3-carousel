@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { expect, it, describe, beforeAll, vi, afterEach } from 'vitest'
-import { Component, createSSRApp, h } from 'vue'
+import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vitest'
+import { Component, createSSRApp, h, nextTick } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
 import App from '../components/BasicApp.vue'
@@ -11,8 +11,14 @@ import type { ComponentProps } from 'vue-component-type-helpers'
 describe('Carousel.ts', () => {
   let wrapper: ReturnType<typeof mount<typeof App>>
 
-  beforeAll(async () => {
-    wrapper = await mount(App, { props: { slideNum: 5 } })
+  beforeEach(async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        modelValue: 0,
+        'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e })
+      }
+    })
   })
 
   it('It renders *five* slides correctly', () => {
@@ -28,6 +34,75 @@ describe('Carousel.ts', () => {
   it('Should display *one* next item', () => {
     const slides = wrapper.findAll('.carousel__slide--next')
     expect(slides.length).toBe(1)
+  })
+
+  it('Should navigate to the focused slide', async () => {
+    const slide = wrapper.find('.carousel__slide:nth-child(4)')
+    await slide.trigger('focusin')
+    expect(wrapper.props('modelValue')).toBe(3)
+  })
+
+  it('Should navigate the carousel with arrow keys', async () => {
+    let time = 1
+    // Avoid throttling
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      time += 200
+      cb(time)
+    })
+    const track = wrapper.find('[tabindex="0"]')
+    const triggerKeyEvent = async (key = 'ArrowRight', ctrl = false) => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: key, ctrlKey: ctrl }))
+      await nextTick()
+    }
+    await triggerKeyEvent()
+    expect(wrapper.props('modelValue')).toBe(0)
+    await track.trigger('focus')
+    await triggerKeyEvent()
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent()
+    expect(wrapper.props('modelValue')).toBe(2)
+    await triggerKeyEvent('ArrowLeft')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowRight', true)
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowUp')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowDown')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await wrapper.setProps({dir: 'ttb'})
+    await triggerKeyEvent('ArrowDown')
+    expect(wrapper.props('modelValue')).toBe(2)
+    await triggerKeyEvent('ArrowUp')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowRight')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowLeft')
+    expect(wrapper.props('modelValue')).toBe(1)
+
+    await wrapper.setProps({dir: 'btt'})
+    await triggerKeyEvent('ArrowDown')
+    expect(wrapper.props('modelValue')).toBe(0)
+    await triggerKeyEvent('ArrowUp')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowRight')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowLeft')
+    expect(wrapper.props('modelValue')).toBe(1)
+
+    await wrapper.setProps({dir: 'rtl'})
+    await triggerKeyEvent('ArrowDown')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowUp')
+    expect(wrapper.props('modelValue')).toBe(1)
+    await triggerKeyEvent('ArrowRight')
+    expect(wrapper.props('modelValue')).toBe(0)
+    await triggerKeyEvent('ArrowLeft')
+    expect(wrapper.props('modelValue')).toBe(1)
+
+    await track.trigger('blur')
+
+    await triggerKeyEvent('ArrowLeft')
+    expect(wrapper.props('modelValue')).toBe(1)
   })
 })
 
