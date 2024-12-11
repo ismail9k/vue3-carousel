@@ -17,14 +17,14 @@ export function createCloneSlides({ slides, position, toShow }: CreateCloneSlide
   }
 
   for (let i = start; i < end; i++) {
-    const index = isBefore ? i : slides.length > 0 ? i + slides.length : i + 99999
+    const index = isBefore ? i : i + slides.length
     const props = {
       index,
       isClone: true,
       id: undefined, // Make sure we don't duplicate the id which would be invalid html
       key: `clone-${position}-${i}`,
     }
-    const vnode = slides[(i % slides.length + slides.length) % slides.length].vnode
+    const vnode = slides[((i % slides.length) + slides.length) % slides.length].vnode
     const clone = cloneVNode(vnode, props)
     clone.el = null
     clones.push(clone)
