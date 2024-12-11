@@ -15,8 +15,6 @@ import {
   ComponentInternalInstance,
   watchEffect,
   shallowReactive,
-  pushScopeId,
-  getCurrentInstance,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
@@ -122,6 +120,9 @@ export const Carousel = defineComponent({
     const clonedSlidesCount = computed(() => Math.ceil(config.itemsToShow) + 1)
 
     function updateBreakpointsConfig(): void {
+      if (!mounted.value) {
+        return
+      }
       // Determine the width source based on the 'breakpointMode' config
       const widthSource =
         (fallbackConfig.value.breakpointMode === 'carousel'
@@ -265,12 +266,9 @@ export const Carousel = defineComponent({
       })
     }
 
-    updateBreakpointsConfig()
     onMounted((): void => {
       mounted.value = true
-      if (fallbackConfig.value.breakpointMode === 'carousel') {
-        updateBreakpointsConfig()
-      }
+      updateBreakpointsConfig()
       initAutoplay()
 
       if (root.value) {
@@ -565,6 +563,7 @@ export const Carousel = defineComponent({
       slidesCount,
       viewport,
       slides,
+      clonedSlidesCount,
       scrolledIndex,
       currentSlide: currentSlideIndex,
       maxSlide: maxSlideIndex,
@@ -663,7 +662,7 @@ export const Carousel = defineComponent({
      */
     const trackTransform: ComputedRef<string> = computed(() => {
       // Calculate the scrolled index with wrapping offset if applicable
-      const cloneOffset = config.wrapAround ? clonedSlidesCount.value : 0
+      const cloneOffset = config.wrapAround && mounted.value ? clonedSlidesCount.value : 0
 
       // Determine direction multiplier for orientation
       const directionMultiplier = isReversed.value ? -1 : 1
@@ -702,13 +701,9 @@ export const Carousel = defineComponent({
       const addonsElements = slotAddons?.(data) || []
 
       if (config.wrapAround) {
-        // Ensure scoped CSS tracks properly
-        const scopeId = output.length > 0 ? output[0].scopeId : null
-        pushScopeId(scopeId)
         const toShow = clonedSlidesCount.value
         const slidesBefore = createCloneSlides({ slides, position: 'before', toShow })
         const slidesAfter = createCloneSlides({ slides, position: 'after', toShow })
-        pushScopeId(getCurrentInstance()!.vnode.scopeId)
         output = [...slidesBefore, ...output, ...slidesAfter]
       }
 
