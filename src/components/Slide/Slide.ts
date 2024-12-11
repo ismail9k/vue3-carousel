@@ -14,9 +14,10 @@ import {
   VNode,
   onUpdated,
   watch,
+  DeepReadonly,
 } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
+import { injectCarousel } from '@/shared'
 
 import { SlideProps } from './Slide.types'
 
@@ -36,12 +37,12 @@ export const Slide = defineComponent({
       default: 0,
     },
   },
-  setup(props: SlideProps, { slots, expose }: SetupContext) {
+  setup(props: DeepReadonly<SlideProps>, { slots, expose }: SetupContext) {
     const carousel = inject(injectCarousel)
     provide(injectCarousel, undefined) // Don't provide for nested slides
 
     if (!carousel) {
-      return null // Don't render, let vue warn about the missing provide
+      return () => '' // Don't render, let vue warn about the missing provide
     }
 
     const index = ref(props.index)

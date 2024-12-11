@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Navigation.ts > renders properly with a carousel 1`] = `
+"<ol class="carousel__pagination">
+  <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button carousel__pagination-button--active" aria-label="Navigate to slide 1" aria-pressed="true" title="Navigate to slide 1"></button></li>
+  <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 2" aria-pressed="false" title="Navigate to slide 2"></button></li>
+  <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 3" aria-pressed="false" title="Navigate to slide 3"></button></li>
+</ol>"
+`;

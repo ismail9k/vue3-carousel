@@ -1,5 +1,5 @@
 export interface SlideProps {
-  id: string
+  id?: string
   index: number
   isClone?: boolean
 }
