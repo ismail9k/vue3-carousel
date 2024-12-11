@@ -224,8 +224,12 @@ export const Carousel = defineComponent({
 
     const setAnimationInterval = (event: AnimationEvent) => {
       const target = event.target as HTMLElement
-      if (!target?.contains(root.value) || Array.isArray(ignoreAnimations.value) && ignoreAnimations.value.includes(event.animationName)) {
-        return;
+      if (
+        !target?.contains(root.value) ||
+        (Array.isArray(ignoreAnimations.value) &&
+          ignoreAnimations.value.includes(event.animationName))
+      ) {
+        return
       }
 
       transformElements.add(target)
@@ -250,10 +254,9 @@ export const Carousel = defineComponent({
       }
     }
 
-
     const mounted = ref(false)
 
-    if (typeof document !== "undefined") {
+    if (typeof document !== 'undefined') {
       watchEffect(() => {
         if (mounted.value && ignoreAnimations.value !== false) {
           document.addEventListener('animationstart', setAnimationInterval)
@@ -301,7 +304,7 @@ export const Carousel = defineComponent({
         resizeObserver = null
       }
 
-      if (typeof document !== "undefined") {
+      if (typeof document !== 'undefined') {
         handleBlur()
       }
       if (root.value) {

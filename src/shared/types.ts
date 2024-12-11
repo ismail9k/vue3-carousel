@@ -46,4 +46,4 @@ export interface CarouselConfig {
   ignoreAnimations: boolean | string[] | string
 }
 
-export type VueClass = string | Record<string, boolean> | VueClass[];
+export type VueClass = string | Record<string, boolean> | VueClass[]
