@@ -1,5 +1,6 @@
 import { expect, it, describe } from 'vitest'
 
+import { SnapAlign } from '@/shared'
 import { getMinSlideIndex } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
@@ -37,7 +38,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'start',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -50,7 +51,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'end',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -62,7 +63,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'center-odd',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -74,7 +75,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'center-even',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
       expect(results).toBe(Math.floor((config.itemsToShow - 2) / 2))
@@ -85,7 +86,20 @@ describe('getCurrentSlideIndex', () => {
       const config = {
         wrapAround: false,
         itemsToShow: 1,
-      }
+      } as const
+
+      const results = getMinSlideIndex({ config, slidesCount })
+
+      expect(results).toBe(0)
+    })
+
+    it('When snapAlign is invalid should return 0', () => {
+      const slidesCount = 10
+      const config = {
+        wrapAround: false,
+        itemsToShow: 1,
+        snapAlign: 'foo' as SnapAlign
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 
@@ -98,7 +112,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'center',
-      }
+      } as const
 
       const results = getMinSlideIndex({ config, slidesCount })
 

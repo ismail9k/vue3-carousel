@@ -39,7 +39,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'start',
-      }
+      } as const
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
@@ -52,7 +52,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'end',
-      }
+      } as const
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
@@ -64,7 +64,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 4.5,
         snapAlign: 'center-odd',
-      }
+      } as const
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
@@ -76,7 +76,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 4.5,
         snapAlign: 'center-even',
-      }
+      } as const
 
       const results = getMaxSlideIndex({ config, slidesCount })
 
@@ -98,7 +98,7 @@ describe('getCurrentSlideIndex', () => {
         wrapAround: false,
         itemsToShow: 5,
         snapAlign: 'start',
-      }
+      } as const
 
       const results = getMaxSlideIndex({ config, slidesCount })
 

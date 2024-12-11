@@ -1,7 +1,6 @@
 import { defineComponent, h, inject, PropType } from 'vue'
 
-import { injectCarousel } from '@/injectSymbols'
-import { DEFAULT_CONFIG } from '@/shared/constants'
+import { DEFAULT_CONFIG, injectCarousel } from '@/shared'
 
 import { IconName, IconNameValue, IconProps } from './Icon.types'
 
@@ -23,7 +22,7 @@ export const icons = {
   arrowLeft: 'M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z',
 }
 
-export const Icon = defineComponent({
+export const Icon = defineComponent<IconProps>({
   props: {
     name: {
       type: String as PropType<IconNameValue>,
@@ -36,7 +35,7 @@ export const Icon = defineComponent({
         props.name ? DEFAULT_CONFIG.i18n[iconI18n(props.name)] : '',
     },
   },
-  setup(props: IconProps) {
+  setup(props) {
     const carousel = inject(injectCarousel, null)
 
     return () => {
@@ -47,7 +46,7 @@ export const Icon = defineComponent({
       const pathEl = h('path', { d: path })
 
       const iconTitle: string =
-        carousel?.config.i18n[iconI18n(iconName)] || props.title || iconName
+        carousel?.config.i18n[iconI18n(iconName)] || props.title!
 
       const titleEl = h('title', iconTitle)
 
