@@ -104,6 +104,15 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
   })
+
+  it('Should not cause an infinite loop when itemsToShow equals the number of slides with wrapAround enabled', async () => {
+    await wrapper.setProps({ wrapAround: true, itemsToShow: 5, slideNum: 5 })
+    const slides = wrapper.findAll('.carousel__slide')
+    expect(slides.length).toBe(5)
+    expect(wrapper.props('modelValue')).toBe(0)
+    await wrapper.setProps({ modelValue: 4 })
+    expect(wrapper.props('modelValue')).toBe(4)
+  })
 })
 
 describe('Slotted Carousel.ts', () => {

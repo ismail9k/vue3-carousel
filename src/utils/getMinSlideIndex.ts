@@ -20,6 +20,11 @@ export function getMinSlideIndex({ config, slidesCount }: GetMinSlideIndexArgs):
     return 0
   }
 
+  // If wrapAround is enabled and itemsToShow equals slidesCount, return 0
+  if (wrapAround && itemsToShow === slidesCount) {
+    return 0
+  }
+
   // Return the calculated offset or default to 0 for invalid snapAlign values
   return Math.max(0, Math.floor(calculateOffset(snapAlign, itemsToShow)))
 }

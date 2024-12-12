@@ -201,6 +201,9 @@ export const Carousel = defineComponent({
           min: minSlideIndex.value,
         })
       }
+      if (config.wrapAround && config.itemsToShow >= slidesCount.value) {
+        config.wrapAround = false
+      }
     }
 
     const ignoreAnimations = computed<false | string[]>(() => {

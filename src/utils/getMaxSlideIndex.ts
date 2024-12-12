@@ -31,6 +31,11 @@ export function getMaxSlideIndex({ config, slidesCount }: GetMaxSlideIndexArgs):
     }
   }
 
+  // If wrapAround is enabled and itemsToShow equals slidesCount, return slidesCount - 1
+  if (wrapAround && itemsToShow === slidesCount) {
+    return slidesCount - 1
+  }
+
   // Return the result ensuring it's non-negative
   return Math.max(snapAlignCalculations(), 0)
 }
