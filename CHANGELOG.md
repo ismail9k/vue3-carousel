@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.10.0) - 2024-12-16
+
+- docs: enable local search by @vintagesucks in #447
+- Allow ignoring animations by @Tofandel in #441
+- fix: exported symbol differs from internal by @Tofandel in #449
+- fix: SSR hydration issue by @Tofandel in #453
+- feat: add paginated navigation for carousel pagination by @Tofandel in #446
+
+## [0.9.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.9.0) - 2024-12-09
+
+- Fixed carousel flickering during resize in #431
+- Fixed carousel: Dynamic slot recalculation in render function in #430
+- Documentation: Updated events file in #432
+- Refactored: Improved provide/inject using a single symbol in #434
+- Feature: Added easy addon customization in #435
+- Fixed issues from recent updates in #440
+- Fixed SSR for cloned slides in #444
+- Fixed reactivity: Using provide to register slides instead of traversing nodes (fixes #433, #350)
+- Fixed reactivity: Using computed and watchers instead of manual updates
+- Fixed reactivity: Updated vModel during sliding rather than after transition (fixes #428)
+- Fixed carousel: Updated sizes during animations (fixes #338)
+- Fixed accessibility: Made elements in cloned slides non-focusable (fixes #346)
+- Fixed accessibility: Added arrow key support for focused carousel (via tab)
+- Fixed performance: Cloning only itemsToShow + 11 elements instead of all slides
+- Improved types: Enhanced typings, added TSC during tests, and exported properly defined components
+- Fixed package: Corrected order of browser, require, and import
+
 ## [0.8.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.8.1) - 2024-11-26
 
 - fix: cannot set properties on null (setting 'index') issue by @ismail9k in #427
