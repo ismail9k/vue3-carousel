@@ -46,6 +46,7 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 
 ### Config
 
-| Prop             | Default | Description                  |
-| ---------------- | ------- | ---------------------------- |
-| `disableOnClick` | false   | Disables navigation on click |
+| Prop                    | Default | Description                                                                                                                         |
+|-------------------------| ------- |-------------------------------------------------------------------------------------------------------------------------------------|
+| `disableOnClick`        | false   | Disables navigation on click                                                                                                        |
+| `paginateByItemsToShow` | false   | Enables grouping of slides into pages (calculated based on the current itemsToShow) where each page gets a single navigation button |

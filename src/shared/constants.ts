@@ -16,6 +16,7 @@ export const I18N_DEFAULT_CONFIG = {
   ariaNextSlide: 'Navigate to next slide',
   ariaPreviousSlide: 'Navigate to previous slide',
   ariaNavigateToSlide: 'Navigate to slide {slideNumber}',
+  ariaNavigateToPage: 'Navigate to page {slideNumber}',
   ariaGallery: 'Gallery',
   itemXofY: 'Item {currentSlide} of {slidesCount}',
   iconArrowUp: 'Arrow pointing upwards',

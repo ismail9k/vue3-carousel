@@ -1,7 +1,7 @@
-import { inject, h, VNode, defineComponent } from 'vue'
+import { inject, h, VNode, defineComponent, computed } from 'vue'
 
 import { injectCarousel } from '@/shared'
-import { mapNumberToRange, i18nFormatter } from '@/utils'
+import { mapNumberToRange, i18nFormatter, calculateOffset } from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 
@@ -11,7 +11,7 @@ export const Pagination = defineComponent<PaginationProps>({
     disableOnClick: {
       type: Boolean,
     },
-    paginated: {
+    paginateByItemsToShow: {
       type: Boolean
     },
   },
@@ -22,19 +22,46 @@ export const Pagination = defineComponent<PaginationProps>({
       return () => '' // Don't render, let vue warn about the missing provide
     }
 
+    const offset = computed(() => calculateOffset(carousel.config.snapAlign, carousel.config.itemsToShow))
+    const isPaginated = computed(() => props.paginateByItemsToShow && carousel.config.itemsToShow > 1)
+    const currentPage = computed(() =>
+      Math.ceil((carousel.currentSlide - offset.value) / carousel.config.itemsToShow)
+    )
+    const pageCount = computed(() =>
+      Math.ceil(carousel.slidesCount / carousel.config.itemsToShow)
+    )
+
     const isActive = (slide: number): boolean =>
-      mapNumberToRange({
-        val: carousel.currentSlide,
-        max: carousel.maxSlide,
-        min: 0,
-      }) === slide
+      mapNumberToRange(
+        isPaginated.value
+          ? {
+              val: currentPage.value,
+              max: pageCount.value - 1,
+              min: 0,
+            }
+          : {
+              val: carousel.currentSlide,
+              max: carousel.maxSlide,
+              min: carousel.minSlide,
+            }
+      ) === slide
 
     return () => {
       const children: Array<VNode> = []
-      for (let slide = carousel.minSlide; slide <= carousel.maxSlide; slide++) {
-        const buttonLabel = i18nFormatter(carousel.config.i18n.ariaNavigateToSlide, {
-          slideNumber: slide + 1,
-        })
+
+      for (
+        let slide = isPaginated.value ? 0 : carousel.minSlide;
+        slide <= (isPaginated.value ? pageCount.value - 1 : carousel.maxSlide);
+        slide++
+      ) {
+        const buttonLabel = i18nFormatter(
+          carousel.config.i18n[
+            isPaginated.value ? 'ariaNavigateToPage' : 'ariaNavigateToSlide'
+          ],
+          {
+            slideNumber: slide + 1,
+          }
+        )
         const active = isActive(slide)
         const button = h('button', {
           type: 'button',
@@ -47,7 +74,7 @@ export const Pagination = defineComponent<PaginationProps>({
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
           disabled: props.disableOnClick,
-          onClick: () => carousel.nav.slideTo(slide),
+          onClick: () => carousel.nav.slideTo(isPaginated.value ? slide * carousel.config.itemsToShow + offset.value : slide),
         })
         const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
         children.push(item)
