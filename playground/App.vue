@@ -6,26 +6,128 @@ import {
   Pagination as CarouselPagination,
   Navigation as CarouselNavigation,
 } from '@/index'
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
-import { DIR_MAP, SNAP_ALIGN_OPTIONS } from '@/shared/constants'
+import { DIR_MAP, SNAP_ALIGN_OPTIONS, BREAKPOINT_MODE_OPTIONS } from '@/shared/constants'
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
-const currentSlide = ref(0)
-const snapAlign = ref('center')
-const itemsToScroll = ref(1)
-const itemsToShow = ref(1)
-const autoplay = ref()
-const wrapAround = ref(true)
-const height = ref('200')
-const dir = ref('left-to-right')
 
-const handleRestartAnimation = () => {
-  if (!carouselWrapper.value) return
+const numItems = 10
+const breakpoints = reactive({
+  100: { itemsToShow: 1 },
+  200: { itemsToShow: 2 },
+  400: { itemsToShow: 3 },
+  600: { itemsToShow: 4 },
+})
+const defaultConfig = {
+  currentSlide: 0,
+  snapAlign: 'center',
+  itemsToScroll: 1,
+  itemsToShow: 1,
+  autoplay: null,
+  wrapAround: true,
+  height: '200',
+  dir: 'left-to-right',
+  breakpointMode: 'carousel',
+  gap: 10,
+  pauseAutoplayOnHover: true,
+  useBreakpoints: false,
+}
 
-  carouselWrapper.value.classList.remove('pop-in')
-  void carouselWrapper.value.offsetWidth
-  carouselWrapper.value.classList.add('pop-in')
+const config = reactive({ ...defaultConfig })
+
+const getConfigValue = (path: string) => config[path]
+
+const setConfigValue = (path: string, value: any) => (config[path] = value)
+
+const formFields = [
+  {
+    section: 'Layout',
+    fields: [
+      {
+        type: 'number',
+        label: 'Items to show',
+        path: 'itemsToShow',
+      },
+      {
+        type: 'number',
+        label: 'Items to scroll',
+        path: 'itemsToScroll',
+      },
+      {
+        type: 'number',
+        label: 'Height',
+        path: 'height',
+        attrs: { step: '100', min: '200', max: '1000' },
+      },
+    ],
+  },
+  {
+    section: 'Behavior',
+    fields: [
+      {
+        type: 'select',
+        label: 'Snap Align',
+        path: 'snapAlign',
+        options: SNAP_ALIGN_OPTIONS,
+      },
+      {
+        type: 'select',
+        label: 'Direction',
+        path: 'dir',
+        options: Object.keys(DIR_MAP),
+      },
+      {
+        type: 'checkbox',
+        label: 'Wrap Around',
+        path: 'wrapAround',
+      },
+    ],
+  },
+  {
+    section: 'Navigation',
+    fields: [
+      {
+        type: 'number',
+        label: 'Current slide',
+        path: 'currentSlide',
+      },
+      {
+        type: 'number',
+        label: 'Autoplay time',
+        path: 'autoplay',
+        attrs: { step: '100', min: '0', max: '10000' },
+      },
+    ],
+  },
+  {
+    section: 'Responsive',
+    fields: [
+      {
+        type: 'select',
+        label: 'Breakpoint Mode',
+        path: 'breakpointMode',
+        options: BREAKPOINT_MODE_OPTIONS,
+      },
+      {
+        type: 'checkbox',
+        label: 'Use Breakpoints',
+        path: 'useBreakpoints',
+      },
+    ],
+  },
+]
+
+const handleReset = () => {
+  // Reset animation
+  if (carouselWrapper.value) {
+    carouselWrapper.value.classList.remove('pop-in')
+    void carouselWrapper.value.offsetWidth
+    carouselWrapper.value.classList.add('pop-in')
+  }
+
+  // Reset config values
+  Object.entries(defaultConfig).forEach(([key, value]) => setConfigValue(key, value))
 }
 
 const handelButtonClick = () => {
@@ -34,61 +136,60 @@ const handelButtonClick = () => {
 </script>
 
 <template>
-  <div>
-    <fieldset>
-      <label
-        >Snap Align
-        <select v-model="snapAlign">
-          <option v-for="opt in SNAP_ALIGN_OPTIONS" :value="opt" :key="opt">
-            {{ opt }}
-          </option>
-        </select>
-      </label>
-      <label
-        >Direction
-        <select v-model="dir">
-          <option v-for="opt in Object.keys(DIR_MAP)" :value="opt" :key="opt">
-            {{ opt }}
-          </option>
-        </select>
-      </label>
-      <label>Items to show: <input type="number" v-model="itemsToShow" /></label>
-      <label>Items to scroll: <input type="number" v-model="itemsToScroll" /></label>
-      <label>Height: <input v-model="height" type="number" /></label>
-      <label
-        >Autoplay time:
-        <input type="number" v-model="autoplay" step="100" min="0" max="10000"
-      /></label>
-      <label><input type="checkbox" v-model="wrapAround" />Wrap Around</label>
-      <label>Current slide: <input type="number" v-model="currentSlide" /></label>
+  <div class="playground">
+    <main class="canvas">
+      <div class="carousel-wrapper pop-in" ref="carouselWrapper">
+        <VueCarousel
+          v-model="config.currentSlide"
+          v-bind="config"
+          :breakpoints="config.useBreakpoints ? breakpoints : null"
+        >
+          <CarouselSlide v-for="i in numItems" :key="i" v-slot="{ isActive, isClone }">
+            <div class="carousel-item">
+              {{ i }}<button @click="handelButtonClick">This is a button</button>
+            </div>
+          </CarouselSlide>
+          <template #addons>
+            <CarouselPagination />
+            <CarouselNavigation />
+          </template>
+        </VueCarousel>
+      </div>
+    </main>
 
-      <button @click="handleRestartAnimation">Restart animation</button>
-    </fieldset>
+    <aside class="config-panel">
+      <div v-for="section in formFields" :key="section.section" class="form-section">
+        <h3 class="section-title">{{ section.section }}</h3>
+        <label v-for="field in section.fields" :key="field.label">
+          {{ field.label }}
 
-    <div class="carousel-wrapper pop-in" ref="carouselWrapper">
-      <VueCarousel
-        v-model="currentSlide"
-        :items-to-show="itemsToShow"
-        :items-to-scroll="itemsToScroll"
-        :gap="10"
-        :height="height || 'auto'"
-        :autoplay="autoplay ? parseInt(autoplay) : null"
-        :pause-autoplay-on-hover="true"
-        :wrap-around="wrapAround"
-        :dir="dir"
-        :snap-align="snapAlign"
-      >
-        <CarouselSlide v-for="i in 10" :key="i" v-slot="{ isActive, isClone }">
-          <div class="carousel__item">
-            {{ i }}<button @click="handelButtonClick">This is a button</button>
-          </div>
-        </CarouselSlide>
-        <template #addons>
-          <CarouselPagination />
-          <CarouselNavigation />
-        </template>
-      </VueCarousel>
-    </div>
+          <select
+            v-if="field.type === 'select'"
+            :value="getConfigValue(field.path)"
+            @input="(e) => setConfigValue(field.path, e.target.value)"
+          >
+            <option v-for="opt in field.options" :value="opt" :key="opt">
+              {{ opt }}
+            </option>
+          </select>
+
+          <input
+            v-else
+            :value="getConfigValue(field.path)"
+            @input="
+              (e) =>
+                setConfigValue(
+                  field.path,
+                  field.type === 'checkbox' ? e.target.checked : e.target.value
+                )
+            "
+            :type="field.type"
+            v-bind="field.attrs || {}"
+          />
+        </label>
+      </div>
+      <button @click="handleReset" class="reset-button">Reset Config</button>
+    </aside>
   </div>
 </template>
 
@@ -105,11 +206,96 @@ const handelButtonClick = () => {
   --brand-color: #535bf2;
 }
 
-fieldset {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  text-rendering: optimizeSpeed;
+  margin: 0;
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  outline: none;
+}
+
+.playground {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  min-height: 100vh;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.canvas {
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  position: relative;
+}
+
+.config-panel {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 8px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.config-panel label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9em;
+}
+
+.config-panel input,
+.config-panel select {
+  width: 140px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  margin: 2px 0;
+}
+
+.config-panel input[type='checkbox'] {
+  width: auto;
+}
+
+.config-panel button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.config-panel button:hover {
+  background: rgba(200, 0, 0, 0.9);
 }
 
 @keyframes pop-in {
@@ -124,16 +310,23 @@ fieldset {
 }
 
 .pop-in {
-  animation: pop-in 3s;
+  animation: pop-in 1s;
+  transition: cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
-fieldset label {
-  display: inline-flex;
-  gap: 10px;
-  flex-grow: 1;
+.carousel-wrapper {
+  width: 100%;
+  max-width: 1000px;
+  min-width: 200px;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: 8px;
+  resize: horizontal;
+  border: 2px dashed gray;
+  overflow: auto;
 }
 
-.carousel__item {
+.carousel-item {
   width: 100%;
   height: 100%;
   background-color: var(--brand-color);
