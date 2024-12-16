@@ -11,7 +11,7 @@ export const Pagination = defineComponent<PaginationProps>({
     disableOnClick: {
       type: Boolean,
     },
-    paginated: {
+    paginateByItemsToShow: {
       type: Boolean
     },
   },
@@ -23,7 +23,7 @@ export const Pagination = defineComponent<PaginationProps>({
     }
 
     const offset = computed(() => calculateOffset(carousel.config.snapAlign, carousel.config.itemsToShow))
-    const isPaginated = computed(() => props.paginated && carousel.config.itemsToShow > 1)
+    const isPaginated = computed(() => props.paginateByItemsToShow && carousel.config.itemsToShow > 1)
     const currentPage = computed(() =>
       Math.ceil((carousel.currentSlide - offset.value) / carousel.config.itemsToShow)
     )
