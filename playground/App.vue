@@ -174,15 +174,16 @@ const handelButtonClick = () => {
           </select>
 
           <input
+            v-else-if="field.type === 'checkbox'"
+            :checked="getConfigValue(field.path)"
+            @input="(e) => setConfigValue(field.path, e.target.checked)"
+            :type="field.type"
+            v-bind="field.attrs || {}"
+          />
+          <input
             v-else
             :value="getConfigValue(field.path)"
-            @input="
-              (e) =>
-                setConfigValue(
-                  field.path,
-                  field.type === 'checkbox' ? e.target.checked : e.target.value
-                )
-            "
+            @input="(e) => setConfigValue(field.path, e.target.value)"
             :type="field.type"
             v-bind="field.attrs || {}"
           />
