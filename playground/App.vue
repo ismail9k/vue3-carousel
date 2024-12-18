@@ -12,7 +12,6 @@ import { DIR_MAP, SNAP_ALIGN_OPTIONS, BREAKPOINT_MODE_OPTIONS } from '@/shared/c
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
 
-const numItems = 10
 const breakpoints = reactive({
   100: { itemsToShow: 1 },
   200: { itemsToShow: 2 },
@@ -20,10 +19,11 @@ const breakpoints = reactive({
   600: { itemsToShow: 4 },
 })
 const defaultConfig = {
+  slidesCount: 10,
   currentSlide: 0,
   snapAlign: 'center',
   itemsToScroll: 1,
-  itemsToShow: 1,
+  itemsToShow: 2,
   autoplay: null,
   wrapAround: true,
   height: '200',
@@ -133,6 +133,40 @@ const handleReset = () => {
 const handelButtonClick = () => {
   alert('Button clicked')
 }
+
+const events = [
+  'before-init',
+  'init',
+  'slide-start',
+  'slide-end',
+  'loop',
+  'drag',
+  'slide-registered',
+  'slide-unregistered',
+]
+
+const lastEvent = ref('')
+const lastEventData = ref<any>(null)
+
+const getSerializableData = (data: any): any => {
+  if (!data) return null
+
+  // For slide-registered and slide-unregistered events, only return relevant info
+  if (data.slide) {
+    return {
+      ...data,
+      slide: '[Complex Object]',
+    }
+  }
+
+  return data
+}
+
+const handleEvent = (eventName: string) => (data?: any) => {
+  lastEvent.value = eventName
+  lastEventData.value = getSerializableData(data)
+  console.log(`Event: ${eventName}`, data)
+}
 </script>
 
 <template>
@@ -143,10 +177,13 @@ const handelButtonClick = () => {
           v-model="config.currentSlide"
           v-bind="config"
           :breakpoints="config.useBreakpoints ? breakpoints : null"
+          v-on="Object.fromEntries(events.map((e) => [e, handleEvent(e)]))"
         >
-          <CarouselSlide v-for="i in numItems" :key="i" v-slot="{ isActive, isClone }">
+          <CarouselSlide v-for="i in config.slidesCount" :key="i">
             <div class="carousel-item">
-              {{ i }}<button @click="handelButtonClick">This is a button</button>
+              <p>{{ i }}</p>
+
+              <button @click="handelButtonClick">This is a button</button>
             </div>
           </CarouselSlide>
           <template #addons>
@@ -154,6 +191,10 @@ const handelButtonClick = () => {
             <CarouselNavigation />
           </template>
         </VueCarousel>
+      </div>
+      <div v-if="lastEvent" class="event-debug">
+        Last Event: {{ lastEvent }}
+        <pre v-if="lastEventData">{{ JSON.stringify(lastEventData, null, 2) }}</pre>
       </div>
     </main>
 
@@ -339,5 +380,23 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.event-debug {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  max-width: 300px;
+  overflow: auto;
+}
+
+.event-debug pre {
+  margin: 5px 0 0;
+  font-size: 0.8em;
+  white-space: pre-wrap;
 }
 </style>

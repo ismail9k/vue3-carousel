@@ -65,7 +65,22 @@ Triggered while the carousel is being dragged, providing live positional data. E
 - `x`: The horizontal drag position.
 - `y`: The vertical drag position.
 
+### @slide-registered
+
+Triggered when a new slide is registered with the carousel. Emits the following data:
+
+- `slide`: The Vue component instance of the registered slide
+- `index`: The index position where the slide was registered
+
+### @slide-unregistered
+
+Triggered when a slide is unregistered (removed) from the carousel. Emits the following data:
+
+- `slide`: The Vue component instance of the unregistered slide
+- `index`: The index position from which the slide was removed
+
 ## Notes
 
 - Events are reactive and can be used to trigger animations, analytics, or other custom behaviors.
+- Registration events (`slide-registered`, `slide-unregistered`) are particularly useful for tracking slide lifecycle and managing external state.
 - Ensure your event handlers account for edge cases, such as looping or rapid navigation.

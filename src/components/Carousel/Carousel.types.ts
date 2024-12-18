@@ -6,7 +6,7 @@ import {
   ShallowReactive,
 } from 'vue'
 
-import { CarouselConfig, NormalizedDir } from '@/shared/types'
+import { SlideRegistry, CarouselConfig, NormalizedDir } from '@/shared'
 
 export interface CarouselNav {
   slideTo: (index: number) => void
@@ -29,11 +29,7 @@ export type InjectedCarousel = Reactive<{
   normalizedDir: ComputedRef<NormalizedDir>
   nav: CarouselNav
   isSliding: Ref<boolean>
-  registerSlide: (
-    slide: ComponentInternalInstance,
-    indexCb: (idx: number) => void
-  ) => void
-  unregisterSlide: (slide: ComponentInternalInstance) => void
+  slideRegistry: SlideRegistry
 }>
 
 export interface CarouselData {
