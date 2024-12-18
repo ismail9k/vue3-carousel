@@ -87,4 +87,6 @@ const createSlideRegistry = () => {
   }
 }
 
+export type SlideRegistry = ReturnType<typeof createSlideRegistry>
+
 export { createSlideRegistry }
