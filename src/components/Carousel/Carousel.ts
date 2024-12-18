@@ -73,7 +73,7 @@ export const Carousel = defineComponent({
     }))
 
     // current active config
-    const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
+    const config = shallowReactive<CarouselConfig>({ ...fallbackConfig.value })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
