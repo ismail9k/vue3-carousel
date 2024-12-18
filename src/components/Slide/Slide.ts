@@ -2,7 +2,6 @@ import {
   defineComponent,
   inject,
   h,
-  ref,
   SetupContext,
   computed,
   ComputedRef,
@@ -11,13 +10,12 @@ import {
   provide,
   useId,
   onMounted,
-  VNode,
   onUpdated,
-  watch,
   DeepReadonly,
 } from 'vue'
 
 import { injectCarousel } from '@/shared'
+import { disableChildrenTabbing } from '@/utils'
 
 import { SlideProps } from './Slide.types'
 
@@ -45,8 +43,7 @@ export const Slide = defineComponent({
       return () => '' // Don't render, let vue warn about the missing provide
     }
 
-    const index = ref(props.index)
-    watch(() => props.index, (i) => index.value = i)
+    const index = computed(() => props.index)
 
     const isActive: ComputedRef<boolean> = computed(
       () => index.value === carousel.currentSlide
@@ -78,31 +75,17 @@ export const Slide = defineComponent({
     const instance = getCurrentInstance()!
 
     if (!props.isClone) {
-      carousel.registerSlide(
-        instance,
-        (resolvedIndex: number) => (index.value = resolvedIndex)
-      )
+      carousel.slideRegistry.registerSlide(instance)
       onUnmounted(() => {
-        carousel.unregisterSlide(instance)
+        carousel.slideRegistry.unregisterSlide(instance)
       })
     } else {
-      const makeUnfocusable = (node: VNode) => {
-        ;[
-          ...(node?.el
-            ? node.el.querySelectorAll(
-                'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
-              )
-            : []),
-        ]
-          .filter((el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'))
-          .forEach((el) => el.setAttribute('tabindex', '-1'))
-      }
       // Prevent cloned slides from being focusable
       onMounted(() => {
-        makeUnfocusable(instance.vnode)
+        disableChildrenTabbing(instance.vnode)
       })
       onUpdated(() => {
-        makeUnfocusable(instance.vnode)
+        disableChildrenTabbing(instance.vnode)
       })
     }
 
