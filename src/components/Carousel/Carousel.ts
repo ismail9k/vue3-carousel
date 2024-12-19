@@ -12,7 +12,6 @@ import {
   SetupContext,
   Ref,
   ComputedRef,
-  ComponentInternalInstance,
   watchEffect,
   shallowReactive,
 } from 'vue'
@@ -25,6 +24,7 @@ import {
   NonNormalizedDir,
   NormalizedDir,
   injectCarousel,
+  createSlideRegistry,
 } from '@/shared'
 import {
   except,
@@ -57,13 +57,17 @@ export const Carousel = defineComponent({
     'update:modelValue',
     'slide-end',
     'before-init',
+    'slide-registered',
+    'slide-unregistered',
   ],
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
+    const slideRegistry = createSlideRegistry(emit)
+    const slides = slideRegistry.getSlides()
+    const slidesCount = computed(() => slides.length)
+
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
-    const slides = shallowReactive<Array<ComponentInternalInstance>>([])
     const slideSize: Ref<number> = ref(0)
-    const slidesCount = computed(() => slides.length)
 
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
@@ -73,7 +77,7 @@ export const Carousel = defineComponent({
     }))
 
     // current active config
-    const config = reactive<CarouselConfig>({ ...fallbackConfig.value })
+    const config = shallowReactive<CarouselConfig>({ ...fallbackConfig.value })
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
@@ -96,23 +100,6 @@ export const Carousel = defineComponent({
       const dir = config.dir || 'ltr'
       return dir in DIR_MAP ? DIR_MAP[dir as NonNormalizedDir] : (dir as NormalizedDir)
     })
-
-    const indexCbs: Array<(index: number) => void> = []
-    const registerSlide: InjectedCarousel['registerSlide'] = (slide, indexCb) => {
-      indexCb(slides.length)
-      slides.push(slide)
-      indexCbs.push(indexCb)
-    }
-
-    const unregisterSlide: InjectedCarousel['unregisterSlide'] = (slide) => {
-      const found = slides.indexOf(slide)
-      if (found >= 0) {
-        slides.splice(found, 1)
-        indexCbs.splice(found, 1)
-        // Update indexes after the one that was removed
-        indexCbs.slice(found).forEach((cb, index) => cb(found + index))
-      }
-    }
 
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
@@ -284,9 +271,8 @@ export const Carousel = defineComponent({
 
     onBeforeUnmount(() => {
       mounted.value = false
-      // Empty the slides before they unregister for better performance
-      slides.splice(0, slides.length)
-      indexCbs.splice(0, indexCbs.length)
+
+      slideRegistry.cleanup()
 
       if (transitionTimer) {
         clearTimeout(transitionTimer)
@@ -576,8 +562,7 @@ export const Carousel = defineComponent({
       normalizedDir,
       nav,
       isSliding,
-      registerSlide,
-      unregisterSlide,
+      slideRegistry,
     })
 
     provide(injectCarousel, provided)
