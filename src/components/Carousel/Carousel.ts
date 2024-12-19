@@ -61,7 +61,7 @@ export const Carousel = defineComponent({
     'slide-unregistered',
   ],
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
-    const slideRegistry = createSlideRegistry()
+    const slideRegistry = createSlideRegistry(emit)
     const slides = slideRegistry.getSlides()
     const slidesCount = computed(() => slides.length)
 
@@ -610,14 +610,6 @@ export const Carousel = defineComponent({
 
     // Init carousel
     emit('before-init')
-
-    // Setup slide registration events before mounting
-    slideRegistry.addEventListener('register', ({ slide, index }) => {
-      emit('slide-registered', { slide, index })
-    })
-    slideRegistry.addEventListener('unregister', ({ slide, index }) => {
-      emit('slide-unregistered', { slide, index })
-    })
 
     const data = reactive<CarouselData>({
       config,
