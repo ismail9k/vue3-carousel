@@ -28,23 +28,23 @@
   "exports": {
     ".": {
       "types": "./dist/carousel.d.ts",
-      "browser": "./dist/carousel.min.js",
+      "import": "./dist/carousel.es.js",
       "require": "./dist/carousel.js",
-      "import": "./dist/carousel.es.js"
+      "browser": "./dist/carousel.min.js"
     },
     "./dist/carousel": {
       "types": "./dist/carousel.d.ts",
-      "browser": "./dist/carousel.min.js",
+      "import": "./dist/carousel.es.js",
       "require": "./dist/carousel.js",
-      "import": "./dist/carousel.es.js"
+      "browser": "./dist/carousel.min.js"
     },
     "./dist/carousel.min.js": {
-      "require": "./dist/carousel.min.js",
-      "import": "./dist/carousel.es.min.js"
+      "import": "./dist/carousel.es.min.js",
+      "require": "./dist/carousel.min.js"
     },
     "./dist/*.css": {
-      "require": "./dist/*.css",
-      "import": "./dist/*.css"
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
     },
     "./carousel.css": "./dist/carousel.css"
   },
