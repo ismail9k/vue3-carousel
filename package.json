@@ -86,10 +86,10 @@
     "vite": "^6",
     "vitepress": "^1.5.0",
     "vitest": "^2.1.8",
-    "vue": "^3.2.0"
+    "vue": "^3.5.0"
   },
   "peerDependencies": {
-    "vue": "^3.2.0"
+    "vue": "^3.5.0"
   },
   "browserslist": [
     "> 0.5%",

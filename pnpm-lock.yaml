@@ -102,7 +102,7 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@22.10.2)(jsdom@25.0.1)(terser@5.37.0)
       vue:
-        specifier: ^3.2.0
+        specifier: ^3.5.0
         version: 3.5.13(typescript@5.7.2)
 
 packages:
