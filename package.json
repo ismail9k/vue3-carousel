@@ -29,23 +29,14 @@
     ".": {
       "types": "./dist/carousel.d.ts",
       "import": "./dist/carousel.es.js",
-      "require": "./dist/carousel.js",
-      "browser": "./dist/carousel.min.js"
+      "require": "./dist/carousel.js"
     },
     "./dist/carousel": {
       "types": "./dist/carousel.d.ts",
       "import": "./dist/carousel.es.js",
-      "require": "./dist/carousel.js",
-      "browser": "./dist/carousel.min.js"
+      "require": "./dist/carousel.js"
     },
-    "./dist/carousel.min.js": {
-      "import": "./dist/carousel.es.min.js",
-      "require": "./dist/carousel.min.js"
-    },
-    "./dist/*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css"
-    },
+    "./dist/*": "./dist/*",
     "./carousel.css": "./dist/carousel.css"
   },
   "main": "./dist/carousel.js",
