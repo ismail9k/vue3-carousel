@@ -13,45 +13,46 @@ const banner = `/**
  * @license MIT
  */`
 
+const output = [
+  {
+    file: 'dist/carousel.js',
+    format: 'umd',
+    name: 'VueCarousel',
+    banner,
+    globals: {
+      vue: 'Vue',
+    },
+    sourcemap: true,
+  },
+  {
+    file: 'dist/carousel.min.js',
+    format: 'umd',
+    name: 'VueCarousel',
+    banner,
+    globals: {
+      vue: 'Vue',
+    },
+    plugins: [terser()],
+    sourcemap: true,
+  },
+  {
+    file: 'dist/carousel.mjs',
+    format: 'es',
+    banner,
+    sourcemap: true,
+  },
+  {
+    file: 'dist/carousel.cjs',
+    format: 'cjs',
+    banner,
+    sourcemap: true,
+  },
+]
+
 export default [
   {
     input: 'src/index.ts',
-    output: [
-      // UMD output
-      {
-        file: pkg.main,
-        format: 'umd',
-        name: 'VueCarousel',
-        banner,
-        globals: {
-          vue: 'Vue',
-        },
-      },
-      // ES output
-      {
-        file: pkg.module,
-        format: 'es',
-        banner,
-      },
-      // Minified UMD output
-      {
-        file: 'dist/carousel.min.js',
-        format: 'umd',
-        name: 'VueCarousel',
-        banner,
-        globals: {
-          vue: 'Vue',
-        },
-        plugins: [terser()],
-      },
-      // Minified ES output
-      {
-        file: 'dist/carousel.es.min.js',
-        format: 'es',
-        banner,
-        plugins: [terser()],
-      },
-    ],
+    output: output,
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
