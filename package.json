@@ -28,23 +28,25 @@
   "exports": {
     ".": {
       "types": "./dist/carousel.d.ts",
-      "import": "./dist/carousel.es.js",
-      "require": "./dist/carousel.js"
+      "import": "./dist/carousel.mjs",
+      "require": "./dist/carousel.cjs",
+      "default": "./dist/carousel.mjs"
     },
     "./dist/carousel": {
       "types": "./dist/carousel.d.ts",
-      "import": "./dist/carousel.es.js",
-      "require": "./dist/carousel.js"
+      "import": "./dist/carousel.mjs",
+      "require": "./dist/carousel.cjs",
+      "default": "./dist/carousel.mjs"
     },
     "./dist/*": "./dist/*",
     "./carousel.css": "./dist/carousel.css"
   },
-  "main": "./dist/carousel.js",
-  "module": "./dist/carousel.es.js",
-  "style": "./dist/carousel.css",
-  "types": "./dist/carousel.d.ts",
-  "unpkg": "./dist/carousel.min.js",
-  "jsdelivr": "./dist/carousel.min.js",
+  "main": "dist/carousel.cjs",
+  "module": "dist/carousel.mjs",
+  "style": "dist/carousel.css",
+  "types": "dist/carousel.d.ts",
+  "unpkg": "dist/carousel.min.js",
+  "jsdelivr": "dist/carousel.min.js",
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@rollup/plugin-terser": "^0.4.4",
