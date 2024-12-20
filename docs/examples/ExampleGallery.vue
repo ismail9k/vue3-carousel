@@ -1,5 +1,5 @@
 <script setup>
-import { Carousel, Slide, Navigation } from '../../dist/carousel.es'
+import { Carousel, Slide, Navigation } from '../../dist/carousel.mjs'
 
 import '../../dist/carousel.css'
 import { ref } from 'vue'

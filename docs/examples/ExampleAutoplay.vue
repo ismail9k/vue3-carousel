@@ -1,6 +1,6 @@
 <script setup>
 import '../../dist/carousel.css'
-import { Carousel, Slide, Navigation } from '../../dist/carousel.es'
+import { Carousel, Slide, Navigation } from '../../dist/carousel.mjs'
 
 const config = {
   autoplay: 2000,

@@ -1,5 +1,5 @@
 <script setup>
-import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.es'
+import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.mjs'
 import '../../dist/carousel.css'
 const config = {
   dir: 'top-to-bottom',

@@ -1,5 +1,5 @@
 <script setup>
-import { Carousel, Navigation, Slide } from '../../dist/carousel.es'
+import { Carousel, Navigation, Slide } from '../../dist/carousel.mjs'
 import '../../dist/carousel.css'
 
 const config = {
