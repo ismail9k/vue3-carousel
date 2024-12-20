@@ -12,18 +12,25 @@ import { DIR_MAP, SNAP_ALIGN_OPTIONS, BREAKPOINT_MODE_OPTIONS } from '@/shared/c
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
 
-const numItems = 10
 const breakpoints = reactive({
   100: { itemsToShow: 1 },
   200: { itemsToShow: 2 },
   400: { itemsToShow: 3 },
   600: { itemsToShow: 4 },
 })
+
+const defaultSlides = [
+  { id: 1, title: 'Slide 1', description: 'First slide description' },
+  { id: 2, title: 'Slide 2', description: 'Second slide description' },
+  { id: 3, title: 'Slide 3', description: 'Third slide description' },
+  { id: 4, title: 'Slide 4', description: 'Fourth slide description' },
+  { id: 5, title: 'Slide 5', description: 'Fifth slide description' },
+]
 const defaultConfig = {
   currentSlide: 0,
   snapAlign: 'center',
   itemsToScroll: 1,
-  itemsToShow: 1,
+  itemsToShow: 2,
   autoplay: null,
   wrapAround: true,
   height: '200',
@@ -35,6 +42,7 @@ const defaultConfig = {
 }
 
 const config = reactive({ ...defaultConfig })
+const items = reactive([...defaultSlides])
 
 const getConfigValue = (path: string) => config[path]
 
@@ -128,10 +136,75 @@ const handleReset = () => {
 
   // Reset config values
   Object.entries(defaultConfig).forEach(([key, value]) => setConfigValue(key, value))
+  // Reset items
+  items.splice(0, items.length, ...defaultSlides)
 }
 
 const handelButtonClick = () => {
   alert('Button clicked')
+}
+
+const getRandomInt = (min: number, max: number): number => {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min)) + min
+}
+
+const handleAddingASlide = () => {
+  const newId = items.length + 1
+  const randomPosition = getRandomInt(0, newId)
+  const newSlide = {
+    id: newId,
+    title: `Dynamic Slide ${newId}`,
+    description: `Dynamically inserted at index ${randomPosition}`,
+    color: '#2fa265',
+  }
+  items.splice(randomPosition, 0, newSlide)
+}
+
+const handleRemovingASlide = () => {
+  if (items.length > 1) {
+    const randomPosition = getRandomInt(0, items.length)
+    const removedSlide = items[randomPosition]
+    items.splice(randomPosition, 1)
+    if (config.currentSlide >= items.length) {
+      config.currentSlide = items.length - 1
+    }
+  }
+}
+
+const events = [
+  'before-init',
+  'init',
+  'slide-start',
+  'slide-end',
+  'loop',
+  'drag',
+  'slide-registered',
+  'slide-unregistered',
+]
+
+const lastEvent = ref('')
+const lastEventData = ref<any>(null)
+
+const getSerializableData = (data: any): any => {
+  if (!data) return null
+
+  // For slide-registered and slide-unregistered events, only return relevant info
+  if (data.slide) {
+    return {
+      ...data,
+      slide: '[Complex Object]',
+    }
+  }
+
+  return data
+}
+
+const handleEvent = (eventName: string) => (data?: any) => {
+  lastEvent.value = eventName
+  lastEventData.value = getSerializableData(data)
+  console.log(`Event: ${eventName}`, data)
 }
 </script>
 
@@ -143,10 +216,17 @@ const handelButtonClick = () => {
           v-model="config.currentSlide"
           v-bind="config"
           :breakpoints="config.useBreakpoints ? breakpoints : null"
+          v-on="Object.fromEntries(events.map((e) => [e, handleEvent(e)]))"
         >
-          <CarouselSlide v-for="i in numItems" :key="i" v-slot="{ isActive, isClone }">
-            <div class="carousel-item">
-              {{ i }}<button @click="handelButtonClick">This is a button</button>
+          <CarouselSlide v-for="(item, index) in items" :key="item.id" :index="index">
+            <div
+              class="carousel-item"
+              :key="item.id"
+              :style="{ backgroundColor: `${item.color}` }"
+            >
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.description }}</p>
+              <button @click="handelButtonClick">This is a button</button>
             </div>
           </CarouselSlide>
           <template #addons>
@@ -154,6 +234,10 @@ const handelButtonClick = () => {
             <CarouselNavigation />
           </template>
         </VueCarousel>
+      </div>
+      <div v-if="lastEvent" class="event-debug">
+        Last Event: {{ lastEvent }}
+        <pre v-if="lastEventData">{{ JSON.stringify(lastEventData, null, 2) }}</pre>
       </div>
     </main>
 
@@ -189,7 +273,15 @@ const handelButtonClick = () => {
           />
         </label>
       </div>
-      <button @click="handleReset" class="reset-button">Reset Config</button>
+      <div class="config-panel-buttons-row">
+        <button @click="handleAddingASlide" class="config-panel-button">
+          Add a new slide
+        </button>
+        <button @click="handleRemovingASlide" class="config-panel-button">
+          Remove a new slide
+        </button>
+        <button @click="handleReset" class="config-panel-button">Reset</button>
+      </div>
     </aside>
   </div>
 </template>
@@ -284,7 +376,7 @@ select {
   width: auto;
 }
 
-.config-panel button {
+.config-panel-button {
   margin-top: 10px;
   padding: 8px 16px;
   border-radius: 4px;
@@ -295,8 +387,8 @@ select {
   transition: opacity 0.2s;
 }
 
-.config-panel button:hover {
-  background: rgba(200, 0, 0, 0.9);
+.config-panel-button:hover {
+  background: var(--brand-color);
 }
 
 @keyframes pop-in {
@@ -339,5 +431,42 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.carousel-item h3 {
+  margin: 0 0 10px;
+}
+
+.carousel-item p {
+  margin: 0 0 15px;
+  font-size: 16px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.event-debug {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  max-width: 300px;
+  overflow: auto;
+}
+
+.event-debug pre {
+  margin: 5px 0 0;
+  font-size: 0.8em;
+  white-space: pre-wrap;
+}
+
+.carousel__slide--active .carousel-item {
+  border: 2px solid red;
+}
+.config-panel-buttons-row {
+  display: flex;
+  flex-direction: column;
 }
 </style>
