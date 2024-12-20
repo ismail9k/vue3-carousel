@@ -5,24 +5,22 @@ const createSlideRegistry = (emit: EmitFn) => {
 
   const updateSlideIndexes = (startIndex?: number) => {
     if (startIndex !== undefined) {
-      // Update only slides from startIndex onwards
       slides.slice(startIndex).forEach((slide, offset) => {
-        slide.props.index = startIndex + offset
+        slide.exposed?.setIndex(startIndex + offset)
       })
     } else {
-      // Update all slides
       slides.forEach((slide, index) => {
-        slide.props.index = index
+        slide.exposed?.setIndex(index)
       })
     }
   }
 
   return {
-    registerSlide: (slide: ComponentInternalInstance) => {
+    registerSlide: (slide: ComponentInternalInstance, index?: number) => {
       if (!slide) return
 
-      const slideIndex = slides.length
-      slides.push(slide)
+      const slideIndex = index ?? slides.length
+      slides.splice(slideIndex, 0, slide)
       updateSlideIndexes(slideIndex)
       emit('slide-registered', { slide, index: slideIndex })
     },

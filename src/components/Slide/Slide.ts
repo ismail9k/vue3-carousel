@@ -12,6 +12,7 @@ import {
   onMounted,
   onUpdated,
   DeepReadonly,
+  ref,
 } from 'vue'
 
 import { injectCarousel } from '@/shared'
@@ -32,7 +33,7 @@ export const Slide = defineComponent({
     },
     index: {
       type: Number,
-      default: 0,
+      default: undefined,
     },
   },
   setup(props: DeepReadonly<SlideProps>, { slots, expose }: SetupContext) {
@@ -43,21 +44,31 @@ export const Slide = defineComponent({
       return () => '' // Don't render, let vue warn about the missing provide
     }
 
-    const index = computed(() => props.index)
+    const currentIndex = ref(props.index)
+
+    const setIndex = (newIndex: number) => {
+      currentIndex.value = newIndex
+    }
+
+    expose({
+      id: props.id,
+      setIndex,
+    })
 
     const isActive: ComputedRef<boolean> = computed(
-      () => index.value === carousel.currentSlide
+      () => currentIndex.value === carousel.currentSlide
     )
     const isPrev: ComputedRef<boolean> = computed(
-      () => index.value === carousel.currentSlide - 1
+      () => currentIndex.value === carousel.currentSlide - 1
     )
     const isNext: ComputedRef<boolean> = computed(
-      () => index.value === carousel.currentSlide + 1
+      () => currentIndex.value === carousel.currentSlide + 1
     )
     const isVisible: ComputedRef<boolean> = computed(
       () =>
-        index.value >= Math.floor(carousel.scrolledIndex) &&
-        index.value < Math.ceil(carousel.scrolledIndex) + carousel.config.itemsToShow
+        currentIndex.value >= Math.floor(carousel.scrolledIndex) &&
+        currentIndex.value <
+          Math.ceil(carousel.scrolledIndex) + carousel.config.itemsToShow
     )
 
     const slideStyle = computed(() => {
@@ -75,7 +86,7 @@ export const Slide = defineComponent({
     const instance = getCurrentInstance()!
 
     if (!props.isClone) {
-      carousel.slideRegistry.registerSlide(instance)
+      carousel.slideRegistry.registerSlide(instance, props.index)
       onUnmounted(() => {
         carousel.slideRegistry.unregisterSlide(instance)
       })
@@ -88,10 +99,6 @@ export const Slide = defineComponent({
         disableChildrenTabbing(instance.vnode)
       })
     }
-
-    expose({
-      id: props.id,
-    })
 
     return () => {
       if (!carousel.config.enabled) {
@@ -116,7 +123,7 @@ export const Slide = defineComponent({
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
             }
-            carousel.nav.slideTo(index.value)
+            carousel.nav.slideTo(currentIndex.value)
           },
           id: props.isClone ? undefined : props.id,
           'aria-hidden': props.isClone || undefined,
