@@ -38,11 +38,17 @@ module.exports = {
     ],
 
     search: {
-      provider: 'local'
+      provider: 'local',
     },
 
     editLink: {
       pattern: 'https://github.com/ismail9k/vue3-carousel/edit/master/docs/:path',
+    },
+
+    carbonAds: {
+      code: 'CW7IT23W',
+      placement: 'vue3-carouselismail9kcom',
+      format: 'cover',
     },
   },
 
