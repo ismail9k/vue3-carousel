@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.11.0) - 2024-12-23
+
+- fix: reorder exports in package.json by @BR0kEN- in #458
+- Enhance carousel performance and slide management in #456
+- fix: update Vue peer dependency version to 3.5.0 in #460
+- Validate itemsToShow configuration in #461
+
 ## [0.10.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.10.0) - 2024-12-16
 
 - docs: enable local search by @vintagesucks in #447
