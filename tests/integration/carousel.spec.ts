@@ -104,6 +104,18 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
   })
+
+  it('Should default itemsToShow to 1 if less than 1', async () => {
+    await wrapper.setProps({ itemsToShow: 0 })
+    const slides = wrapper.findAll('.carousel__slide--visible')
+    expect(slides.length).toBe(1)
+  })
+
+  it('Should default itemsToShow to slidesCount if greater than slidesCount', async () => {
+    await wrapper.setProps({ itemsToShow: 10 })
+    const slides = wrapper.findAll('.carousel__slide--visible')
+    expect(slides.length).toBe(5)
+  })
 })
 
 describe('Slotted Carousel.ts', () => {
