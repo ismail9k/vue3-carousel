@@ -56,13 +56,13 @@ export const Slide = defineComponent({
     })
 
     const isActive: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.currentSlide
+      () => currentIndex.value === carousel.activeSlide
     )
     const isPrev: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.currentSlide - 1
+      () => currentIndex.value === carousel.activeSlide - 1
     )
     const isNext: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.currentSlide + 1
+      () => currentIndex.value === carousel.activeSlide + 1
     )
     const isVisible: ComputedRef<boolean> = computed(
       () =>

@@ -36,6 +36,7 @@ import {
   getScrolledIndex,
   getTransformValues,
   createCloneSlides,
+  getDraggedSlidesCount,
 } from '@/utils'
 
 import {
@@ -81,6 +82,9 @@ export const Carousel = defineComponent({
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
+    const activeSlideIndex = ref(currentSlideIndex.value)
+
+    watch(currentSlideIndex, (val) => (activeSlideIndex.value = val))
     const prevSlideIndex = ref(0)
     const middleSlideIndex = computed(() => Math.ceil((slidesCount.value - 1) / 2))
     const maxSlideIndex = computed(() => {
@@ -391,32 +395,27 @@ export const Carousel = defineComponent({
       const currentY = 'touches' in event ? event.touches[0].clientY : event.clientY
 
       // Calculate deltas for X and Y axes
-      const deltaX = currentX - startPosition.x
-      const deltaY = currentY - startPosition.y
+      dragged.x = currentX - startPosition.x
+      dragged.y = currentY - startPosition.y
 
-      // Update dragged state reactively
-      dragged.x = deltaX
-      dragged.y = deltaY
+      const draggedSlides = getDraggedSlidesCount({
+        isVertical: isVertical.value,
+        isReversed: isReversed.value,
+        dragged,
+        effectiveSlideSize: effectiveSlideSize.value,
+      })
+
+      activeSlideIndex.value = currentSlideIndex.value + draggedSlides
 
       // Emit a drag event for further customization if needed
-      emit('drag', { deltaX, deltaY })
+      emit('drag', { deltaX: dragged.x, deltaY: dragged.y })
     })
 
     function handleDragEnd(): void {
       handleDragging.cancel()
 
-      // Determine the active axis and direction multiplier
-      const dragAxis = isVertical.value ? 'y' : 'x'
-      const directionMultiplier = isReversed.value ? -1 : 1
-
-      // Calculate dragged slides with a tolerance to account for incomplete drags
-      const tolerance = Math.sign(dragged[dragAxis]) * 0.4 // Smooth out small drags
-      const draggedSlides =
-        Math.round(dragged[dragAxis] / effectiveSlideSize.value + tolerance) *
-        directionMultiplier
-
       // Prevent accidental clicks when there is a slide drag
-      if (draggedSlides && !isTouch) {
+      if (activeSlideIndex.value !== currentSlideIndex.value && !isTouch) {
         const preventClick = (e: MouseEvent) => {
           e.preventDefault()
           window.removeEventListener('click', preventClick)
@@ -424,9 +423,7 @@ export const Carousel = defineComponent({
         window.addEventListener('click', preventClick)
       }
 
-      // Slide to the appropriate slide index
-      const targetSlideIndex = currentSlideIndex.value - draggedSlides
-      slideTo(targetSlideIndex)
+      slideTo(activeSlideIndex.value)
 
       // Reset drag state
       dragged.x = 0
@@ -482,10 +479,7 @@ export const Carousel = defineComponent({
             min: minSlideIndex.value,
           })
 
-      if (
-        currentSlideIndex.value === currentVal ||
-        (!skipTransition && isSliding.value)
-      ) {
+      if (!skipTransition && isSliding.value) {
         return
       }
 
@@ -562,6 +556,7 @@ export const Carousel = defineComponent({
       clonedSlidesCount,
       scrolledIndex,
       currentSlide: currentSlideIndex,
+      activeSlide: activeSlideIndex,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       slideSize,
