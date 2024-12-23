@@ -188,6 +188,13 @@ export const Carousel = defineComponent({
           min: minSlideIndex.value,
         })
       }
+
+      // Validate itemsToShow
+      config.itemsToShow = getNumberInRange({
+        val: config.itemsToShow,
+        max: slidesCount.value,
+        min: 1,
+      })
     }
 
     const ignoreAnimations = computed<false | string[]>(() => {
