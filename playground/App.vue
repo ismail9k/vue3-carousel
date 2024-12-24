@@ -6,11 +6,12 @@ import {
   Pagination as CarouselPagination,
   Navigation as CarouselNavigation,
 } from '@/index'
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 
 import { DIR_MAP, SNAP_ALIGN_OPTIONS, BREAKPOINT_MODE_OPTIONS } from '@/shared/constants'
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
+const carousel = ref<VueCarousel | null>(null)
 
 const breakpoints = reactive({
   100: { itemsToShow: 1 },
@@ -221,6 +222,11 @@ const handleEvent = (eventName: string) => (data?: any) => {
   lastEventData.value = getSerializableData(data)
   console.log(`Event: ${eventName}`, data)
 }
+
+onMounted(() => {
+  // Trigger pop-in animation
+  window.carousel = carousel.value
+})
 </script>
 
 <template>
@@ -228,6 +234,7 @@ const handleEvent = (eventName: string) => (data?: any) => {
     <main class="canvas">
       <div class="carousel-wrapper pop-in" ref="carouselWrapper">
         <VueCarousel
+          ref="carousel"
           v-model="config.currentSlide"
           v-bind="config"
           :breakpoints="config.useBreakpoints ? breakpoints : null"

@@ -468,16 +468,34 @@ export const Carousel = defineComponent({
     const isSliding = ref(false)
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      const currentVal = config.wrapAround
-        ? slideIndex
-        : getNumberInRange({
-            val: slideIndex,
-            max: maxSlideIndex.value,
-            min: minSlideIndex.value,
-          })
-
       if (!skipTransition && isSliding.value) {
         return
+      }
+
+      let targetIndex = slideIndex
+
+      // Calculate shortest path in wrap-around mode
+      if (config.wrapAround && slidesCount.value > 1) {
+        const currentIndex = currentSlideIndex.value
+        const totalSlides = slidesCount.value
+
+        // Calculate forward and backward distances
+        const forwardDistance = (targetIndex - currentIndex + totalSlides) % totalSlides
+        const backwardDistance = (currentIndex - targetIndex + totalSlides) % totalSlides
+
+        // Choose the shortest path
+        if (backwardDistance < forwardDistance) {
+          targetIndex = currentIndex - backwardDistance
+        } else {
+          targetIndex = currentIndex + forwardDistance
+        }
+      } else {
+        // Non wrap-around mode - use regular bounds
+        targetIndex = getNumberInRange({
+          val: targetIndex,
+          max: maxSlideIndex.value,
+          min: minSlideIndex.value,
+        })
       }
 
       emit('slide-start', {
@@ -493,20 +511,21 @@ export const Carousel = defineComponent({
 
       const mappedNumber = config.wrapAround
         ? mapNumberToRange({
-            val: currentVal,
+            val: targetIndex,
             max: maxSlideIndex.value,
             min: 0,
           })
-        : currentVal
-      currentSlideIndex.value = currentVal
-      if (mappedNumber !== currentVal) {
+        : targetIndex
+
+      currentSlideIndex.value = targetIndex
+      if (mappedNumber !== targetIndex) {
         modelWatcher.pause()
       }
       emit('update:modelValue', mappedNumber)
 
       transitionTimer = setTimeout((): void => {
         if (config.wrapAround) {
-          if (mappedNumber !== currentVal) {
+          if (mappedNumber !== targetIndex) {
             modelWatcher.resume()
             currentSlideIndex.value = mappedNumber
             emit('loop', {
@@ -689,8 +708,6 @@ export const Carousel = defineComponent({
 
     return () => {
       const slotSlides = slots.default || slots.slides
-      const slotAddons = slots.addons
-
       const outputSlides = slotSlides?.(data) || []
 
       const { before, after } = clonedSlidesCount.value
@@ -719,7 +736,7 @@ export const Carousel = defineComponent({
         )
       }
 
-      const addonsElements = slotAddons?.(data) || []
+      const addonsElements = slots.addons?.(data) || []
 
       const trackEl = h(
         'ol',
@@ -747,9 +764,6 @@ export const Carousel = defineComponent({
               'is-hover': isHover.value,
             },
           ],
-          style: {
-            '--vc-trk-height': trackHeight.value,
-          },
           dir: normalizedDir.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
