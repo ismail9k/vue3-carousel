@@ -36,7 +36,7 @@ const defaultConfig = {
   height: '200',
   dir: 'left-to-right',
   breakpointMode: 'carousel',
-  gap: 20,
+  gap: 10,
   pauseAutoplayOnHover: true,
   useBreakpoints: false,
 }

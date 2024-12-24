@@ -85,12 +85,12 @@ export const Slide = defineComponent({
 
     const instance = getCurrentInstance()!
 
-    if (!props.isClone) {
-      carousel.slideRegistry.registerSlide(instance, props.index)
-      onUnmounted(() => {
-        carousel.slideRegistry.unregisterSlide(instance)
-      })
-    } else {
+    carousel.slideRegistry.registerSlide(instance, props.index)
+    onUnmounted(() => {
+      carousel.slideRegistry.unregisterSlide(instance)
+    })
+
+    if (props.isClone) {
       // Prevent cloned slides from being focusable
       onMounted(() => {
         disableChildrenTabbing(instance.vnode)

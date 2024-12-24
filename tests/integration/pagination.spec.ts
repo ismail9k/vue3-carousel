@@ -18,12 +18,13 @@ describe('Navigation.ts', () => {
         itemsToShow: 1,
         itemsToScroll: 1,
         i18n: {
-          ...I18N_DEFAULT_CONFIG
+          ...I18N_DEFAULT_CONFIG,
         },
       },
       normalizedDir: 'ltr',
       slidesCount: 3,
       currentSlide: 0,
+      activeSlide: 0,
       minSlide: 0,
       maxSlide: 2,
       slides: [],
@@ -31,8 +32,9 @@ describe('Navigation.ts', () => {
         // Very simplistic mock
         slideTo: (slide) => {
           inject.currentSlide = slide
-        }
-      }
+          inject.activeSlide = slide
+        },
+      },
     })
     return inject
   }
@@ -43,7 +45,9 @@ describe('Navigation.ts', () => {
 
   it('renders properly with a carousel', async () => {
     const inject = makeCarouselInject()
-    const wrapper = await mount(Pagination, { global: { provide: { [injectCarousel]: inject }} })
+    const wrapper = await mount(Pagination, {
+      global: { provide: { [injectCarousel]: inject } },
+    })
     expect(consoleMock).not.toHaveBeenCalled()
     expect(wrapper.html()).toMatchSnapshot()
 
@@ -54,24 +58,24 @@ describe('Navigation.ts', () => {
 
     await buttons[1].trigger('click')
 
-    expect(inject.currentSlide).toBe(1)
+    expect(inject.activeSlide).toBe(1)
 
     expect(wrapper.findAll('.carousel__pagination-button--active').length).toBe(1)
     expect(buttons[1].classes()).to.contain('carousel__pagination-button--active')
 
     await buttons[2].trigger('click')
 
-    expect(inject.currentSlide).toBe(2)
+    expect(inject.activeSlide).toBe(2)
 
     expect(wrapper.findAll('.carousel__pagination-button--active').length).toBe(1)
     expect(buttons[2].classes()).to.contain('carousel__pagination-button--active')
 
-    await wrapper.setProps({disableOnClick: true})
+    await wrapper.setProps({ disableOnClick: true })
 
     await buttons[0].trigger('click')
     // Shouldn't have changed
-    expect(inject.currentSlide).toBe(2)
-    expect(buttons[0].attributes()).to.contain({disabled: ''})
+    expect(inject.activeSlide).toBe(2)
+    expect(buttons[0].attributes()).to.contain({ disabled: '' })
   })
 
   it("doesn't render without a carousel", async () => {

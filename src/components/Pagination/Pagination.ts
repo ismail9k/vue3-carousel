@@ -12,7 +12,7 @@ export const Pagination = defineComponent<PaginationProps>({
       type: Boolean,
     },
     paginateByItemsToShow: {
-      type: Boolean
+      type: Boolean,
     },
   },
   setup(props) {
@@ -22,10 +22,14 @@ export const Pagination = defineComponent<PaginationProps>({
       return () => '' // Don't render, let vue warn about the missing provide
     }
 
-    const offset = computed(() => calculateOffset(carousel.config.snapAlign, carousel.config.itemsToShow))
-    const isPaginated = computed(() => props.paginateByItemsToShow && carousel.config.itemsToShow > 1)
+    const offset = computed(() =>
+      calculateOffset(carousel.config.snapAlign, carousel.config.itemsToShow)
+    )
+    const isPaginated = computed(
+      () => props.paginateByItemsToShow && carousel.config.itemsToShow > 1
+    )
     const currentPage = computed(() =>
-      Math.ceil((carousel.currentSlide - offset.value) / carousel.config.itemsToShow)
+      Math.ceil((carousel.activeSlide - offset.value) / carousel.config.itemsToShow)
     )
     const pageCount = computed(() =>
       Math.ceil(carousel.slidesCount / carousel.config.itemsToShow)
@@ -40,7 +44,7 @@ export const Pagination = defineComponent<PaginationProps>({
               min: 0,
             }
           : {
-              val: carousel.currentSlide,
+              val: carousel.activeSlide,
               max: carousel.maxSlide,
               min: carousel.minSlide,
             }
@@ -74,7 +78,12 @@ export const Pagination = defineComponent<PaginationProps>({
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
           disabled: props.disableOnClick,
-          onClick: () => carousel.nav.slideTo(isPaginated.value ? slide * carousel.config.itemsToShow + offset.value : slide),
+          onClick: () =>
+            carousel.nav.slideTo(
+              isPaginated.value
+                ? slide * carousel.config.itemsToShow + offset.value
+                : slide
+            ),
         })
         const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
         children.push(item)

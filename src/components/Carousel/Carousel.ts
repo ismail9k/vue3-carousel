@@ -8,7 +8,6 @@ import {
   computed,
   h,
   watch,
-  VNode,
   SetupContext,
   Ref,
   ComputedRef,
@@ -107,8 +106,6 @@ export const Carousel = defineComponent({
 
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
-
-    const clonedSlidesCount = computed(() => Math.ceil(config.itemsToShow) + 1)
 
     function updateBreakpointsConfig(): void {
       if (!mounted.value) {
@@ -553,7 +550,6 @@ export const Carousel = defineComponent({
       slidesCount,
       viewport,
       slides,
-      clonedSlidesCount,
       scrolledIndex,
       currentSlide: currentSlideIndex,
       activeSlide: activeSlideIndex,
@@ -652,16 +648,13 @@ export const Carousel = defineComponent({
      */
     const trackTransform: ComputedRef<string> = computed(() => {
       // Calculate the scrolled index with wrapping offset if applicable
-      const cloneOffset = config.wrapAround && mounted.value ? clonedSlidesCount.value : 0
 
       // Determine direction multiplier for orientation
       const directionMultiplier = isReversed.value ? -1 : 1
 
       // Calculate the total offset for slide transformation
       const totalOffset =
-        (scrolledIndex.value + cloneOffset) *
-        effectiveSlideSize.value *
-        directionMultiplier
+        scrolledIndex.value * effectiveSlideSize.value * directionMultiplier
 
       // Include user drag interaction offset
       const dragOffset = isVertical.value ? dragged.y : dragged.x
@@ -671,11 +664,49 @@ export const Carousel = defineComponent({
       return `translate${translateAxis}(${dragOffset - totalOffset}px)`
     })
 
+    const clonedSlidesCount = computed(() => {
+      if (!config.wrapAround) {
+        return { before: 0, after: 0 }
+      }
+
+      const slidesToClone = Math.ceil(config.itemsToShow)
+      return {
+        before: Math.max(0, slidesToClone - activeSlideIndex.value),
+        after: Math.max(
+          0,
+          slidesToClone - (slidesCount.value - activeSlideIndex.value - 1)
+        ),
+      }
+    })
+
+    const trackStyle = computed(() => ({
+      transform: trackTransform.value,
+      'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
+      gap: config.gap > 0 ? `${config.gap}px` : undefined,
+      '--vc-trk-height': trackHeight.value,
+      '--vc-cloned-slides-offset': `-${clonedSlidesCount.value.before * effectiveSlideSize.value}px`,
+    }))
+
     return () => {
       const slotSlides = slots.default || slots.slides
       const slotAddons = slots.addons
 
-      let output: VNode[] | Array<Array<VNode>> = slotSlides?.(data) || []
+      const outputSlides = slotSlides?.(data) || []
+
+      const { before, after } = clonedSlidesCount.value
+      const slidesBefore = createCloneSlides({
+        slides,
+        position: 'before',
+        toShow: before,
+      })
+
+      const slidesAfter = createCloneSlides({
+        slides,
+        position: 'after',
+        toShow: after,
+      })
+
+      const output = [...slidesBefore, ...outputSlides, ...slidesAfter]
 
       if (!config.enabled || !output.length) {
         return h(
@@ -690,22 +721,11 @@ export const Carousel = defineComponent({
 
       const addonsElements = slotAddons?.(data) || []
 
-      if (config.wrapAround) {
-        const toShow = clonedSlidesCount.value
-        const slidesBefore = createCloneSlides({ slides, position: 'before', toShow })
-        const slidesAfter = createCloneSlides({ slides, position: 'after', toShow })
-        output = [...slidesBefore, ...output, ...slidesAfter]
-      }
-
       const trackEl = h(
         'ol',
         {
           class: 'carousel__track',
-          style: {
-            transform: trackTransform.value,
-            'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
-            gap: config.gap > 0 ? `${config.gap}px` : undefined,
-          },
+          style: trackStyle.value,
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },

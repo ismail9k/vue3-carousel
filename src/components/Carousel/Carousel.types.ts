@@ -19,7 +19,6 @@ export type InjectedCarousel = Reactive<{
   viewport: Ref<Element | null>
   slides: ShallowReactive<Array<ComponentInternalInstance>>
   slidesCount: ComputedRef<number>
-  clonedSlidesCount: ComputedRef<number>
   activeSlide: Ref<number>
   currentSlide: Ref<number>
   scrolledIndex: Ref<number>
