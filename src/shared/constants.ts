@@ -1,6 +1,13 @@
 import { CarouselConfig } from './types'
 
-export const SNAP_ALIGN_OPTIONS = ['center', 'start', 'end', 'center-even', 'center-odd'] as const
+export const SNAP_ALIGN_OPTIONS = [
+  'center',
+  'start',
+  'end',
+  'center-even',
+  'center-odd',
+] as const
+export const SLIDE_EFFECTS = ['slide', 'fade'] as const
 export const BREAKPOINT_MODE_OPTIONS = ['viewport', 'carousel'] as const
 export const DIR_OPTIONS = [
   'ltr',
@@ -53,4 +60,5 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   breakpoints: undefined,
   i18n: I18N_DEFAULT_CONFIG,
   ignoreAnimations: false,
+  slideEffect: SLIDE_EFFECTS[0],
 }

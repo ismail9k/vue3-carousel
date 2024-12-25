@@ -4,10 +4,17 @@ import {
   BREAKPOINT_MODE_OPTIONS,
   DEFAULT_CONFIG,
   DIR_OPTIONS,
+  SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
 } from '@/shared'
 
-import type { BreakpointMode, Dir, SnapAlign, CarouselConfig } from '@/shared'
+import type {
+  BreakpointMode,
+  Dir,
+  SnapAlign,
+  CarouselConfig,
+  SlideEffect,
+} from '@/shared'
 
 export const carouselProps = {
   // enable/disable the carousel component
@@ -106,5 +113,12 @@ export const carouselProps = {
   ignoreAnimations: {
     default: false,
     type: [Array, Boolean, String] as PropType<CarouselConfig['ignoreAnimations']>,
-  }
+  },
+  slideEffect: {
+    type: String as PropType<SlideEffect>,
+    default: DEFAULT_CONFIG.slideEffect,
+    validator(value: SlideEffect) {
+      return SLIDE_EFFECTS.includes(value)
+    },
+  },
 }

@@ -21,6 +21,7 @@
   position: relative;
   transition: transform ease-out;
   height: var(--vc-trk-height, auto);
+  transition-duration: var(--vc-trk-transition-duration);
 }
 
 .carousel__viewport {
@@ -59,5 +60,25 @@
 .carousel:not(.is-vertical) {
   .carousel__slide--clone:first-child {
     margin-inline-start: var(--vc-trk-cloned-offset);
+  }
+}
+.carousel.is-effect-fade {
+  .carousel__track {
+    transition: none !important;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 100%;
+  }
+
+  .carousel__slide {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    grid-area: 1 / 1; /* Make all slides occupy the same grid cell */
+    pointer-events: none; /* Prevent inactive slides from being clickable */
+  }
+
+  .carousel__slide--active {
+    opacity: 1;
+    pointer-events: auto; /* Re-enable pointer events for active slide */
   }
 }
