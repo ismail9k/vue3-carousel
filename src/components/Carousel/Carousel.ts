@@ -645,7 +645,10 @@ export const Carousel = defineComponent({
         return undefined
       }
 
-      if (typeof config.height === 'number') {
+      if (
+        typeof config.height === 'number' ||
+        parseFloat(config.height).toString() === config.height
+      ) {
         return `${config.height}px`
       } else {
         return config.height
