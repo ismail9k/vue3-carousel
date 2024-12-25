@@ -6,6 +6,11 @@ hero:
   text: For Your Next Awesome Project
   tagline: Flexible, responsive, and highly customizable Vue carousel component to suit almost all your use cases
 
+  image:
+      dark: /vue3-carousel-logo-dark.svg
+      light: /vue3-carousel-logo-light.svg
+      alt: Vue3Carousel
+
   actions:
   - theme: brand
     text: Getting Started →
@@ -17,17 +22,7 @@ hero:
     text: Github
     link: https://github.com/ismail9k/vue3-carousel
 
-  
-features:
-  - icon: 🧁
-    title: Vue.js
-    details: Optimized to work with Vue 3 framework, not a wrapper for another library.
-  - icon: ♿
-    title: Accessible
-    details: Robust structure with accessibility in mind Touch, Keyboard, Mouse Wheel, and Navigation support.
-  - icon: 📱
-    title: Responsive
-    details: Responsive breakpoints, to apply custom configurations for each screen size.
+
 
 footer: MIT Licensed
 
@@ -37,3 +32,9 @@ meta:
   - name: og:description
     content: A customizable accessible carousel slider optimized for Vue 3
 ---
+
+<Features />
+
+<script setup>
+import Features from './components/Features.vue'
+</script>
