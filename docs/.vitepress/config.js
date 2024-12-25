@@ -10,6 +10,11 @@ module.exports = {
     docsDir: 'docs',
     docsBranch: 'master',
     editLinks: true,
+    logo: {
+      alt: 'Vue3-carousel',
+      dark: './vue3-carousel-logo-dark.svg',
+      light: './vue3-carousel-logo-light.svg',
+    },
 
     nav: [{ text: 'Guide', link: '/getting-started' }],
 
@@ -49,6 +54,11 @@ module.exports = {
       code: 'CW7IT23W',
       placement: 'vue3-carouselismail9kcom',
       format: 'cover',
+    },
+
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: 'Copyright © 2023-present Abdelrahman Ismail',
     },
   },
 

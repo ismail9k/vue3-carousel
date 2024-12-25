@@ -6,6 +6,11 @@ hero:
   text: For Your Next Awesome Project
   tagline: Flexible, responsive, and highly customizable Vue carousel component to suit almost all your use cases
 
+  image:
+      dark: /vue3-carousel-logo-dark.svg
+      light: /vue3-carousel-logo-light.svg
+      alt: Vue3Carousel
+
   actions:
   - theme: brand
     text: Getting Started →
