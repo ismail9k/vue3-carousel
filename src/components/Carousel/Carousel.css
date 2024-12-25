@@ -15,8 +15,6 @@
 }
 
 .carousel__track {
-  --vc-cloned-slides-offset: 0px;
-
   display: flex;
   padding: 0 !important;
   margin: 0 !important;
@@ -49,17 +47,5 @@
 .carousel.is-btt {
   .carousel__track {
     flex-direction: column-reverse;
-  }
-}
-
-.carousel.is-vertical {
-  .carousel__slide--clone:first-child {
-    margin-block-start: var(--vc-cloned-slides-offset);
-  }
-}
-
-.carousel:not(.is-vertical) {
-  .carousel__slide--clone:first-child {
-    margin-inline-start: var(--vc-cloned-slides-offset);
   }
 }

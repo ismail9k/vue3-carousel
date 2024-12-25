@@ -475,22 +475,7 @@ export const Carousel = defineComponent({
       let targetIndex = slideIndex
 
       // Calculate shortest path in wrap-around mode
-      if (config.wrapAround && slidesCount.value > 1) {
-        const currentIndex = currentSlideIndex.value
-        const totalSlides = slidesCount.value
-
-        // Calculate forward and backward distances
-        const forwardDistance = (targetIndex - currentIndex + totalSlides) % totalSlides
-        const backwardDistance = (currentIndex - targetIndex + totalSlides) % totalSlides
-
-        // Choose the shortest path
-        if (backwardDistance < forwardDistance) {
-          targetIndex = currentIndex - backwardDistance
-        } else {
-          targetIndex = currentIndex + forwardDistance
-        }
-      } else {
-        // Non wrap-around mode - use regular bounds
+      if (!config.wrapAround) {
         targetIndex = getNumberInRange({
           val: targetIndex,
           max: maxSlideIndex.value,
@@ -506,7 +491,6 @@ export const Carousel = defineComponent({
       })
 
       stopAutoplay()
-      isSliding.value = true
       prevSlideIndex.value = currentSlideIndex.value
 
       const mappedNumber = config.wrapAround
@@ -517,7 +501,9 @@ export const Carousel = defineComponent({
           })
         : targetIndex
 
+      isSliding.value = true
       currentSlideIndex.value = targetIndex
+
       if (mappedNumber !== targetIndex) {
         modelWatcher.pause()
       }
@@ -651,36 +637,19 @@ export const Carousel = defineComponent({
     })
 
     const trackHeight = computed(() => {
-      if (isVertical.value && slideSize.value && config.height === 'auto') {
-        return `${slideSize.value * config.itemsToShow + totalGap.value}px`
+      // If the carousel is vertical and height is set to auto, calculate the height based on slide size and gap
+      if (config.height === 'auto') {
+        if (isVertical.value && slideSize.value) {
+          return `${slideSize.value * config.itemsToShow + totalGap.value}px`
+        }
+        return undefined
       }
-      return config.height !== 'auto'
-        ? typeof config.height === 'number' ||
-          parseInt(config.height).toString() === config.height
-          ? `${config.height}px`
-          : config.height
-        : undefined
-    })
 
-    /**
-     * Track style
-     */
-    const trackTransform: ComputedRef<string> = computed(() => {
-      // Calculate the scrolled index with wrapping offset if applicable
-
-      // Determine direction multiplier for orientation
-      const directionMultiplier = isReversed.value ? -1 : 1
-
-      // Calculate the total offset for slide transformation
-      const totalOffset =
-        scrolledIndex.value * effectiveSlideSize.value * directionMultiplier
-
-      // Include user drag interaction offset
-      const dragOffset = isVertical.value ? dragged.y : dragged.x
-
-      // Generate the appropriate CSS transformation
-      const translateAxis = isVertical.value ? 'Y' : 'X'
-      return `translate${translateAxis}(${dragOffset - totalOffset}px)`
+      if (typeof config.height === 'number') {
+        return `${config.height}px`
+      } else {
+        return config.height
+      }
     })
 
     const clonedSlidesCount = computed(() => {
@@ -689,13 +658,35 @@ export const Carousel = defineComponent({
       }
 
       const slidesToClone = Math.ceil(config.itemsToShow)
+      const before = Math.min(slidesToClone, activeSlideIndex.value)
+      const after = Math.min(
+        slidesToClone,
+        slidesCount.value - activeSlideIndex.value - 1
+      )
+
       return {
-        before: Math.max(0, slidesToClone - activeSlideIndex.value),
-        after: Math.max(
-          0,
-          slidesToClone - (slidesCount.value - activeSlideIndex.value - 1)
-        ),
+        before: Math.max(slidesToClone, before),
+        after: Math.max(slidesToClone, after),
       }
+    })
+
+    const trackTransform: ComputedRef<string> = computed(() => {
+      const directionMultiplier = isReversed.value ? 1 : -1
+      const translateAxis = isVertical.value ? 'Y' : 'X'
+
+      // Calculate the total offset for slide transformation
+      const scrolledOffset =
+        scrolledIndex.value * effectiveSlideSize.value * directionMultiplier
+
+      const clonedSlidesOffset =
+        clonedSlidesCount.value.before * effectiveSlideSize.value * -1
+
+      // Include user drag interaction offset
+      const dragOffset = isVertical.value ? dragged.y : dragged.x
+
+      const totalOffset = scrolledOffset + clonedSlidesOffset + dragOffset
+
+      return `translate${translateAxis}(${totalOffset}px)`
     })
 
     const trackStyle = computed(() => ({
@@ -703,7 +694,6 @@ export const Carousel = defineComponent({
       'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
       gap: config.gap > 0 ? `${config.gap}px` : undefined,
       '--vc-trk-height': trackHeight.value,
-      '--vc-cloned-slides-offset': `-${clonedSlidesCount.value.before * effectiveSlideSize.value}px`,
     }))
 
     return () => {
