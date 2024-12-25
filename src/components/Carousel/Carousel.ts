@@ -8,7 +8,6 @@ import {
   computed,
   h,
   watch,
-  VNode,
   SetupContext,
   Ref,
   ComputedRef,
@@ -36,6 +35,7 @@ import {
   getScrolledIndex,
   getTransformValues,
   createCloneSlides,
+  getDraggedSlidesCount,
 } from '@/utils'
 
 import {
@@ -81,6 +81,9 @@ export const Carousel = defineComponent({
 
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
+    const activeSlideIndex = ref(currentSlideIndex.value)
+
+    watch(currentSlideIndex, (val) => (activeSlideIndex.value = val))
     const prevSlideIndex = ref(0)
     const middleSlideIndex = computed(() => Math.ceil((slidesCount.value - 1) / 2))
     const maxSlideIndex = computed(() => {
@@ -103,8 +106,6 @@ export const Carousel = defineComponent({
 
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
-
-    const clonedSlidesCount = computed(() => Math.ceil(config.itemsToShow) + 1)
 
     function updateBreakpointsConfig(): void {
       if (!mounted.value) {
@@ -391,32 +392,27 @@ export const Carousel = defineComponent({
       const currentY = 'touches' in event ? event.touches[0].clientY : event.clientY
 
       // Calculate deltas for X and Y axes
-      const deltaX = currentX - startPosition.x
-      const deltaY = currentY - startPosition.y
+      dragged.x = currentX - startPosition.x
+      dragged.y = currentY - startPosition.y
 
-      // Update dragged state reactively
-      dragged.x = deltaX
-      dragged.y = deltaY
+      const draggedSlides = getDraggedSlidesCount({
+        isVertical: isVertical.value,
+        isReversed: isReversed.value,
+        dragged,
+        effectiveSlideSize: effectiveSlideSize.value,
+      })
+
+      activeSlideIndex.value = currentSlideIndex.value + draggedSlides
 
       // Emit a drag event for further customization if needed
-      emit('drag', { deltaX, deltaY })
+      emit('drag', { deltaX: dragged.x, deltaY: dragged.y })
     })
 
     function handleDragEnd(): void {
       handleDragging.cancel()
 
-      // Determine the active axis and direction multiplier
-      const dragAxis = isVertical.value ? 'y' : 'x'
-      const directionMultiplier = isReversed.value ? -1 : 1
-
-      // Calculate dragged slides with a tolerance to account for incomplete drags
-      const tolerance = Math.sign(dragged[dragAxis]) * 0.4 // Smooth out small drags
-      const draggedSlides =
-        Math.round(dragged[dragAxis] / effectiveSlideSize.value + tolerance) *
-        directionMultiplier
-
       // Prevent accidental clicks when there is a slide drag
-      if (draggedSlides && !isTouch) {
+      if (activeSlideIndex.value !== currentSlideIndex.value && !isTouch) {
         const preventClick = (e: MouseEvent) => {
           e.preventDefault()
           window.removeEventListener('click', preventClick)
@@ -424,9 +420,7 @@ export const Carousel = defineComponent({
         window.addEventListener('click', preventClick)
       }
 
-      // Slide to the appropriate slide index
-      const targetSlideIndex = currentSlideIndex.value - draggedSlides
-      slideTo(targetSlideIndex)
+      slideTo(activeSlideIndex.value)
 
       // Reset drag state
       dragged.x = 0
@@ -474,19 +468,19 @@ export const Carousel = defineComponent({
     const isSliding = ref(false)
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      const currentVal = config.wrapAround
-        ? slideIndex
-        : getNumberInRange({
-            val: slideIndex,
-            max: maxSlideIndex.value,
-            min: minSlideIndex.value,
-          })
-
-      if (
-        currentSlideIndex.value === currentVal ||
-        (!skipTransition && isSliding.value)
-      ) {
+      if (!skipTransition && isSliding.value) {
         return
+      }
+
+      let targetIndex = slideIndex
+
+      // Calculate shortest path in wrap-around mode
+      if (!config.wrapAround) {
+        targetIndex = getNumberInRange({
+          val: targetIndex,
+          max: maxSlideIndex.value,
+          min: minSlideIndex.value,
+        })
       }
 
       emit('slide-start', {
@@ -497,25 +491,27 @@ export const Carousel = defineComponent({
       })
 
       stopAutoplay()
-      isSliding.value = true
       prevSlideIndex.value = currentSlideIndex.value
 
       const mappedNumber = config.wrapAround
         ? mapNumberToRange({
-            val: currentVal,
+            val: targetIndex,
             max: maxSlideIndex.value,
             min: 0,
           })
-        : currentVal
-      currentSlideIndex.value = currentVal
-      if (mappedNumber !== currentVal) {
+        : targetIndex
+
+      isSliding.value = true
+      currentSlideIndex.value = targetIndex
+
+      if (mappedNumber !== targetIndex) {
         modelWatcher.pause()
       }
       emit('update:modelValue', mappedNumber)
 
       transitionTimer = setTimeout((): void => {
         if (config.wrapAround) {
-          if (mappedNumber !== currentVal) {
+          if (mappedNumber !== targetIndex) {
             modelWatcher.resume()
             currentSlideIndex.value = mappedNumber
             emit('loop', {
@@ -559,9 +555,9 @@ export const Carousel = defineComponent({
       slidesCount,
       viewport,
       slides,
-      clonedSlidesCount,
       scrolledIndex,
       currentSlide: currentSlideIndex,
+      activeSlide: activeSlideIndex,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       slideSize,
@@ -641,46 +637,86 @@ export const Carousel = defineComponent({
     })
 
     const trackHeight = computed(() => {
-      if (isVertical.value && slideSize.value && config.height === 'auto') {
-        return `${slideSize.value * config.itemsToShow + totalGap.value}px`
+      // If the carousel is vertical and height is set to auto, calculate the height based on slide size and gap
+      if (config.height === 'auto') {
+        if (isVertical.value && slideSize.value) {
+          return `${slideSize.value * config.itemsToShow + totalGap.value}px`
+        }
+        return undefined
       }
-      return config.height !== 'auto'
-        ? typeof config.height === 'number' ||
-          parseInt(config.height).toString() === config.height
-          ? `${config.height}px`
-          : config.height
-        : undefined
+
+      if (
+        typeof config.height === 'number' ||
+        parseFloat(config.height).toString() === config.height
+      ) {
+        return `${config.height}px`
+      } else {
+        return config.height
+      }
     })
 
-    /**
-     * Track style
-     */
-    const trackTransform: ComputedRef<string> = computed(() => {
-      // Calculate the scrolled index with wrapping offset if applicable
-      const cloneOffset = config.wrapAround && mounted.value ? clonedSlidesCount.value : 0
+    const clonedSlidesCount = computed(() => {
+      if (!config.wrapAround) {
+        return { before: 0, after: 0 }
+      }
 
-      // Determine direction multiplier for orientation
-      const directionMultiplier = isReversed.value ? -1 : 1
+      const slidesToClone = Math.ceil(config.itemsToShow)
+      const before = Math.min(slidesToClone, activeSlideIndex.value)
+      const after = Math.min(
+        slidesToClone,
+        slidesCount.value - activeSlideIndex.value - 1
+      )
+
+      return {
+        before: Math.max(slidesToClone, before),
+        after: Math.max(slidesToClone, after),
+      }
+    })
+
+    const trackTransform: ComputedRef<string> = computed(() => {
+      const directionMultiplier = isReversed.value ? 1 : -1
+      const translateAxis = isVertical.value ? 'Y' : 'X'
 
       // Calculate the total offset for slide transformation
-      const totalOffset =
-        (scrolledIndex.value + cloneOffset) *
-        effectiveSlideSize.value *
-        directionMultiplier
+      const scrolledOffset =
+        scrolledIndex.value * effectiveSlideSize.value * directionMultiplier
+
+      const clonedSlidesOffset =
+        clonedSlidesCount.value.before * effectiveSlideSize.value * -1
 
       // Include user drag interaction offset
       const dragOffset = isVertical.value ? dragged.y : dragged.x
 
-      // Generate the appropriate CSS transformation
-      const translateAxis = isVertical.value ? 'Y' : 'X'
-      return `translate${translateAxis}(${dragOffset - totalOffset}px)`
+      const totalOffset = scrolledOffset + clonedSlidesOffset + dragOffset
+
+      return `translate${translateAxis}(${totalOffset}px)`
     })
+
+    const trackStyle = computed(() => ({
+      transform: trackTransform.value,
+      'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
+      gap: config.gap > 0 ? `${config.gap}px` : undefined,
+      '--vc-trk-height': trackHeight.value,
+    }))
 
     return () => {
       const slotSlides = slots.default || slots.slides
-      const slotAddons = slots.addons
+      const outputSlides = slotSlides?.(data) || []
 
-      let output: VNode[] | Array<Array<VNode>> = slotSlides?.(data) || []
+      const { before, after } = clonedSlidesCount.value
+      const slidesBefore = createCloneSlides({
+        slides,
+        position: 'before',
+        toShow: before,
+      })
+
+      const slidesAfter = createCloneSlides({
+        slides,
+        position: 'after',
+        toShow: after,
+      })
+
+      const output = [...slidesBefore, ...outputSlides, ...slidesAfter]
 
       if (!config.enabled || !output.length) {
         return h(
@@ -693,24 +729,13 @@ export const Carousel = defineComponent({
         )
       }
 
-      const addonsElements = slotAddons?.(data) || []
-
-      if (config.wrapAround) {
-        const toShow = clonedSlidesCount.value
-        const slidesBefore = createCloneSlides({ slides, position: 'before', toShow })
-        const slidesAfter = createCloneSlides({ slides, position: 'after', toShow })
-        output = [...slidesBefore, ...output, ...slidesAfter]
-      }
+      const addonsElements = slots.addons?.(data) || []
 
       const trackEl = h(
         'ol',
         {
           class: 'carousel__track',
-          style: {
-            transform: trackTransform.value,
-            'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
-            gap: config.gap > 0 ? `${config.gap}px` : undefined,
-          },
+          style: trackStyle.value,
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },
@@ -732,9 +757,6 @@ export const Carousel = defineComponent({
               'is-hover': isHover.value,
             },
           ],
-          style: {
-            '--vc-trk-height': trackHeight.value,
-          },
           dir: normalizedDir.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',

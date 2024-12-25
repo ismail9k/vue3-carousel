@@ -6,11 +6,12 @@ import {
   Pagination as CarouselPagination,
   Navigation as CarouselNavigation,
 } from '@/index'
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 
 import { DIR_MAP, SNAP_ALIGN_OPTIONS, BREAKPOINT_MODE_OPTIONS } from '@/shared/constants'
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
+const carousel = ref<VueCarousel | null>(null)
 
 const breakpoints = reactive({
   100: { itemsToShow: 1 },
@@ -46,7 +47,14 @@ const items = reactive([...defaultSlides])
 
 const getConfigValue = (path: string) => config[path]
 
-const setConfigValue = (path: string, value: any) => (config[path] = value)
+const setConfigValue = ({ type, path }, value: any) => {
+  // Convert string values to numbers for numeric fields
+  if (type === 'number') {
+    config[path] = Number(value)
+  } else {
+    config[path] = value
+  }
+}
 
 const formFields = [
   {
@@ -67,6 +75,12 @@ const formFields = [
         label: 'Height',
         path: 'height',
         attrs: { step: '100', min: '200', max: '1000' },
+      },
+      {
+        type: 'number',
+        label: 'Gap',
+        path: 'gap',
+        attrs: { step: '1', min: '0', max: '20' },
       },
     ],
   },
@@ -135,7 +149,9 @@ const handleReset = () => {
   }
 
   // Reset config values
-  Object.entries(defaultConfig).forEach(([key, value]) => setConfigValue(key, value))
+  Object.entries(defaultConfig).forEach(([key, value]) =>
+    setConfigValue({ path: key }, value)
+  )
   // Reset items
   items.splice(0, items.length, ...defaultSlides)
 }
@@ -206,6 +222,11 @@ const handleEvent = (eventName: string) => (data?: any) => {
   lastEventData.value = getSerializableData(data)
   console.log(`Event: ${eventName}`, data)
 }
+
+onMounted(() => {
+  // Trigger pop-in animation
+  window.carousel = carousel.value
+})
 </script>
 
 <template>
@@ -213,6 +234,7 @@ const handleEvent = (eventName: string) => (data?: any) => {
     <main class="canvas">
       <div class="carousel-wrapper pop-in" ref="carouselWrapper">
         <VueCarousel
+          ref="carousel"
           v-model="config.currentSlide"
           v-bind="config"
           :breakpoints="config.useBreakpoints ? breakpoints : null"
@@ -250,7 +272,7 @@ const handleEvent = (eventName: string) => (data?: any) => {
           <select
             v-if="field.type === 'select'"
             :value="getConfigValue(field.path)"
-            @input="(e) => setConfigValue(field.path, e.target.value)"
+            @input="(e) => setConfigValue(field, e.target.value)"
           >
             <option v-for="opt in field.options" :value="opt" :key="opt">
               {{ opt }}
@@ -260,26 +282,26 @@ const handleEvent = (eventName: string) => (data?: any) => {
           <input
             v-else-if="field.type === 'checkbox'"
             :checked="getConfigValue(field.path)"
-            @input="(e) => setConfigValue(field.path, e.target.checked)"
+            @input="(e) => setConfigValue(field, e.target.checked)"
             :type="field.type"
             v-bind="field.attrs || {}"
           />
           <input
             v-else
             :value="getConfigValue(field.path)"
-            @input="(e) => setConfigValue(field.path, e.target.value)"
+            @input="(e) => setConfigValue(field, e.target.value)"
             :type="field.type"
             v-bind="field.attrs || {}"
           />
         </label>
       </div>
       <div class="config-panel-buttons-row">
-        <button @click="handleAddingASlide" class="config-panel-button">
+        <!-- <button @click="handleAddingASlide" class="config-panel-button">
           Add a new slide
         </button>
         <button @click="handleRemovingASlide" class="config-panel-button">
           Remove a new slide
-        </button>
+        </button> -->
         <button @click="handleReset" class="config-panel-button">Reset</button>
       </div>
     </aside>

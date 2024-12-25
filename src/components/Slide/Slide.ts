@@ -56,13 +56,13 @@ export const Slide = defineComponent({
     })
 
     const isActive: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.currentSlide
+      () => currentIndex.value === carousel.activeSlide
     )
     const isPrev: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.currentSlide - 1
+      () => currentIndex.value === carousel.activeSlide - 1
     )
     const isNext: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.currentSlide + 1
+      () => currentIndex.value === carousel.activeSlide + 1
     )
     const isVisible: ComputedRef<boolean> = computed(
       () =>
@@ -85,12 +85,12 @@ export const Slide = defineComponent({
 
     const instance = getCurrentInstance()!
 
-    if (!props.isClone) {
-      carousel.slideRegistry.registerSlide(instance, props.index)
-      onUnmounted(() => {
-        carousel.slideRegistry.unregisterSlide(instance)
-      })
-    } else {
+    carousel.slideRegistry.registerSlide(instance, props.index)
+    onUnmounted(() => {
+      carousel.slideRegistry.unregisterSlide(instance)
+    })
+
+    if (props.isClone) {
       // Prevent cloned slides from being focusable
       onMounted(() => {
         disableChildrenTabbing(instance.vnode)
