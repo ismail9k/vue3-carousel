@@ -8,7 +8,12 @@ import {
 } from '@/index'
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { DIR_MAP, SNAP_ALIGN_OPTIONS, BREAKPOINT_MODE_OPTIONS } from '@/shared/constants'
+import {
+  DIR_MAP,
+  SNAP_ALIGN_OPTIONS,
+  BREAKPOINT_MODE_OPTIONS,
+  SLIDE_EFFECTS,
+} from '@/shared/constants'
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
 const carousel = ref<VueCarousel | null>(null)
@@ -30,6 +35,7 @@ const defaultSlides = [
 const defaultConfig = {
   currentSlide: 0,
   snapAlign: 'center',
+  slideEffect: 'slide',
   itemsToScroll: 1,
   itemsToShow: 2,
   autoplay: null,
@@ -95,6 +101,12 @@ const formFields = [
       },
       {
         type: 'select',
+        label: 'Slide Effect',
+        path: 'slideEffect',
+        options: SLIDE_EFFECTS,
+      },
+      {
+        type: 'select',
         label: 'Direction',
         path: 'dir',
         options: Object.keys(DIR_MAP),
@@ -141,6 +153,7 @@ const formFields = [
 ]
 
 const handleReset = () => {
+  return
   // Reset animation
   if (carouselWrapper.value) {
     carouselWrapper.value.classList.remove('pop-in')

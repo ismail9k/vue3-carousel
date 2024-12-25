@@ -692,12 +692,25 @@ export const Carousel = defineComponent({
       return `translate${translateAxis}(${totalOffset}px)`
     })
 
-    const trackStyle = computed(() => ({
-      transform: trackTransform.value,
-      'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
-      gap: config.gap > 0 ? `${config.gap}px` : undefined,
-      '--vc-trk-height': trackHeight.value,
-    }))
+    const trackStyle = computed(() => {
+      if (config.slideEffect === 'fade') {
+        return {
+          '--vc-trk-height': trackHeight.value,
+          '--vc-trk-transition-duration': isSliding.value
+            ? `${config.transition}ms`
+            : undefined,
+        }
+      }
+      return {
+        transform: trackTransform.value,
+
+        gap: config.gap > 0 ? `${config.gap}px` : undefined,
+        '--vc-trk-transition-duration': isSliding.value
+          ? `${config.transition}ms`
+          : undefined,
+        '--vc-trk-height': trackHeight.value,
+      }
+    })
 
     return () => {
       const slotSlides = slots.default || slots.slides
@@ -750,6 +763,7 @@ export const Carousel = defineComponent({
           class: [
             'carousel',
             `is-${normalizedDir.value}`,
+            `is-effect-${config.slideEffect}`,
             {
               'is-vertical': isVertical.value,
               'is-sliding': isSliding.value,

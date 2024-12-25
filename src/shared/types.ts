@@ -5,6 +5,7 @@ import {
   I18N_DEFAULT_CONFIG,
   NORMALIZED_DIR_OPTIONS,
   DIR_MAP,
+  SLIDE_EFFECTS,
 } from './constants'
 
 export type Breakpoints = {
@@ -13,6 +14,7 @@ export type Breakpoints = {
   >
 }
 
+export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
 export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
 export type Dir = (typeof DIR_OPTIONS)[number]
@@ -44,6 +46,7 @@ export interface CarouselConfig {
   height: string | number
   i18n: { [key in I18nKeys]?: string }
   ignoreAnimations: boolean | string[] | string
+  slideEffect: SlideEffect
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]
