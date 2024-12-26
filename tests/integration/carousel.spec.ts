@@ -16,8 +16,8 @@ describe('Carousel.ts', () => {
       props: {
         slideNum: 5,
         modelValue: 0,
-        'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e })
-      }
+        'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+      },
     })
   })
 
@@ -69,7 +69,7 @@ describe('Carousel.ts', () => {
     expect(wrapper.props('modelValue')).toBe(1)
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(1)
-    await wrapper.setProps({dir: 'ttb'})
+    await wrapper.setProps({ dir: 'ttb' })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(2)
     await triggerKeyEvent('ArrowUp')
@@ -79,7 +79,7 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
-    await wrapper.setProps({dir: 'btt'})
+    await wrapper.setProps({ dir: 'btt' })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(0)
     await triggerKeyEvent('ArrowUp')
@@ -89,7 +89,7 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
-    await wrapper.setProps({dir: 'rtl'})
+    await wrapper.setProps({ dir: 'rtl' })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(1)
     await triggerKeyEvent('ArrowUp')
@@ -155,6 +155,95 @@ describe('Wrap around Carousel.ts', () => {
   })
 })
 
+describe('Carousel Slide Cloning', () => {
+  it('should not clone slides when wrapAround is false', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: false,
+        itemsToShow: 3,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    const clonedSlides = wrapper.findAll('.carousel__slide--clone')
+    expect(slides.length).toBe(5) // Only original slides, no clones
+    expect(clonedSlides.length).toBe(0)
+  })
+
+  it('should clone correct number of slides with wrapAround enabled', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 3,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) + cloned before (3) + cloned after (3)
+    expect(slides.length).toBe(11)
+  })
+
+  it('should adjust clone count based on activeSlideIndex', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 2,
+        modelValue: 0,
+      },
+    })
+
+    // Initial state (at index 0)
+    let slides = wrapper.findAll('.carousel__slide')
+    const initialCount = slides.length
+
+    // Move to middle slide
+    await wrapper.setProps({ modelValue: 2 })
+    slides = wrapper.findAll('.carousel__slide')
+    expect(slides.length).toBe(initialCount) // Should maintain same total count
+
+    // Move to last slide
+    await wrapper.setProps({ modelValue: 5 })
+    slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) + cloned before (2) + cloned after (3)
+    expect(slides.length).toBe(10) // Should maintain same total count
+  })
+
+  it('should handle decimal itemsToShow values', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 2.5,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) + cloned before (3) + cloned after (3)
+    // Math.ceil(2.5) = 3 slides should be cloned on each side
+    expect(slides.length).toBe(11)
+  })
+
+  it('should handle edge case with single slide', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 1,
+        wrapAround: true,
+        itemsToShow: 1,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slide (1) + cloned before (1) + cloned after (1)
+    expect(slides.length).toBe(3)
+  })
+})
+
 describe('SSR Carousel', () => {
   const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
@@ -164,7 +253,7 @@ describe('SSR Carousel', () => {
 
   const renderSSR = async <T extends Component, P extends ComponentProps<T>>(
     component: T,
-    props: P = {}
+    props: P = {} as P
   ) => {
     const comp = {
       render() {

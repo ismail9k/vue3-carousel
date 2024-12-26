@@ -661,15 +661,13 @@ export const Carousel = defineComponent({
       }
 
       const slidesToClone = Math.ceil(config.itemsToShow)
-      const before = Math.min(slidesToClone, activeSlideIndex.value)
-      const after = Math.min(
-        slidesToClone,
-        slidesCount.value - activeSlideIndex.value - 1
-      )
 
       return {
-        before: Math.max(slidesToClone, before),
-        after: Math.max(slidesToClone, after),
+        before: Math.max(slidesToClone, slidesToClone - activeSlideIndex.value),
+        after: Math.max(
+          slidesToClone,
+          slidesToClone - (slidesCount.value - (activeSlideIndex.value + 1))
+        ),
       }
     })
 
