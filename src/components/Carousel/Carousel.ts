@@ -402,7 +402,13 @@ export const Carousel = defineComponent({
         effectiveSlideSize: effectiveSlideSize.value,
       })
 
-      activeSlideIndex.value = currentSlideIndex.value + draggedSlides
+      activeSlideIndex.value = config.wrapAround
+        ? currentSlideIndex.value + draggedSlides
+        : getNumberInRange({
+            val: currentSlideIndex.value + draggedSlides,
+            max: maxSlideIndex.value,
+            min: minSlideIndex.value,
+          })
 
       // Emit a drag event for further customization if needed
       emit('drag', { deltaX: dragged.x, deltaY: dragged.y })
@@ -473,13 +479,21 @@ export const Carousel = defineComponent({
       }
 
       let targetIndex = slideIndex
+      let mappedIndex = slideIndex
 
-      // Calculate shortest path in wrap-around mode
+      prevSlideIndex.value = currentSlideIndex.value
+
       if (!config.wrapAround) {
         targetIndex = getNumberInRange({
           val: targetIndex,
           max: maxSlideIndex.value,
           min: minSlideIndex.value,
+        })
+      } else {
+        mappedIndex = mapNumberToRange({
+          val: targetIndex,
+          max: maxSlideIndex.value,
+          min: 0,
         })
       }
 
@@ -491,29 +505,20 @@ export const Carousel = defineComponent({
       })
 
       stopAutoplay()
-      prevSlideIndex.value = currentSlideIndex.value
-
-      const mappedNumber = config.wrapAround
-        ? mapNumberToRange({
-            val: targetIndex,
-            max: maxSlideIndex.value,
-            min: 0,
-          })
-        : targetIndex
-
       isSliding.value = true
-      currentSlideIndex.value = targetIndex
 
-      if (mappedNumber !== targetIndex) {
+      currentSlideIndex.value = targetIndex
+      if (mappedIndex !== targetIndex) {
         modelWatcher.pause()
       }
-      emit('update:modelValue', mappedNumber)
+      emit('update:modelValue', mappedIndex)
 
-      transitionTimer = setTimeout((): void => {
+      const transitionCallback = (): void => {
         if (config.wrapAround) {
-          if (mappedNumber !== targetIndex) {
+          if (mappedIndex !== targetIndex) {
             modelWatcher.resume()
-            currentSlideIndex.value = mappedNumber
+
+            currentSlideIndex.value = mappedIndex
             emit('loop', {
               currentSlideIndex: currentSlideIndex.value,
               slidingToIndex: slideIndex,
@@ -529,7 +534,9 @@ export const Carousel = defineComponent({
 
         isSliding.value = false
         resetAutoplay()
-      }, config.transition)
+      }
+
+      transitionTimer = setTimeout(transitionCallback, config.transition)
     }
 
     function next(skipTransition = false): void {
@@ -660,19 +667,19 @@ export const Carousel = defineComponent({
         return { before: 0, after: 0 }
       }
 
-      const slidesToClone = Math.ceil(config.itemsToShow)
-      const before = Math.min(slidesToClone, activeSlideIndex.value)
-      const after = Math.min(
-        slidesToClone,
-        slidesCount.value - activeSlideIndex.value - 1
-      )
+      const slidesToClone = Math.ceil(config.itemsToShow + (config.itemsToScroll - 1))
+      const before = slidesToClone - activeSlideIndex.value
+      const after = slidesToClone - (slidesCount.value - (activeSlideIndex.value + 1))
 
       return {
-        before: Math.max(slidesToClone, before),
-        after: Math.max(slidesToClone, after),
+        before: Math.max(0, before),
+        after: Math.max(0, after),
       }
     })
 
+    const clonedSlidesOffset = computed(
+      () => clonedSlidesCount.value.before * effectiveSlideSize.value * -1
+    )
     const trackTransform: ComputedRef<string> = computed(() => {
       const directionMultiplier = isReversed.value ? 1 : -1
       const translateAxis = isVertical.value ? 'Y' : 'X'
@@ -681,13 +688,10 @@ export const Carousel = defineComponent({
       const scrolledOffset =
         scrolledIndex.value * effectiveSlideSize.value * directionMultiplier
 
-      const clonedSlidesOffset =
-        clonedSlidesCount.value.before * effectiveSlideSize.value * -1
-
       // Include user drag interaction offset
       const dragOffset = isVertical.value ? dragged.y : dragged.x
 
-      const totalOffset = scrolledOffset + clonedSlidesOffset + dragOffset
+      const totalOffset = scrolledOffset + dragOffset
 
       return `translate${translateAxis}(${totalOffset}px)`
     })
@@ -697,6 +701,7 @@ export const Carousel = defineComponent({
       'transition-duration': isSliding.value ? `${config.transition}ms` : undefined,
       gap: config.gap > 0 ? `${config.gap}px` : undefined,
       '--vc-trk-height': trackHeight.value,
+      '--vc-trk-cloned-offset': `${clonedSlidesOffset.value}px`,
     }))
 
     return () => {

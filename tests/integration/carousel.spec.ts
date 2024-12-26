@@ -16,8 +16,8 @@ describe('Carousel.ts', () => {
       props: {
         slideNum: 5,
         modelValue: 0,
-        'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e })
-      }
+        'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+      },
     })
   })
 
@@ -69,7 +69,7 @@ describe('Carousel.ts', () => {
     expect(wrapper.props('modelValue')).toBe(1)
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(1)
-    await wrapper.setProps({dir: 'ttb'})
+    await wrapper.setProps({ dir: 'ttb' })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(2)
     await triggerKeyEvent('ArrowUp')
@@ -79,7 +79,7 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
-    await wrapper.setProps({dir: 'btt'})
+    await wrapper.setProps({ dir: 'btt' })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(0)
     await triggerKeyEvent('ArrowUp')
@@ -89,7 +89,7 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
-    await wrapper.setProps({dir: 'rtl'})
+    await wrapper.setProps({ dir: 'rtl' })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(1)
     await triggerKeyEvent('ArrowUp')
@@ -164,7 +164,7 @@ describe('SSR Carousel', () => {
 
   const renderSSR = async <T extends Component, P extends ComponentProps<T>>(
     component: T,
-    props: P = {}
+    props: P = {} as P
   ) => {
     const comp = {
       render() {
@@ -241,5 +241,107 @@ describe('SSR Carousel', () => {
     el.innerHTML = html
     const slidesSSR = el.querySelectorAll('.carousel__slide--visible')
     expect(slidesSSR.length).toBe(1)
+  })
+})
+
+describe('Carousel Clone Count Logic', () => {
+  let wrapper: ReturnType<typeof mount<typeof App>>
+
+  it('should not clone slides when wrapAround is disabled', async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: false,
+        itemsToShow: 3,
+        itemsToScroll: 1,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    expect(slides.length).toBe(5) // Only original slides
+  })
+
+  it('should calculate correct clone counts at start position', async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 3,
+        itemsToScroll: 2,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) + cloned slides before (4) + cloned slides after (0)
+    // slidesToClone = Math.ceil(3 + (2 - 1)) = 4
+    // -> before: Math.max(0, 4-0) = 4
+    // -> after: Math.max(0, 4-(5-(0+1))) = 0
+    expect(slides.length).toBe(9)
+  })
+
+  it('should adjust clone counts when scrolling to middle', async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 2,
+        itemsToScroll: 1,
+        modelValue: 2,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) only
+    expect(slides.length).toBe(5)
+  })
+
+  it('should handle edge case at last slide', async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 2,
+        itemsToScroll: 1,
+        modelValue: 4,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) + cloned slides after (2)
+    expect(slides.length).toBe(7)
+  })
+
+  it('should handle decimal itemsToShow with itemsToScroll', async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        wrapAround: true,
+        itemsToShow: 2.5,
+        itemsToScroll: 2,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (5) + ceil(2.5 + (2 - 1)) = 4
+    expect(slides.length).toBe(9)
+  })
+
+  it('should handle minimal setup with a single item', async () => {
+    wrapper = await mount(App, {
+      props: {
+        slideNum: 1,
+        wrapAround: true,
+        itemsToShow: 1,
+        itemsToScroll: 1,
+        modelValue: 0,
+      },
+    })
+
+    const slides = wrapper.findAll('.carousel__slide')
+    // Original slides (1) + cloned slides before (1) + cloned slides after (1)
+    expect(slides.length).toBe(3)
   })
 })

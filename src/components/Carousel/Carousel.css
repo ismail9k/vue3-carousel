@@ -49,3 +49,15 @@
     flex-direction: column-reverse;
   }
 }
+
+.carousel.is-vertical {
+  .carousel__slide--clone:first-child {
+    margin-block-start: var(--vc-trk-cloned-offset);
+  }
+}
+
+.carousel:not(.is-vertical) {
+  .carousel__slide--clone:first-child {
+    margin-inline-start: var(--vc-trk-cloned-offset);
+  }
+}
