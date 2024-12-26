@@ -20,7 +20,7 @@ const config = {
   </Carousel>
 </template>
 
-<style>
+<style scoped>
 :root {
   --carousel-transition: 300ms;
   --carousel-opacity-inactive: 0.7;
