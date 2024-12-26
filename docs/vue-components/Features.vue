@@ -86,7 +86,7 @@ const features = [
 
 
 
-<style scoped>
+<style>
 .features {
   margin: 0 auto;
   max-width: 1152px;
@@ -136,5 +136,19 @@ const features = [
   font-weight: 500;
   color: var(--vp-c-text-2);
   margin: 0;
+}
+.carousel__prev {
+  left: -60px;
+}
+.carousel__next {
+  right: -60px;
+}
+.dark {
+  .carousel__next,
+  .carousel__prev {
+    --vc-nav-color: #fff;
+    --vc-nav-width: 50px;
+    --vc-nav-height: 50px;
+  }
 }
 </style>
