@@ -3,9 +3,8 @@ import { Carousel, Navigation, Slide } from '../../dist/carousel.mjs'
 import '../../dist/carousel.css'
 
 const config = {
-  itemsToShow: 3.95,
+  itemsToShow: 4,
   wrapAround: true,
-  transition: 500,
 }
 </script>
 
@@ -21,10 +20,12 @@ const config = {
   </Carousel>
 </template>
 
-
-<style scoped>
-.carousel__slide {
-  padding: 5px;
+<style>
+:root {
+  --carousel-transition: 300ms;
+  --carousel-opacity-inactive: 0.7;
+  --carousel-opacity-active: 1;
+  --carousel-opacity-near: 0.9;
 }
 
 .carousel__viewport {
@@ -33,34 +34,38 @@ const config = {
 
 .carousel__track {
   transform-style: preserve-3d;
-  width: 100%;
 }
 
 .carousel__slide--sliding {
-  transition: 0.5s;
+  transition: opacity var(--carousel-transition), transform var(--carousel-transition);
+}
+
+.carousel.is-dragging .carousel__slide {
+  transition: opacity var(--carousel-transition), transform var(--carousel-transition);
 }
 
 .carousel__slide {
-  opacity: 0.9;
-  transform: rotateY(-20deg) scale(0.9);
-}
-
-.carousel__slide--active ~ .carousel__slide {
-  transform: rotateY(20deg) scale(0.9);
+  opacity: var(--carousel-opacity-inactive);
+  transform: translateX(10px) rotateY(-12deg) scale(0.9);
 }
 
 .carousel__slide--prev {
-  opacity: 1;
+  opacity: var(--carousel-opacity-near);
   transform: rotateY(-10deg) scale(0.95);
 }
 
-.carousel__slide.carousel__slide--next {
-  opacity: 1;
+.carousel__slide--active {
+  opacity: var(--carousel-opacity-active);
+  transform: rotateY(0) scale(1);
+}
+
+.carousel__slide--next {
+  opacity: var(--carousel-opacity-near);
   transform: rotateY(10deg) scale(0.95);
 }
 
-.carousel__slide--active {
-  opacity: 1;
-  transform: rotateY(0) scale(1);
+.carousel__slide--next ~ .carousel__slide {
+  opacity: var(--carousel-opacity-inactive);
+  transform: translateX(-10px) rotateY(12deg) scale(0.9);
 }
 </style>
