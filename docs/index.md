@@ -36,5 +36,5 @@ meta:
 <Features />
 
 <script setup>
-import Features from './components/Features.vue'
+import Features from './vue-components/Features.vue'
 </script>

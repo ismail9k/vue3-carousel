@@ -29,16 +29,20 @@ module.exports = {
         ],
       },
       {
+        text: 'Components',
+        items: [
+          { text: 'Slide', link: '/components/slide' },
+          { text: 'Navigation', link: '/components/navigation' },
+          { text: 'Pagination', link: '/components/pagination' },
+        ],
+      },
+      {
         text: 'API',
         items: [
           { text: 'Methods', link: '/api/methods' },
           { text: 'Data', link: '/api/data' },
           { text: 'Events', link: '/api/events' },
         ],
-      },
-      {
-        text: 'Addons',
-        link: '/addons',
       },
     ],
 
