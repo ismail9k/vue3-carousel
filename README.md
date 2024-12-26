@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/docs/public/vue3-carousel-logo.svg" width="200" alt="Vue 3 Carousel Logo">
+  <img src="docs/public/vue3-carousel-logo-light.svg" width="200" alt="Vue 3 Carousel Logo">
 </p>
 
 <h1 align="center">Vue 3 Carousel</h1>
