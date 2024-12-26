@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.12.0) - 2024-12-26
+
+- Generate cloned slides dynamically based on the active slides @ismail9k in #462, #465
+- Add logo, footer, and features showcase to documentation by @ismail9k in #463
+- Add fade in-out animation effect to carousel by @ismail9k in #464
+- General fixes and enhancements
+
 ## [0.11.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.11.0) - 2024-12-23
 
 - fix: reorder exports in package.json by @BR0kEN- in #458
