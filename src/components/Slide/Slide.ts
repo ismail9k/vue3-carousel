@@ -129,6 +129,7 @@ export const Slide = defineComponent({
           'aria-hidden': props.isClone || undefined,
         },
         slots.default?.({
+          currentIndex: currentIndex.value,
           isActive: isActive.value,
           isClone: props.isClone,
           isPrev: isPrev.value,
