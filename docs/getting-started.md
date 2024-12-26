@@ -26,32 +26,27 @@ yarn add vue3-carousel
 ## Basic Using
 
 ```vue
-<template>
-  <carousel :items-to-show="1.5">
-    <slide v-for="slide in 10" :key="slide">
-      {{ slide }}
-    </slide>
-
-    <template #addons>
-      <navigation />
-      <pagination />
-    </template>
-  </carousel>
-</template>
-
-<script>
+<script setup>
 // If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
-import 'vue3-carousel/dist/carousel.css'
+import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
-export default {
-  name: 'App',
-  components: {
-    Carousel,
-    Slide,
-    Pagination,
-    Navigation,
-  },
+const carouselConfig = {
+  itemsToShow: 2.5,
+  wrapAround: true
 }
 </script>
+
+<template>
+  <Carousel v-bind="carouselConfig">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
 ```
