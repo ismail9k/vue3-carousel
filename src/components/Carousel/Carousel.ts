@@ -514,16 +514,14 @@ export const Carousel = defineComponent({
       emit('update:modelValue', mappedIndex)
 
       const transitionCallback = (): void => {
-        if (config.wrapAround) {
-          if (mappedIndex !== targetIndex) {
-            modelWatcher.resume()
+        if (config.wrapAround && mappedIndex !== targetIndex) {
+          modelWatcher.resume()
 
-            currentSlideIndex.value = mappedIndex
-            emit('loop', {
-              currentSlideIndex: currentSlideIndex.value,
-              slidingToIndex: slideIndex,
-            })
-          }
+          currentSlideIndex.value = mappedIndex
+          emit('loop', {
+            currentSlideIndex: currentSlideIndex.value,
+            slidingToIndex: slideIndex,
+          })
         }
 
         emit('slide-end', {
