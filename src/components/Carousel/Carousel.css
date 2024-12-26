@@ -62,9 +62,10 @@
     margin-inline-start: var(--vc-trk-cloned-offset);
   }
 }
+
 .carousel.is-effect-fade {
   .carousel__track {
-    transition: none !important;
+    transition: none;
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 100%;
@@ -72,7 +73,10 @@
 
   .carousel__slide {
     opacity: 0;
-    transition: opacity 0.3s ease;
+    width: 100% !important;
+    height: 100% !important;
+    transition: opacity ease-in-out;
+    transition-duration: var(--vc-trk-transition-duration);
     grid-area: 1 / 1; /* Make all slides occupy the same grid cell */
     pointer-events: none; /* Prevent inactive slides from being clickable */
   }
