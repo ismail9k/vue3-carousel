@@ -19,12 +19,12 @@ export function getMaxSlideIndex({ config, slidesCount }: GetMaxSlideIndexArgs):
     // If wrapAround is enabled, fallback to default which is the last slide
     switch (wrapAround ? '' : snapAlign) {
       case 'start':
-        return Math.ceil(slidesCount - itemsToShow)
+        return Math.ceil(slidesCount - +itemsToShow)
       case 'center':
       case 'center-odd':
-        return slidesCount - Math.ceil((itemsToShow - 0.5) / 2)
+        return slidesCount - Math.ceil((+itemsToShow - 0.5) / 2)
       case 'center-even':
-        return slidesCount - Math.ceil(itemsToShow / 2)
+        return slidesCount - Math.ceil(+itemsToShow / 2)
       case 'end':
       default:
         return Math.ceil(slidesCount - 1)

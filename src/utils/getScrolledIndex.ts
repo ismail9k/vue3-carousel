@@ -32,7 +32,7 @@ export function getScrolledIndex({
   const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // Calculate the offset based on snapAlign
-  const offset = calculateOffset(snapAlign, itemsToShow)
+  const offset = calculateOffset(snapAlign, +itemsToShow)
 
   // Compute the index with or without wrapAround
   if (wrapAround) {
@@ -40,7 +40,7 @@ export function getScrolledIndex({
   }
   return getNumberInRange({
     val: currentSlide - offset,
-    max: slidesCount - itemsToShow,
+    max: slidesCount - +itemsToShow,
     min: 0,
   })
 }

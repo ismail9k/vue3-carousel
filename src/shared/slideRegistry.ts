@@ -2,7 +2,6 @@ import { ComponentInternalInstance, EmitFn, shallowReactive } from 'vue'
 
 const createSlideRegistry = (emit: EmitFn) => {
   const slides = shallowReactive<Array<ComponentInternalInstance>>([])
-  const clonedSlides = shallowReactive<Array<ComponentInternalInstance>>([])
 
   const updateSlideIndexes = (startIndex?: number) => {
     if (startIndex !== undefined) {
@@ -21,7 +20,6 @@ const createSlideRegistry = (emit: EmitFn) => {
       if (!slide) return
 
       if (slide.props.isClone) {
-        clonedSlides.push(slide)
         return
       }
 
@@ -46,7 +44,6 @@ const createSlideRegistry = (emit: EmitFn) => {
     },
 
     getSlides: () => slides,
-    getClonedSlides: () => clonedSlides,
   }
 }
 

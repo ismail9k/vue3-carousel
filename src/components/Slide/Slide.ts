@@ -27,6 +27,10 @@ export const Slide = defineComponent({
       type: Boolean,
       default: false,
     },
+    position: {
+      type: String,
+      default: undefined,
+    },
     id: {
       type: String,
       default: (props: { isClone?: boolean }) => (props.isClone ? undefined : useId()),
@@ -36,7 +40,7 @@ export const Slide = defineComponent({
       default: undefined,
     },
   },
-  setup(props: DeepReadonly<SlideProps>, { slots, expose }: SetupContext) {
+  setup(props: DeepReadonly<SlideProps>, { attrs, slots, expose }: SetupContext) {
     const carousel = inject(injectCarousel)
     provide(injectCarousel, undefined) // Don't provide for nested slides
 
@@ -50,9 +54,17 @@ export const Slide = defineComponent({
       currentIndex.value = newIndex
     }
 
+    const instance = getCurrentInstance()!
+
+    const getWidth = () => {
+      const el = instance.vnode.el as HTMLElement
+      return el ? el.getBoundingClientRect().width : 0
+    }
+
     expose({
       id: props.id,
       setIndex,
+      getWidth,
     })
 
     const isActive: ComputedRef<boolean> = computed(
@@ -64,26 +76,31 @@ export const Slide = defineComponent({
     const isNext: ComputedRef<boolean> = computed(
       () => currentIndex.value === carousel.activeSlide + 1
     )
-    const isVisible: ComputedRef<boolean> = computed(
-      () =>
+    const isVisible: ComputedRef<boolean> = computed(() => {
+      if (carousel.config.itemsToShow === 'auto') {
+        return false
+      }
+      return (
         currentIndex.value >= Math.floor(carousel.scrolledIndex) &&
         currentIndex.value <
           Math.ceil(carousel.scrolledIndex) + carousel.config.itemsToShow
-    )
+      )
+    })
 
     const slideStyle = computed(() => {
+      if (carousel.config.itemsToShow === 'auto') {
+        return
+      }
+      const itemsToShow = carousel.config.itemsToShow
       const dimension =
-        carousel.config.gap > 0 && carousel.config.itemsToShow > 1
-          ? `calc(${100 / carousel.config.itemsToShow}% - ${
-              (carousel.config.gap * (carousel.config.itemsToShow - 1)) /
-              carousel.config.itemsToShow
+        carousel.config.gap > 0 && itemsToShow > 1
+          ? `calc(${100 / itemsToShow}% - ${
+              (carousel.config.gap * (itemsToShow - 1)) / itemsToShow
             }px)`
-          : `${100 / carousel.config.itemsToShow}%`
+          : `${100 / itemsToShow}%`
 
       return carousel.isVertical ? { height: dimension } : { width: dimension }
     })
-
-    const instance = getCurrentInstance()!
 
     carousel.slideRegistry.registerSlide(instance, props.index)
     onUnmounted(() => {
@@ -108,7 +125,7 @@ export const Slide = defineComponent({
       return h(
         'li',
         {
-          style: slideStyle.value,
+          style: [attrs.style, { ...slideStyle.value }],
           class: {
             carousel__slide: true,
             'carousel__slide--clone': props.isClone,

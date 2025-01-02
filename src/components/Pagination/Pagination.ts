@@ -22,18 +22,17 @@ export const Pagination = defineComponent<PaginationProps>({
       return () => '' // Don't render, let vue warn about the missing provide
     }
 
+    const itemsToShow = computed(() => carousel.config.itemsToShow as number)
     const offset = computed(() =>
-      calculateOffset(carousel.config.snapAlign, carousel.config.itemsToShow)
+      calculateOffset(carousel.config.snapAlign, itemsToShow.value)
     )
     const isPaginated = computed(
-      () => props.paginateByItemsToShow && carousel.config.itemsToShow > 1
+      () => props.paginateByItemsToShow && itemsToShow.value > 1
     )
     const currentPage = computed(() =>
-      Math.ceil((carousel.activeSlide - offset.value) / carousel.config.itemsToShow)
+      Math.ceil((carousel.activeSlide - offset.value) / itemsToShow.value)
     )
-    const pageCount = computed(() =>
-      Math.ceil(carousel.slidesCount / carousel.config.itemsToShow)
-    )
+    const pageCount = computed(() => Math.ceil(carousel.slidesCount / itemsToShow.value))
 
     const isActive = (slide: number): boolean =>
       mapNumberToRange(
@@ -81,7 +80,7 @@ export const Pagination = defineComponent<PaginationProps>({
           onClick: () =>
             carousel.nav.slideTo(
               isPaginated.value
-                ? slide * carousel.config.itemsToShow + offset.value
+                ? slide * +carousel.config.itemsToShow + offset.value
                 : slide
             ),
         })

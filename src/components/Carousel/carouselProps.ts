@@ -25,7 +25,7 @@ export const carouselProps = {
   // count of items to showed per view
   itemsToShow: {
     default: DEFAULT_CONFIG.itemsToShow,
-    type: Number,
+    type: Number || 'auto',
   },
   // count of items to be scrolled
   itemsToScroll: {
