@@ -1,27 +1,12 @@
 import { CarouselConfig } from '@/shared'
 
 import { getNumberInRange } from './getNumberInRange'
+import { getSnapAlignOffset } from './getSnapAlignOffset'
 
 type GetScrolledIndexArgs = {
   config: Pick<CarouselConfig, 'itemsToShow' | 'wrapAround' | 'snapAlign'>
   currentSlide: number
   slidesCount: number
-}
-
-export const calculateOffset = (snapAlign: string, itemsToShow: number): number => {
-  switch (snapAlign) {
-    default:
-    case 'start':
-      return 0
-    case 'center':
-      return (itemsToShow - 1) / 2
-    case 'center-odd':
-      return (itemsToShow - 1) / 2
-    case 'center-even':
-      return (itemsToShow - 2) / 2
-    case 'end':
-      return itemsToShow - 1
-  }
 }
 
 export function getScrolledIndex({
@@ -32,7 +17,7 @@ export function getScrolledIndex({
   const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // Calculate the offset based on snapAlign
-  const offset = calculateOffset(snapAlign, +itemsToShow)
+  const offset = getSnapAlignOffset({ align: snapAlign, itemsToShow: +itemsToShow })
 
   // Compute the index with or without wrapAround
   if (wrapAround) {

@@ -17,6 +17,7 @@ import {
 
 import { injectCarousel } from '@/shared'
 import { disableChildrenTabbing } from '@/utils'
+import { getScrolledIndex } from '@/utils/getScrolledIndex'
 
 import { SlideProps } from './Slide.types'
 
@@ -80,10 +81,15 @@ export const Slide = defineComponent({
       if (carousel.config.itemsToShow === 'auto') {
         return false
       }
+      const scrolledIndex = getScrolledIndex({
+        config: carousel.config,
+        currentSlide: carousel.currentSlide,
+        slidesCount: carousel.slidesCount,
+      })
+
       return (
-        currentIndex.value >= Math.floor(carousel.scrolledIndex) &&
-        currentIndex.value <
-          Math.ceil(carousel.scrolledIndex) + carousel.config.itemsToShow
+        currentIndex.value >= Math.floor(scrolledIndex) &&
+        currentIndex.value < Math.ceil(scrolledIndex) + carousel.config.itemsToShow
       )
     })
 

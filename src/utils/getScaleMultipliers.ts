@@ -8,15 +8,20 @@ export function getTransformValues(el: HTMLElement) {
     .map((v) => parseFloat(v))
 }
 
-export function getWidthMultiplier(transformElements: Set<HTMLElement>): number {
+export function getScaleMultipliers(transformElements: Set<HTMLElement>): {
+  widthMultiplier: number
+  heightMultiplier: number
+} {
   let widthMultiplier = 1
+  let heightMultiplier = 1
   transformElements.forEach((el) => {
     const transformArr = getTransformValues(el)
 
     if (transformArr.length === 6) {
       widthMultiplier *= transformArr[0]
+      heightMultiplier *= transformArr[3]
     }
   })
 
-  return widthMultiplier
+  return { widthMultiplier, heightMultiplier }
 }

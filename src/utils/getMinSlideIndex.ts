@@ -1,5 +1,6 @@
 import { CarouselConfig } from '@/shared'
-import { calculateOffset } from '@/utils/getScrolledIndex'
+
+import { getSnapAlignOffset } from './getSnapAlignOffset'
 
 type GetMinSlideIndexArgs = {
   config: Partial<CarouselConfig>
@@ -21,5 +22,8 @@ export function getMinSlideIndex({ config, slidesCount }: GetMinSlideIndexArgs):
   }
 
   // Return the calculated offset or default to 0 for invalid snapAlign values
-  return Math.max(0, Math.floor(calculateOffset(snapAlign, +itemsToShow)))
+  return Math.max(
+    0,
+    Math.floor(getSnapAlignOffset({ align: snapAlign, itemsToShow: +itemsToShow }))
+  )
 }

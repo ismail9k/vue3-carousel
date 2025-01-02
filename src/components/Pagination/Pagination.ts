@@ -1,7 +1,7 @@
 import { inject, h, VNode, defineComponent, computed } from 'vue'
 
 import { injectCarousel } from '@/shared'
-import { mapNumberToRange, i18nFormatter, calculateOffset } from '@/utils'
+import { mapNumberToRange, i18nFormatter, getSnapAlignOffset } from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 
@@ -24,7 +24,10 @@ export const Pagination = defineComponent<PaginationProps>({
 
     const itemsToShow = computed(() => carousel.config.itemsToShow as number)
     const offset = computed(() =>
-      calculateOffset(carousel.config.snapAlign, itemsToShow.value)
+      getSnapAlignOffset({
+        align: carousel.config.snapAlign,
+        itemsToShow: itemsToShow.value,
+      })
     )
     const isPaginated = computed(
       () => props.paginateByItemsToShow && itemsToShow.value > 1

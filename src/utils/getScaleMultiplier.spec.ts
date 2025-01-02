@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { getTransformValues } from '@/utils/getWidthMultiplier'
+import { getTransformValues } from '@/utils/getScaleMultipliers'
 
 describe('getWidthMultiplier.ts', () => {
   it('gets the transform matrix of an element', () => {
