@@ -44,6 +44,7 @@ import {
   CarouselData,
   CarouselExposed,
   CarouselNav,
+  ElRect,
   InjectedCarousel,
 } from './Carousel.types'
 import { carouselProps } from './carouselProps'
@@ -110,6 +111,8 @@ export const Carousel = defineComponent({
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
     const isAuto = computed(() => config.itemsToShow === 'auto')
 
+    const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
+
     function updateBreakpointsConfig(): void {
       if (!mounted.value) {
         return
@@ -156,12 +159,12 @@ export const Carousel = defineComponent({
     /**
      * Setup functions
      */
-    const slidesBoundingRect = ref<Array<{ width: number; height: number }>>([])
+    const slidesRect = ref<Array<ElRect>>([])
     function updateSlidesRectSize({
       widthMultiplier,
       heightMultiplier,
     }: ScaleMultipliers): void {
-      slidesBoundingRect.value = slides.map((slide) => {
+      slidesRect.value = slides.map((slide) => {
         const rect = slide.exposed?.getBoundingRect()
         return {
           width: rect.width * widthMultiplier,
@@ -169,7 +172,7 @@ export const Carousel = defineComponent({
         }
       })
     }
-    const viewportBoundingRect: Ref<{ width: number; height: number }> = ref({
+    const viewportRect: Ref<ElRect> = ref({
       width: 0,
       height: 0,
     })
@@ -178,7 +181,7 @@ export const Carousel = defineComponent({
       heightMultiplier,
     }: ScaleMultipliers): void {
       const rect = viewport.value?.getBoundingClientRect() || { width: 0, height: 0 }
-      viewportBoundingRect.value = {
+      viewportRect.value = {
         width: rect.width * widthMultiplier,
         height: rect.height * heightMultiplier,
       }
@@ -187,7 +190,6 @@ export const Carousel = defineComponent({
     function updateSlideSize(): void {
       if (!viewport.value) return
 
-      const dimension = isVertical.value ? 'height' : 'width'
       const scaleMultipliers = getScaleMultipliers(transformElements)
 
       updateViewportRectSize(scaleMultipliers)
@@ -195,12 +197,12 @@ export const Carousel = defineComponent({
 
       if (isAuto.value) {
         slideSize.value = Math.max(
-          ...slidesBoundingRect.value.map((slide) => slide[dimension])
+          ...slidesRect.value.map((slide) => slide[dimension.value])
         )
       } else {
         const itemsToShow = Number(config.itemsToShow)
         const totalGap = (itemsToShow - 1) * config.gap
-        slideSize.value = (viewportBoundingRect.value[dimension] - totalGap) / itemsToShow
+        slideSize.value = (viewportRect.value[dimension.value] - totalGap) / itemsToShow
       }
     }
 
@@ -677,13 +679,11 @@ export const Carousel = defineComponent({
     })
 
     const clonedSlidesOffset = computed(() => {
-      const dimension = isVertical.value ? 'height' : 'width'
-
       if (isAuto.value) {
         return (
-          slidesBoundingRect.value
+          slidesRect.value
             .slice(-1 * clonedSlidesCount.value.before)
-            .reduce((acc, slide) => acc + slide[dimension] + config.gap, 0) * -1
+            .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) * -1
         )
       }
 
@@ -692,37 +692,36 @@ export const Carousel = defineComponent({
 
     const scrolledOffset = computed(() => {
       let scrolledOffset = 0
-      const dimension = isVertical.value ? 'height' : 'width'
 
       if (isAuto.value) {
         const slideIndex =
           ((currentSlideIndex.value % slides.length) + slides.length) % slides.length
         const snapAlignOffset = getSnapAlignOffset({
-          slideSize: slidesBoundingRect.value[slideIndex]?.[dimension],
-          viewportSize: viewportBoundingRect.value[dimension],
+          slideSize: slidesRect.value[slideIndex]?.[dimension.value],
+          viewportSize: viewportRect.value[dimension.value],
           align: config.snapAlign,
         })
 
         if (currentSlideIndex.value < 0) {
           scrolledOffset =
-            slidesBoundingRect.value
+            slidesRect.value
               .slice(currentSlideIndex.value)
-              .reduce((acc, slide) => acc + slide[dimension] + config.gap, 0) * -1
+              .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) * -1
         } else {
-          scrolledOffset = slidesBoundingRect.value
+          scrolledOffset = slidesRect.value
             .slice(0, currentSlideIndex.value)
-            .reduce((acc, slide) => acc + slide[dimension] + config.gap, 0)
+            .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0)
         }
         scrolledOffset -= snapAlignOffset
 
         // remove whitespace
         if (!config.wrapAround) {
           const maxSlidingValue =
-            slidesBoundingRect.value.reduce(
-              (acc, slide) => acc + slide[dimension] + config.gap,
+            slidesRect.value.reduce(
+              (acc, slide) => acc + slide[dimension.value] + config.gap,
               0
             ) -
-            viewportBoundingRect.value[dimension] -
+            viewportRect.value[dimension.value] -
             config.gap
 
           scrolledOffset = getNumberInRange({

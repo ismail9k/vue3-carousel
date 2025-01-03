@@ -51,3 +51,4 @@ export interface CarouselExposed extends CarouselMethods {
   nav: CarouselNav
   data: Reactive<CarouselData>
 }
+export type ElRect = { width: number; height: number }
