@@ -151,7 +151,6 @@ export const Carousel = defineComponent({
       updateSlideSize()
     })
 
-    const totalGap = computed(() => (+config.itemsToShow - 1) * config.gap)
     const transformElements = shallowReactive<Set<HTMLElement>>(new Set())
 
     /**
@@ -188,31 +187,20 @@ export const Carousel = defineComponent({
     function updateSlideSize(): void {
       if (!viewport.value) return
 
+      const dimension = isVertical.value ? 'height' : 'width'
       const scaleMultipliers = getScaleMultipliers(transformElements)
+
       updateViewportRectSize(scaleMultipliers)
       updateSlidesRectSize(scaleMultipliers)
 
-      const itemsToShow = config.itemsToShow as number
-      // Calculate size based on orientation
-      if (isVertical.value) {
-        if (!isAuto.value) {
-          slideSize.value =
-            (viewportBoundingRect.value.height - totalGap.value) / itemsToShow
-        } else {
-          slideSize.value = Math.max(
-            ...slidesBoundingRect.value.map((slide) => slide.height)
-          )
-        }
-        return
-      }
-
-      if (!isAuto.value) {
-        slideSize.value =
-          (viewportBoundingRect.value.width - totalGap.value) / itemsToShow
-      } else {
+      if (isAuto.value) {
         slideSize.value = Math.max(
-          ...slidesBoundingRect.value.map((slide) => slide.width)
+          ...slidesBoundingRect.value.map((slide) => slide[dimension])
         )
+      } else {
+        const itemsToShow = Number(config.itemsToShow)
+        const totalGap = (itemsToShow - 1) * config.gap
+        slideSize.value = (viewportBoundingRect.value[dimension] - totalGap) / itemsToShow
       }
     }
 
@@ -226,9 +214,9 @@ export const Carousel = defineComponent({
       }
 
       // Validate itemsToShow
-      if (config.itemsToShow !== 'auto') {
+      if (!isAuto.value) {
         config.itemsToShow = getNumberInRange({
-          val: config.itemsToShow,
+          val: Number(config.itemsToShow),
           max: slidesCount.value,
           min: 1,
         })
@@ -673,11 +661,12 @@ export const Carousel = defineComponent({
       if (!config.wrapAround) {
         return { before: 0, after: 0 }
       }
-      if (config.itemsToShow === 'auto') {
+      if (isAuto.value) {
         return { before: slides.length, after: slides.length }
       }
 
-      const slidesToClone = Math.ceil(config.itemsToShow + (config.itemsToScroll - 1))
+      const itemsToShow = Number(config.itemsToShow)
+      const slidesToClone = Math.ceil(itemsToShow + (config.itemsToScroll - 1))
       const before = slidesToClone - activeSlideIndex.value
       const after = slidesToClone - (slidesCount.value - (activeSlideIndex.value + 1))
 
