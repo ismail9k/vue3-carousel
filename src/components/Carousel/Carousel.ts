@@ -374,7 +374,7 @@ export const Carousel = defineComponent({
 
       // Initialize start positions for the drag
       startPosition.x = 'touches' in event ? event.touches[0].clientX : event.clientX
-      startPosition.y = 'touches' in event ? event.touches[0].clientY : event.clientY
+      startPosition.y = 'touches' in event ? event.touches[0].clientY : event.clientYg
 
       // Attach event listeners for dragging and drag end
 
@@ -391,9 +391,21 @@ export const Carousel = defineComponent({
       const currentX = 'touches' in event ? event.touches[0].clientX : event.clientX
       const currentY = 'touches' in event ? event.touches[0].clientY : event.clientY
 
+      const tmpDraggedX = currentX - startPosition.x
+      const tmpDraggedY = currentY - startPosition.y
+
+      if (!config.wrapAround && config.preventExcessiveDragging) {
+        const isAtMinIndex = activeSlideIndex.value === minSlideIndex.value;
+        const isAtMaxIndex = activeSlideIndex.value === maxSlideIndex.value;
+
+        if ((Math.abs(tmpDraggedX) > Math.abs(tmpDraggedY) ?
+          (tmpDraggedX > 0 && isAtMinIndex) || (tmpDraggedX < 0 && isAtMaxIndex) :
+          (tmpDraggedY > 0 && isAtMinIndex) || (tmpDraggedY < 0 && isAtMaxIndex))) return;
+      }
+
       // Calculate deltas for X and Y axes
-      dragged.x = currentX - startPosition.x
-      dragged.y = currentY - startPosition.y
+      dragged.x = tmpDraggedX
+      dragged.y = tmpDraggedY
 
       const draggedSlides = getDraggedSlidesCount({
         isVertical: isVertical.value,

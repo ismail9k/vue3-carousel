@@ -121,4 +121,8 @@ export const carouselProps = {
       return SLIDE_EFFECTS.includes(value)
     },
   },
+  preventExcessiveDragging: {
+    default: false,
+    type: Boolean
+  }
 }
