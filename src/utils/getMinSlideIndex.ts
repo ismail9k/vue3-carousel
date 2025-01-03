@@ -1,5 +1,6 @@
 import { CarouselConfig } from '@/shared'
-import { calculateOffset } from '@/utils/getScrolledIndex'
+
+import { getSnapAlignOffset } from './getSnapAlignOffset'
 
 type GetMinSlideIndexArgs = {
   config: Partial<CarouselConfig>
@@ -16,10 +17,13 @@ export function getMinSlideIndex({ config, slidesCount }: GetMinSlideIndexArgs):
   const { snapAlign = 'center', wrapAround, itemsToShow = 1 } = config
 
   // If wrapAround is enabled or itemsToShow exceeds slidesCount, the minimum index is always 0
-  if (wrapAround || itemsToShow > slidesCount) {
+  if (wrapAround || +itemsToShow > slidesCount) {
     return 0
   }
 
   // Return the calculated offset or default to 0 for invalid snapAlign values
-  return Math.max(0, Math.floor(calculateOffset(snapAlign, itemsToShow)))
+  return Math.max(
+    0,
+    Math.floor(getSnapAlignOffset({ align: snapAlign, itemsToShow: +itemsToShow }))
+  )
 }

@@ -21,7 +21,6 @@ export type InjectedCarousel = Reactive<{
   slidesCount: ComputedRef<number>
   activeSlide: Ref<number>
   currentSlide: Ref<number>
-  scrolledIndex: Ref<number>
   maxSlide: ComputedRef<number>
   minSlide: ComputedRef<number>
   slideSize: Ref<number>
@@ -52,3 +51,4 @@ export interface CarouselExposed extends CarouselMethods {
   nav: CarouselNav
   data: Reactive<CarouselData>
 }
+export type ElRect = { width: number; height: number }

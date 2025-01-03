@@ -29,7 +29,7 @@ export type I18nKeys = keyof typeof I18N_DEFAULT_CONFIG
 
 export interface CarouselConfig {
   enabled: boolean
-  itemsToShow: number
+  itemsToShow: number | 'auto'
   itemsToScroll: number
   modelValue?: number
   transition?: number
