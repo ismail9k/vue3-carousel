@@ -57,15 +57,15 @@ export const Slide = defineComponent({
 
     const instance = getCurrentInstance()!
 
-    const getWidth = () => {
+    const getBoundingRect = () => {
       const el = instance.vnode.el as HTMLElement
-      return el ? el.getBoundingClientRect().width : 0
+      return el ? el.getBoundingClientRect() : { width: 0, height: 0 }
     }
 
     expose({
       id: props.id,
       setIndex,
-      getWidth,
+      getBoundingRect,
     })
 
     const isActive: ComputedRef<boolean> = computed(
