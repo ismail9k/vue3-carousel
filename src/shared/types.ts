@@ -47,6 +47,7 @@ export interface CarouselConfig {
   i18n: { [key in I18nKeys]?: string }
   ignoreAnimations: boolean | string[] | string
   slideEffect: SlideEffect
+  preventExcessiveDragging: boolean
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]
