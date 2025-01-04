@@ -38,6 +38,7 @@ import {
   getScaleMultipliers,
   ScaleMultipliers,
   toCssValue,
+  calculateAverage,
 } from '@/utils'
 
 import {
@@ -196,8 +197,8 @@ export const Carousel = defineComponent({
       updateSlidesRectSize(scaleMultipliers)
 
       if (isAuto.value) {
-        slideSize.value = Math.max(
-          ...slidesRect.value.map((slide) => slide[dimension.value])
+        slideSize.value = calculateAverage(
+          slidesRect.value.map((slide) => slide[dimension.value])
         )
       } else {
         const itemsToShow = Number(config.itemsToShow)
@@ -751,7 +752,11 @@ export const Carousel = defineComponent({
       return scrolledOffset * (isReversed.value ? 1 : -1)
     })
 
-    const trackTransform: ComputedRef<string> = computed(() => {
+    const trackTransform: ComputedRef<string | undefined> = computed(() => {
+      if (config.slideEffect === 'fade') {
+        return undefined
+      }
+
       const translateAxis = isVertical.value ? 'Y' : 'X'
 
       // Include user drag interaction offset
@@ -762,14 +767,13 @@ export const Carousel = defineComponent({
       return `translate${translateAxis}(${totalOffset}px)`
     })
 
-    const trackStyle = computed(() => ({
-      transform: config.slideEffect === 'slide' ? trackTransform.value : undefined,
-      gap: config.gap > 0 ? `${config.gap}px` : undefined,
-      '--vc-trk-transition-duration': isSliding.value
-        ? `${config.transition}ms`
+    const carouselStyle = computed(() => ({
+      '--vc-transition-duration': isSliding.value
+        ? toCssValue(config.transition, 'ms')
         : undefined,
-      '--vc-trk-height': toCssValue(config.height),
-      '--vc-trk-cloned-offset': toCssValue(clonedSlidesOffset.value),
+      '--vc-slide-gap': toCssValue(config.gap),
+      '--vc-carousel-height': toCssValue(config.height),
+      '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
     }))
 
     return () => {
@@ -808,7 +812,7 @@ export const Carousel = defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          style: trackStyle.value,
+          style: { transform: trackTransform.value },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },
@@ -832,6 +836,7 @@ export const Carousel = defineComponent({
             },
           ],
           dir: normalizedDir.value,
+          style: carouselStyle.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
           onFocus: handleFocus,
