@@ -114,6 +114,15 @@ export const Carousel = defineComponent({
 
     const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
+    watchEffect(() => {
+      console.log(config.height, isVertical.value, normalizedDir.value)
+      if (isVertical.value && config.height === 'auto') {
+        console.warn(
+          '[Vue3-Carousel] To use vertical carousel mode, please provide a fixed height in the config.'
+        )
+      }
+    })
+
     function updateBreakpointsConfig(): void {
       if (!mounted.value) {
         return

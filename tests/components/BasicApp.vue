@@ -11,6 +11,7 @@ const { slideNum = 5, itemsToShow = 1 } = defineProps<{
   slideNum?: number
   itemsToShow?: number
   dir?: string
+  height?: number
   gap?: number
   wrapAround?: boolean
   breakpoints?: Breakpoints
@@ -19,7 +20,15 @@ const vModel = defineModel<number>({ default: 0 })
 </script>
 
 <template>
-  <Carousel v-model="vModel" :gap="gap" :items-to-show="itemsToShow" :dir="dir" :wrap-around="wrapAround" :breakpoints="breakpoints">
+  <Carousel
+    v-model="vModel"
+    :gap="gap"
+    :items-to-show="itemsToShow"
+    :dir="dir"
+    :wrap-around="wrapAround"
+    :breakpoints="breakpoints"
+    :height="height"
+  >
     <Slide v-for="slide in slideNum" :key="slide">
       {{ slide }}
       <input type="text" />
