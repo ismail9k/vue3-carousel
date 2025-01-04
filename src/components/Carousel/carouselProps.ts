@@ -123,6 +123,15 @@ export const carouselProps = {
   },
   preventExcessiveDragging: {
     default: false,
-    type: Boolean
+    type: Boolean,
+    validator(value: boolean, props) {
+      if (value && props.wrapAround)
+        console.warn(
+          '[vue3-carousel warn]: preventExcessiveDragging cannot be used with wrapAround. ' +
+          'The preventExcessiveDragging setting will be ignored.'
+        );
+
+      return true;
+    }
   }
 }
