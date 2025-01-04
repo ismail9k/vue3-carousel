@@ -694,11 +694,12 @@ export const Carousel = defineComponent({
       if (!config.wrapAround && config.preventExcessiveDragging) {
         const maxSlidingValue =
           (slidesCount.value - config.itemsToShow) * effectiveSlideSize.value
-
+        const min = isReversed.value ? 0 : -1 * maxSlidingValue
+        const max = isReversed.value ? maxSlidingValue : 0
         totalOffset = getNumberInRange({
           val: totalOffset,
-          min: -1 * maxSlidingValue,
-          max: 0,
+          min,
+          max,
         })
       }
 
