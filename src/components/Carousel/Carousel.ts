@@ -29,8 +29,6 @@ import {
   except,
   throttle,
   getNumberInRange,
-  getMaxSlideIndex,
-  getMinSlideIndex,
   mapNumberToRange,
   createCloneSlides,
   getDraggedSlidesCount,
@@ -90,12 +88,8 @@ export const Carousel = defineComponent({
     watch(currentSlideIndex, (val) => (activeSlideIndex.value = val))
     const prevSlideIndex = ref(0)
     const middleSlideIndex = computed(() => Math.ceil((slidesCount.value - 1) / 2))
-    const maxSlideIndex = computed(() => {
-      return getMaxSlideIndex({ config, slidesCount: slidesCount.value })
-    })
-    const minSlideIndex = computed(() => {
-      return getMinSlideIndex({ config, slidesCount: slidesCount.value })
-    })
+    const maxSlideIndex = computed(() => slidesCount.value - 1)
+    const minSlideIndex = computed(() => 0)
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
@@ -115,7 +109,6 @@ export const Carousel = defineComponent({
     const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
     watchEffect(() => {
-      console.log(config.height, isVertical.value, normalizedDir.value)
       if (isVertical.value && config.height === 'auto') {
         console.warn(
           '[Vue3-Carousel] To use vertical carousel mode, please provide a fixed height in the config.'
@@ -530,7 +523,7 @@ export const Carousel = defineComponent({
         mappedIndex = mapNumberToRange({
           val: targetIndex,
           max: maxSlideIndex.value,
-          min: 0,
+          min: minSlideIndex.value,
         })
       }
 

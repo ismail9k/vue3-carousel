@@ -1,5 +1,3 @@
-export * from './getMinSlideIndex'
-export * from './getMaxSlideIndex'
 export * from './getNumberInRange'
 export * from './mapNumberToRange'
 export * from './i18nFormatter'
