@@ -469,6 +469,46 @@ export const Carousel = defineComponent({
       document.removeEventListener(endEvent, handleDragEnd)
     }
 
+    const minVisibleSlideIndex = computed(() => {
+      let output = 0
+      const snapAlignOffset = getSnapAlignOffset({
+        itemsToShow: +config.itemsToShow,
+        align: config.snapAlign,
+      })
+
+      if (config.wrapAround) {
+        output = currentSlideIndex.value - snapAlignOffset
+      } else {
+        output = getNumberInRange({
+          val: currentSlideIndex.value - snapAlignOffset,
+          max: slidesCount.value - +config.itemsToShow,
+          min: 0,
+        })
+      }
+
+      return Math.floor(output)
+    })
+
+    const maxVisibleSlideIndex = computed(() => {
+      let output = +config.itemsToShow - 1
+
+      const snapAlignOffset = getSnapAlignOffset({
+        itemsToShow: +config.itemsToShow,
+        align: config.snapAlign,
+      })
+
+      if (config.wrapAround) {
+        output += currentSlideIndex.value - snapAlignOffset
+      } else {
+        output += getNumberInRange({
+          val: currentSlideIndex.value - snapAlignOffset,
+          max: slidesCount.value - +config.itemsToShow,
+          min: 0,
+        })
+      }
+
+      return Math.ceil(output)
+    })
     /**
      * Autoplay
      */
@@ -584,6 +624,8 @@ export const Carousel = defineComponent({
       slides,
       currentSlide: currentSlideIndex,
       activeSlide: activeSlideIndex,
+      maxVisibleSlide: maxVisibleSlideIndex,
+      minVisibleSlide: minVisibleSlideIndex,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
       slideSize,
