@@ -70,8 +70,8 @@ const carouselConfig = {
 
 Visit our [documentation website](https://vue3-carousel.ismail9k.com/) for detailed usage and examples:
 
-- [Getting Started](https://vue3-carousel.ismail9k.com/guide)
-- [Carousel Component](https://vue3-carousel.ismail9k.com/components/carousel)
+- [Getting Started](https://vue3-carousel.ismail9k.com/getting-started)
+- [Carousel Config](https://vue3-carousel.ismail9k.com/config)
 - [Slide Component](https://vue3-carousel.ismail9k.com/components/slide)
 - [Navigation Component](https://vue3-carousel.ismail9k.com/components/navigation)
 - [Pagination Component](https://vue3-carousel.ismail9k.com/components/pagination)
