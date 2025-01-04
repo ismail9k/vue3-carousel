@@ -391,21 +391,9 @@ export const Carousel = defineComponent({
       const currentX = 'touches' in event ? event.touches[0].clientX : event.clientX
       const currentY = 'touches' in event ? event.touches[0].clientY : event.clientY
 
-      const tmpDraggedX = currentX - startPosition.x
-      const tmpDraggedY = currentY - startPosition.y
-
-      if (!config.wrapAround && config.preventExcessiveDragging) {
-        const isAtMinIndex = activeSlideIndex.value === minSlideIndex.value;
-        const isAtMaxIndex = activeSlideIndex.value === maxSlideIndex.value;
-
-        if ((Math.abs(tmpDraggedX) > Math.abs(tmpDraggedY) ?
-          (tmpDraggedX > 0 && isAtMinIndex) || (tmpDraggedX < 0 && isAtMaxIndex) :
-          (tmpDraggedY > 0 && isAtMinIndex) || (tmpDraggedY < 0 && isAtMaxIndex))) return;
-      }
-
       // Calculate deltas for X and Y axes
-      dragged.x = tmpDraggedX
-      dragged.y = tmpDraggedY
+      dragged.x = currentX - startPosition.x
+      dragged.y = currentY - startPosition.y
 
       const draggedSlides = getDraggedSlidesCount({
         isVertical: isVertical.value,
@@ -701,7 +689,18 @@ export const Carousel = defineComponent({
       // Include user drag interaction offset
       const dragOffset = isVertical.value ? dragged.y : dragged.x
 
-      const totalOffset = scrolledOffset + dragOffset
+      let totalOffset = scrolledOffset + dragOffset
+
+      if (!config.wrapAround && config.preventExcessiveDragging) {
+        const maxSlidingValue =
+          (slidesCount.value - config.itemsToShow) * effectiveSlideSize.value
+
+        totalOffset = getNumberInRange({
+          val: totalOffset,
+          min: -1 * maxSlidingValue,
+          max: 0,
+        })
+      }
 
       return `translate${translateAxis}(${totalOffset}px)`
     })
