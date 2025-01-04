@@ -694,7 +694,7 @@ export const Carousel = defineComponent({
     })
 
     const scrolledOffset = computed(() => {
-      let scrolledOffset = 0
+      let output = 0
 
       if (isAuto.value) {
         const slideIndex =
@@ -706,16 +706,16 @@ export const Carousel = defineComponent({
         })
 
         if (currentSlideIndex.value < 0) {
-          scrolledOffset =
+          output =
             slidesRect.value
               .slice(currentSlideIndex.value)
               .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) * -1
         } else {
-          scrolledOffset = slidesRect.value
+          output = slidesRect.value
             .slice(0, currentSlideIndex.value)
             .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0)
         }
-        scrolledOffset -= snapAlignOffset
+        output -= snapAlignOffset
 
         // remove whitespace
         if (!config.wrapAround) {
@@ -727,8 +727,8 @@ export const Carousel = defineComponent({
             viewportRect.value[dimension.value] -
             config.gap
 
-          scrolledOffset = getNumberInRange({
-            val: scrolledOffset,
+          output = getNumberInRange({
+            val: output,
             max: maxSlidingValue,
             min: 0,
           })
@@ -748,10 +748,10 @@ export const Carousel = defineComponent({
             min: 0,
           })
         }
-        scrolledOffset = scrolledSlides * effectiveSlideSize.value
+        output = scrolledSlides * effectiveSlideSize.value
       }
 
-      return scrolledOffset * (isReversed.value ? 1 : -1)
+      return output * (isReversed.value ? 1 : -1)
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
