@@ -358,9 +358,9 @@ export const Carousel = defineComponent({
         case 'ArrowUp':
           if (isVertical.value === event.key.endsWith('Up')) {
             if (isReversed.value) {
-              nav.next(true)
+              next(true)
             } else {
-              nav.prev(true)
+              prev(true)
             }
           }
           break
@@ -368,9 +368,9 @@ export const Carousel = defineComponent({
         case 'ArrowDown':
           if (isVertical.value === event.key.endsWith('Down')) {
             if (isReversed.value) {
-              nav.prev(true)
+              prev(true)
             } else {
-              nav.next(true)
+              next(true)
             }
           }
           break
@@ -469,46 +469,6 @@ export const Carousel = defineComponent({
       document.removeEventListener(endEvent, handleDragEnd)
     }
 
-    const minVisibleSlideIndex = computed(() => {
-      let output = 0
-      const snapAlignOffset = getSnapAlignOffset({
-        itemsToShow: +config.itemsToShow,
-        align: config.snapAlign,
-      })
-
-      if (config.wrapAround) {
-        output = currentSlideIndex.value - snapAlignOffset
-      } else {
-        output = getNumberInRange({
-          val: currentSlideIndex.value - snapAlignOffset,
-          max: slidesCount.value - +config.itemsToShow,
-          min: 0,
-        })
-      }
-
-      return Math.floor(output)
-    })
-
-    const maxVisibleSlideIndex = computed(() => {
-      let output = +config.itemsToShow - 1
-
-      const snapAlignOffset = getSnapAlignOffset({
-        itemsToShow: +config.itemsToShow,
-        align: config.snapAlign,
-      })
-
-      if (config.wrapAround) {
-        output += currentSlideIndex.value - snapAlignOffset
-      } else {
-        output += getNumberInRange({
-          val: currentSlideIndex.value - snapAlignOffset,
-          max: slidesCount.value - +config.itemsToShow,
-          min: 0,
-        })
-      }
-
-      return Math.ceil(output)
-    })
     /**
      * Autoplay
      */
@@ -615,40 +575,6 @@ export const Carousel = defineComponent({
       slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
     }
 
-    const nav: CarouselNav = { slideTo, next, prev }
-
-    const provided: InjectedCarousel = reactive({
-      config,
-      slidesCount,
-      viewport,
-      slides,
-      currentSlide: currentSlideIndex,
-      activeSlide: activeSlideIndex,
-      maxVisibleSlide: maxVisibleSlideIndex,
-      minVisibleSlide: minVisibleSlideIndex,
-      maxSlide: maxSlideIndex,
-      minSlide: minSlideIndex,
-      slideSize,
-      isVertical,
-      normalizedDir,
-      nav,
-      isSliding,
-      slideRegistry,
-    })
-
-    provide(injectCarousel, provided)
-    /** @deprecated provides */
-    provide('config', config)
-    provide('slidesCount', slidesCount)
-    provide('currentSlide', currentSlideIndex)
-    provide('maxSlide', maxSlideIndex)
-    provide('minSlide', minSlideIndex)
-    provide('slideSize', slideSize)
-    provide('isVertical', isVertical)
-    provide('normalizeDir', normalizedDir)
-    provide('nav', nav)
-    provide('isSliding', isSliding)
-
     function restartCarousel(): void {
       updateBreakpointsConfig()
       updateSlidesData()
@@ -682,28 +608,6 @@ export const Carousel = defineComponent({
     // Init carousel
     emit('before-init')
 
-    const data = reactive<CarouselData>({
-      config,
-      slidesCount,
-      slideSize,
-      currentSlide: currentSlideIndex,
-      maxSlide: maxSlideIndex,
-      minSlide: minSlideIndex,
-      middleSlide: middleSlideIndex,
-    })
-
-    expose<CarouselExposed>({
-      updateBreakpointsConfig,
-      updateSlidesData,
-      updateSlideSize,
-      restartCarousel,
-      slideTo,
-      next,
-      prev,
-      nav,
-      data,
-    })
-
     const clonedSlidesCount = computed(() => {
       if (!config.wrapAround) {
         return { before: 0, after: 0 }
@@ -724,6 +628,9 @@ export const Carousel = defineComponent({
     })
 
     const clonedSlidesOffset = computed(() => {
+      if (!clonedSlidesCount.value.before) {
+        return 0
+      }
       if (isAuto.value) {
         return (
           slidesRect.value
@@ -735,18 +642,26 @@ export const Carousel = defineComponent({
       return clonedSlidesCount.value.before * effectiveSlideSize.value * -1
     })
 
-    const scrolledOffset = computed(() => {
-      let output = 0
-
+    const snapAlignOffset = computed(() => {
       if (isAuto.value) {
         const slideIndex =
           ((currentSlideIndex.value % slides.length) + slides.length) % slides.length
-        const snapAlignOffset = getSnapAlignOffset({
+        return getSnapAlignOffset({
           slideSize: slidesRect.value[slideIndex]?.[dimension.value],
           viewportSize: viewportRect.value[dimension.value],
           align: config.snapAlign,
         })
+      }
 
+      return getSnapAlignOffset({
+        align: config.snapAlign,
+        itemsToShow: +config.itemsToShow,
+      })
+    })
+    const scrolledOffset = computed(() => {
+      let output = 0
+
+      if (isAuto.value) {
         if (currentSlideIndex.value < 0) {
           output =
             slidesRect.value
@@ -757,7 +672,7 @@ export const Carousel = defineComponent({
             .slice(0, currentSlideIndex.value)
             .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0)
         }
-        output -= snapAlignOffset
+        output -= snapAlignOffset.value
 
         // remove whitespace
         if (!config.wrapAround) {
@@ -776,11 +691,7 @@ export const Carousel = defineComponent({
           })
         }
       } else {
-        const offsetSlides = getSnapAlignOffset({
-          align: config.snapAlign,
-          itemsToShow: +config.itemsToShow,
-        })
-        let scrolledSlides = currentSlideIndex.value - offsetSlides
+        let scrolledSlides = currentSlideIndex.value - snapAlignOffset.value
 
         // remove whitespace
         if (!config.wrapAround) {
@@ -794,6 +705,84 @@ export const Carousel = defineComponent({
       }
 
       return output * (isReversed.value ? 1 : -1)
+    })
+
+    const visibleRange = computed(() => {
+      if (!isAuto.value) {
+        const base = currentSlideIndex.value - snapAlignOffset.value
+        if (config.wrapAround) {
+          return {
+            min: Math.floor(base),
+            max: Math.ceil(base + Number(config.itemsToShow) - 1),
+          }
+        }
+        return {
+          min: Math.floor(
+            getNumberInRange({
+              val: base,
+              max: slidesCount.value - Number(config.itemsToShow),
+              min: 0,
+            })
+          ),
+          max: Math.ceil(
+            getNumberInRange({
+              val: base + Number(config.itemsToShow) - 1,
+              max: slidesCount.value - 1,
+              min: 0,
+            })
+          ),
+        }
+      }
+
+      // Auto width mode
+      let minIndex = 0
+      {
+        let accumulatedSize = 0
+        let index = 0 - clonedSlidesCount.value.before
+        const offset = Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+
+        while (accumulatedSize <= offset) {
+          const normalizedIndex =
+            ((index % slides.length) + slides.length) % slides.length
+          accumulatedSize +=
+            slidesRect.value[normalizedIndex]?.[dimension.value] + config.gap
+          index++
+        }
+        minIndex = index - 1
+      }
+
+      let maxIndex = 0
+      {
+        let index = minIndex
+        let accumulatedSize = 0
+        if (index < 0) {
+          accumulatedSize =
+            slidesRect.value
+              .slice(0, index)
+              .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
+            Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+        } else {
+          accumulatedSize =
+            slidesRect.value
+              .slice(0, index)
+              .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
+            Math.abs(scrolledOffset.value)
+        }
+
+        while (accumulatedSize < viewportRect.value[dimension.value]) {
+          const normalizedIndex =
+            ((index % slides.length) + slides.length) % slides.length
+          accumulatedSize +=
+            slidesRect.value[normalizedIndex]?.[dimension.value] + config.gap
+          index++
+        }
+        maxIndex = index - 1
+      }
+
+      return {
+        min: Math.floor(minIndex),
+        max: Math.ceil(maxIndex),
+      }
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
@@ -819,6 +808,50 @@ export const Carousel = defineComponent({
       '--vc-carousel-height': toCssValue(config.height),
       '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
     }))
+
+    const nav: CarouselNav = { slideTo, next, prev }
+
+    const provided: InjectedCarousel = reactive({
+      config,
+      slidesCount,
+      viewport,
+      slides,
+      currentSlide: currentSlideIndex,
+      activeSlide: activeSlideIndex,
+      maxSlide: maxSlideIndex,
+      minSlide: minSlideIndex,
+      visibleRange,
+      slideSize,
+      isVertical,
+      normalizedDir,
+      nav,
+      isSliding,
+      slideRegistry,
+    })
+
+    provide(injectCarousel, provided)
+
+    const data = reactive<CarouselData>({
+      config,
+      slidesCount,
+      slideSize,
+      currentSlide: currentSlideIndex,
+      maxSlide: maxSlideIndex,
+      minSlide: minSlideIndex,
+      middleSlide: middleSlideIndex,
+    })
+
+    expose<CarouselExposed>({
+      updateBreakpointsConfig,
+      updateSlidesData,
+      updateSlideSize,
+      restartCarousel,
+      slideTo,
+      next,
+      prev,
+      nav,
+      data,
+    })
 
     return () => {
       const slotSlides = slots.default || slots.slides

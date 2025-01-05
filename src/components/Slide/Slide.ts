@@ -76,12 +76,11 @@ export const Slide = defineComponent({
     const isNext: ComputedRef<boolean> = computed(
       () => currentIndex.value === carousel.activeSlide + 1
     )
-    const isVisible: ComputedRef<boolean> = computed(() => {
-      return (
-        currentIndex.value >= carousel.minVisibleSlide &&
-        currentIndex.value <= carousel.maxVisibleSlide
-      )
-    })
+    const isVisible: ComputedRef<boolean> = computed(
+      () =>
+        currentIndex.value >= carousel.visibleRange.min &&
+        currentIndex.value <= carousel.visibleRange.max
+    )
 
     const slideStyle = computed(() => {
       if (carousel.config.itemsToShow === 'auto') {

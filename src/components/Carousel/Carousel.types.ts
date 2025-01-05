@@ -21,8 +21,7 @@ export type InjectedCarousel = Reactive<{
   slidesCount: ComputedRef<number>
   activeSlide: Ref<number>
   currentSlide: Ref<number>
-  maxVisibleSlide: ComputedRef<number>
-  minVisibleSlide: ComputedRef<number>
+  visibleRange: ComputedRef<{ min: number; max: number }>
   slideSize: Ref<number>
   isVertical: ComputedRef<boolean>
   normalizedDir: ComputedRef<NormalizedDir>

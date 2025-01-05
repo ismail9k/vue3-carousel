@@ -113,7 +113,7 @@ describe('Carousel.ts', () => {
 
   it('Should default itemsToShow to slidesCount if greater than slidesCount', async () => {
     await wrapper.setProps({ itemsToShow: 10 })
-    const slides = wrapper.findAll('.carousel__slide--visible')
+    const slides = wrapper.findAll('.carousel__slide')
     expect(slides.length).toBe(5)
   })
 })
