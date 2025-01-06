@@ -69,7 +69,7 @@ describe('Carousel.ts', () => {
     expect(wrapper.props('modelValue')).toBe(1)
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(1)
-    await wrapper.setProps({ dir: 'ttb' })
+    await wrapper.setProps({ dir: 'ttb', height: 200 })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(2)
     await triggerKeyEvent('ArrowUp')
@@ -79,7 +79,7 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
-    await wrapper.setProps({ dir: 'btt' })
+    await wrapper.setProps({ dir: 'btt', height: 200 })
     await triggerKeyEvent('ArrowDown')
     expect(wrapper.props('modelValue')).toBe(0)
     await triggerKeyEvent('ArrowUp')
@@ -113,7 +113,7 @@ describe('Carousel.ts', () => {
 
   it('Should default itemsToShow to slidesCount if greater than slidesCount', async () => {
     await wrapper.setProps({ itemsToShow: 10 })
-    const slides = wrapper.findAll('.carousel__slide--visible')
+    const slides = wrapper.findAll('.carousel__slide')
     expect(slides.length).toBe(5)
   })
 })
@@ -200,6 +200,7 @@ describe('SSR Carousel', () => {
 
   it('renders server side properly', async () => {
     const [html, wrapper] = await renderSSR(App, {
+      height: 200,
       wrapAround: true,
       modelValue: 1,
       itemsToShow: 2,

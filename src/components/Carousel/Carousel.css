@@ -1,31 +1,37 @@
+.carousel,
+.carousel * {
+  box-sizing: border-box;
+}
+
 .carousel {
   position: relative;
-  text-align: center;
-  box-sizing: border-box;
   touch-action: pan-y;
   overscroll-behavior: none;
+  z-index: 1;
+  height: var(--vc-carousel-height);
 }
 
 .carousel.is-dragging {
   touch-action: none;
 }
 
-.carousel * {
-  box-sizing: border-box;
-}
-
 .carousel__track {
   display: flex;
+  list-style: none;
   padding: 0 !important;
   margin: 0 !important;
+  width: 100%;
+  height: 100%;
   position: relative;
   transition: transform ease-out;
-  height: var(--vc-trk-height, auto);
-  transition-duration: var(--vc-trk-transition-duration);
+  transition-duration: var(--vc-transition-duration);
+  gap: var(--vc-slide-gap);
 }
 
 .carousel__viewport {
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .carousel__sr-only {
@@ -53,13 +59,13 @@
 
 .carousel.is-vertical {
   .carousel__slide--clone:first-child {
-    margin-block-start: var(--vc-trk-cloned-offset);
+    margin-block-start: var(--vc-cloned-offset);
   }
 }
 
 .carousel:not(.is-vertical) {
   .carousel__slide--clone:first-child {
-    margin-inline-start: var(--vc-trk-cloned-offset);
+    margin-inline-start: var(--vc-cloned-offset);
   }
 }
 
@@ -76,7 +82,7 @@
     width: 100% !important;
     height: 100% !important;
     transition: opacity ease-in-out;
-    transition-duration: var(--vc-trk-transition-duration);
+    transition-duration: var(--vc-transition-duration);
     grid-area: 1 / 1; /* Make all slides occupy the same grid cell */
     pointer-events: none; /* Prevent inactive slides from being clickable */
   }

@@ -29,19 +29,21 @@ import {
   except,
   throttle,
   getNumberInRange,
-  getMaxSlideIndex,
-  getMinSlideIndex,
   mapNumberToRange,
-  getScrolledIndex,
-  getTransformValues,
   createCloneSlides,
   getDraggedSlidesCount,
+  getSnapAlignOffset,
+  getScaleMultipliers,
+  ScaleMultipliers,
+  toCssValue,
+  calculateAverage,
 } from '@/utils'
 
 import {
   CarouselData,
   CarouselExposed,
   CarouselNav,
+  ElRect,
   InjectedCarousel,
 } from './Carousel.types'
 import { carouselProps } from './carouselProps'
@@ -86,12 +88,8 @@ export const Carousel = defineComponent({
     watch(currentSlideIndex, (val) => (activeSlideIndex.value = val))
     const prevSlideIndex = ref(0)
     const middleSlideIndex = computed(() => Math.ceil((slidesCount.value - 1) / 2))
-    const maxSlideIndex = computed(() => {
-      return getMaxSlideIndex({ config, slidesCount: slidesCount.value })
-    })
-    const minSlideIndex = computed(() => {
-      return getMinSlideIndex({ config, slidesCount: slidesCount.value })
-    })
+    const maxSlideIndex = computed(() => slidesCount.value - 1)
+    const minSlideIndex = computed(() => 0)
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
@@ -106,6 +104,9 @@ export const Carousel = defineComponent({
 
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
+    const isAuto = computed(() => config.itemsToShow === 'auto')
+
+    const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
     function updateBreakpointsConfig(): void {
       if (!mounted.value) {
@@ -148,36 +149,55 @@ export const Carousel = defineComponent({
       updateSlideSize()
     })
 
-    const totalGap = computed(() => (config.itemsToShow - 1) * config.gap)
     const transformElements = shallowReactive<Set<HTMLElement>>(new Set())
 
     /**
      * Setup functions
      */
-    function updateSlideSize(): void {
-      if (!viewport.value) return
-      let multiplierWidth = 1
-      transformElements.forEach((el) => {
-        const transformArr = getTransformValues(el)
-
-        if (transformArr.length === 6) {
-          multiplierWidth *= transformArr[0]
+    const slidesRect = ref<Array<ElRect>>([])
+    function updateSlidesRectSize({
+      widthMultiplier,
+      heightMultiplier,
+    }: ScaleMultipliers): void {
+      slidesRect.value = slides.map((slide) => {
+        const rect = slide.exposed?.getBoundingRect()
+        return {
+          width: rect.width * widthMultiplier,
+          height: rect.height * heightMultiplier,
         }
       })
+    }
+    const viewportRect: Ref<ElRect> = ref({
+      width: 0,
+      height: 0,
+    })
+    function updateViewportRectSize({
+      widthMultiplier,
+      heightMultiplier,
+    }: ScaleMultipliers): void {
+      const rect = viewport.value?.getBoundingClientRect() || { width: 0, height: 0 }
+      viewportRect.value = {
+        width: rect.width * widthMultiplier,
+        height: rect.height * heightMultiplier,
+      }
+    }
 
-      // Calculate size based on orientation
-      if (isVertical.value) {
-        if (config.height !== 'auto') {
-          const height =
-            typeof config.height === 'string' && isNaN(parseInt(config.height))
-              ? viewport.value.getBoundingClientRect().height
-              : parseInt(config.height as string)
+    function updateSlideSize(): void {
+      if (!viewport.value) return
 
-          slideSize.value = (height - totalGap.value) / config.itemsToShow
-        }
+      const scaleMultipliers = getScaleMultipliers(transformElements)
+
+      updateViewportRectSize(scaleMultipliers)
+      updateSlidesRectSize(scaleMultipliers)
+
+      if (isAuto.value) {
+        slideSize.value = calculateAverage(
+          slidesRect.value.map((slide) => slide[dimension.value])
+        )
       } else {
-        const width = viewport.value.getBoundingClientRect().width
-        slideSize.value = (width / multiplierWidth - totalGap.value) / config.itemsToShow
+        const itemsToShow = Number(config.itemsToShow)
+        const totalGap = (itemsToShow - 1) * config.gap
+        slideSize.value = (viewportRect.value[dimension.value] - totalGap) / itemsToShow
       }
     }
 
@@ -191,11 +211,13 @@ export const Carousel = defineComponent({
       }
 
       // Validate itemsToShow
-      config.itemsToShow = getNumberInRange({
-        val: config.itemsToShow,
-        max: slidesCount.value,
-        min: 1,
-      })
+      if (!isAuto.value) {
+        config.itemsToShow = getNumberInRange({
+          val: Number(config.itemsToShow),
+          max: slidesCount.value,
+          min: 1,
+        })
+      }
     }
 
     const ignoreAnimations = computed<false | string[]>(() => {
@@ -328,9 +350,9 @@ export const Carousel = defineComponent({
         case 'ArrowUp':
           if (isVertical.value === event.key.endsWith('Up')) {
             if (isReversed.value) {
-              nav.next(true)
+              next(true)
             } else {
-              nav.prev(true)
+              prev(true)
             }
           }
           break
@@ -338,9 +360,9 @@ export const Carousel = defineComponent({
         case 'ArrowDown':
           if (isVertical.value === event.key.endsWith('Down')) {
             if (isReversed.value) {
-              nav.prev(true)
+              prev(true)
             } else {
-              nav.next(true)
+              next(true)
             }
           }
           break
@@ -493,7 +515,7 @@ export const Carousel = defineComponent({
         mappedIndex = mapNumberToRange({
           val: targetIndex,
           max: maxSlideIndex.value,
-          min: 0,
+          min: minSlideIndex.value,
         })
       }
 
@@ -545,47 +567,6 @@ export const Carousel = defineComponent({
       slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
     }
 
-    const nav: CarouselNav = { slideTo, next, prev }
-
-    const scrolledIndex = computed(() =>
-      getScrolledIndex({
-        config,
-        currentSlide: currentSlideIndex.value,
-        slidesCount: slidesCount.value,
-      })
-    )
-
-    const provided: InjectedCarousel = reactive({
-      config,
-      slidesCount,
-      viewport,
-      slides,
-      scrolledIndex,
-      currentSlide: currentSlideIndex,
-      activeSlide: activeSlideIndex,
-      maxSlide: maxSlideIndex,
-      minSlide: minSlideIndex,
-      slideSize,
-      isVertical,
-      normalizedDir,
-      nav,
-      isSliding,
-      slideRegistry,
-    })
-
-    provide(injectCarousel, provided)
-    /** @deprecated provides */
-    provide('config', config)
-    provide('slidesCount', slidesCount)
-    provide('currentSlide', currentSlideIndex)
-    provide('maxSlide', maxSlideIndex)
-    provide('minSlide', minSlideIndex)
-    provide('slideSize', slideSize)
-    provide('isVertical', isVertical)
-    provide('normalizeDir', normalizedDir)
-    provide('nav', nav)
-    provide('isSliding', isSliding)
-
     function restartCarousel(): void {
       updateBreakpointsConfig()
       updateSlidesData()
@@ -619,6 +600,248 @@ export const Carousel = defineComponent({
     // Init carousel
     emit('before-init')
 
+    const clonedSlidesCount = computed(() => {
+      if (!config.wrapAround) {
+        return { before: 0, after: 0 }
+      }
+      if (isAuto.value) {
+        return { before: slides.length, after: slides.length }
+      }
+
+      const itemsToShow = Number(config.itemsToShow)
+      const slidesToClone = Math.ceil(itemsToShow + (config.itemsToScroll - 1))
+      const before = slidesToClone - activeSlideIndex.value
+      const after = slidesToClone - (slidesCount.value - (activeSlideIndex.value + 1))
+
+      return {
+        before: Math.max(0, before),
+        after: Math.max(0, after),
+      }
+    })
+
+    const clonedSlidesOffset = computed(() => {
+      if (!clonedSlidesCount.value.before) {
+        return 0
+      }
+      if (isAuto.value) {
+        return (
+          slidesRect.value
+            .slice(-1 * clonedSlidesCount.value.before)
+            .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) * -1
+        )
+      }
+
+      return clonedSlidesCount.value.before * effectiveSlideSize.value * -1
+    })
+
+    const snapAlignOffset = computed(() => {
+      if (isAuto.value) {
+        const slideIndex =
+          ((currentSlideIndex.value % slides.length) + slides.length) % slides.length
+        return getSnapAlignOffset({
+          slideSize: slidesRect.value[slideIndex]?.[dimension.value],
+          viewportSize: viewportRect.value[dimension.value],
+          align: config.snapAlign,
+        })
+      }
+
+      return getSnapAlignOffset({
+        align: config.snapAlign,
+        itemsToShow: +config.itemsToShow,
+      })
+    })
+    const scrolledOffset = computed(() => {
+      let output = 0
+
+      if (isAuto.value) {
+        if (currentSlideIndex.value < 0) {
+          output =
+            slidesRect.value
+              .slice(currentSlideIndex.value)
+              .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) * -1
+        } else {
+          output = slidesRect.value
+            .slice(0, currentSlideIndex.value)
+            .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0)
+        }
+        output -= snapAlignOffset.value
+
+        // remove whitespace
+        if (!config.wrapAround) {
+          const maxSlidingValue =
+            slidesRect.value.reduce(
+              (acc, slide) => acc + slide[dimension.value] + config.gap,
+              0
+            ) -
+            viewportRect.value[dimension.value] -
+            config.gap
+
+          output = getNumberInRange({
+            val: output,
+            max: maxSlidingValue,
+            min: 0,
+          })
+        }
+      } else {
+        let scrolledSlides = currentSlideIndex.value - snapAlignOffset.value
+
+        // remove whitespace
+        if (!config.wrapAround) {
+          scrolledSlides = getNumberInRange({
+            val: scrolledSlides,
+            max: slidesCount.value - +config.itemsToShow,
+            min: 0,
+          })
+        }
+        output = scrolledSlides * effectiveSlideSize.value
+      }
+
+      return output * (isReversed.value ? 1 : -1)
+    })
+
+    const visibleRange = computed(() => {
+      if (!isAuto.value) {
+        const base = currentSlideIndex.value - snapAlignOffset.value
+        if (config.wrapAround) {
+          return {
+            min: Math.floor(base),
+            max: Math.ceil(base + Number(config.itemsToShow) - 1),
+          }
+        }
+        return {
+          min: Math.floor(
+            getNumberInRange({
+              val: base,
+              max: slidesCount.value - Number(config.itemsToShow),
+              min: 0,
+            })
+          ),
+          max: Math.ceil(
+            getNumberInRange({
+              val: base + Number(config.itemsToShow) - 1,
+              max: slidesCount.value - 1,
+              min: 0,
+            })
+          ),
+        }
+      }
+
+      // Auto width mode
+      let minIndex = 0
+      {
+        let accumulatedSize = 0
+        let index = 0 - clonedSlidesCount.value.before
+        const offset = Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+
+        while (accumulatedSize <= offset) {
+          const normalizedIndex =
+            ((index % slides.length) + slides.length) % slides.length
+          accumulatedSize +=
+            slidesRect.value[normalizedIndex]?.[dimension.value] + config.gap
+          index++
+        }
+        minIndex = index - 1
+      }
+
+      let maxIndex = 0
+      {
+        let index = minIndex
+        let accumulatedSize = 0
+        if (index < 0) {
+          accumulatedSize =
+            slidesRect.value
+              .slice(0, index)
+              .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
+            Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+        } else {
+          accumulatedSize =
+            slidesRect.value
+              .slice(0, index)
+              .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
+            Math.abs(scrolledOffset.value)
+        }
+
+        while (accumulatedSize < viewportRect.value[dimension.value]) {
+          const normalizedIndex =
+            ((index % slides.length) + slides.length) % slides.length
+          accumulatedSize +=
+            slidesRect.value[normalizedIndex]?.[dimension.value] + config.gap
+          index++
+        }
+        maxIndex = index - 1
+      }
+
+      return {
+        min: Math.floor(minIndex),
+        max: Math.ceil(maxIndex),
+      }
+    })
+
+    const trackTransform: ComputedRef<string | undefined> = computed(() => {
+      if (config.slideEffect === 'fade') {
+        return undefined
+      }
+
+      const translateAxis = isVertical.value ? 'Y' : 'X'
+
+      // Include user drag interaction offset
+      const dragOffset = isVertical.value ? dragged.y : dragged.x
+
+      let totalOffset = scrolledOffset.value + dragOffset
+
+      if (!config.wrapAround && config.preventExcessiveDragging) {
+        let maxSlidingValue = 0
+        if (isAuto.value) {
+          maxSlidingValue = slidesRect.value.reduce(
+            (acc, slide) => acc + slide[dimension.value],
+            0
+          )
+        } else {
+          maxSlidingValue =
+            (slidesCount.value - Number(config.itemsToShow)) * effectiveSlideSize.value
+        }
+        const min = isReversed.value ? 0 : -1 * maxSlidingValue
+        const max = isReversed.value ? maxSlidingValue : 0
+        totalOffset = getNumberInRange({
+          val: totalOffset,
+          min,
+          max,
+        })
+      }
+      return `translate${translateAxis}(${totalOffset}px)`
+    })
+
+    const carouselStyle = computed(() => ({
+      '--vc-transition-duration': isSliding.value
+        ? toCssValue(config.transition, 'ms')
+        : undefined,
+      '--vc-slide-gap': toCssValue(config.gap),
+      '--vc-carousel-height': toCssValue(config.height),
+      '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
+    }))
+
+    const nav: CarouselNav = { slideTo, next, prev }
+
+    const provided: InjectedCarousel = reactive({
+      config,
+      slidesCount,
+      viewport,
+      slides,
+      currentSlide: currentSlideIndex,
+      activeSlide: activeSlideIndex,
+      maxSlide: maxSlideIndex,
+      minSlide: minSlideIndex,
+      visibleRange,
+      slideSize,
+      isVertical,
+      normalizedDir,
+      nav,
+      isSliding,
+      slideRegistry,
+    })
+
+    provide(injectCarousel, provided)
+
     const data = reactive<CarouselData>({
       config,
       slidesCount,
@@ -640,81 +863,6 @@ export const Carousel = defineComponent({
       nav,
       data,
     })
-
-    const trackHeight = computed(() => {
-      // If the carousel is vertical and height is set to auto, calculate the height based on slide size and gap
-      if (config.height === 'auto') {
-        if (isVertical.value && slideSize.value) {
-          return `${slideSize.value * config.itemsToShow + totalGap.value}px`
-        }
-        return undefined
-      }
-
-      if (
-        typeof config.height === 'number' ||
-        parseFloat(config.height).toString() === config.height
-      ) {
-        return `${config.height}px`
-      } else {
-        return config.height
-      }
-    })
-
-    const clonedSlidesCount = computed(() => {
-      if (!config.wrapAround) {
-        return { before: 0, after: 0 }
-      }
-
-      const slidesToClone = Math.ceil(config.itemsToShow + (config.itemsToScroll - 1))
-      const before = slidesToClone - activeSlideIndex.value
-      const after = slidesToClone - (slidesCount.value - (activeSlideIndex.value + 1))
-
-      return {
-        before: Math.max(0, before),
-        after: Math.max(0, after),
-      }
-    })
-
-    const clonedSlidesOffset = computed(
-      () => clonedSlidesCount.value.before * effectiveSlideSize.value * -1
-    )
-    const trackTransform: ComputedRef<string> = computed(() => {
-      const directionMultiplier = isReversed.value ? 1 : -1
-      const translateAxis = isVertical.value ? 'Y' : 'X'
-
-      // Calculate the total offset for slide transformation
-      const scrolledOffset =
-        scrolledIndex.value * effectiveSlideSize.value * directionMultiplier
-
-      // Include user drag interaction offset
-      const dragOffset = isVertical.value ? dragged.y : dragged.x
-
-      let totalOffset = scrolledOffset + dragOffset
-
-      if (!config.wrapAround && config.preventExcessiveDragging) {
-        const maxSlidingValue =
-          (slidesCount.value - config.itemsToShow) * effectiveSlideSize.value
-        const min = isReversed.value ? 0 : -1 * maxSlidingValue
-        const max = isReversed.value ? maxSlidingValue : 0
-        totalOffset = getNumberInRange({
-          val: totalOffset,
-          min,
-          max,
-        })
-      }
-
-      return `translate${translateAxis}(${totalOffset}px)`
-    })
-
-    const trackStyle = computed(() => ({
-      transform: config.slideEffect === 'slide' ? trackTransform.value : undefined,
-      gap: config.gap > 0 ? `${config.gap}px` : undefined,
-      '--vc-trk-transition-duration': isSliding.value
-        ? `${config.transition}ms`
-        : undefined,
-      '--vc-trk-height': trackHeight.value,
-      '--vc-trk-cloned-offset': `${clonedSlidesOffset.value}px`,
-    }))
 
     return () => {
       const slotSlides = slots.default || slots.slides
@@ -752,7 +900,7 @@ export const Carousel = defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          style: trackStyle.value,
+          style: { transform: trackTransform.value },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
         },
@@ -776,6 +924,7 @@ export const Carousel = defineComponent({
             },
           ],
           dir: normalizedDir.value,
+          style: carouselStyle.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
           onFocus: handleFocus,

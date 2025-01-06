@@ -61,5 +61,5 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   i18n: I18N_DEFAULT_CONFIG,
   ignoreAnimations: false,
   slideEffect: SLIDE_EFFECTS[0],
-  preventExcessiveDragging: false
+  preventExcessiveDragging: false,
 }

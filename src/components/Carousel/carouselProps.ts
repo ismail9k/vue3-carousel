@@ -3,6 +3,7 @@ import { PropType } from 'vue'
 import {
   BREAKPOINT_MODE_OPTIONS,
   DEFAULT_CONFIG,
+  DIR_MAP,
   DIR_OPTIONS,
   SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
@@ -14,6 +15,8 @@ import type {
   SnapAlign,
   CarouselConfig,
   SlideEffect,
+  NonNormalizedDir,
+  NormalizedDir,
 } from '@/shared'
 
 export const carouselProps = {
@@ -25,7 +28,7 @@ export const carouselProps = {
   // count of items to showed per view
   itemsToShow: {
     default: DEFAULT_CONFIG.itemsToShow,
-    type: Number,
+    type: [Number, String],
   },
   // count of items to be scrolled
   itemsToScroll: {
@@ -100,9 +103,23 @@ export const carouselProps = {
   dir: {
     type: String as PropType<Dir>,
     default: DEFAULT_CONFIG.dir,
-    validator(value: Dir) {
+    validator(value: Dir, props: { height?: string }) {
       // The value must match one of these strings
-      return DIR_OPTIONS.includes(value)
+      if (!DIR_OPTIONS.includes(value)) {
+        return false
+      }
+
+      const normalizedDir =
+        value in DIR_MAP ? DIR_MAP[value as NonNormalizedDir] : (value as NormalizedDir)
+      if (
+        ['ttb', 'btt'].includes(normalizedDir) &&
+        (!props.height || props.height === 'auto')
+      ) {
+        console.warn(
+          `[vue3-carousel warn]: The dir "${value}" is not supported with height "auto".`
+        )
+      }
+      return true
     },
   },
   // aria-labels and additional text labels
@@ -125,13 +142,13 @@ export const carouselProps = {
     default: false,
     type: Boolean,
     validator(value: boolean, props: { wrapAround?: boolean }) {
-      if (value && props.wrapAround)
-        console.warn( /* eslint-disable-line no-console */
-          '[vue3-carousel warn]: preventExcessiveDragging cannot be used with wrapAround. ' +
-          'The preventExcessiveDragging setting will be ignored.'
-        );
+      if (value && props.wrapAround) {
+        console.warn(
+          `[vue3-carousel warn]: "preventExcessiveDragging" cannot be used with wrapAround. The setting will be ignored.`
+        )
+      }
 
-      return true;
-    }
-  }
+      return true
+    },
+  },
 }
