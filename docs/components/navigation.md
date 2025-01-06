@@ -61,12 +61,12 @@ You can customize the navigation buttons using slots:
 
 | Variable                 | Default Value             | Description                     |
 | ------------------------ | ------------------------- | ------------------------------- |
-| `--vc-nav-width`         | `30px`                    | Navigation button width         |
-| `--vc-nav-height`        | `30px`                    | Navigation button height        |
+| `--vc-nav-background`    | `transparent`             | Navigation button background    |
 | `--vc-nav-border-radius` | `0`                       | Navigation button border radius |
 | `--vc-nav-color`         | `var(--vc-clr-primary)`   | Navigation button color         |
 | `--vc-nav-color-hover`   | `var(--vc-clr-secondary)` | Navigation button hover color   |
-| `--vc-nav-background`    | `transparent`             | Navigation button background    |
+| `--vc-nav-height`        | `30px`                    | Navigation button height        |
+| `--vc-nav-width`         | `30px`                    | Navigation button width         |
 
 ## Accessibility
 

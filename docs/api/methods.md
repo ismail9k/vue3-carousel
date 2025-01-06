@@ -17,10 +17,6 @@ myCarousel.next()
 myCarousel.updateSlideSize()
 ```
 
-## slideTo(index: number)
-
-Slide to specific slide index
-
 ## next()
 
 Slide to the next slide
@@ -29,37 +25,32 @@ Slide to the next slide
 
 Slide to the previous slide
 
-## ~~updateSlideWidth()~~  <Badge type="danger" text="Rename to updateSlideSize"/>
+## restartCarousel()
 
-~~Update `slideWidth` value based on `itemsToShow` and the current carousel width~~
+Restart the carousel settings and data, internally it calls:
 
-## updateSlideSize()
+- `resetAutoplay`
+- `updateBreakpointsConfig`
+- `updateSlidesData`
+- `updateSlideSize`
 
-Update `slideSize` value based on `itemsToShow`, `dir` and the current carousel width/height
+## slideTo(index: number, skipTransition = false)
+
+Slide to specific slide index
 
 ## updateBreakpointsConfig()
 
 Update the current carousel config based on `breakpoints` settings and screen width
+
+## updateSlideSize()
+
+Update `slideSize` value based on `itemsToShow`, `dir` and the current carousel width/height
 
 ## updateSlidesData()
 
 Update all the slide related date includes:
 
 - `currentSlideIndex`
-- `middleSlide`
 - `maxSlide`
+- `middleSlide`
 - `minSlide`
-
-## ~~initDefaultConfig()~~ <Badge type="danger" text="This method is deprecated"/>
-
-~~Init carousel default configurations~~
-
-## restartCarousel()
-
-Restart the carousel settings and data, internally it calls:
-
-- ~~`initDefaultConfig`~~
-- `resetAutoplay`
-- `updateBreakpointsConfig`
-- `updateSlidesData`
-- `updateSlideSize`

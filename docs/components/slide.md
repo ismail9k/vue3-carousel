@@ -31,8 +31,8 @@ The default slot exposes these reactive properties for custom slide content:
 | currentIndex | Number  | Current index position of the slide                       |
 | isActive     | Boolean | True when this slide is the current active slide          |
 | isClone      | Boolean | True if this is a clone slide (used for infinite scroll)  |
-| isPrev       | Boolean | True if this slide is immediately before the active slide |
 | isNext       | Boolean | True if this slide is immediately after the active slide  |
+| isPrev       | Boolean | True if this slide is immediately before the active slide |
 | isSliding    | Boolean | True during slide transition animations                   |
 | isVisible    | Boolean | True when the slide is within the visible viewport        |
 
@@ -80,12 +80,12 @@ The component provides these CSS classes for styling:
 | CSS Class                   | Description               |
 | --------------------------- | ------------------------- |
 | `.carousel__slide`          | Base slide styles         |
-| `.carousel__slide--clone`   | Cloned slide styles       |
-| `.carousel__slide--visible` | Visible slide styles      |
 | `.carousel__slide--active`  | Active slide styles       |
-| `.carousel__slide--prev`    | Previous slide styles     |
+| `.carousel__slide--clone`   | Cloned slide styles       |
 | `.carousel__slide--next`    | Next slide styles         |
+| `.carousel__slide--prev`    | Previous slide styles     |
 | `.carousel__slide--sliding` | Styles during transitions |
+| `.carousel__slide--visible` | Visible slide styles      |
 
 ## Best Practices
 
