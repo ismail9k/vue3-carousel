@@ -795,8 +795,27 @@ export const Carousel = defineComponent({
       // Include user drag interaction offset
       const dragOffset = isVertical.value ? dragged.y : dragged.x
 
-      const totalOffset = scrolledOffset.value + dragOffset
+      let totalOffset = scrolledOffset.value + dragOffset
 
+      if (!config.wrapAround && config.preventExcessiveDragging) {
+        let maxSlidingValue = 0
+        if (isAuto.value) {
+          maxSlidingValue = slidesRect.value.reduce(
+            (acc, slide) => acc + slide[dimension.value],
+            0
+          )
+        } else {
+          maxSlidingValue =
+            (slidesCount.value - Number(config.itemsToShow)) * effectiveSlideSize.value
+        }
+        const min = isReversed.value ? 0 : -1 * maxSlidingValue
+        const max = isReversed.value ? maxSlidingValue : 0
+        totalOffset = getNumberInRange({
+          val: totalOffset,
+          min,
+          max,
+        })
+      }
       return `translate${translateAxis}(${totalOffset}px)`
     })
 
