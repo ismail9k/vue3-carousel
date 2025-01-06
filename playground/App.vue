@@ -498,7 +498,7 @@ select {
 }
 
 .carousel__slide--active .carousel-item {
-  border: 2px solid red;
+  box-shadow: inset 0 0 0 2px red;
 }
 .config-panel-buttons-row {
   display: flex;
