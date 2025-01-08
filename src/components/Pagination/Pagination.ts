@@ -1,7 +1,7 @@
-import { inject, h, VNode, defineComponent, computed } from 'vue'
+import { computed, defineComponent, h, inject, VNode } from 'vue'
 
 import { injectCarousel } from '@/shared'
-import { mapNumberToRange, i18nFormatter, getSnapAlignOffset } from '@/utils'
+import { getSnapAlignOffset, i18nFormatter, mapNumberToRange } from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 

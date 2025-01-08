@@ -1,4 +1,4 @@
-export interface PaginationProps {
+export type PaginationProps = {
   disableOnClick?: boolean
   paginateByItemsToShow?: boolean
 }
