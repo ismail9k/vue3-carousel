@@ -2,29 +2,33 @@
 
 ## Available Props
 
-| Prop                       | Default                          | Description                                                                                                                                                                                                                                                     |
-| -------------------------- | -------------------------------- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `enabled`                  | true                             | Controlled weather the carousel is enabled or disabled. <Badge text="0.8.0"/>                                                                                                                                                                                   |
-| `itemsToShow`              | 1                                | Count of items to showed per view (can be a fraction). Must be between 1 and the total number of slides. If set to a value less than 1, it defaults to 1. If set to a value greater than the total number of slides, it defaults to the total number of slides. |
-| `itemsToScroll`            | 1                                | Number of slides to be scrolled                                                                                                                                                                                                                                 |
-| `wrapAround`               | false                            | Enable infinite scrolling mode.                                                                                                                                                                                                                                 |
-| `snapAlign`                | 'center'                         | Controls the carousel position alignment, can be 'start', 'end', 'center-[odd\|even]'                                                                                                                                                                           |
-| `transition`               | 300                              | Sliding transition time in ms.                                                                                                                                                                                                                                  |
-| `autoplay`                 | 0                                | Auto play time in ms.                                                                                                                                                                                                                                           |
-| `breakpointMode`           | 'viewport'                       | Determines how the carousel breakpoints are calculated. acceptable values: 'viewport', 'carousel' <Badge text="0.5.0"/>                                                                                                                                         |
-| `breakpoints`              | null                             | An object to pass all the breakpoints settings.                                                                                                                                                                                                                 |
-| `modelValue`               | 0                                | Index number of the initial slide.                                                                                                                                                                                                                              |
-| `mouseDrag`                | true                             | Toggle mouse dragging                                                                                                                                                                                                                                           |
-| `touchDrag`                | true                             | Toggle pointer touch dragging                                                                                                                                                                                                                                   |
-| `pauseAutoplayOnHover`     | false                            | Toggle if auto play should pause on mouse hover                                                                                                                                                                                                                 |
-| `dir`                      | 'ltr'                            | Controls the carousel direction. Available values: 'ltr', 'rtl', 'ttb', 'btt' or use verbose 'left-to-right', 'right-to-left', 'top-to-bottom', 'bottom-to-top' <Badge text="0.7.0"/>                                                                           |
-| `i18n`                     | [`{ ariaNextSlide: ...}`](#i18n) | Used to translate and/or change aria labels and additional texts used in the carousel. <Badge text="0.3.1"/>                                                                                                                                                    |
-| `gap`                      | 0                                | Used to add gap between the slides. <Badge text="0.6.0"/>                                                                                                                                                                                                       |
-| `height`                   | 'auto'                           | Carousel track height. <Badge text="0.7.0"/>                                                                                                                                                                                                                    |
-| `ignoreAnimations`         | false                            | List of animation names to ignore for size calculations. Can be a boolean, string, or array of strings. <Badge text="0.10.0"/>                                                                                                                                  |
-| `preventExcessiveDragging` | false                            | Prevents unwanted dragging behavior when the carousel reaches its first or last slide. <Badge text="0.13.0" />                                                                                                                                                  |
+| Prop                       | Type                                        | Default                          | Description                                                                                            |
+| -------------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
+| `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
+| `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
+| `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
+| `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
+| `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
+| `i18n`                     | `object`                                    | [`{ ariaNextSlide: ...}`](#i18n) | Internationalization options for accessibility labels and text content.                                |
+| `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. <Badge text="0.10.0"/> |
+| `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
+| `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
+| `mouseDrag`                | `boolean`                                   | true                             | Enables/disables mouse drag navigation.                                                                |
+| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
+| `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
+| `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
+| `touchDrag`                | `boolean`                                   | true                             | Enables/disables touch navigation on touch-enabled devices.                                            |
+| `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
+| `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
 
+> **itemsToShow**: Controls the number of visible slides. Values between 1 and the total slide count are valid. Values outside this range are automatically clamped. Using 'auto' allows slides to determine their own width based on content.
 
+> **Direction Settings**: For vertical orientations ('ttb'/'top-to-bottom', 'btt'/'bottom-to-top'), the carousel requires a fixed height setting. Direction can be specified using either short ('ltr', 'rtl', 'ttb', 'btt') or verbose ('left-to-right', 'right-to-left', 'top-to-bottom', 'bottom-to-top') formats.
+
+> **Drag Prevention**: The `preventExcessiveDragging` option is automatically disabled when `wrapAround` is enabled, as boundary restrictions aren't needed in infinite loop mode.
 
 ## Slots
 
@@ -62,12 +66,11 @@ Used to add display carousel addons components.
 
 ### Slots Attributes
 
-| Prop             | Description                                                                                 |
-| ---------------- | ------------------------------------------------------------------------------------------- |
-| ~~`slideWidth`~~ | ~~the width of a single slide element.~~  <Badge type="danger" text="Rename to slideSize"/> |
-| `slideSize`      | the width/height of a single slide element.                                                 |
-| `currentSlide`   | index number of the current slide.                                                          |
-| `slidesCount`    | the count of all slides                                                                     |
+| Prop           | Description                                 |
+| -------------- | ------------------------------------------- |
+| `currentSlide` | index number of the current slide.          |
+| `slideSize`    | the width/height of a single slide element. |
+| `slidesCount`  | the count of all slides                     |
 
 #### Example
 
@@ -91,12 +94,12 @@ Available keys:
 
 | Key                   | Defaults                               | Description                                                                |
 | --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
 | `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the “Next” navigation button.                |
 | `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the “Previous” navigation button.            |
-| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
-| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
-| `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide’s position in the sequence. |
-| `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `iconArrowDown`       | "Arrow pointing downwards"             | Sets title and aria-label for the downward-pointing arrow SVG icon.        |
-| `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowLeft`       | "Arrow pointing to the left"           | Sets title and aria-label for the left-pointing arrow SVG icon.            |
+| `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
+| `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
+| `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide’s position in the sequence. |

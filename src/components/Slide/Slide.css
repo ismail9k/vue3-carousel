@@ -1,11 +1,8 @@
 .carousel__slide {
-  flex-shrink: 0;
-  margin: 0;
-
-  display: flex;
-  justify-content: center;
   align-items: center;
-
-  /* Fix iOS scrolling #22 */
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  margin: 0;
   transform: translateZ(0);
 }

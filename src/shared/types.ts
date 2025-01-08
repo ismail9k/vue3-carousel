@@ -1,12 +1,14 @@
 import {
   BREAKPOINT_MODE_OPTIONS,
+  DIR_MAP,
   DIR_OPTIONS,
-  SNAP_ALIGN_OPTIONS,
   I18N_DEFAULT_CONFIG,
   NORMALIZED_DIR_OPTIONS,
-  DIR_MAP,
   SLIDE_EFFECTS,
+  SNAP_ALIGN_OPTIONS,
 } from './constants'
+
+export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
 
 export type Breakpoints = {
   [key: number]: Partial<
@@ -14,40 +16,39 @@ export type Breakpoints = {
   >
 }
 
-export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
-export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
-
 export type Dir = (typeof DIR_OPTIONS)[number]
-
-export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
-
-export type NormalizedDir = (typeof NORMALIZED_DIR_OPTIONS)[number]
-
-export type NonNormalizedDir = keyof typeof DIR_MAP
 
 export type I18nKeys = keyof typeof I18N_DEFAULT_CONFIG
 
-export interface CarouselConfig {
-  enabled: boolean
-  itemsToShow: number | 'auto'
-  itemsToScroll: number
-  modelValue?: number
-  transition?: number
-  gap: number
+export type NonNormalizedDir = keyof typeof DIR_MAP
+
+export type NormalizedDir = (typeof NORMALIZED_DIR_OPTIONS)[number]
+
+export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
+
+export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
+
+export type CarouselConfig = {
   autoplay?: number
-  snapAlign: SnapAlign
-  wrapAround?: boolean
-  pauseAutoplayOnHover?: boolean
-  mouseDrag?: boolean
-  touchDrag?: boolean
-  dir?: Dir
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
+  dir?: Dir
+  enabled: boolean
+  gap: number
   height: string | number
   i18n: { [key in I18nKeys]?: string }
   ignoreAnimations: boolean | string[] | string
-  slideEffect: SlideEffect
+  itemsToScroll: number
+  itemsToShow: number | 'auto'
+  modelValue?: number
+  mouseDrag?: boolean
+  pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean
+  slideEffect: SlideEffect
+  snapAlign: SnapAlign
+  touchDrag?: boolean
+  transition?: number
+  wrapAround?: boolean
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]

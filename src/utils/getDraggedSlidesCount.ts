@@ -1,4 +1,4 @@
-interface DragParams {
+type DragParams = {
   isVertical: boolean
   isReversed: boolean
   dragged: { x: number; y: number }

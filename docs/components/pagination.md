@@ -35,13 +35,12 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 
 | Variable                    | Default Value             | Description                        |
 | --------------------------- | ------------------------- | ---------------------------------- |
-| `--vc-pgn-width`            | `16px`                    | Pagination button width            |
+| `--vc-pgn-active-color`     | `var(--vc-clr-primary)`   | Active pagination button color     |
+| `--vc-pgn-background-color` | `var(--vc-clr-secondary)` | Pagination button background color |
+| `--vc-pgn-border-radius`    | `0`                       | Pagination button border radius    |
 | `--vc-pgn-height`           | `4px`                     | Pagination button height           |
 | `--vc-pgn-margin`           | `6px 5px`                 | Pagination button margin           |
-| `--vc-pgn-border-radius`    | `0`                       | Pagination button border radius    |
-| `--vc-pgn-background-color` | `var(--vc-clr-secondary)` | Pagination button background color |
-| `--vc-pgn-active-color`     | `var(--vc-clr-primary)`   | Active pagination button color     |
-
+| `--vc-pgn-width`            | `16px`                    | Pagination button width            |
 
 ## Accessibility
 

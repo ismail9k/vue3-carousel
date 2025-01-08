@@ -6,50 +6,60 @@ import {
   ShallowReactive,
 } from 'vue'
 
-import { SlideRegistry, CarouselConfig, NormalizedDir } from '@/shared'
+import { CarouselConfig, NormalizedDir, SlideRegistry } from '@/shared'
 
-export interface CarouselNav {
-  slideTo: (index: number) => void
+export type ElRect = {
+  height: number
+  width: number
+}
+
+export type Range = {
+  min: number
+  max: number
+}
+
+export type CarouselData = {
+  config: CarouselConfig
+  currentSlide: Ref<number>
+  maxSlide: Ref<number>
+  middleSlide: Ref<number>
+  minSlide: Ref<number>
+  slideSize: Ref<number>
+  slidesCount: Ref<number>
+}
+
+export type CarouselExposed = CarouselMethods & {
+  data: Reactive<CarouselData>
+  nav: CarouselNav
+}
+
+export type CarouselMethods = CarouselNav & {
+  restartCarousel: () => void
+  updateBreakpointsConfig: () => void
+  updateSlideSize: () => void
+  updateSlidesData: () => void
+}
+
+export type CarouselNav = {
   next: (skipTransition?: boolean) => void
   prev: (skipTransition?: boolean) => void
+  slideTo: (index: number) => void
 }
 
 export type InjectedCarousel = Reactive<{
-  config: CarouselConfig
-  viewport: Ref<Element | null>
-  slides: ShallowReactive<Array<ComponentInternalInstance>>
-  slidesCount: ComputedRef<number>
   activeSlide: Ref<number>
+  config: CarouselConfig
   currentSlide: Ref<number>
+  isSliding: Ref<boolean>
+  isVertical: ComputedRef<boolean>
   maxSlide: ComputedRef<number>
   minSlide: ComputedRef<number>
-  visibleRange: ComputedRef<{ min: number; max: number }>
-  slideSize: Ref<number>
-  isVertical: ComputedRef<boolean>
+  nav: CarouselNav
   normalizedDir: ComputedRef<NormalizedDir>
-  nav: CarouselNav
-  isSliding: Ref<boolean>
   slideRegistry: SlideRegistry
-}>
-
-export interface CarouselData {
-  config: CarouselConfig
-  slidesCount: Ref<number>
   slideSize: Ref<number>
-  currentSlide: Ref<number>
-  maxSlide: Ref<number>
-  minSlide: Ref<number>
-  middleSlide: Ref<number>
-}
-
-export interface CarouselMethods extends CarouselNav {
-  updateBreakpointsConfig: () => void
-  updateSlidesData: () => void
-  updateSlideSize: () => void
-  restartCarousel: () => void
-}
-export interface CarouselExposed extends CarouselMethods {
-  nav: CarouselNav
-  data: Reactive<CarouselData>
-}
-export type ElRect = { width: number; height: number }
+  slides: ShallowReactive<Array<ComponentInternalInstance>>
+  slidesCount: ComputedRef<number>
+  viewport: Ref<Element | null>
+  visibleRange: ComputedRef<Range>
+}>

@@ -1,6 +1,6 @@
 import { SnapAlign } from '@/shared'
 
-interface SnapAlignOffsetParams {
+type SnapAlignOffsetParams = {
   align: SnapAlign
   slideSize?: number
   viewportSize?: number

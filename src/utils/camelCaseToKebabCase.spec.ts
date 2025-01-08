@@ -3,20 +3,20 @@ import { describe, it, expect } from 'vitest'
 import { camelCaseToKebabCase } from './camelCaseToKebabCase'
 
 describe('camelCaseToKebabCase', () => {
-  it('converts single camelCase word to kebab-case', () => {
-    expect(camelCaseToKebabCase('camelCase')).toBe('camel-case')
-  })
-
   it('converts multiple camelCase words to kebab-case', () => {
     expect(camelCaseToKebabCase('myVariableName')).toBe('my-variable-name')
   })
 
-  it('handles strings with no uppercase letters', () => {
-    expect(camelCaseToKebabCase('lowercase')).toBe('lowercase')
+  it('converts single camelCase word to kebab-case', () => {
+    expect(camelCaseToKebabCase('camelCase')).toBe('camel-case')
   })
 
   it('handles empty strings', () => {
     expect(camelCaseToKebabCase('')).toBe('')
+  })
+
+  it('handles strings with no uppercase letters', () => {
+    expect(camelCaseToKebabCase('lowercase')).toBe('lowercase')
   })
 
   it('handles strings with numbers', () => {

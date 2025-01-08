@@ -1,16 +1,16 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Icon.ts > It should render standalone 1`] = `
-"<svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing upwards">
-  <title>Arrow pointing upwards</title>
-  <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
+"<svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing downwards">
+  <title>Arrow pointing downwards</title>
+  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path>
 </svg>"
 `;
 
 exports[`Icon.ts > It should render standalone 2`] = `
-"<svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing downwards">
-  <title>Arrow pointing downwards</title>
-  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path>
+"<svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing to the left">
+  <title>Arrow pointing to the left</title>
+  <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path>
 </svg>"
 `;
 
@@ -22,8 +22,8 @@ exports[`Icon.ts > It should render standalone 3`] = `
 `;
 
 exports[`Icon.ts > It should render standalone 4`] = `
-"<svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing to the left">
-  <title>Arrow pointing to the left</title>
-  <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path>
+"<svg class="carousel__icon" viewBox="0 0 24 24" role="img" aria-label="Arrow pointing upwards">
+  <title>Arrow pointing upwards</title>
+  <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
 </svg>"
 `;

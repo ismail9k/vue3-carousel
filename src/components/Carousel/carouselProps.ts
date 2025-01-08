@@ -11,33 +11,35 @@ import {
 
 import type {
   BreakpointMode,
-  Dir,
-  SnapAlign,
   CarouselConfig,
-  SlideEffect,
+  Dir,
   NonNormalizedDir,
   NormalizedDir,
+  SlideEffect,
+  SnapAlign,
 } from '@/shared'
 
 export const carouselProps = {
+  // time to auto advance slides in ms
+  autoplay: {
+    default: DEFAULT_CONFIG.autoplay,
+    type: Number,
+  },
+  // an object to store breakpoints
+  breakpoints: {
+    default: DEFAULT_CONFIG.breakpoints,
+    type: Object as PropType<CarouselConfig['breakpoints']>,
+  },
+  // controls the breakpoint mode relative to the carousel container or the viewport
+  breakpointMode: {
+    default: DEFAULT_CONFIG.breakpointMode,
+    validator(value: BreakpointMode) {
+      return BREAKPOINT_MODE_OPTIONS.includes(value)
+    },
+  },
   // enable/disable the carousel component
   enabled: {
     default: DEFAULT_CONFIG.enabled,
-    type: Boolean,
-  },
-  // count of items to showed per view
-  itemsToShow: {
-    default: DEFAULT_CONFIG.itemsToShow,
-    type: [Number, String],
-  },
-  // count of items to be scrolled
-  itemsToScroll: {
-    default: DEFAULT_CONFIG.itemsToScroll,
-    type: Number,
-  },
-  // control infinite scrolling mode
-  wrapAround: {
-    default: DEFAULT_CONFIG.wrapAround,
     type: Boolean,
   },
   // control the gap between slides
@@ -50,39 +52,24 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.height,
     type: [Number, String],
   },
-  // control snap position alignment
-  snapAlign: {
-    default: DEFAULT_CONFIG.snapAlign,
-    validator(value: SnapAlign) {
-      return SNAP_ALIGN_OPTIONS.includes(value)
-    },
+  ignoreAnimations: {
+    default: false,
+    type: [Array, Boolean, String] as PropType<CarouselConfig['ignoreAnimations']>,
   },
-  // sliding transition time in ms
-  transition: {
-    default: DEFAULT_CONFIG.transition,
+  // count of items to be scrolled
+  itemsToScroll: {
+    default: DEFAULT_CONFIG.itemsToScroll,
     type: Number,
   },
-  // controls the breakpoint mode relative to the carousel container or the viewport
-  breakpointMode: {
-    default: DEFAULT_CONFIG.breakpointMode,
-    validator(value: BreakpointMode) {
-      return BREAKPOINT_MODE_OPTIONS.includes(value)
-    },
+  // count of items to showed per view
+  itemsToShow: {
+    default: DEFAULT_CONFIG.itemsToShow,
+    type: [Number, String],
   },
-  // an object to store breakpoints
-  breakpoints: {
-    default: DEFAULT_CONFIG.breakpoints,
-    type: Object as PropType<CarouselConfig['breakpoints']>,
-  },
-  // time to auto advance slides in ms
-  autoplay: {
-    default: DEFAULT_CONFIG.autoplay,
-    type: Number,
-  },
-  // pause autoplay when mouse hover over the carousel
-  pauseAutoplayOnHover: {
-    default: DEFAULT_CONFIG.pauseAutoplayOnHover,
-    type: Boolean,
+  // aria-labels and additional text labels
+  i18n: {
+    default: DEFAULT_CONFIG.i18n,
+    type: Object as PropType<typeof DEFAULT_CONFIG.i18n>,
   },
   // slide number number of initial slide
   modelValue: {
@@ -99,7 +86,43 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.touchDrag,
     type: Boolean,
   },
+  pauseAutoplayOnHover: {
+    default: DEFAULT_CONFIG.pauseAutoplayOnHover,
+    type: Boolean,
+  },
+  preventExcessiveDragging: {
+    default: false,
+    type: Boolean,
+    validator(value: boolean, props: { wrapAround?: boolean }) {
+      if (value && props.wrapAround) {
+        console.warn(
+          `[vue3-carousel warn]: "preventExcessiveDragging" cannot be used with wrapAround. The setting will be ignored.`
+        )
+      }
+
+      return true
+    },
+  },
   // control snap position alignment
+  snapAlign: {
+    default: DEFAULT_CONFIG.snapAlign,
+    validator(value: SnapAlign) {
+      return SNAP_ALIGN_OPTIONS.includes(value)
+    },
+  },
+  slideEffect: {
+    type: String as PropType<SlideEffect>,
+    default: DEFAULT_CONFIG.slideEffect,
+    validator(value: SlideEffect) {
+      return SLIDE_EFFECTS.includes(value)
+    },
+  },
+  // sliding transition time in ms
+  transition: {
+    default: DEFAULT_CONFIG.transition,
+    type: Number,
+  },
+  // control the gap between slides
   dir: {
     type: String as PropType<Dir>,
     default: DEFAULT_CONFIG.dir,
@@ -122,33 +145,9 @@ export const carouselProps = {
       return true
     },
   },
-  // aria-labels and additional text labels
-  i18n: {
-    default: DEFAULT_CONFIG.i18n,
-    type: Object as PropType<typeof DEFAULT_CONFIG.i18n>,
-  },
-  ignoreAnimations: {
-    default: false,
-    type: [Array, Boolean, String] as PropType<CarouselConfig['ignoreAnimations']>,
-  },
-  slideEffect: {
-    type: String as PropType<SlideEffect>,
-    default: DEFAULT_CONFIG.slideEffect,
-    validator(value: SlideEffect) {
-      return SLIDE_EFFECTS.includes(value)
-    },
-  },
-  preventExcessiveDragging: {
-    default: false,
+  // control infinite scrolling mode
+  wrapAround: {
+    default: DEFAULT_CONFIG.wrapAround,
     type: Boolean,
-    validator(value: boolean, props: { wrapAround?: boolean }) {
-      if (value && props.wrapAround) {
-        console.warn(
-          `[vue3-carousel warn]: "preventExcessiveDragging" cannot be used with wrapAround. The setting will be ignored.`
-        )
-      }
-
-      return true
-    },
   },
 }

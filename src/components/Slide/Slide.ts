@@ -1,18 +1,18 @@
 import {
-  defineComponent,
-  inject,
-  h,
-  SetupContext,
-  computed,
   ComputedRef,
-  getCurrentInstance,
-  onUnmounted,
-  provide,
-  useId,
-  onMounted,
-  onUpdated,
+  computed,
+  defineComponent,
   DeepReadonly,
+  getCurrentInstance,
+  h,
+  inject,
+  onMounted,
+  onUnmounted,
+  onUpdated,
+  provide,
   ref,
+  SetupContext,
+  useId,
 } from 'vue'
 
 import { injectCarousel } from '@/shared'
@@ -23,20 +23,20 @@ import { SlideProps } from './Slide.types'
 export const Slide = defineComponent({
   name: 'CarouselSlide',
   props: {
-    isClone: {
-      type: Boolean,
-      default: false,
-    },
-    position: {
-      type: String,
-      default: undefined,
-    },
     id: {
       type: String,
       default: (props: { isClone?: boolean }) => (props.isClone ? undefined : useId()),
     },
     index: {
       type: Number,
+      default: undefined,
+    },
+    isClone: {
+      type: Boolean,
+      default: false,
+    },
+    position: {
+      type: String,
       default: undefined,
     },
   },

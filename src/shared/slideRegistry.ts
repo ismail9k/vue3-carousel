@@ -16,6 +16,12 @@ const createSlideRegistry = (emit: EmitFn) => {
   }
 
   return {
+    cleanup: () => {
+      slides.splice(0, slides.length)
+    },
+
+    getSlides: () => slides,
+
     registerSlide: (slide: ComponentInternalInstance, index?: number) => {
       if (!slide) return
 
@@ -38,12 +44,6 @@ const createSlideRegistry = (emit: EmitFn) => {
       slides.splice(slideIndex, 1)
       updateSlideIndexes(slideIndex)
     },
-
-    cleanup: () => {
-      slides.splice(0, slides.length)
-    },
-
-    getSlides: () => slides,
   }
 }
 

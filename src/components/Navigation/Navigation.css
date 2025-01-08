@@ -1,32 +1,32 @@
 :root {
-  --vc-nav-width: 30px;
-  --vc-nav-height: 30px;
+  --vc-nav-background: transparent;
   --vc-nav-border-radius: 0;
   --vc-nav-color: var(--vc-clr-primary);
   --vc-nav-color-hover: var(--vc-clr-secondary);
-  --vc-nav-background: transparent;
+  --vc-nav-height: 30px;
+  --vc-nav-width: 30px;
 }
 
-.carousel__prev,
-.carousel__next {
-  box-sizing: content-box;
-  background: var(--vc-nav-background);
-  border-radius: var(--vc-nav-border-radius);
-  width: var(--vc-nav-width);
-  height: var(--vc-nav-height);
-  text-align: center;
-  font-size: var(--vc-nav-height);
-  padding: 0;
-  color: var(--vc-nav-color);
-  display: flex;
-  justify-content: center;
+.carousel__next,
+.carousel__prev {
   align-items: center;
-  position: absolute;
+  background: var(--vc-nav-background);
   border: 0;
+  border-radius: var(--vc-nav-border-radius);
+  box-sizing: content-box;
+  color: var(--vc-nav-color);
   cursor: pointer;
+  display: flex;
+  font-size: var(--vc-nav-height);
+  height: var(--vc-nav-height);
+  justify-content: center;
   margin: 0 10px;
+  padding: 0;
+  position: absolute;
+  text-align: center;
   top: 50%;
   transform: translateY(-50%);
+  width: var(--vc-nav-width);
 }
 
 .carousel__next--disabled,
@@ -35,57 +35,57 @@
   opacity: 0.5;
 }
 
-.carousel__prev {
-  left: 0;
-}
-
 .carousel__next {
   right: 0;
 }
 
+.carousel__prev {
+  left: 0;
+}
+
+.carousel.is-btt {
+  .carousel__next {
+    top: 0;
+  }
+  .carousel__prev {
+    bottom: 0;
+  }
+}
+
 .carousel.is-rtl {
+  .carousel__next {
+    left: 0;
+    right: auto;
+  }
   .carousel__prev {
     left: auto;
     right: 0;
   }
+}
+
+.carousel.is-ttb {
   .carousel__next {
-    right: auto;
-    left: 0;
+    bottom: 0;
+  }
+  .carousel__prev {
+    top: 0;
   }
 }
 
 .carousel.is-vertical {
-  .carousel__prev,
-  .carousel__next {
+  .carousel__next,
+  .carousel__prev {
     left: auto;
-    top: auto;
-    right: 50%;
-    transform: translate(50%);
     margin: 5px auto;
-  }
-}
-
-.carousel.is-btt {
-  .carousel__prev {
-    bottom: 0;
-  }
-  .carousel__next {
-    top: 0;
-  }
-}
-
-.carousel.is-ttb {
-  .carousel__prev {
-    top: 0;
-  }
-  .carousel__next {
-    bottom: 0;
+    right: 50%;
+    top: auto;
+    transform: translate(50%);
   }
 }
 
 @media (hover: hover) {
-  .carousel__prev:hover,
-  .carousel__next:hover {
+  .carousel__next:hover,
+  .carousel__prev:hover {
     color: var(--vc-nav-color-hover);
   }
 }
