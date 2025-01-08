@@ -1,6 +1,6 @@
-import { inject, h, defineComponent, computed } from 'vue'
+import { computed, defineComponent, h, inject } from 'vue'
 
-import { NormalizedDir, injectCarousel } from '@/shared'
+import { injectCarousel, NormalizedDir } from '@/shared'
 
 import { Icon, IconNameValue } from '../Icon'
 
@@ -18,27 +18,31 @@ export const Navigation = defineComponent<NavigationProps>({
 
     const getPrevIcon = () => {
       const directionIcons: Record<NormalizedDir, IconNameValue> = {
+        btt: 'arrowDown',
         ltr: 'arrowLeft',
         rtl: 'arrowRight',
         ttb: 'arrowUp',
-        btt: 'arrowDown',
       }
 
       return directionIcons[carousel.normalizedDir]
     }
     const getNextIcon = () => {
       const directionIcons: Record<NormalizedDir, IconNameValue> = {
+        btt: 'arrowUp',
         ltr: 'arrowRight',
         rtl: 'arrowLeft',
         ttb: 'arrowDown',
-        btt: 'arrowUp',
       }
 
       return directionIcons[carousel.normalizedDir]
     }
 
-    const prevDisabled = computed(() => !carousel.config.wrapAround && carousel.currentSlide <= carousel.minSlide)
-    const nextDisabled = computed(() => !carousel.config.wrapAround && carousel.currentSlide >= carousel.maxSlide)
+    const prevDisabled = computed(
+      () => !carousel.config.wrapAround && carousel.currentSlide <= carousel.minSlide
+    )
+    const nextDisabled = computed(
+      () => !carousel.config.wrapAround && carousel.currentSlide >= carousel.maxSlide
+    )
 
     return () => {
       const { i18n } = carousel.config
@@ -53,7 +57,7 @@ export const Navigation = defineComponent<NavigationProps>({
           ...attrs,
           class: [
             'carousel__prev',
-            {'carousel__prev--disabled': prevDisabled.value},
+            { 'carousel__prev--disabled': prevDisabled.value },
             attrs.class,
           ],
         },
@@ -70,7 +74,7 @@ export const Navigation = defineComponent<NavigationProps>({
           ...attrs,
           class: [
             'carousel__next',
-            {'carousel__next--disabled': nextDisabled.value},
+            { 'carousel__next--disabled': nextDisabled.value },
             attrs.class,
           ],
         },
