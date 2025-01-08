@@ -83,7 +83,7 @@ export const Pagination = defineComponent<PaginationProps>({
           onClick: () =>
             carousel.nav.slideTo(
               isPaginated.value
-                ? slide * +carousel.config.itemsToShow + offset.value
+                ? Math.floor(slide * +carousel.config.itemsToShow + offset.value)
                 : slide
             ),
         })
