@@ -1,4 +1,4 @@
-import { defineComponent, inject, h } from 'vue'
+import { defineComponent, h, inject } from 'vue'
 
 import { injectCarousel } from '@/shared'
 import { i18nFormatter } from '@/utils'
