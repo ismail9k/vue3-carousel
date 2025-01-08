@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { expect, it, describe, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { Carousel } from './Carousel'
 
