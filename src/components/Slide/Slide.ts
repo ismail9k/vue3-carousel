@@ -1,18 +1,15 @@
 import {
-  defineComponent,
-  inject,
-  h,
-  SetupContext,
   computed,
-  ComputedRef,
+  defineComponent,
   getCurrentInstance,
-  onUnmounted,
-  provide,
-  useId,
+  h,
+  inject,
   onMounted,
+  onUnmounted,
   onUpdated,
-  DeepReadonly,
+  provide,
   ref,
+  useId,
 } from 'vue'
 
 import { injectCarousel } from '@/shared'
@@ -20,23 +17,25 @@ import { disableChildrenTabbing } from '@/utils'
 
 import { SlideProps } from './Slide.types'
 
+import type { ComputedRef, DeepReadonly, SetupContext } from 'vue'
+
 export const Slide = defineComponent({
   name: 'CarouselSlide',
   props: {
-    isClone: {
-      type: Boolean,
-      default: false,
-    },
-    position: {
-      type: String,
-      default: undefined,
-    },
     id: {
       type: String,
       default: (props: { isClone?: boolean }) => (props.isClone ? undefined : useId()),
     },
     index: {
       type: Number,
+      default: undefined,
+    },
+    isClone: {
+      type: Boolean,
+      default: false,
+    },
+    position: {
+      type: String,
       default: undefined,
     },
   },

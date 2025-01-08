@@ -1,6 +1,6 @@
-export interface SlideProps {
+export type SlideProps = {
   id?: string
-  position?: 'before' | 'after'
   index: number
   isClone?: boolean
+  position?: 'before' | 'after'
 }
