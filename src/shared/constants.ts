@@ -1,14 +1,14 @@
 import { CarouselConfig } from './types'
 
-export const SNAP_ALIGN_OPTIONS = [
-  'center',
-  'start',
-  'end',
-  'center-even',
-  'center-odd',
-] as const
-export const SLIDE_EFFECTS = ['slide', 'fade'] as const
 export const BREAKPOINT_MODE_OPTIONS = ['viewport', 'carousel'] as const
+
+export const DIR_MAP = {
+  'bottom-to-top': 'btt',
+  'left-to-right': 'ltr',
+  'right-to-left': 'rtl',
+  'top-to-bottom': 'ttb',
+} as const
+
 export const DIR_OPTIONS = [
   'ltr',
   'left-to-right',
@@ -19,47 +19,51 @@ export const DIR_OPTIONS = [
   'btt',
   'bottom-to-top',
 ] as const
+
 export const I18N_DEFAULT_CONFIG = {
+  ariaGallery: 'Gallery',
+  ariaNavigateToPage: 'Navigate to page {slideNumber}',
+  ariaNavigateToSlide: 'Navigate to slide {slideNumber}',
   ariaNextSlide: 'Navigate to next slide',
   ariaPreviousSlide: 'Navigate to previous slide',
-  ariaNavigateToSlide: 'Navigate to slide {slideNumber}',
-  ariaNavigateToPage: 'Navigate to page {slideNumber}',
-  ariaGallery: 'Gallery',
-  itemXofY: 'Item {currentSlide} of {slidesCount}',
-  iconArrowUp: 'Arrow pointing upwards',
   iconArrowDown: 'Arrow pointing downwards',
-  iconArrowRight: 'Arrow pointing to the right',
   iconArrowLeft: 'Arrow pointing to the left',
-} as const
-
-export const DIR_MAP = {
-  'left-to-right': 'ltr',
-  'right-to-left': 'rtl',
-  'top-to-bottom': 'ttb',
-  'bottom-to-top': 'btt',
+  iconArrowRight: 'Arrow pointing to the right',
+  iconArrowUp: 'Arrow pointing upwards',
+  itemXofY: 'Item {currentSlide} of {slidesCount}',
 } as const
 
 export const NORMALIZED_DIR_OPTIONS = Object.values(DIR_MAP)
 
+export const SLIDE_EFFECTS = ['slide', 'fade'] as const
+
+export const SNAP_ALIGN_OPTIONS = [
+  'center',
+  'start',
+  'end',
+  'center-even',
+  'center-odd',
+] as const
+
 export const DEFAULT_CONFIG: CarouselConfig = {
-  enabled: true,
-  itemsToShow: 1,
-  itemsToScroll: 1,
-  modelValue: 0,
-  transition: 300,
   autoplay: 0,
-  gap: 0,
-  height: 'auto',
-  wrapAround: false,
-  pauseAutoplayOnHover: false,
-  mouseDrag: true,
-  touchDrag: true,
-  snapAlign: SNAP_ALIGN_OPTIONS[0],
-  dir: DIR_OPTIONS[0],
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
+  dir: DIR_OPTIONS[0],
+  enabled: true,
+  gap: 0,
+  height: 'auto',
   i18n: I18N_DEFAULT_CONFIG,
   ignoreAnimations: false,
-  slideEffect: SLIDE_EFFECTS[0],
+  itemsToScroll: 1,
+  itemsToShow: 1,
+  modelValue: 0,
+  mouseDrag: true,
+  pauseAutoplayOnHover: false,
   preventExcessiveDragging: false,
+  slideEffect: SLIDE_EFFECTS[0],
+  snapAlign: SNAP_ALIGN_OPTIONS[0],
+  touchDrag: true,
+  transition: 300,
+  wrapAround: false,
 }
