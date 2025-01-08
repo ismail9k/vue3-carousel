@@ -3,6 +3,15 @@ import { expect, it, describe } from 'vitest'
 import { getNumberInRange } from '@/utils'
 
 describe('getCurrentSlideIndex', () => {
+  it('When min is larger than max should return val', () => {
+    const val = 2
+    const min = 10
+    const max = 5
+    const results = getNumberInRange({ val, min, max })
+
+    expect(results).toBe(val)
+  })
+
   it('When the number inside the range should return the same value', () => {
     const val = 5
     const min = 0
@@ -29,16 +38,6 @@ describe('getCurrentSlideIndex', () => {
 
     expect(results).toBe(min)
   })
-
-  it('When the min is larger than max should return val', () => {
-    const val = 2
-    const min = 10
-    const max = 5
-    const results = getNumberInRange({ val, min, max })
-
-    expect(results).toBe(val)
-  })
-
 
   it('doesn`t bound a NaN min or max', () => {
     const val = 20

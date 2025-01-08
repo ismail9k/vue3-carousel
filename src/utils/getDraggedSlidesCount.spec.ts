@@ -13,16 +13,6 @@ describe('getDraggedSlidesCount', () => {
     expect(getDraggedSlidesCount(params)).toBe(-2)
   })
 
-  it('should calculate the correct number of slides for vertical drag', () => {
-    const params = {
-      isVertical: true,
-      isReversed: false,
-      dragged: { x: 0, y: 150 },
-      effectiveSlideSize: 100,
-    }
-    expect(getDraggedSlidesCount(params)).toBe(-2)
-  })
-
   it('should calculate the correct number of slides for reversed horizontal drag', () => {
     const params = {
       isVertical: false,
@@ -41,6 +31,16 @@ describe('getDraggedSlidesCount', () => {
       effectiveSlideSize: 100,
     }
     expect(getDraggedSlidesCount(params)).toBe(2)
+  })
+
+  it('should calculate the correct number of slides for vertical drag', () => {
+    const params = {
+      isVertical: true,
+      isReversed: false,
+      dragged: { x: 0, y: 150 },
+      effectiveSlideSize: 100,
+    }
+    expect(getDraggedSlidesCount(params)).toBe(-2)
   })
 
   it('should handle zero drag', () => {

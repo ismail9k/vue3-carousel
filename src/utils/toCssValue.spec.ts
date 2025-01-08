@@ -7,15 +7,15 @@ describe('toCssValue', () => {
     expect(toCssValue(10)).toBe('10px')
   })
 
-  it('should return string as is', () => {
-    expect(toCssValue('20%')).toBe('20%')
+  it('should handle empty string correctly', () => {
+    expect(toCssValue('')).toBe(undefined)
   })
 
   it('should handle zero correctly', () => {
     expect(toCssValue(0)).toBe('0px')
   })
 
-  it('should handle empty string correctly', () => {
-    expect(toCssValue('')).toBe(undefined)
+  it('should return string as is', () => {
+    expect(toCssValue('20%')).toBe('20%')
   })
 })
