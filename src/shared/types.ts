@@ -28,7 +28,7 @@ export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
 
 export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
-export interface CarouselConfig {
+export type CarouselConfig = {
   autoplay?: number
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
