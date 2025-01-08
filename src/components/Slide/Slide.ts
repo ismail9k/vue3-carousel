@@ -1,6 +1,8 @@
 import {
+  ComputedRef,
   computed,
   defineComponent,
+  DeepReadonly,
   getCurrentInstance,
   h,
   inject,
@@ -9,6 +11,7 @@ import {
   onUpdated,
   provide,
   ref,
+  SetupContext,
   useId,
 } from 'vue'
 
@@ -16,8 +19,6 @@ import { injectCarousel } from '@/shared'
 import { disableChildrenTabbing } from '@/utils'
 
 import { SlideProps } from './Slide.types'
-
-import type { ComputedRef, DeepReadonly, SetupContext } from 'vue'
 
 export const Slide = defineComponent({
   name: 'CarouselSlide',
