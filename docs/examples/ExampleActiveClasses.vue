@@ -21,8 +21,8 @@ const config = {
 </template>
 
 <style scoped>
-:root {
-  --carousel-transition: 300ms;
+.carousel {
+  --carousel-transition: 500ms;
   --carousel-opacity-inactive: 0.7;
   --carousel-opacity-active: 1;
   --carousel-opacity-near: 0.9;

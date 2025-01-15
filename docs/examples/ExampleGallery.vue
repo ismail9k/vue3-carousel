@@ -20,6 +20,8 @@ const galleryConfig = {
 const thumbnailsConfig = {
   itemsToShow: 7,
   wrapAround: true,
+  mouseDrag: false,
+  touchDrag: false,
   height: 100,
   gap: 10,
 }
