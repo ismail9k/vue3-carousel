@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.13.0) - 2025-01-15
+
+- feat: add preventExcessiveDragging option to limit boundary slide gestures by @aovcina in #468
+- Support items to show auto by @ismail9k in #467
+- Refactor/enhancments by @ismail9k in #469
+
 ## [0.12.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.12.0) - 2024-12-26
 
 - Generate cloned slides dynamically based on the active slides @ismail9k in #462, #465
