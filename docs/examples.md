@@ -6,55 +6,51 @@ If you're experiencing issues loading the live examples or you're browsing on a 
 
 A simple implementation of the carousel with default settings.
 
-<Example id="vue3-carousel-example-basic" />
+<Playground v-bind="examples.basic" />
 
 ## Wrap Around
 
 Demonstrates a carousel with continuous wrap-around functionality.
 
-<Example id="vue3-carousel-example-wrap-around" />
+<Playground v-bind="examples.wrapAround" />
 
 ## Vertical
 
 Showcases a vertically scrolling carousel. Adjust the height to better fit your content.
 
-<Example id="vue3-carousel-example-vertical" :height="475" />
+<Playground v-bind="examples.vertical" height="475px" />
 
 ## Breakpoints
 
 An example of a responsive carousel with breakpoints for varying screen sizes.
 
-<Example id="vue3-carousel-example-breakpoints" :height="300" />
+<Playground v-bind="examples.breakpoints" />
 
 ## Autoplay
 
 Illustrates the carousel with autoplay functionality enabled.
 
-<Example id="vue3-carousel-example-autoplay" />
+<Playground v-bind="examples.autoplay" />
 
 ## Active Classes
 
 An example highlighting active items with custom classes.
 
-<Example id="vue3-carousel-example-status-classes" />
+<Playground v-bind="examples.activeClasses" />
 
 ## Custom Navigation
 
 A demonstration of the carousel with fully customizable navigation controls.
 
-<Example id="vue3-carousel-example-custom-navigation" :height="310" />
+<Playground v-bind="examples.customNavigation" height="260px" />
 
 ## Gallery
 
 Transforms the carousel into a gallery-style component.
 
-<Example id="vue3-carousel-example-gallery" :height="500" />
+<Playground v-bind="examples.gallery" height="455px" />
 
-<script>
-import Example from './.vitepress/components/Example.vue';
-export default {
-  components: {
-    Example,
-  },
-};
+<script setup>
+import Playground from './.vitepress/components/Playground.vue';
+import { examples } from './examples/examples';
 </script>
