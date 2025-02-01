@@ -39,6 +39,8 @@ const config: EmbedOptions['config'] = {
     'vue3-carousel': 'https://cdn.jsdelivr.net/npm/vue3-carousel/dist/carousel.mjs',
     'vue3-carousel/carousel.css':
       'https://cdn.jsdelivr.net/npm/vue3-carousel/dist/carousel.css',
+    'vue3-carousel/dist/carousel.css':
+      'https://cdn.jsdelivr.net/npm/vue3-carousel/dist/carousel.css',
   },
 }
 
@@ -58,7 +60,7 @@ watch(isDark, () => {
 
 <template>
   <LiveCodes
-    appUrl="https://v41.livecodes.io/"
+    appUrl="https://v42.livecodes.io/"
     :config="config"
     @sdk-ready="onReady"
     :style="{ height: props.height || '250px' }"
