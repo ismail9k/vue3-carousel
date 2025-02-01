@@ -16,7 +16,7 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
-import { useDragging } from '@/composables'
+import { useDragging, useHover } from '@/composables'
 import {
   CarouselConfig,
   createSlideRegistry,
@@ -331,14 +331,7 @@ export const Carousel = defineComponent({
     /**
      * Carousel Event listeners
      */
-    const isHover = ref(false)
-
-    const handleMouseEnter = (): void => {
-      isHover.value = true
-    }
-    const handleMouseLeave = (): void => {
-      isHover.value = false
-    }
+    const { isHover, handleMouseEnter, handleMouseLeave } = useHover()
 
     const handleArrowKeys = throttle((event: KeyboardEvent): void => {
       if (event.ctrlKey) return
