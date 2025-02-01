@@ -68,6 +68,22 @@ module.exports = {
 
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
+    // Add social sharing image meta tags
+    [
+      'meta',
+      {
+        property: 'og:image',
+        content: 'https://vue3-carousel.ismail9k.com/social-image.png',
+      },
+    ],
+    [
+      'meta',
+      {
+        name: 'twitter:image',
+        content: 'https://vue3-carousel.ismail9k.com/social-image.png',
+      },
+    ],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     [
       'script',
       {
