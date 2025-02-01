@@ -1,11 +1,11 @@
 :root {
   --vc-pgn-active-color: var(--vc-clr-primary);
   --vc-pgn-background-color: var(--vc-clr-secondary);
-  --vc-pgn-border-radius: 10px;
+  --vc-pgn-border-radius: 0;
   --vc-pgn-gap: 6px;
   --vc-pgn-height: 4px;
   --vc-png-bottom: 10px;
-  --vc-png-left: 10px;
+  --vc-png-left: auto;
   --vc-png-right: 10px;
   --vc-pgn-width: 16px;
 }

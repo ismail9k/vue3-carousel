@@ -37,11 +37,11 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 | --------------------------- | ------------------------- | ---------------------------------- |
 | `--vc-pgn-active-color`     | `var(--vc-clr-primary)`   | Active pagination button color     |
 | `--vc-pgn-background-color` | `var(--vc-clr-secondary)` | Pagination button background color |
-| `--vc-pgn-border-radius`    | `10px`                    | Pagination button border radius    |
+| `--vc-pgn-border-radius`    | `0`                       | Pagination button border radius    |
 | `--vc-pgn-gap`              | `6px`                     | Gap between pagination buttons     |
 | `--vc-pgn-height`           | `4px`                     | Pagination button height           |
 | `--vc-png-bottom`           | `10px`                    | Bottom spacing for pagination      |
-| `--vc-png-left`             | `10px`                    | Left spacing for vertical mode     |
+| `--vc-png-left`             | `auto`                    | Left spacing for vertical mode     |
 | `--vc-png-right`            | `10px`                    | Right spacing for vertical mode    |
 | `--vc-pgn-width`            | `16px`                    | Pagination button width            |
 
