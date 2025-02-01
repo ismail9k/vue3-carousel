@@ -68,6 +68,46 @@ You can customize the navigation buttons using slots:
 | `--vc-nav-height`        | `30px`                    | Navigation button height        |
 | `--vc-nav-width`         | `30px`                    | Navigation button width         |
 
+### Customization Examples
+
+There are two ways to customize the navigation appearance:
+
+#### 1. Using CSS Custom Properties
+
+```css
+.carousel {
+  --vc-nav-background: rgba(0, 0, 0, 0.3);
+  --vc-nav-color: white;
+  --vc-nav-color-hover: #e5e5e5;
+  --vc-nav-border-radius: 50%;
+  --vc-nav-width: 40px;
+  --vc-nav-height: 40px;
+}
+```
+
+#### 2. Direct CSS Override
+
+```css
+.carousel__next,
+.carousel__prev {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.carousel__next:hover,
+.carousel__prev:hover {
+  color: #e5e5e5;
+}
+
+.carousel__next--disabled,
+.carousel__prev--disabled {
+  opacity: 0.3;
+}
+```
+
 ## Accessibility
 
 - Buttons include descriptive ARIA labels
