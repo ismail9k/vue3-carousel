@@ -37,10 +37,43 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 | --------------------------- | ------------------------- | ---------------------------------- |
 | `--vc-pgn-active-color`     | `var(--vc-clr-primary)`   | Active pagination button color     |
 | `--vc-pgn-background-color` | `var(--vc-clr-secondary)` | Pagination button background color |
-| `--vc-pgn-border-radius`    | `0`                       | Pagination button border radius    |
+| `--vc-pgn-border-radius`    | `10px`                    | Pagination button border radius    |
+| `--vc-pgn-gap`              | `6px`                     | Gap between pagination buttons     |
 | `--vc-pgn-height`           | `4px`                     | Pagination button height           |
-| `--vc-pgn-margin`           | `6px 5px`                 | Pagination button margin           |
+| `--vc-png-bottom`           | `10px`                    | Bottom spacing for pagination      |
+| `--vc-png-left`             | `10px`                    | Left spacing for vertical mode     |
+| `--vc-png-right`            | `10px`                    | Right spacing for vertical mode    |
 | `--vc-pgn-width`            | `16px`                    | Pagination button width            |
+
+### Customization Examples
+
+There are two ways to customize the pagination appearance:
+
+#### 1. Using CSS Custom Properties
+
+```css
+.carousel {
+  --vc-pgn-background-color: white;
+  --vc-pgn-active-color: red;
+  --vc-pgn-border-radius: 5px;
+  --vc-pgn-height: 5px;
+  --vc-pgn-width: 5px;
+}
+```
+
+#### 2. Direct CSS Override
+
+```css
+.carousel__pagination-button {
+  height: 5px;
+  width: 5px;
+  border-radius: 5px;
+  background-color: white;
+}
+.carousel__pagination-button--active {
+  background-color: red;
+}
+```
 
 ## Accessibility
 
