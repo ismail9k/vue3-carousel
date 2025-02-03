@@ -71,9 +71,6 @@ importers:
       rollup-plugin-delete:
         specifier: ^2.1.0
         version: 2.1.0(rollup@4.29.1)
-      rollup-plugin-typescript-paths:
-        specifier: ^1.5.0
-        version: 1.5.0(typescript@5.7.2)
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -2347,11 +2344,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       rollup: '*'
-
-  rollup-plugin-typescript-paths@1.5.0:
-    resolution: {integrity: sha512-zly2aiGNjYJNq5YUi6eyGrQnCYUQ8b5czOtHZIGriwG9U3Ba2F9hlSklafXCdsNulK/IlNmE0Kzj0h+fVV32pA==}
-    peerDependencies:
-      typescript: '>=3.4'
 
   rollup@4.29.1:
     resolution: {integrity: sha512-RaJ45M/kmJUzSWDs1Nnd5DdV4eerC98idtUOVr6FfKcgxqvjwHmxc5upLF9qZU9EpsVzzhleFahrT3shLuJzIw==}
@@ -5330,10 +5322,6 @@ snapshots:
     dependencies:
       del: 5.1.0
       rollup: 4.29.1
-
-  rollup-plugin-typescript-paths@1.5.0(typescript@5.7.2):
-    dependencies:
-      typescript: 5.7.2
 
   rollup@4.29.1:
     dependencies:
