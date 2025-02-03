@@ -72,7 +72,6 @@
     "rollup": "^4.29.1",
     "rollup-plugin-css-only": "^4.5.2",
     "rollup-plugin-delete": "^2.1.0",
-    "rollup-plugin-typescript-paths": "^1.5.0",
     "tslib": "^2.8.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.1",
