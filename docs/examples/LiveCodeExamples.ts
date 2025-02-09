@@ -1,4 +1,4 @@
-export const examples: Record<string, { code: string; styles: string }> = {
+export const LiveCodeExamples: Record<string, { code: string; styles: string }> = {
   basic: {
     code: `
 <script setup>

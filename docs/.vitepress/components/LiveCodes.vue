@@ -39,8 +39,6 @@ const config: EmbedOptions['config'] = {
     'vue3-carousel': 'https://cdn.jsdelivr.net/npm/vue3-carousel/dist/carousel.mjs',
     'vue3-carousel/carousel.css':
       'https://cdn.jsdelivr.net/npm/vue3-carousel/dist/carousel.css',
-    'vue3-carousel/dist/carousel.css':
-      'https://cdn.jsdelivr.net/npm/vue3-carousel/dist/carousel.css',
   },
 }
 
@@ -66,3 +64,10 @@ watch(isDark, () => {
     :style="{ height: props.height || '250px' }"
   />
 </template>
+
+
+<style>
+.carousel {
+  display: none !important;
+}
+</style>

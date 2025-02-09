@@ -6,51 +6,51 @@ If you're experiencing issues loading the live examples or you're browsing on a 
 
 A simple implementation of the carousel with default settings.
 
-<Playground v-bind="examples.basic" />
+<live-codes v-bind="LiveCodeExamples.basic" />
 
 ## Wrap Around
 
 Demonstrates a carousel with continuous wrap-around functionality.
 
-<Playground v-bind="examples.wrapAround" />
+<live-codes v-bind="LiveCodeExamples.wrapAround" />
 
 ## Vertical
 
 Showcases a vertically scrolling carousel. Adjust the height to better fit your content.
 
-<Playground v-bind="examples.vertical" height="475px" />
+<live-codes v-bind="LiveCodeExamples.vertical" height="475px" />
 
 ## Breakpoints
 
 An example of a responsive carousel with breakpoints for varying screen sizes.
 
-<Playground v-bind="examples.breakpoints" />
+<live-codes v-bind="LiveCodeExamples.breakpoints" />
 
 ## Autoplay
 
 Illustrates the carousel with autoplay functionality enabled.
 
-<Playground v-bind="examples.autoplay" />
+<live-codes v-bind="LiveCodeExamples.autoplay" />
 
 ## Active Classes
 
 An example highlighting active items with custom classes.
 
-<Playground v-bind="examples.activeClasses" />
+<live-codes v-bind="LiveCodeExamples.activeClasses" />
 
 ## Custom Navigation
 
 A demonstration of the carousel with fully customizable navigation controls.
 
-<Playground v-bind="examples.customNavigation" height="260px" />
+<live-codes v-bind="LiveCodeExamples.customNavigation" height="260px" />
 
 ## Gallery
 
 Transforms the carousel into a gallery-style component.
 
-<Playground v-bind="examples.gallery" height="455px" />
+<live-codes v-bind="LiveCodeExamples.gallery" height="455px" />
 
 <script setup>
-import Playground from './.vitepress/components/Playground.vue';
-import { examples } from './examples/examples';
+import LiveCodes from './.vitepress/components/LiveCodes.vue';
+import { LiveCodeExamples } from './examples';
 </script>
