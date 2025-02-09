@@ -64,10 +64,3 @@ watch(isDark, () => {
     :style="{ height: props.height || '250px' }"
   />
 </template>
-
-
-<style>
-.carousel {
-  display: none !important;
-}
-</style>
