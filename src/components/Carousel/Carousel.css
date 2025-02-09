@@ -20,8 +20,8 @@
   gap: var(--vc-slide-gap);
   height: 100%;
   list-style: none;
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
   position: relative;
   transition: transform ease-out;
   transition-duration: var(--vc-transition-duration);
@@ -43,6 +43,10 @@
   padding: 0;
   position: absolute;
   width: 1px;
+}
+
+.carousel.is-rtl {
+  direction: rtl;
 }
 
 .carousel.is-ttb .carousel__track {
@@ -70,12 +74,12 @@
 
 .carousel.is-effect-fade .carousel__slide {
   grid-area: 1 / 1;
-  height: 100% !important;
+  height: 100%;
   opacity: 0;
   pointer-events: none;
   transition: opacity ease-in-out;
   transition-duration: var(--vc-transition-duration);
-  width: 100% !important;
+  width: 100%;
 }
 
 .carousel.is-effect-fade .carousel__slide--active {
