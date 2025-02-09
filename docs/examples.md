@@ -6,55 +6,51 @@ If you're experiencing issues loading the live examples or you're browsing on a 
 
 A simple implementation of the carousel with default settings.
 
-<Example id="vue3-carousel-example-basic" />
+<live-codes v-bind="LiveCodeExamples.basic" />
 
 ## Wrap Around
 
 Demonstrates a carousel with continuous wrap-around functionality.
 
-<Example id="vue3-carousel-example-wrap-around" />
+<live-codes v-bind="LiveCodeExamples.wrapAround" />
 
 ## Vertical
 
 Showcases a vertically scrolling carousel. Adjust the height to better fit your content.
 
-<Example id="vue3-carousel-example-vertical" :height="475" />
+<live-codes v-bind="LiveCodeExamples.vertical" height="475px" />
 
 ## Breakpoints
 
 An example of a responsive carousel with breakpoints for varying screen sizes.
 
-<Example id="vue3-carousel-example-breakpoints" :height="300" />
+<live-codes v-bind="LiveCodeExamples.breakpoints" />
 
 ## Autoplay
 
 Illustrates the carousel with autoplay functionality enabled.
 
-<Example id="vue3-carousel-example-autoplay" />
+<live-codes v-bind="LiveCodeExamples.autoplay" />
 
 ## Active Classes
 
 An example highlighting active items with custom classes.
 
-<Example id="vue3-carousel-example-status-classes" />
+<live-codes v-bind="LiveCodeExamples.activeClasses" />
 
 ## Custom Navigation
 
 A demonstration of the carousel with fully customizable navigation controls.
 
-<Example id="vue3-carousel-example-custom-navigation" :height="310" />
+<live-codes v-bind="LiveCodeExamples.customNavigation" height="260px" />
 
 ## Gallery
 
 Transforms the carousel into a gallery-style component.
 
-<Example id="vue3-carousel-example-gallery" :height="500" />
+<live-codes v-bind="LiveCodeExamples.gallery" height="455px" />
 
-<script>
-import Example from './.vitepress/components/Example.vue';
-export default {
-  components: {
-    Example,
-  },
-};
+<script setup>
+import LiveCodes from './.vitepress/components/LiveCodes.vue';
+import { LiveCodeExamples } from './examples';
 </script>

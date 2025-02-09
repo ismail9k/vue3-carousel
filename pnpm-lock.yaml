@@ -17,9 +17,6 @@ importers:
       '@rollup/plugin-typescript':
         specifier: ^12.1.2
         version: 12.1.2(rollup@4.29.1)(tslib@2.8.1)(typescript@5.7.2)
-      '@stackblitz/sdk':
-        specifier: ^1.11.0
-        version: 1.11.0
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
         version: 5.2.1(vite@6.0.9(@types/node@22.10.2)(terser@5.37.0))(vue@3.5.13(typescript@5.7.2))
@@ -59,6 +56,9 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
+      livecodes:
+        specifier: 0.8.0
+        version: 0.8.0
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -774,9 +774,6 @@ packages:
 
   '@shikijs/vscode-textmate@9.3.1':
     resolution: {integrity: sha512-79QfK1393x9Ho60QFyLti+QfdJzRQCVLFb97kOIV7Eo9vQU/roINgk7m24uv0a7AUvN//RDH36FLjjK48v0s9g==}
-
-  '@stackblitz/sdk@1.11.0':
-    resolution: {integrity: sha512-DFQGANNkEZRzFk1/rDP6TcFdM82ycHE+zfl9C/M/jXlH68jiqHWHFMQURLELoD8koxvu/eW5uhg94NSAZlYrUQ==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -1895,6 +1892,9 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  livecodes@0.8.0:
+    resolution: {integrity: sha512-0cFE7pKA4kR80LJJWEIc8Bo9yIaa+A2t5gQO7OuVwYXOffPkhHTSlpUJ7i9N4DFFRYihLbDAet3/sRnTI6Wk3A==}
 
   locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
@@ -3297,8 +3297,6 @@ snapshots:
 
   '@shikijs/vscode-textmate@9.3.1': {}
 
-  '@stackblitz/sdk@1.11.0': {}
-
   '@types/estree@1.0.6': {}
 
   '@types/glob@7.2.0':
@@ -4676,6 +4674,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  livecodes@0.8.0: {}
 
   locate-path@6.0.0:
     dependencies:
