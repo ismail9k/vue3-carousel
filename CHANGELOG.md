@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.14.0) - 2025-02-09
+
+- use LiveCodes for docs examples by @hatemhosny in #476
+- Replace rollup-plugin-dts with vite-plugin-dts to fix type declaration issues by @olafyang in #478
+- Add a convenient option for styling pagination by @ismail9k in #475
+
 ## [0.13.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.13.0) - 2025-01-15
 
 - feat: add preventExcessiveDragging option to limit boundary slide gestures by @aovcina in #468
