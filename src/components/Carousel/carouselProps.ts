@@ -37,6 +37,11 @@ export const carouselProps = {
       return BREAKPOINT_MODE_OPTIONS.includes(value)
     },
   },
+  // automatically disable interaction if the slides don't overflow its container
+  disableInteractionWhenNoOverflow: {
+    default: DEFAULT_CONFIG.disableInteractionWhenNoOverflow,
+    type: Boolean
+  },
   // enable/disable the carousel component
   enabled: {
     default: DEFAULT_CONFIG.enabled,

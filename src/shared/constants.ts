@@ -50,6 +50,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
   dir: DIR_OPTIONS[0],
+  disableInteractionWhenNoOverflow: false,
   enabled: true,
   gap: 0,
   height: 'auto',

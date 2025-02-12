@@ -33,6 +33,7 @@ export type CarouselConfig = {
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
   dir?: Dir
+  disableInteractionWhenNoOverflow: boolean,
   enabled: boolean
   gap: number
   height: string | number
