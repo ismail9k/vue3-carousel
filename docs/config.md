@@ -3,11 +3,12 @@
 ## Available Props
 
 | Prop                       | Type                                        | Default                          | Description                                                                                            |
-| -------------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| -------------------------- | ------------------------------------------- |----------------------------------|--------------------------------------------------------------------------------------------------------|
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `disableInteractionWhenNoOverflow`                  | `boolean`                                   | false                            | Controls whether you can interact with the carousel when the slides in the container don't overflow.   |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
 | `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
