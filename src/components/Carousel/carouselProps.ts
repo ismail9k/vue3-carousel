@@ -96,7 +96,7 @@ export const carouselProps = {
     validator(value: boolean, props: { wrapAround?: boolean }) {
       if (value && props.wrapAround) {
         console.warn(
-          `[vue3-carousel warn]: "preventExcessiveDragging" cannot be used with wrapAround. The setting will be ignored.`
+          `[vue3-carousel]: "preventExcessiveDragging" cannot be used with wrapAround. The setting will be ignored.`
         )
       }
 
@@ -139,7 +139,7 @@ export const carouselProps = {
         (!props.height || props.height === 'auto')
       ) {
         console.warn(
-          `[vue3-carousel warn]: The dir "${value}" is not supported with height "auto".`
+          `[vue3-carousel]: The dir "${value}" is not supported with height "auto".`
         )
       }
       return true

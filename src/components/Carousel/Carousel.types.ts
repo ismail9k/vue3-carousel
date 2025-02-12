@@ -29,9 +29,8 @@ export type CarouselData = {
 }
 
 export type CarouselExposed = CarouselMethods & {
-  data: Reactive<CarouselData>
-  nav: CarouselNav
-}
+  data: Reactive<CarouselData> // TODO deprecate and remove
+} & InjectedCarousel
 
 export type CarouselMethods = CarouselNav & {
   restartCarousel: () => void

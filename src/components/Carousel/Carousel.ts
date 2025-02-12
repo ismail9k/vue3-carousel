@@ -12,7 +12,7 @@ import {
   SetupContext,
   shallowReactive,
   watch,
-  watchEffect,
+  watchEffect, toRefs,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
@@ -212,11 +212,7 @@ export const Carousel = defineComponent({
 
       // Validate itemsToShow
       if (!isAuto.value) {
-        config.itemsToShow = getNumberInRange({
-          val: Number(config.itemsToShow),
-          max: slidesCount.value,
-          min: 1,
-        })
+        config.itemsToShow = Math.max(Number(config.itemsToShow), 1);
       }
     }
 
@@ -854,7 +850,6 @@ export const Carousel = defineComponent({
 
     expose<CarouselExposed>({
       data,
-      nav,
       next,
       prev,
       restartCarousel,
@@ -862,6 +857,7 @@ export const Carousel = defineComponent({
       updateBreakpointsConfig,
       updateSlideSize,
       updateSlidesData,
+      ...toRefs(provided),
     })
 
     return () => {

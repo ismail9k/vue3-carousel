@@ -65,8 +65,9 @@ export default [
   {
     input: 'src/index.ts',
     output: [{ file: 'dist/carousel.d.ts', format: 'es' }],
-    external: [/\.css$/],
+    external: ['vue', /\.css$/],
     plugins: [
+      typescript(),
       dts({
         rollupTypes: true,
         pathsToAliases: true,

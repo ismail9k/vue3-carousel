@@ -1,4 +1,4 @@
-import { computed, defineComponent, h, inject, VNode } from 'vue'
+import { computed, defineComponent, h, inject, PropType, VNode } from 'vue'
 
 import { injectCarousel } from '@/shared'
 import { getSnapAlignOffset, i18nFormatter, mapNumberToRange } from '@/utils'
@@ -14,13 +14,12 @@ export const Pagination = defineComponent<PaginationProps>({
     paginateByItemsToShow: {
       type: Boolean,
     },
+    carousel: {
+      type: Object as PropType<PaginationProps['carousel']>,
+    }
   },
   setup(props) {
-    const carousel = inject(injectCarousel)
-
-    if (!carousel) {
-      return () => '' // Don't render, let vue warn about the missing provide
-    }
+    let carousel = inject(injectCarousel, null)!
 
     const itemsToShow = computed(() => carousel.config.itemsToShow as number)
     const offset = computed(() =>
@@ -53,6 +52,13 @@ export const Pagination = defineComponent<PaginationProps>({
       ) === slide
 
     return () => {
+      if (props.carousel) {
+        carousel = props.carousel;
+      }
+      if (!carousel) {
+        console.warn('[vue3-carousel]: A carousel component must be provided for the pagination component to display')
+        return '';
+      }
       const children: Array<VNode> = []
 
       for (
