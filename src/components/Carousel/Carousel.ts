@@ -81,6 +81,19 @@ export const Carousel = defineComponent({
     // current active config
     const config = shallowReactive<CarouselConfig>({ ...fallbackConfig.value })
 
+    const slidesOverflowing: ComputedRef<boolean> = computed(() => {
+      if (!root.value || config.itemsToShow !== "auto" && slidesCount.value === config.itemsToShow) {
+        return false
+      }
+
+      const isHorizontal: boolean = ['ltr', 'rtl'].includes(normalizedDir.value)
+      return effectiveSlideSize.value * slidesCount.value > (isHorizontal ? root.value.scrollWidth : root.value.scrollHeight)
+    })
+
+    const interactionDisabled: ComputedRef<boolean> = computed(() => {
+      return !slidesOverflowing.value && config.disableInteractionWhenNoOverflow
+    })
+
     // slides
     const currentSlideIndex = ref(props.modelValue ?? 0)
     const activeSlideIndex = ref(currentSlideIndex.value)
@@ -407,6 +420,7 @@ export const Carousel = defineComponent({
     }
 
     const handleDragging = throttle((event: TouchEvent | MouseEvent): void => {
+      if (interactionDisabled.value) return
       isDragging.value = true
 
       // Get the current position based on the interaction type (touch or mouse)
@@ -496,7 +510,7 @@ export const Carousel = defineComponent({
     const isSliding = ref(false)
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      if (!skipTransition && isSliding.value) {
+      if ((!skipTransition && isSliding.value) || interactionDisabled.value) {
         return
       }
 
@@ -894,7 +908,7 @@ export const Carousel = defineComponent({
         )
       }
 
-      const addonsElements = slots.addons?.(data) || []
+      const addonsElements = interactionDisabled.value ? [] : slots.addons?.(data) || []
 
       const trackEl = h(
         'ol',
