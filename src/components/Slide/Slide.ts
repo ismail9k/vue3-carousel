@@ -35,10 +35,6 @@ export const Slide = defineComponent({
       type: Boolean,
       default: false,
     },
-    position: {
-      type: String,
-      default: undefined,
-    },
   },
   setup(props: DeepReadonly<SlideProps>, { attrs, slots, expose }: SetupContext) {
     const carousel = inject(injectCarousel)
