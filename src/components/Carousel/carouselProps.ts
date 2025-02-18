@@ -150,4 +150,7 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.wrapAround,
     type: Boolean,
   },
+  clamp: {
+    type: Boolean,
+  }
 }

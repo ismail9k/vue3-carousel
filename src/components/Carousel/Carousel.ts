@@ -141,6 +141,15 @@ export const Carousel = defineComponent({
       })
 
       Object.assign(config, fallbackConfig.value, newConfig)
+
+      // Validate itemsToShow
+      if (!isAuto.value) {
+        config.itemsToShow = getNumberInRange({
+          val: Number(config.itemsToShow),
+          max: props.clamp ? slidesCount.value : Infinity,
+          min: 1,
+        });
+      }
     }
 
     const handleResize = throttle(() => {
@@ -208,11 +217,6 @@ export const Carousel = defineComponent({
           max: maxSlideIndex.value,
           min: minSlideIndex.value,
         })
-      }
-
-      // Validate itemsToShow
-      if (!isAuto.value) {
-        config.itemsToShow = Math.max(Number(config.itemsToShow), 1);
       }
     }
 
@@ -848,7 +852,7 @@ export const Carousel = defineComponent({
       slidesCount,
     })
 
-    expose<CarouselExposed>({
+    expose<CarouselExposed>(reactive({
       data,
       next,
       prev,
@@ -858,7 +862,7 @@ export const Carousel = defineComponent({
       updateSlideSize,
       updateSlidesData,
       ...toRefs(provided),
-    })
+    }))
 
     return () => {
       const slotSlides = slots.default || slots.slides

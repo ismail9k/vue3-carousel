@@ -49,6 +49,7 @@ export type CarouselConfig = {
   touchDrag?: boolean
   transition?: number
   wrapAround?: boolean
+  clamp?: boolean
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]
