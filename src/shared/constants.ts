@@ -63,6 +63,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   preventExcessiveDragging: false,
   slideEffect: SLIDE_EFFECTS[0],
   snapAlign: SNAP_ALIGN_OPTIONS[0],
+  threshold: 0.5,
   touchDrag: true,
   transition: 300,
   wrapAround: false,

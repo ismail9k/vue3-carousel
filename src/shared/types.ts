@@ -46,6 +46,7 @@ export type CarouselConfig = {
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect
   snapAlign: SnapAlign
+  threshold: number
   touchDrag?: boolean
   transition?: number
   wrapAround?: boolean
