@@ -422,6 +422,7 @@ export const Carousel = defineComponent({
         isReversed: isReversed.value,
         dragged,
         effectiveSlideSize: effectiveSlideSize.value,
+        threshold: config.threshold,
       })
 
       activeSlideIndex.value = config.wrapAround

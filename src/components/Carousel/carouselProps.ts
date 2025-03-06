@@ -117,6 +117,11 @@ export const carouselProps = {
       return SLIDE_EFFECTS.includes(value)
     },
   },
+  // control the threshold to trigger slide change
+  threshold: {
+    default: DEFAULT_CONFIG.threshold,
+    type: Number
+  },
   // sliding transition time in ms
   transition: {
     default: DEFAULT_CONFIG.transition,

@@ -21,6 +21,7 @@
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
+| `threshold`                | `number`                                    | 0.5                              | Define a threshold for the drag distance required to trigger a slide transition.                       |
 | `touchDrag`                | `boolean`                                   | true                             | Enables/disables touch navigation on touch-enabled devices.                                            |
 | `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
 | `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |

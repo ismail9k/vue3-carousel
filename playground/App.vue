@@ -46,6 +46,7 @@ const defaultConfig = {
   gap: 10,
   pauseAutoplayOnHover: true,
   useBreakpoints: false,
+  threshold: 0.5,
 }
 
 const config = reactive({ ...defaultConfig })
