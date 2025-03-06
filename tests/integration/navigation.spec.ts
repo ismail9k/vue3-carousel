@@ -9,6 +9,8 @@ import {
   Navigation,
 } from '@/index'
 
+import RefCarousel from '../components/RefCarousel.vue'
+
 describe('Navigation.ts', () => {
   const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
@@ -97,5 +99,13 @@ describe('Navigation.ts', () => {
     })
     expect(wrapper.find('.carousel__prev').text()).toBe('icon-1')
     expect(wrapper.find('.carousel__next').text()).toBe('icon-2')
+  })
+
+  it('renders with a carousel ref', async () => {
+    const wrapper = await mount(RefCarousel, {})
+
+    expect(consoleMock).not.toHaveBeenCalled()
+    expect(wrapper.find('.carousel__prev').attributes()).to.contain({'disabled': ''})
+    expect(wrapper.find('.carousel__next').attributes()).to.contain({'type': 'button'})
   })
 })

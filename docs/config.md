@@ -3,7 +3,7 @@
 ## Available Props
 
 | Prop                       | Type                                        | Default                          | Description                                                                                            |
-| -------------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+|----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
@@ -15,6 +15,7 @@
 | `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. <Badge text="0.10.0"/> |
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean`                                   | true                             | Enables/disables mouse drag navigation.                                                                |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
@@ -24,7 +25,7 @@
 | `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
 | `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
 
-> **itemsToShow**: Controls the number of visible slides. Values between 1 and the total slide count are valid. Values outside this range are automatically clamped. Using 'auto' allows slides to determine their own width based on content.
+> **itemsToShow**: Controls the number of visible slides. Values higher than 1 and decimals are valid. Using 'auto' allows slides to determine their own width based on content.
 
 > **Direction Settings**: For vertical orientations ('ttb'/'top-to-bottom', 'btt'/'bottom-to-top'), the carousel requires a fixed height setting. Direction can be specified using either short ('ltr', 'rtl', 'ttb', 'btt') or verbose ('left-to-right', 'right-to-left', 'top-to-bottom', 'bottom-to-top') formats.
 
@@ -85,6 +86,19 @@ Used to add display carousel addons components.
       <Navigation v-if="slidesCount > 1" />
     </template>
   </Carousel>
+</template>
+```
+
+#### Using addons outside of the carousel
+
+```vue {7,8,9}
+<template>
+  <Carousel ref="carousel">
+    <Slide v-for="slide in slides" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+  </Carousel>
+  <Navigation :carousel="carousel" v-if="carousel && carousel.slidesCount > 1" />
 </template>
 ```
 

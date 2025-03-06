@@ -9,6 +9,8 @@ import {
   Pagination,
 } from '@/index'
 
+import RefCarousel from '../components/RefCarousel.vue'
+
 describe('Navigation.ts', () => {
   const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
@@ -83,5 +85,12 @@ describe('Navigation.ts', () => {
 
     expect(consoleMock).toHaveBeenCalledOnce()
     expect(wrapper.html()).toBe('')
+  })
+
+  it('renders with a carousel ref', async () => {
+    const wrapper = await mount(RefCarousel, {})
+
+    expect(consoleMock).not.toHaveBeenCalled()
+    expect(wrapper.findAll('.carousel__pagination-item').length).toBe(5)
   })
 })

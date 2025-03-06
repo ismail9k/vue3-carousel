@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
+import { SnapAlign } from '@/shared'
+
 import { getSnapAlignOffset } from './getSnapAlignOffset'
 
 describe('getSnapAlignOffset', () => {
@@ -17,7 +19,7 @@ describe('getSnapAlignOffset', () => {
     test('should return 0 for invalid alignment', () => {
       expect(
         getSnapAlignOffset({
-          align: 'invalid' as any,
+          align: 'invalid' as unknown as SnapAlign,
           slideSize: 200,
           viewportSize: 800,
         })

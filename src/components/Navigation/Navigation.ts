@@ -1,4 +1,4 @@
-import { computed, defineComponent, h, inject } from 'vue'
+import { computed, defineComponent, h, inject, PropType } from 'vue'
 
 import { injectCarousel, NormalizedDir } from '@/shared'
 
@@ -9,11 +9,13 @@ import { NavigationProps } from './Navigation.types'
 export const Navigation = defineComponent<NavigationProps>({
   name: 'CarouselNavigation',
   inheritAttrs: false,
+  props: {
+    carousel: {
+      type: Object as PropType<NavigationProps['carousel']>,
+    },
+  },
   setup(props, { slots, attrs }) {
-    const carousel = inject(injectCarousel)
-    if (!carousel) {
-      return () => '' // Don't render, let vue warn about the missing provide
-    }
+    let carousel = inject(injectCarousel, null)!
     const { next: slotNext, prev: slotPrev } = slots
 
     const getPrevIcon = () => {
@@ -45,6 +47,13 @@ export const Navigation = defineComponent<NavigationProps>({
     )
 
     return () => {
+      if (props.carousel) {
+        carousel = props.carousel;
+      }
+      if (!carousel) {
+        console.warn('[vue3-carousel]: A carousel component must be provided for the navigation component to display')
+        return '';
+      }
       const { i18n } = carousel.config
       const prevButton = h(
         'button',
