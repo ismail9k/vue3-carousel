@@ -366,6 +366,50 @@ export const Carousel = defineComponent({
       document.removeEventListener('keydown', handleArrowKeys)
     }
 
+    const handleScroll = throttle((event: Event): void => {
+      if (!config.mouseScroll || isSliding.value) {
+        return
+      }
+
+      // Prevent default scrolling behavior when wheel navigation is enabled
+      event.preventDefault()
+
+      const wheelEvent = event as WheelEvent
+
+      // Add sensitivity threshold to prevent small movements from triggering navigation
+      const threshold = config.mouseScrollThreshold ?? 30 // Default to 30 if undefined
+
+      // Determine scroll direction
+      const deltaY = Math.abs(wheelEvent.deltaY) > threshold ? wheelEvent.deltaY : 0
+      const deltaX = Math.abs(wheelEvent.deltaX) > threshold ? wheelEvent.deltaX : 0
+
+      // If neither delta exceeds the threshold, don't navigate
+      if (deltaY === 0 && deltaX === 0) {
+        return
+      }
+
+      const isScrollingDown = deltaY > 0
+      const isScrollingRight = deltaX > 0
+
+      // Determine direction based on carousel orientation and scroll direction
+      if (
+        (isVertical.value && isScrollingDown) ||
+        (!isVertical.value && isScrollingRight)
+      ) {
+        if (isReversed.value) {
+          prev()
+        } else {
+          next()
+        }
+      } else {
+        if (isReversed.value) {
+          next()
+        } else {
+          prev()
+        }
+      }
+    }, 150)
+
     /**
      * Autoplay
      */
@@ -406,6 +450,7 @@ export const Carousel = defineComponent({
         isReversed: isReversed.value,
         dragged: { x: deltaX, y: deltaY },
         effectiveSlideSize: effectiveSlideSize.value,
+        threshold: config.mouseDragThreshold as number,
       })
 
       activeSlideIndex.value = config.wrapAround
