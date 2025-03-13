@@ -17,14 +17,14 @@
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
-| `mouseDrag`                | `boolean` \| `object`                       | true                             | Enables/disables mouse drag navigation. When passed as an object, can contain a `threshold` property to control the drag distance required to trigger a slide transition. E.g. `{ threshold: 0.5 }`|
+| `mouseDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseScroll`              | `boolean`                                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation.                                        |
 | `mouseScrollThreshold`     | `number`                                    | 10                               | Controls the sensitivity threshold for mouse scrolling. Higher values require more scrolling.          |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
 | `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
-| `touchDrag`                | `boolean`                                   | true                             | Enables/disables touch navigation on touch-enabled devices.                                            |
+| `touchDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables touch navigation on touch-enabled devices. See [Drag Options](#drag-options) for configuration details. |
 | `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
 | `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
 
@@ -33,6 +33,27 @@
 > **Direction Settings**: For vertical orientations ('ttb'/'top-to-bottom', 'btt'/'bottom-to-top'), the carousel requires a fixed height setting. Direction can be specified using either short ('ltr', 'rtl', 'ttb', 'btt') or verbose ('left-to-right', 'right-to-left', 'top-to-bottom', 'bottom-to-top') formats.
 
 > **Drag Prevention**: The `preventExcessiveDragging` option is automatically disabled when `wrapAround` is enabled, as boundary restrictions aren't needed in infinite loop mode.
+
+## Drag Options
+
+Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `DragConfig` object with the following properties:
+
+| Property    | Type     | Default | Description                                                                                |
+|-------------|----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold` | `number` | 0.3     | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+
+### Example
+
+```vue
+<template>
+  <Carousel 
+    :mouseDrag="{ threshold: 0.5 }" 
+    :touchDrag="{ threshold: 0.7 }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
 
 ## Slots
 

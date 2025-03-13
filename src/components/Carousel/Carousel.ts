@@ -416,7 +416,11 @@ export const Carousel = defineComponent({
         dragged: { x: deltaX, y: deltaY },
         effectiveSlideSize: effectiveSlideSize.value,
         threshold:
-          typeof config.mouseDrag === 'object' ? (config.mouseDrag?.threshold ?? 0) : 0,
+          typeof config.mouseDrag === 'object'
+            ? (config.mouseDrag?.threshold ?? 0.3)
+            : typeof config.touchDrag === 'object'
+              ? (config.touchDrag?.threshold ?? 0.3)
+              : 0.3,
       })
 
       activeSlideIndex.value = config.wrapAround

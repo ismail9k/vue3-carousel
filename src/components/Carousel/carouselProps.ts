@@ -17,6 +17,7 @@ import type {
   NormalizedDir,
   SlideEffect,
   SnapAlign,
+  DragConfig,
 } from '@/shared'
 
 export const carouselProps = {
@@ -105,7 +106,7 @@ export const carouselProps = {
   // toggle mouse dragging
   mouseDrag: {
     default: DEFAULT_CONFIG.mouseDrag,
-    type: [Boolean, Object] as PropType<boolean | { threshold?: number }>,
+    type: [Boolean, Object] as PropType<boolean | DragConfig>,
   },
   // toggle mouse wheel scrolling
   mouseScroll: {
@@ -150,7 +151,7 @@ export const carouselProps = {
   // toggle touch dragging
   touchDrag: {
     default: DEFAULT_CONFIG.touchDrag,
-    type: Boolean,
+    type: [Boolean, Object] as PropType<boolean | DragConfig>,
   },
   // sliding transition time in ms
   transition: {

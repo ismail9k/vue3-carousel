@@ -28,6 +28,10 @@ export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
 
 export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
+export type DragConfig = {
+  threshold?: number
+}
+
 export type CarouselConfig = {
   autoplay?: number
   breakpointMode?: BreakpointMode
@@ -42,14 +46,14 @@ export type CarouselConfig = {
   itemsToScroll: number
   itemsToShow: number | 'auto'
   modelValue?: number
-  mouseDrag?: boolean | { threshold?: number }
+  mouseDrag?: boolean | DragConfig
   mouseScroll?: boolean
   mouseScrollThreshold?: number
   pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect
   snapAlign: SnapAlign
-  touchDrag?: boolean
+  touchDrag?: boolean | DragConfig
   transition?: number
   wrapAround?: boolean
 }
