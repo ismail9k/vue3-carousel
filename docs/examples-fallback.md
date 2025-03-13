@@ -30,6 +30,12 @@ Illustrates the carousel with autoplay functionality enabled.
 
 <ExampleAutoplay />
 
+## Mouse Scroll
+
+Demonstrates the carousel with mouse wheel scrolling navigation enabled.
+
+<ExampleMouseScroll />
+
 ## Active Classes
 
 An example highlighting active items with custom classes.
@@ -64,6 +70,7 @@ import ExampleCustomNavigation from './examples/ExampleCustomNavigation.vue';
 import ExampleGallery from './examples/ExampleGallery.vue';
 import ExampleVertical from './examples/ExampleVertical.vue';
 import ExampleDisable from './examples/ExampleDisable.vue';
+import ExampleMouseScroll from './examples/ExampleMouseScroll.vue';
 </script>
 
 <style>

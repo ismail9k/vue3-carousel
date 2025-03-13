@@ -41,6 +41,7 @@ const defaultConfig = {
   autoplay: null,
   wrapAround: true,
   height: '200',
+  mouseScroll: true,
   dir: 'left-to-right',
   breakpointMode: 'carousel',
   gap: 10,

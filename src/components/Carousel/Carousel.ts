@@ -837,6 +837,7 @@ export const Carousel = defineComponent({
           style: { transform: trackTransform.value },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
+          onWheelPassive: config.mouseScroll ? handleScroll : null,
         },
         output
       )

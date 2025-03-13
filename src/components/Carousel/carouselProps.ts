@@ -40,7 +40,7 @@ export const carouselProps = {
   clamp: {
     type: Boolean,
   },
-  // control the gap between slides
+  // control the direction of the carousel
   dir: {
     type: String as PropType<Dir>,
     default: DEFAULT_CONFIG.dir,
@@ -63,11 +63,6 @@ export const carouselProps = {
       return true
     },
   },
-  // control the threshold to trigger slide change
-  dragThreshold: {
-    default: DEFAULT_CONFIG.dragThreshold,
-    type: Number,
-  },
   // enable/disable the carousel component
   enabled: {
     default: DEFAULT_CONFIG.enabled,
@@ -78,7 +73,7 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.gap,
     type: Number,
   },
-  // control the gap between slides
+  // set carousel height
   height: {
     default: DEFAULT_CONFIG.height,
     type: [Number, String],
@@ -111,6 +106,21 @@ export const carouselProps = {
   mouseDrag: {
     default: DEFAULT_CONFIG.mouseDrag,
     type: Boolean,
+  },
+  // control the threshold to trigger slide change with mouse drag
+  mouseDragThreshold: {
+    default: DEFAULT_CONFIG.mouseDragThreshold,
+    type: Number,
+  },
+  // toggle mouse wheel scrolling
+  mouseScroll: {
+    default: DEFAULT_CONFIG.mouseScroll,
+    type: Boolean,
+  },
+  // control mouse scroll threshold
+  mouseScrollThreshold: {
+    default: DEFAULT_CONFIG.mouseScrollThreshold,
+    type: Number,
   },
   pauseAutoplayOnHover: {
     default: DEFAULT_CONFIG.pauseAutoplayOnHover,

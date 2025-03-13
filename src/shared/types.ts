@@ -34,7 +34,6 @@ export type CarouselConfig = {
   breakpoints?: Breakpoints
   clamp?: boolean
   dir?: Dir
-  dragThreshold: number
   enabled: boolean
   gap: number
   height: string | number
@@ -44,6 +43,9 @@ export type CarouselConfig = {
   itemsToShow: number | 'auto'
   modelValue?: number
   mouseDrag?: boolean
+  mouseDragThreshold?: number
+  mouseScroll?: boolean
+  mouseScrollThreshold?: number
   pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect
