@@ -42,8 +42,7 @@ export type CarouselConfig = {
   itemsToScroll: number
   itemsToShow: number | 'auto'
   modelValue?: number
-  mouseDrag?: boolean
-  mouseDragThreshold?: number
+  mouseDrag?: boolean | { threshold?: number }
   mouseScroll?: boolean
   mouseScrollThreshold?: number
   pauseAutoplayOnHover?: boolean

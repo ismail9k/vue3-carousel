@@ -415,7 +415,8 @@ export const Carousel = defineComponent({
         isReversed: isReversed.value,
         dragged: { x: deltaX, y: deltaY },
         effectiveSlideSize: effectiveSlideSize.value,
-        threshold: config.mouseDragThreshold as number,
+        threshold:
+          typeof config.mouseDrag === 'object' ? (config.mouseDrag?.threshold ?? 0) : 0,
       })
 
       activeSlideIndex.value = config.wrapAround

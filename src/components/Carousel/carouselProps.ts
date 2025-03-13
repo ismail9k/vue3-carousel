@@ -105,12 +105,7 @@ export const carouselProps = {
   // toggle mouse dragging
   mouseDrag: {
     default: DEFAULT_CONFIG.mouseDrag,
-    type: Boolean,
-  },
-  // control the threshold to trigger slide change with mouse drag
-  mouseDragThreshold: {
-    default: DEFAULT_CONFIG.mouseDragThreshold,
-    type: Number,
+    type: [Boolean, Object] as PropType<boolean | { threshold?: number }>,
   },
   // toggle mouse wheel scrolling
   mouseScroll: {
