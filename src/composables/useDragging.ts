@@ -1,24 +1,30 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, Ref } from 'vue'
 
 import { throttle } from '@/utils'
 
 export interface UseDraggingOptions {
+  isSliding: boolean | Ref<boolean>
   onDrag?: (data: { delta: { x: number; y: number }; isTouch: boolean }) => void
   onDragStart?: () => void
   onDragEnd?: () => void
-  isSliding?: boolean
 }
 
-export function useDragging(options: UseDraggingOptions = {}) {
+export function useDragging(options: UseDraggingOptions) {
   let isTouch = false
   const startPosition = { x: 0, y: 0 }
   const dragged = reactive({ x: 0, y: 0 })
   const isDragging = ref(false)
 
+  const { isSliding } = options
+
+  const sliding = computed(() => {
+    return typeof isSliding === 'boolean' ? isSliding : isSliding.value
+  })
+
   const handleDragStart = (event: MouseEvent | TouchEvent): void => {
     // Prevent drag initiation on input elements or if already sliding
     const targetTagName = (event.target as HTMLElement).tagName
-    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTagName) || options.isSliding) {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTagName) || sliding.value) {
       return
     }
 

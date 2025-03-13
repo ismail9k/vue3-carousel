@@ -401,15 +401,6 @@ export const Carousel = defineComponent({
      */
     const isSliding = ref(false)
 
-    const { handleScroll } = useWheel({
-      isVertical: isVertical.value,
-      isReversed: isReversed.value,
-      isSliding: isSliding.value,
-      config,
-      next,
-      prev,
-    })
-
     const onDrag = ({
       delta,
       isTouch,
@@ -443,13 +434,22 @@ export const Carousel = defineComponent({
 
       emit('drag', delta)
     }
-    const onDragEnd = () => {
-      slideTo(activeSlideIndex.value)
-    }
+
+    const onDragEnd = () => slideTo(activeSlideIndex.value)
+
     const { dragged, isDragging, handleDragStart } = useDragging({
-      isSliding: isSliding.value,
+      isSliding,
       onDrag,
       onDragEnd,
+    })
+
+    const { handleScroll } = useWheel({
+      isVertical,
+      isReversed,
+      isSliding,
+      config,
+      next,
+      prev,
     })
 
     function slideTo(slideIndex: number, skipTransition = false): void {
