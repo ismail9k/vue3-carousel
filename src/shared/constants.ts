@@ -59,7 +59,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   itemsToShow: 1,
   modelValue: 0,
   mouseDrag: true,
-  mouseScroll: false,
+  mouseWheel: false,
   mouseScrollThreshold: 10,
   pauseAutoplayOnHover: false,
   preventExcessiveDragging: false,

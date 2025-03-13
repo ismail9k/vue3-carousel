@@ -29,7 +29,7 @@ export function useWheel(options: UseWheelOptions) {
   })
 
   const handleScroll = throttle((event: Event): void => {
-    if (!config.mouseScroll || sliding.value) {
+    if (!config.mouseWheel || sliding.value) {
       return
     }
 
@@ -39,7 +39,8 @@ export function useWheel(options: UseWheelOptions) {
     const wheelEvent = event as WheelEvent
 
     // Add sensitivity threshold to prevent small movements from triggering navigation
-    const threshold = config.mouseScrollThreshold as number // Default to 30 if undefined
+    const threshold =
+      typeof config.mouseWheel === 'object' ? (config.mouseWheel.threshold ?? 10) : 10
 
     // Determine scroll direction
     const deltaY = Math.abs(wheelEvent.deltaY) > threshold ? wheelEvent.deltaY : 0

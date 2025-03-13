@@ -31,6 +31,9 @@ export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 export type DragConfig = {
   threshold?: number
 }
+export type WheelConfig = {
+  threshold?: number
+}
 
 export type CarouselConfig = {
   autoplay?: number
@@ -47,7 +50,7 @@ export type CarouselConfig = {
   itemsToShow: number | 'auto'
   modelValue?: number
   mouseDrag?: boolean | DragConfig
-  mouseScroll?: boolean
+  mouseWheel?: boolean | WheelConfig
   mouseScrollThreshold?: number
   pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean

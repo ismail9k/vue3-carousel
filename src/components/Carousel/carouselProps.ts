@@ -18,6 +18,7 @@ import type {
   SlideEffect,
   SnapAlign,
   DragConfig,
+  WheelConfig,
 } from '@/shared'
 
 export const carouselProps = {
@@ -109,9 +110,9 @@ export const carouselProps = {
     type: [Boolean, Object] as PropType<boolean | DragConfig>,
   },
   // toggle mouse wheel scrolling
-  mouseScroll: {
-    default: DEFAULT_CONFIG.mouseScroll,
-    type: Boolean,
+  mouseWheel: {
+    default: DEFAULT_CONFIG.mouseWheel,
+    type: [Boolean, Object] as PropType<boolean | WheelConfig>,
   },
   // control mouse scroll threshold
   mouseScrollThreshold: {
