@@ -61,14 +61,14 @@ The `mouseWheel` property accepts either a boolean value or a `WheelConfig` obje
 | Property      | Type     | Default | Description                                                                                |
 |---------------|----------|---------|--------------------------------------------------------------------------------------------|
 | `threshold`   | `number` | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
-| `throttleTime` | `number` | 100     | Controls how quickly wheel events are processed in milliseconds. Lower values make scrolling more responsive but may cause performance issues. By default, uses either this value or 1/3 of the transition time, whichever is smaller. |
+
 
 ### Example
 
 ```vue
 <template>
   <Carousel 
-    :mouseWheel="{ threshold: 20, throttleTime: 50 }"
+    :mouseWheel="{ threshold: 20 }"
   >
     <!-- Slides -->
   </Carousel>

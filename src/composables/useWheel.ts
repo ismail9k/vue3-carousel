@@ -1,11 +1,7 @@
 import { ComputedRef, Ref, computed } from 'vue'
 
 import { CarouselConfig } from '@/shared'
-import {
-  DEFAULT_MOUSE_WHEEL_THRESHOLD,
-  DEFAULT_WHEEL_THROTTLE_TIME,
-} from '@/shared/constants'
-import { throttle } from '@/utils'
+import { DEFAULT_MOUSE_WHEEL_THRESHOLD } from '@/shared/constants'
 
 interface UseWheelOptions {
   isVertical: boolean | ComputedRef<boolean>
@@ -32,27 +28,12 @@ export function useWheel(options: UseWheelOptions) {
     return typeof isSliding === 'boolean' ? isSliding : isSliding.value
   })
 
-  // Use a shorter throttle duration for wheel events to improve responsiveness
-  // Use either a custom wheel throttle time or 1/3 of the transition time
-  const wheelThrottleTime = computed(() => {
-    // If mouseWheel is an object with a throttleTime property, use that
-    if (typeof config.mouseWheel === 'object' && config.mouseWheel.throttleTime) {
-      return config.mouseWheel.throttleTime
-    }
-    // Otherwise use a fraction of the transition time for better responsiveness
-    return Math.min(
-      DEFAULT_WHEEL_THROTTLE_TIME,
-      config.transition ? Math.floor(config.transition / 3) : DEFAULT_WHEEL_THROTTLE_TIME
-    )
-  })
+  const handleScroll = (event: Event): void => {
+    event.preventDefault()
 
-  const handleScroll = throttle((event: Event): void => {
     if (!config.mouseWheel || sliding.value) {
       return
     }
-
-    // Prevent default scrolling behavior when wheel navigation is enabled
-    event.preventDefault()
 
     const wheelEvent = event as WheelEvent
 
@@ -97,7 +78,7 @@ export function useWheel(options: UseWheelOptions) {
         prev()
       }
     }
-  }, wheelThrottleTime.value) // Use the computed throttle time
+  }
 
   return {
     handleScroll,
