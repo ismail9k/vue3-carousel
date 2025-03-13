@@ -32,7 +32,9 @@ export type CarouselConfig = {
   autoplay?: number
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
+  clamp?: boolean
   dir?: Dir
+  dragThreshold: number
   enabled: boolean
   gap: number
   height: string | number
@@ -46,11 +48,9 @@ export type CarouselConfig = {
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect
   snapAlign: SnapAlign
-  threshold: number
   touchDrag?: boolean
   transition?: number
   wrapAround?: boolean
-  clamp?: boolean
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]

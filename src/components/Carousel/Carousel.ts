@@ -12,7 +12,8 @@ import {
   SetupContext,
   shallowReactive,
   watch,
-  watchEffect, toRefs,
+  watchEffect,
+  toRefs,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
@@ -148,7 +149,7 @@ export const Carousel = defineComponent({
           val: Number(config.itemsToShow),
           max: props.clamp ? slidesCount.value : Infinity,
           min: 1,
-        });
+        })
       }
     }
 
@@ -422,7 +423,7 @@ export const Carousel = defineComponent({
         isReversed: isReversed.value,
         dragged,
         effectiveSlideSize: effectiveSlideSize.value,
-        threshold: config.threshold,
+        threshold: config.dragThreshold,
       })
 
       activeSlideIndex.value = config.wrapAround
@@ -853,17 +854,19 @@ export const Carousel = defineComponent({
       slidesCount,
     })
 
-    expose<CarouselExposed>(reactive({
-      data,
-      next,
-      prev,
-      restartCarousel,
-      slideTo,
-      updateBreakpointsConfig,
-      updateSlideSize,
-      updateSlidesData,
-      ...toRefs(provided),
-    }))
+    expose<CarouselExposed>(
+      reactive({
+        data,
+        next,
+        prev,
+        restartCarousel,
+        slideTo,
+        updateBreakpointsConfig,
+        updateSlideSize,
+        updateSlidesData,
+        ...toRefs(provided),
+      })
+    )
 
     return () => {
       const slotSlides = slots.default || slots.slides
