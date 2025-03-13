@@ -33,6 +33,7 @@ export type DragConfig = {
 }
 export type WheelConfig = {
   threshold?: number
+  throttleTime?: number
 }
 
 export type CarouselConfig = {

@@ -22,6 +22,7 @@ import {
   CarouselConfig,
   createSlideRegistry,
   DEFAULT_CONFIG,
+  DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
   injectCarousel,
   NonNormalizedDir,
@@ -418,11 +419,11 @@ export const Carousel = defineComponent({
     }) => {
       const threshold = isTouch
         ? typeof config.touchDrag === 'object'
-          ? (config.touchDrag?.threshold ?? 0.3)
-          : 0.3
+          ? (config.touchDrag?.threshold ?? DEFAULT_DRAG_THRESHOLD)
+          : DEFAULT_DRAG_THRESHOLD
         : typeof config.mouseDrag === 'object'
-          ? (config.mouseDrag?.threshold ?? 0.3)
-          : 0.3
+          ? (config.mouseDrag?.threshold ?? DEFAULT_DRAG_THRESHOLD)
+          : DEFAULT_DRAG_THRESHOLD
 
       const draggedSlides = getDraggedSlidesCount({
         isVertical: isVertical.value,
