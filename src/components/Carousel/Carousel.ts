@@ -409,18 +409,27 @@ export const Carousel = defineComponent({
       prev,
     })
 
-    const onDrag = ({ deltaX, deltaY }: { deltaX: number; deltaY: number }) => {
+    const onDrag = ({
+      delta,
+      isTouch,
+    }: {
+      delta: { x: number; y: number }
+      isTouch: boolean
+    }) => {
+      const threshold = isTouch
+        ? typeof config.touchDrag === 'object'
+          ? (config.touchDrag?.threshold ?? 0.3)
+          : 0.3
+        : typeof config.mouseDrag === 'object'
+          ? (config.mouseDrag?.threshold ?? 0.3)
+          : 0.3
+
       const draggedSlides = getDraggedSlidesCount({
         isVertical: isVertical.value,
         isReversed: isReversed.value,
-        dragged: { x: deltaX, y: deltaY },
+        dragged: delta,
         effectiveSlideSize: effectiveSlideSize.value,
-        threshold:
-          typeof config.mouseDrag === 'object'
-            ? (config.mouseDrag?.threshold ?? 0.3)
-            : typeof config.touchDrag === 'object'
-              ? (config.touchDrag?.threshold ?? 0.3)
-              : 0.3,
+        threshold,
       })
 
       activeSlideIndex.value = config.wrapAround
@@ -431,7 +440,7 @@ export const Carousel = defineComponent({
             min: minSlideIndex.value,
           })
 
-      emit('drag', { deltaX, deltaY })
+      emit('drag', delta)
     }
     const onDragEnd = () => {
       slideTo(activeSlideIndex.value)

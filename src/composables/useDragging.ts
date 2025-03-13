@@ -3,7 +3,7 @@ import { ref, reactive } from 'vue'
 import { throttle } from '@/utils'
 
 export interface UseDraggingOptions {
-  onDrag?: (data: { deltaX: number; deltaY: number }) => void
+  onDrag?: (data: { delta: { x: number; y: number }; isTouch: boolean }) => void
   onDragStart?: () => void
   onDragEnd?: () => void
   isSliding?: boolean
@@ -59,7 +59,7 @@ export function useDragging(options: UseDraggingOptions = {}) {
     dragged.x = currentX - startPosition.x
     dragged.y = currentY - startPosition.y
 
-    options.onDrag?.({ deltaX: dragged.x, deltaY: dragged.y })
+    options.onDrag?.({ delta: { x: dragged.x, y: dragged.y }, isTouch })
   })
 
   const handleDragEnd = (): void => {
