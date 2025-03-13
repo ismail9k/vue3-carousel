@@ -376,6 +376,50 @@ export const Carousel = defineComponent({
       document.removeEventListener('keydown', handleArrowKeys)
     }
 
+    const handleScroll = throttle((event: Event): void => {
+      if (!config.mouseScroll || isSliding.value) {
+        return
+      }
+
+      // Prevent default scrolling behavior when wheel navigation is enabled
+      event.preventDefault()
+
+      const wheelEvent = event as WheelEvent
+
+      // Add sensitivity threshold to prevent small movements from triggering navigation
+      const threshold = config.mouseScrollThreshold ?? 30 // Default to 30 if undefined
+
+      // Determine scroll direction
+      const deltaY = Math.abs(wheelEvent.deltaY) > threshold ? wheelEvent.deltaY : 0
+      const deltaX = Math.abs(wheelEvent.deltaX) > threshold ? wheelEvent.deltaX : 0
+
+      // If neither delta exceeds the threshold, don't navigate
+      if (deltaY === 0 && deltaX === 0) {
+        return
+      }
+
+      const isScrollingDown = deltaY > 0
+      const isScrollingRight = deltaX > 0
+
+      // Determine direction based on carousel orientation and scroll direction
+      if (
+        (isVertical.value && isScrollingDown) ||
+        (!isVertical.value && isScrollingRight)
+      ) {
+        if (isReversed.value) {
+          prev()
+        } else {
+          next()
+        }
+      } else {
+        if (isReversed.value) {
+          next()
+        } else {
+          prev()
+        }
+      }
+    }, 150)
+
     function handleDragStart(event: MouseEvent | TouchEvent): void {
       // Prevent drag initiation on input elements or if already sliding
       const targetTagName = (event.target as HTMLElement).tagName
@@ -423,7 +467,7 @@ export const Carousel = defineComponent({
         isReversed: isReversed.value,
         dragged,
         effectiveSlideSize: effectiveSlideSize.value,
-        threshold: config.dragThreshold,
+        threshold: config.mouseDragThreshold ?? 0.3,
       })
 
       activeSlideIndex.value = config.wrapAround
@@ -907,6 +951,7 @@ export const Carousel = defineComponent({
           style: { transform: trackTransform.value },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
+          onWheelPassive: config.mouseScroll ? handleScroll : null,
         },
         output
       )

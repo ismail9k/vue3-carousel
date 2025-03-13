@@ -9,7 +9,6 @@
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
-| `dragThreshold`            | `number`                                    | 0.3                              | Define a threshold for the drag distance required to trigger a slide transition.                       |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
 | `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
@@ -19,6 +18,9 @@
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean`                                   | true                             | Enables/disables mouse drag navigation.                                                                |
+| `mouseDragThreshold`       | `number`                                    | 0.3                              | Define a threshold for the drag distance required to trigger a slide transition.                       |
+| `mouseScroll`              | `boolean`                                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation.                                        |
+| `mouseScrollThreshold`     | `number`                                    | 10                               | Controls the sensitivity threshold for mouse scrolling. Higher values require more scrolling.          |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
