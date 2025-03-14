@@ -32,6 +32,12 @@ Illustrates the carousel with autoplay functionality enabled.
 
 <live-codes v-bind="LiveCodeExamples.autoplay" />
 
+## Mouse Scroll
+
+Demonstrates the carousel with mouse wheel scrolling navigation enabled.
+
+<live-codes v-bind="LiveCodeExamples.mouseScroll" />
+
 ## Active Classes
 
 An example highlighting active items with custom classes.

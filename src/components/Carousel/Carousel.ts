@@ -17,10 +17,12 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
+import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
 import {
   CarouselConfig,
   createSlideRegistry,
   DEFAULT_CONFIG,
+  DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
   injectCarousel,
   NonNormalizedDir,
@@ -62,6 +64,7 @@ export const Carousel = defineComponent({
     'slide-start',
     'slide-unregistered',
     'update:modelValue',
+    'wheel',
   ],
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const slideRegistry = createSlideRegistry(emit)
@@ -331,18 +334,7 @@ export const Carousel = defineComponent({
     /**
      * Carousel Event listeners
      */
-    let isTouch = false
-    const startPosition = { x: 0, y: 0 }
-    const dragged = reactive({ x: 0, y: 0 })
-    const isHover = ref(false)
-    const isDragging = ref(false)
-
-    const handleMouseEnter = (): void => {
-      isHover.value = true
-    }
-    const handleMouseLeave = (): void => {
-      isHover.value = false
-    }
+    const { isHover, handleMouseEnter, handleMouseLeave } = useHover()
 
     const handleArrowKeys = throttle((event: KeyboardEvent): void => {
       if (event.ctrlKey) return
@@ -374,93 +366,6 @@ export const Carousel = defineComponent({
     }
     const handleBlur = (): void => {
       document.removeEventListener('keydown', handleArrowKeys)
-    }
-
-    function handleDragStart(event: MouseEvent | TouchEvent): void {
-      // Prevent drag initiation on input elements or if already sliding
-      const targetTagName = (event.target as HTMLElement).tagName
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTagName) || isSliding.value) {
-        return
-      }
-
-      // Detect if the event is a touchstart or mousedown event
-      isTouch = event.type === 'touchstart'
-
-      // For mouse events, prevent default to avoid text selection
-      if (!isTouch) {
-        event.preventDefault()
-        if ((event as MouseEvent).button !== 0) {
-          // Ignore non-left-click mouse events
-          return
-        }
-      }
-
-      // Initialize start positions for the drag
-      startPosition.x = 'touches' in event ? event.touches[0].clientX : event.clientX
-      startPosition.y = 'touches' in event ? event.touches[0].clientY : event.clientY
-
-      // Attach event listeners for dragging and drag end
-
-      const moveEvent = isTouch ? 'touchmove' : 'mousemove'
-      const endEvent = isTouch ? 'touchend' : 'mouseup'
-      document.addEventListener(moveEvent, handleDragging, { passive: false })
-      document.addEventListener(endEvent, handleDragEnd, { passive: true })
-    }
-
-    const handleDragging = throttle((event: TouchEvent | MouseEvent): void => {
-      isDragging.value = true
-
-      // Get the current position based on the interaction type (touch or mouse)
-      const currentX = 'touches' in event ? event.touches[0].clientX : event.clientX
-      const currentY = 'touches' in event ? event.touches[0].clientY : event.clientY
-
-      // Calculate deltas for X and Y axes
-      dragged.x = currentX - startPosition.x
-      dragged.y = currentY - startPosition.y
-
-      const draggedSlides = getDraggedSlidesCount({
-        isVertical: isVertical.value,
-        isReversed: isReversed.value,
-        dragged,
-        effectiveSlideSize: effectiveSlideSize.value,
-        threshold: config.dragThreshold,
-      })
-
-      activeSlideIndex.value = config.wrapAround
-        ? currentSlideIndex.value + draggedSlides
-        : getNumberInRange({
-            val: currentSlideIndex.value + draggedSlides,
-            max: maxSlideIndex.value,
-            min: minSlideIndex.value,
-          })
-
-      // Emit a drag event for further customization if needed
-      emit('drag', { deltaX: dragged.x, deltaY: dragged.y })
-    })
-
-    function handleDragEnd(): void {
-      handleDragging.cancel()
-
-      // Prevent accidental clicks when there is a slide drag
-      if (activeSlideIndex.value !== currentSlideIndex.value && !isTouch) {
-        const preventClick = (e: MouseEvent) => {
-          e.preventDefault()
-          window.removeEventListener('click', preventClick)
-        }
-        window.addEventListener('click', preventClick)
-      }
-
-      slideTo(activeSlideIndex.value)
-
-      // Reset drag state
-      dragged.x = 0
-      dragged.y = 0
-      isDragging.value = false
-
-      const moveEvent = isTouch ? 'touchmove' : 'mousemove'
-      const endEvent = isTouch ? 'touchend' : 'mouseup'
-      document.removeEventListener(moveEvent, handleDragging)
-      document.removeEventListener(endEvent, handleDragEnd)
     }
 
     /**
@@ -496,6 +401,69 @@ export const Carousel = defineComponent({
      * Navigation function
      */
     const isSliding = ref(false)
+
+    const onDrag = ({ deltaX, deltaY, isTouch }: DragEventData) => {
+      emit('drag', { deltaX, deltaY })
+
+      const threshold = isTouch
+        ? typeof config.touchDrag === 'object'
+          ? (config.touchDrag?.threshold ?? DEFAULT_DRAG_THRESHOLD)
+          : DEFAULT_DRAG_THRESHOLD
+        : typeof config.mouseDrag === 'object'
+          ? (config.mouseDrag?.threshold ?? DEFAULT_DRAG_THRESHOLD)
+          : DEFAULT_DRAG_THRESHOLD
+
+      const draggedSlides = getDraggedSlidesCount({
+        isVertical: isVertical.value,
+        isReversed: isReversed.value,
+        dragged: { x: deltaX, y: deltaY },
+        effectiveSlideSize: effectiveSlideSize.value,
+        threshold,
+      })
+
+      activeSlideIndex.value = config.wrapAround
+        ? currentSlideIndex.value + draggedSlides
+        : getNumberInRange({
+            val: currentSlideIndex.value + draggedSlides,
+            max: maxSlideIndex.value,
+            min: minSlideIndex.value,
+          })
+    }
+
+    const onDragEnd = () => slideTo(activeSlideIndex.value)
+
+    const { dragged, isDragging, handleDragStart } = useDrag({
+      isSliding,
+      onDrag,
+      onDragEnd,
+    })
+
+    const onWheel = ({ deltaX, deltaY, isScrollingForward }: WheelEventData) => {
+      emit('wheel', { deltaX, deltaY })
+
+      if (isScrollingForward) {
+        // Scrolling down/right
+        if (isReversed.value) {
+          prev()
+        } else {
+          next()
+        }
+      } else {
+        // Scrolling up/left
+        if (isReversed.value) {
+          next()
+        } else {
+          prev()
+        }
+      }
+    }
+
+    const { handleScroll } = useWheel({
+      isVertical,
+      isSliding,
+      config,
+      onWheel,
+    })
 
     function slideTo(slideIndex: number, skipTransition = false): void {
       if (!skipTransition && isSliding.value) {
@@ -907,6 +875,7 @@ export const Carousel = defineComponent({
           style: { transform: trackTransform.value },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
+          onWheel: config.mouseWheel ? handleScroll : null,
         },
         output
       )

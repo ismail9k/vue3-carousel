@@ -45,12 +45,14 @@ export const SNAP_ALIGN_OPTIONS = [
   'center-odd',
 ] as const
 
+export const DEFAULT_MOUSE_WHEEL_THRESHOLD = 10
+export const DEFAULT_DRAG_THRESHOLD = 0.3
+
 export const DEFAULT_CONFIG: CarouselConfig = {
   autoplay: 0,
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
   dir: DIR_OPTIONS[0],
-  dragThreshold: 0.3,
   enabled: true,
   gap: 0,
   height: 'auto',
@@ -60,6 +62,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   itemsToShow: 1,
   modelValue: 0,
   mouseDrag: true,
+  mouseWheel: false,
   pauseAutoplayOnHover: false,
   preventExcessiveDragging: false,
   slideEffect: SLIDE_EFFECTS[0],

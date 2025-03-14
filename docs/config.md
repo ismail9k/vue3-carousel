@@ -9,7 +9,6 @@
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
-| `dragThreshold`            | `number`                                    | 0.3                              | Define a threshold for the drag distance required to trigger a slide transition.                       |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
 | `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
@@ -18,12 +17,13 @@
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
-| `mouseDrag`                | `boolean`                                   | true                             | Enables/disables mouse drag navigation.                                                                |
+| `mouseDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
+| `mouseWheel`               | `boolean` \| `WheelConfig`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
 | `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
-| `touchDrag`                | `boolean`                                   | true                             | Enables/disables touch navigation on touch-enabled devices.                                            |
+| `touchDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables touch navigation on touch-enabled devices. See [Drag Options](#drag-options) for configuration details. |
 | `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
 | `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
 
@@ -32,6 +32,64 @@
 > **Direction Settings**: For vertical orientations ('ttb'/'top-to-bottom', 'btt'/'bottom-to-top'), the carousel requires a fixed height setting. Direction can be specified using either short ('ltr', 'rtl', 'ttb', 'btt') or verbose ('left-to-right', 'right-to-left', 'top-to-bottom', 'bottom-to-top') formats.
 
 > **Drag Prevention**: The `preventExcessiveDragging` option is automatically disabled when `wrapAround` is enabled, as boundary restrictions aren't needed in infinite loop mode.
+
+## Drag Options
+
+Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `DragConfig` object with the following properties:
+
+| Property    | Type     | Default | Description                                                                                |
+|-------------|----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold` | `number` | 0.3     | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+
+### Example
+
+```vue
+<template>
+  <Carousel 
+    :mouseDrag="{ threshold: 0.5 }" 
+    :touchDrag="{ threshold: 0.7 }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+## Wheel Options
+
+The `mouseWheel` property accepts either a boolean value or a `WheelConfig` object with the following properties:
+
+| Property      | Type     | Default | Description                                                                                |
+|---------------|----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold`   | `number` | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
+
+
+### Example
+
+```vue
+<template>
+  <Carousel 
+    :mouseWheel="{ threshold: 20 }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+## I18n
+
+Available keys:
+
+| Key                   | Defaults                               | Description                                                                |
+| --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
+| `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
+| `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
+| `iconArrowDown`       | "Arrow pointing downwards"             | Sets title and aria-label for the downward-pointing arrow SVG icon.        |
+| `iconArrowLeft`       | "Arrow pointing to the left"           | Sets title and aria-label for the left-pointing arrow SVG icon.            |
+| `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
+| `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
+| `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
 
 ## Slots
 
@@ -119,3 +177,16 @@ Available keys:
 | `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+### Example
+
+```vue
+<template>
+  <Carousel 
+    :mouseDrag="{ threshold: 0.5 }" 
+    :touchDrag="{ threshold: 0.7 }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```

@@ -41,6 +41,7 @@ const defaultConfig = {
   autoplay: null,
   wrapAround: true,
   height: '200',
+  mouseWheel: true,
   dir: 'left-to-right',
   breakpointMode: 'carousel',
   gap: 10,
@@ -210,6 +211,7 @@ const events = [
   'slide-end',
   'loop',
   'drag',
+  'wheel',
   'slide-registered',
   'slide-unregistered',
 ]

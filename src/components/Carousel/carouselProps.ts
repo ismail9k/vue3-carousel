@@ -17,6 +17,8 @@ import type {
   NormalizedDir,
   SlideEffect,
   SnapAlign,
+  DragConfig,
+  WheelConfig,
 } from '@/shared'
 
 export const carouselProps = {
@@ -40,7 +42,7 @@ export const carouselProps = {
   clamp: {
     type: Boolean,
   },
-  // control the gap between slides
+  // control the direction of the carousel
   dir: {
     type: String as PropType<Dir>,
     default: DEFAULT_CONFIG.dir,
@@ -63,11 +65,6 @@ export const carouselProps = {
       return true
     },
   },
-  // control the threshold to trigger slide change
-  dragThreshold: {
-    default: DEFAULT_CONFIG.dragThreshold,
-    type: Number,
-  },
   // enable/disable the carousel component
   enabled: {
     default: DEFAULT_CONFIG.enabled,
@@ -78,7 +75,7 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.gap,
     type: Number,
   },
-  // control the gap between slides
+  // set carousel height
   height: {
     default: DEFAULT_CONFIG.height,
     type: [Number, String],
@@ -110,7 +107,17 @@ export const carouselProps = {
   // toggle mouse dragging
   mouseDrag: {
     default: DEFAULT_CONFIG.mouseDrag,
-    type: Boolean,
+    type: [Boolean, Object] as PropType<boolean | DragConfig>,
+  },
+  // toggle mouse wheel scrolling
+  mouseWheel: {
+    default: DEFAULT_CONFIG.mouseWheel,
+    type: [Boolean, Object] as PropType<boolean | WheelConfig>,
+  },
+  // control mouse scroll threshold
+  mouseScrollThreshold: {
+    default: DEFAULT_CONFIG.mouseScrollThreshold,
+    type: Number,
   },
   pauseAutoplayOnHover: {
     default: DEFAULT_CONFIG.pauseAutoplayOnHover,
@@ -145,7 +152,7 @@ export const carouselProps = {
   // toggle touch dragging
   touchDrag: {
     default: DEFAULT_CONFIG.touchDrag,
-    type: Boolean,
+    type: [Boolean, Object] as PropType<boolean | DragConfig>,
   },
   // sliding transition time in ms
   transition: {

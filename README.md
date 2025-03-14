@@ -19,6 +19,7 @@ Modern lightweight Vue 3 carousel component
 - 📱 **Responsive** - Breakpoints support
 - 🔄 **Infinite Scroll** - Wrap around sliding
 - 🖱️ **Mouse/Touch** - Dragging support
+- 🖲️ **Mouse Wheel** - Scroll navigation support
 - ⚡ **Auto Play** - Automatic sliding
 - 🎯 **Slide Classes** - Active & visible states
 - 🌐 **RTL** - Right-to-left support
