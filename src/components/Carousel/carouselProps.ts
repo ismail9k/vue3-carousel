@@ -13,11 +13,11 @@ import type {
   BreakpointMode,
   CarouselConfig,
   Dir,
+  DragConfig,
   NonNormalizedDir,
   NormalizedDir,
   SlideEffect,
   SnapAlign,
-  DragConfig,
   WheelConfig,
 } from '@/shared'
 

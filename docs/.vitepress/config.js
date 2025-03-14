@@ -24,13 +24,14 @@ module.exports = {
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Config', link: '/config' },
+          { text: 'Configuration', link: '/config' },
           { text: 'Examples', link: '/examples' },
         ],
       },
       {
         text: 'Components',
         items: [
+          { text: 'Carousel', link: '/components/carousel' },
           { text: 'Slide', link: '/components/slide' },
           { text: 'Navigation', link: '/components/navigation' },
           { text: 'Pagination', link: '/components/pagination' },

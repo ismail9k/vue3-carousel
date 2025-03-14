@@ -1,4 +1,5 @@
 export * from './calculateAverage'
+export * from './camelCaseToKebabCase'
 export * from './createCloneSlides'
 export * from './disableChildrenTabbing'
 export * from './except'

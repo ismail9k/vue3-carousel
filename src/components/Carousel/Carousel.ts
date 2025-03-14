@@ -1,5 +1,7 @@
 import {
   ComputedRef,
+  Ref,
+  SetupContext,
   computed,
   defineComponent,
   h,
@@ -7,28 +9,27 @@ import {
   onMounted,
   provide,
   reactive,
-  Ref,
   ref,
-  SetupContext,
   shallowReactive,
+  toRefs,
   watch,
   watchEffect,
-  toRefs,
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
 import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
 import {
   CarouselConfig,
-  createSlideRegistry,
   DEFAULT_CONFIG,
   DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
-  injectCarousel,
   NonNormalizedDir,
   NormalizedDir,
+  createSlideRegistry,
+  injectCarousel,
 } from '@/shared'
 import {
+  ScaleMultipliers,
   calculateAverage,
   createCloneSlides,
   except,
@@ -37,7 +38,6 @@ import {
   getScaleMultipliers,
   getSnapAlignOffset,
   mapNumberToRange,
-  ScaleMultipliers,
   throttle,
   toCssValue,
 } from '@/utils'
@@ -361,11 +361,13 @@ export const Carousel = defineComponent({
           break
       }
     }, 200)
-    const handleFocus = (): void => {
-      document.addEventListener('keydown', handleArrowKeys)
-    }
+
     const handleBlur = (): void => {
       document.removeEventListener('keydown', handleArrowKeys)
+    }
+
+    const handleFocus = (): void => {
+      document.addEventListener('keydown', handleArrowKeys)
     }
 
     /**
@@ -385,16 +387,16 @@ export const Carousel = defineComponent({
       }, config.autoplay)
     }
 
+    function resetAutoplay(): void {
+      stopAutoplay()
+      initAutoplay()
+    }
+
     function stopAutoplay(): void {
       if (autoplayTimer) {
         clearInterval(autoplayTimer)
         autoplayTimer = null
       }
-    }
-
-    function resetAutoplay(): void {
-      stopAutoplay()
-      initAutoplay()
     }
 
     /**
@@ -465,6 +467,14 @@ export const Carousel = defineComponent({
       onWheel,
     })
 
+    function next(skipTransition = false): void {
+      slideTo(currentSlideIndex.value + config.itemsToScroll, skipTransition)
+    }
+
+    function prev(skipTransition = false): void {
+      slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
+    }
+
     function slideTo(slideIndex: number, skipTransition = false): void {
       if (!skipTransition && isSliding.value) {
         return
@@ -527,14 +537,6 @@ export const Carousel = defineComponent({
       }
 
       transitionTimer = setTimeout(transitionCallback, config.transition)
-    }
-
-    function next(skipTransition = false): void {
-      slideTo(currentSlideIndex.value + config.itemsToScroll, skipTransition)
-    }
-
-    function prev(skipTransition = false): void {
-      slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
     }
 
     function restartCarousel(): void {
@@ -782,12 +784,12 @@ export const Carousel = defineComponent({
     })
 
     const carouselStyle = computed(() => ({
+      '--vc-carousel-height': toCssValue(config.height),
+      '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
+      '--vc-slide-gap': toCssValue(config.gap),
       '--vc-transition-duration': isSliding.value
         ? toCssValue(config.transition, 'ms')
         : undefined,
-      '--vc-slide-gap': toCssValue(config.gap),
-      '--vc-carousel-height': toCssValue(config.height),
-      '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
     }))
 
     const nav: CarouselNav = { slideTo, next, prev }
@@ -872,10 +874,10 @@ export const Carousel = defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          style: { transform: trackTransform.value },
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
           onWheel: config.mouseWheel ? handleScroll : null,
+          style: { transform: trackTransform.value },
         },
         output
       )
@@ -890,18 +892,18 @@ export const Carousel = defineComponent({
             `is-${normalizedDir.value}`,
             `is-effect-${config.slideEffect}`,
             {
-              'is-vertical': isVertical.value,
-              'is-sliding': isSliding.value,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-sliding': isSliding.value,
+              'is-vertical': isVertical.value,
             },
           ],
           dir: normalizedDir.value,
           style: carouselStyle.value,
           'aria-label': config.i18n['ariaGallery'],
           tabindex: '0',
-          onFocus: handleFocus,
           onBlur: handleBlur,
+          onFocus: handleFocus,
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
         },
