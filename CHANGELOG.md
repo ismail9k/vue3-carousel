@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.15.0) - 2025-03-14
+
+- Allow carousel ref to be passed to Pagination and Navigation by @Tofandel in #487
+- feat: add threshold option for slide transition customization by @tbranger in #489
+- Mouse scroll support by @ismail9k in #494
+- Refactor: Use Composable Functions by @ismail9k in #493
+
 ## [0.14.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.14.0) - 2025-02-09
 
 - use LiveCodes for docs examples by @hatemhosny in #476
