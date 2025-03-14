@@ -1,3 +1,3 @@
-export * from './useDragging'
+export * from './useDrag'
 export * from './useHover'
 export * from './useWheel'

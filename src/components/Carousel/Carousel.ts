@@ -17,7 +17,7 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
-import { useDragging, useHover, useWheel } from '@/composables'
+import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
 import {
   CarouselConfig,
   createSlideRegistry,
@@ -64,6 +64,7 @@ export const Carousel = defineComponent({
     'slide-start',
     'slide-unregistered',
     'update:modelValue',
+    'wheel',
   ],
   setup(props: CarouselConfig, { slots, emit, expose }: SetupContext) {
     const slideRegistry = createSlideRegistry(emit)
@@ -401,13 +402,9 @@ export const Carousel = defineComponent({
      */
     const isSliding = ref(false)
 
-    const onDrag = ({
-      delta,
-      isTouch,
-    }: {
-      delta: { x: number; y: number }
-      isTouch: boolean
-    }) => {
+    const onDrag = ({ deltaX, deltaY, isTouch }: DragEventData) => {
+      emit('drag', { deltaX, deltaY })
+
       const threshold = isTouch
         ? typeof config.touchDrag === 'object'
           ? (config.touchDrag?.threshold ?? DEFAULT_DRAG_THRESHOLD)
@@ -419,7 +416,7 @@ export const Carousel = defineComponent({
       const draggedSlides = getDraggedSlidesCount({
         isVertical: isVertical.value,
         isReversed: isReversed.value,
-        dragged: delta,
+        dragged: { x: deltaX, y: deltaY },
         effectiveSlideSize: effectiveSlideSize.value,
         threshold,
       })
@@ -431,25 +428,41 @@ export const Carousel = defineComponent({
             max: maxSlideIndex.value,
             min: minSlideIndex.value,
           })
-
-      emit('drag', delta)
     }
 
     const onDragEnd = () => slideTo(activeSlideIndex.value)
 
-    const { dragged, isDragging, handleDragStart } = useDragging({
+    const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
       onDrag,
       onDragEnd,
     })
 
+    const onWheel = ({ deltaX, deltaY, isScrollingForward }: WheelEventData) => {
+      emit('wheel', { deltaX, deltaY })
+
+      if (isScrollingForward) {
+        // Scrolling down/right
+        if (isReversed.value) {
+          prev()
+        } else {
+          next()
+        }
+      } else {
+        // Scrolling up/left
+        if (isReversed.value) {
+          next()
+        } else {
+          prev()
+        }
+      }
+    }
+
     const { handleScroll } = useWheel({
       isVertical,
-      isReversed,
       isSliding,
       config,
-      next,
-      prev,
+      onWheel,
     })
 
     function slideTo(slideIndex: number, skipTransition = false): void {

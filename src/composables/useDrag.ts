@@ -2,14 +2,19 @@ import { ref, reactive, computed, Ref } from 'vue'
 
 import { throttle } from '@/utils'
 
-export interface UseDraggingOptions {
+export type DragEventData = {
+  deltaX: number
+  deltaY: number
+  isTouch: boolean
+}
+export interface UseDragOptions {
   isSliding: boolean | Ref<boolean>
-  onDrag?: (data: { delta: { x: number; y: number }; isTouch: boolean }) => void
+  onDrag?: ({ deltaX, deltaY, isTouch }: DragEventData) => void
   onDragStart?: () => void
   onDragEnd?: () => void
 }
 
-export function useDragging(options: UseDraggingOptions) {
+export function useDrag(options: UseDragOptions) {
   let isTouch = false
   const startPosition = { x: 0, y: 0 }
   const dragged = reactive({ x: 0, y: 0 })
@@ -46,13 +51,13 @@ export function useDragging(options: UseDraggingOptions) {
 
     const moveEvent = isTouch ? 'touchmove' : 'mousemove'
     const endEvent = isTouch ? 'touchend' : 'mouseup'
-    document.addEventListener(moveEvent, handleDragging, { passive: false })
+    document.addEventListener(moveEvent, handleDrag, { passive: false })
     document.addEventListener(endEvent, handleDragEnd, { passive: true })
 
     options.onDragStart?.()
   }
 
-  const handleDragging = throttle((event: TouchEvent | MouseEvent): void => {
+  const handleDrag = throttle((event: TouchEvent | MouseEvent): void => {
     isDragging.value = true
 
     const currentX = isTouch
@@ -65,11 +70,11 @@ export function useDragging(options: UseDraggingOptions) {
     dragged.x = currentX - startPosition.x
     dragged.y = currentY - startPosition.y
 
-    options.onDrag?.({ delta: { x: dragged.x, y: dragged.y }, isTouch })
+    options.onDrag?.({ deltaX: dragged.x, deltaY: dragged.y, isTouch })
   })
 
   const handleDragEnd = (): void => {
-    handleDragging.cancel()
+    handleDrag.cancel()
 
     if (!isTouch) {
       const preventClick = (e: MouseEvent) => {
@@ -87,7 +92,7 @@ export function useDragging(options: UseDraggingOptions) {
 
     const moveEvent = isTouch ? 'touchmove' : 'mousemove'
     const endEvent = isTouch ? 'touchend' : 'mouseup'
-    document.removeEventListener(moveEvent, handleDragging)
+    document.removeEventListener(moveEvent, handleDrag)
     document.removeEventListener(endEvent, handleDragEnd)
   }
 

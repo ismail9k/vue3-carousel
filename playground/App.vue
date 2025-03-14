@@ -211,6 +211,7 @@ const events = [
   'slide-end',
   'loop',
   'drag',
+  'wheel',
   'slide-registered',
   'slide-unregistered',
 ]

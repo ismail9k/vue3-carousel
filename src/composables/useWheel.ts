@@ -3,39 +3,37 @@ import { ComputedRef, Ref, computed } from 'vue'
 import { CarouselConfig } from '@/shared'
 import { DEFAULT_MOUSE_WHEEL_THRESHOLD } from '@/shared/constants'
 
-interface UseWheelOptions {
+export type WheelEventData = {
+  deltaX: number
+  deltaY: number
+  isScrollingForward: boolean
+}
+
+export type UseWheelOptions = {
   isVertical: boolean | ComputedRef<boolean>
-  isReversed: boolean | ComputedRef<boolean>
   isSliding: boolean | Ref<boolean>
   config: CarouselConfig
-  next: (skipTransition?: boolean) => void
-  prev: (skipTransition?: boolean) => void
+  onWheel?: (data: WheelEventData) => void
 }
 
 export function useWheel(options: UseWheelOptions) {
-  const { isVertical, isReversed, isSliding, config, next, prev } = options
+  const { isVertical, isSliding, config } = options
 
   // Create computed values to handle both reactive and non-reactive inputs
   const vertical = computed(() => {
     return typeof isVertical === 'boolean' ? isVertical : isVertical.value
   })
 
-  const reversed = computed(() => {
-    return typeof isReversed === 'boolean' ? isReversed : isReversed.value
-  })
-
   const sliding = computed(() => {
     return typeof isSliding === 'boolean' ? isSliding : isSliding.value
   })
 
-  const handleScroll = (event: Event): void => {
+  const handleScroll = (event: WheelEvent): void => {
     event.preventDefault()
 
     if (!config.mouseWheel || sliding.value) {
       return
     }
-
-    const wheelEvent = event as WheelEvent
 
     // Add sensitivity threshold to prevent small movements from triggering navigation
     const threshold =
@@ -44,8 +42,8 @@ export function useWheel(options: UseWheelOptions) {
         : DEFAULT_MOUSE_WHEEL_THRESHOLD
 
     // Determine scroll direction
-    const deltaY = Math.abs(wheelEvent.deltaY) > threshold ? wheelEvent.deltaY : 0
-    const deltaX = Math.abs(wheelEvent.deltaX) > threshold ? wheelEvent.deltaX : 0
+    const deltaY = Math.abs(event.deltaY) > threshold ? event.deltaY : 0
+    const deltaX = Math.abs(event.deltaX) > threshold ? event.deltaX : 0
 
     // If neither delta exceeds the threshold, don't navigate
     if (deltaY === 0 && deltaX === 0) {
@@ -62,22 +60,7 @@ export function useWheel(options: UseWheelOptions) {
     // Positive delta means scrolling down/right
     const isScrollingForward = effectiveDelta > 0
 
-    // Apply navigation based on scroll direction and carousel configuration
-    if (isScrollingForward) {
-      // Scrolling down/right
-      if (reversed.value) {
-        prev()
-      } else {
-        next()
-      }
-    } else {
-      // Scrolling up/left
-      if (reversed.value) {
-        next()
-      } else {
-        prev()
-      }
-    }
+    options.onWheel?.({ deltaX, deltaY, isScrollingForward })
   }
 
   return {
