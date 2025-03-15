@@ -58,7 +58,7 @@ watch(isDark, () => {
 
 <template>
   <LiveCodes
-    appUrl="https://v42.livecodes.io/"
+    appUrl="https://v43.livecodes.io/"
     :config="config"
     @sdk-ready="onReady"
     :style="{ height: props.height || '250px' }"
