@@ -1,25 +1,31 @@
 <script setup>
-import '../../dist/carousel.css'
+import 'vue3-carousel/dist/carousel.css'
 import { ref } from 'vue'
-import { Carousel, Slide, Navigation } from '../../dist/carousel.mjs'
+import { Carousel, Slide } from 'vue3-carousel'
 
 const carouselRef = ref()
-const currentSlide = ref(0)
+const currentSlide = ref(1)
 
 const next = () => carouselRef.value.next()
 const prev = () => carouselRef.value.prev()
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/800/600?random=${index + 1}`,
+}))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+}
 </script>
 
-
 <template>
-  <Carousel ref="carouselRef" v-model="currentSlide" snapAlign="start">
-    <Slide v-for="slide in 10" :key="slide">
-      <div class="carousel__item">{{ slide - 1 }}</div>
+  <Carousel ref="carouselRef" v-model="currentSlide" v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="image" />
     </Slide>
-
-    <template #addons>
-      <Navigation />
-    </template>
   </Carousel>
 
   <div>
@@ -29,3 +35,20 @@ const prev = () => carouselRef.value.prev()
   </div>
 </template>
 
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

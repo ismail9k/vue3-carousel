@@ -1,26 +1,27 @@
 <script setup>
+import { Carousel, Pagination, Navigation, Slide } from 'vue3-carousel'
 import 'vue3-carousel/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
-
-const carouselConfig = {
-  dir: 'ttb',
-  wrapAround: true,
-  itemsToShow: 2,
-  snapAlign: 'center',
-  height: '400px',
-  gap: 5,
-}
 
 const images = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
   url: `https://picsum.photos/800/600?random=${index + 1}`,
 }))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+  mouseWheel: true,
+  wrapAround: true,
+}
 </script>
 
 <template>
-  <Carousel v-bind="carouselConfig">
-    <Slide v-for="img in images" :key="img.id">
-      <img :src="img.url" />
+  <Carousel v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <div class="carousel__item">
+        <img :src="image.url" alt="image" />
+      </div>
     </Slide>
 
     <template #addons>
@@ -42,12 +43,8 @@ const images = Array.from({ length: 10 }, (_, index) => ({
   --vc-nav-border-radius: 100%;
 }
 
-.carousel__slide {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 img {
+  border-radius: 8px;
   width: 100%;
   height: 100%;
   object-fit: cover;

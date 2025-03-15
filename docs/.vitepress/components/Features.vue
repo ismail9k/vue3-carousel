@@ -1,6 +1,6 @@
 <script setup>
-import { Carousel, Navigation, Slide as CarouselSlide } from '../../dist/carousel.mjs'
-import '../../dist/carousel.css'
+import { Carousel, Navigation, Slide as CarouselSlide } from '../../../dist/carousel.mjs'
+import '../../../dist/carousel.css'
 
 const config = {
   snapAlign: 'start',
@@ -63,7 +63,6 @@ const features = [
 ]
 </script>
 
-
 <template>
   <section class="features">
     <div class="container">
@@ -84,8 +83,6 @@ const features = [
   </section>
 </template>
 
-
-
 <style>
 .features {
   margin: 0 auto;
@@ -101,7 +98,9 @@ const features = [
   border-radius: 12px;
   height: 100%;
   background-color: var(--vp-c-bg-soft);
-  transition: border-color 0.25s, background-color 0.25s;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s;
 
   @media screen and (max-width: 640px) {
     margin-bottom: 16px;

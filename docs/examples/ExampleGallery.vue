@@ -1,53 +1,50 @@
 <script setup>
-import { Carousel, Slide, Navigation } from '../../dist/carousel.mjs'
-
-import '../../dist/carousel.css'
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import { ref } from 'vue'
 
 const currentSlide = ref(0)
-const slideTo = (index) => {
-  currentSlide.value = index
-}
+
+const slideTo = (nextSlide) => (currentSlide.value = nextSlide)
 
 const galleryConfig = {
   itemsToShow: 1,
-  slideEffect: 'fade',
   wrapAround: true,
+  slideEffect: 'fade',
   mouseDrag: false,
   touchDrag: false,
+  height: 320,
 }
 
 const thumbnailsConfig = {
-  itemsToShow: 7,
+  height: 80,
+  itemsToShow: 6,
   wrapAround: true,
-  mouseDrag: false,
   touchDrag: false,
-  height: 100,
   gap: 10,
 }
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/800/600?random=${index + 1}`,
+}))
 </script>
 
 <template>
   <Carousel id="gallery" v-bind="galleryConfig" v-model="currentSlide">
-    <Slide v-for="slide in 10" :key="slide">
-      <div class="carousel__item">{{ slide }}</div>
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="Gallery Image" class="gallery-image" />
     </Slide>
   </Carousel>
 
-  <Carousel
-    id="thumbnails"
-    v-bind="thumbnailsConfig"
-    v-model="currentSlide"
-    ref="thumbnailsCarousel"
-  >
-    <Slide v-for="slide in 10" :key="slide">
+  <Carousel id="thumbnails" v-bind="thumbnailsConfig" v-model="currentSlide">
+    <Slide v-for="image in images" :key="image.id">
       <template #default="{ currentIndex, isActive }">
         <div
-          class="carousel__item"
-          :class="{ active: isActive }"
+          :class="['thumbnail', { 'is-active': isActive }]"
           @click="slideTo(currentIndex)"
         >
-          {{ slide }}
+          <img :src="image.url" alt="Thumbnail Image" class="thumbnail-image" />
         </div>
       </template>
     </Slide>
@@ -59,16 +56,40 @@ const thumbnailsConfig = {
 </template>
 
 <style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-image {
+  border-radius: 16px;
+}
+
 #thumbnails {
   margin-top: 10px;
-  .carousel__track {
-    min-height: auto;
-  }
 }
 
-.carousel__item.active {
-  border: 2px solid #42b883;
+.thumbnail {
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.thumbnail.is-active,
+.thumbnail:hover {
+  opacity: 1;
 }
 </style>
-
-
