@@ -1,6 +1,6 @@
 <script setup>
-import 'vue3-carousel/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+import '../../dist/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from '../../dist/carousel.mjs'
 
 const carouselConfig = {
   dir: 'ttb',

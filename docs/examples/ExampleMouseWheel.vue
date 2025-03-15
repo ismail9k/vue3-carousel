@@ -1,6 +1,6 @@
 <script setup>
-import { Carousel, Pagination, Navigation, Slide } from 'vue3-carousel'
-import 'vue3-carousel/carousel.css'
+import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.mjs'
+import '../../dist/carousel.css'
 
 const images = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,

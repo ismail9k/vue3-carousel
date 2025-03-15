@@ -18,12 +18,18 @@ import VerticalExampleRaw from './ExampleVertical.vue?raw'
 // @ts-ignore
 import WrapAroundExampleRaw from './ExampleWrapAround.vue?raw'
 
-export const BasicExample = BasicExampleRaw
-export const WrapAroundExample = WrapAroundExampleRaw
-export const VerticalExample = VerticalExampleRaw
-export const BreakpointsExample = BreakpointsExampleRaw
-export const AutoplayExample = AutoplayExampleRaw
-export const ActiveClassesExample = ActiveClassesExampleRaw
-export const CustomNavigationExample = CustomNavigationExampleRaw
-export const GalleryExample = GalleryExampleRaw
-export const MouseWheelExample = MouseWheelExampleRaw
+function formatExample(exampleRaw: string) {
+  return exampleRaw
+    .replace('../../dist/carousel.css', 'vue3-carousel/carousel.css')
+    .replace('../../dist/carousel.mjs', 'vue3-carousel')
+}
+
+export const BasicExample = formatExample(BasicExampleRaw)
+export const WrapAroundExample = formatExample(WrapAroundExampleRaw)
+export const VerticalExample = formatExample(VerticalExampleRaw)
+export const BreakpointsExample = formatExample(BreakpointsExampleRaw)
+export const AutoplayExample = formatExample(AutoplayExampleRaw)
+export const ActiveClassesExample = formatExample(ActiveClassesExampleRaw)
+export const CustomNavigationExample = formatExample(CustomNavigationExampleRaw)
+export const GalleryExample = formatExample(GalleryExampleRaw)
+export const MouseWheelExample = formatExample(MouseWheelExampleRaw)

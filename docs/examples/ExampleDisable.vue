@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import { Carousel, Pagination, Navigation, Slide } from 'vue3-carousel'
-import 'vue3-carousel/carousel.css'
+import '../../dist/carousel.css'
+import { Carousel, Pagination, Navigation, Slide } from '../../dist/carousel.mjs'
+
 const config = {}
 const enabled = ref(true)
 </script>

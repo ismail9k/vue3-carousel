@@ -1,6 +1,6 @@
 <script setup>
-import 'vue3-carousel/carousel.css'
-import { Carousel, Slide, Navigation } from 'vue3-carousel'
+import '../../dist/carousel.css'
+import { Carousel, Slide, Navigation } from '../../dist/carousel.mjs'
 import { ref } from 'vue'
 
 const currentSlide = ref(0)
