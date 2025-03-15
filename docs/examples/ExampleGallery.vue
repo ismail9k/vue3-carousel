@@ -26,7 +26,7 @@ const thumbnailsConfig = {
 
 const images = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
-  url: `https://picsum.photos/800/600?random=${index + 1}`,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
 }))
 </script>
 

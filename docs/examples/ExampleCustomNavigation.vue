@@ -1,5 +1,5 @@
 <script setup>
-import '../../dist/dist/carousel.css'
+import '../../dist/carousel.css'
 import { ref } from 'vue'
 import { Carousel, Slide } from '../../dist/carousel.mjs'
 
@@ -11,7 +11,7 @@ const prev = () => carouselRef.value.prev()
 
 const images = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
-  url: `https://picsum.photos/800/600?random=${index + 1}`,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
 }))
 
 const config = {
