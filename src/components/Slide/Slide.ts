@@ -126,13 +126,13 @@ export const Slide = defineComponent({
             'carousel__slide--next': isNext.value,
             'carousel__slide--sliding': carousel.isSliding,
           },
-          onFocusin: () => {
+          carousel.config.focusInJumpToSlide ? onFocusin: () => {
             // Prevent the viewport being scrolled by the focus
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
             }
             carousel.nav.slideTo(currentIndex.value)
-          },
+          } : undefined,
           id: props.isClone ? undefined : props.id,
           'aria-hidden': props.isClone || undefined,
         },
