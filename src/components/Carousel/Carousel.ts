@@ -423,6 +423,11 @@ export const Carousel = defineComponent({
         threshold,
       })
 
+      // Prevent unnecessary reactivity
+      if (draggedSlides === 0) {
+        return
+      }
+
       activeSlideIndex.value = config.wrapAround
         ? currentSlideIndex.value + draggedSlides
         : getNumberInRange({

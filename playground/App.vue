@@ -171,7 +171,7 @@ const handleReset = () => {
   items.splice(0, items.length, ...defaultSlides)
 }
 
-const handelButtonClick = () => {
+const handleButtonClick = () => {
   alert('Button clicked')
 }
 
@@ -264,7 +264,7 @@ onMounted(() => {
             >
               <h3>{{ item.title }}</h3>
               <p>{{ item.description }}</p>
-              <button @click="handelButtonClick">This is a button</button>
+              <button @click="handleButtonClick">This is a button</button>
             </div>
           </CarouselSlide>
           <template #addons>
