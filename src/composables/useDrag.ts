@@ -35,7 +35,10 @@ export function useDrag(options: UseDragOptions) {
 
     isTouch = event.type === 'touchstart'
 
-    if (!isTouch) {
+    if (isTouch && (event as TouchEvent).touches.length > 1) {
+      // If there is more than 1 finger on the screen, avoid drag start (this allows user to pinch zoom)
+      return
+    } else if (!isTouch) {
       event.preventDefault()
       if ((event as MouseEvent).button !== 0) {
         return
@@ -58,6 +61,10 @@ export function useDrag(options: UseDragOptions) {
   }
 
   const handleDrag = throttle((event: TouchEvent | MouseEvent): void => {
+    if (isTouch && (event as TouchEvent).touches.length > 1) {
+      return
+    }
+
     isDragging.value = true
 
     const currentX = isTouch
@@ -76,12 +83,13 @@ export function useDrag(options: UseDragOptions) {
   const handleDragEnd = (): void => {
     handleDrag.cancel()
 
-    if (!isTouch) {
-      const preventClick = (e: MouseEvent) => {
+    const draggedDistance = Math.abs(dragged.x) + Math.abs(dragged.y);
+
+    if (!isTouch && draggedDistance > 10) {
+      window.addEventListener('click', (e: MouseEvent) => {
         e.preventDefault()
-        window.removeEventListener('click', preventClick)
-      }
-      window.addEventListener('click', preventClick)
+        e.stopPropagation()
+      }, { once: true, capture: true })
     }
 
     options.onDragEnd?.()
