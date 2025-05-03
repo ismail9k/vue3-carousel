@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.15.1) - 2025-05-03
+
+- fix: allow users to pinch zoom on mobile and prevent click properly only if user drags more than 10px by @Tofandel in #507
+
 ## [0.15.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.15.0) - 2025-03-14
 
 - Allow carousel ref to be passed to Pagination and Navigation by @Tofandel in #487
