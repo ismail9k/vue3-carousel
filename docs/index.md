@@ -22,8 +22,6 @@ hero:
     text: Github
     link: https://github.com/ismail9k/vue3-carousel
 
-
-
 footer: MIT Licensed
 
 meta:
