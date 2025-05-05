@@ -70,6 +70,10 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.enabled,
     type: Boolean,
   },
+  focusInJumpToSlide: {
+    default: DEFAULT_CONFIG.focusInJumpToSlide,
+    type: Boolean,
+  },
   // control the gap between slides
   gap: {
     default: DEFAULT_CONFIG.gap,
