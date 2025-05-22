@@ -484,25 +484,18 @@ export const Carousel = defineComponent({
       if (!skipTransition && isSliding.value) {
         return
       }
-
-      let targetIndex = slideIndex
-      let mappedIndex = slideIndex
-
-      prevSlideIndex.value = currentSlideIndex.value
-
-      if (!config.wrapAround) {
-        targetIndex = getNumberInRange({
-          val: targetIndex,
-          max: maxSlideIndex.value,
-          min: minSlideIndex.value,
-        })
-      } else {
-        mappedIndex = mapNumberToRange({
-          val: targetIndex,
-          max: maxSlideIndex.value,
-          min: minSlideIndex.value,
-        })
+      
+      const targetIndex = (config.wrapAround ? mapNumberToRange : getNumberInRange)({
+        val: slideIndex,
+        max: maxSlideIndex.value,
+        min: minSlideIndex.value,
+      })
+      
+      if (currentSlideIndex.value === targetIndex) {
+        return;
       }
+      
+      prevSlideIndex.value = currentSlideIndex.value
 
       emit('slide-start', {
         slidingToIndex: slideIndex,
@@ -514,17 +507,17 @@ export const Carousel = defineComponent({
       stopAutoplay()
       isSliding.value = true
 
-      currentSlideIndex.value = targetIndex
-      if (mappedIndex !== targetIndex) {
+      currentSlideIndex.value = slideIndex
+      if (targetIndex !== slideIndex) {
         modelWatcher.pause()
       }
-      emit('update:modelValue', mappedIndex)
+      emit('update:modelValue', targetIndex)
 
       const transitionCallback = (): void => {
-        if (config.wrapAround && mappedIndex !== targetIndex) {
+        if (config.wrapAround && targetIndex !== slideIndex) {
           modelWatcher.resume()
 
-          currentSlideIndex.value = mappedIndex
+          currentSlideIndex.value = targetIndex
           emit('loop', {
             currentSlideIndex: currentSlideIndex.value,
             slidingToIndex: slideIndex,
