@@ -127,6 +127,11 @@ export const Slide = defineComponent({
             'carousel__slide--sliding': carousel.isSliding,
           },
           onFocusin: () => {
+            // eslint-disable-next-line no-debugger
+            debugger;
+            // if (!carousel.config.focusInJumpToSlide) {
+            //   return
+            // }
             // Prevent the viewport being scrolled by the focus
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
