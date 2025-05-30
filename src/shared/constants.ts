@@ -46,7 +46,7 @@ export const SNAP_ALIGN_OPTIONS = [
 ] as const
 
 export const DEFAULT_MOUSE_WHEEL_THRESHOLD = 10
-export const DEFAULT_DRAG_THRESHOLD = 0.15
+export const DEFAULT_DRAG_THRESHOLD = 0.08
 
 export const DEFAULT_CONFIG: CarouselConfig = {
   autoplay: 0,
