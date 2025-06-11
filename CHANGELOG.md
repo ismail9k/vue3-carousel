@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.16.0) - 2025-06-11
+
+- Lower default drag threshold by @Tofandel in #517
+- Fix carousel vModel is allowed toSlide outside of bounds by @Tofandel in #516
+
 ## [0.15.1](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.15.1) - 2025-05-03
 
 - fix: allow users to pinch zoom on mobile and prevent click properly only if user drags more than 10px by @Tofandel in #507
