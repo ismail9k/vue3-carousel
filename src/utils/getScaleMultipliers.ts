@@ -1,11 +1,14 @@
 export function getTransformValues(el: HTMLElement) {
   const { transform } = window.getComputedStyle(el)
 
-  //add sanity check
-  return transform
-    .split(/[(,)]/)
-    .slice(1, -1)
-    .map((v) => parseFloat(v))
+  if (transform === 'none' || transform === 'matrix(1, 0, 0, 1, 0, 0)') {
+    return [1, 0, 0, 1, 0, 0]
+  }
+
+  const values = transform.match(/matrix\(([^)]+)\)/)
+  if (!values) return [1, 0, 0, 1, 0, 0]
+  
+  return values[1].split(',').map(v => parseFloat(v.trim()))
 }
 
 export type ScaleMultipliers = {
