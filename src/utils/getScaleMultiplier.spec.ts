@@ -18,4 +18,43 @@ describe('getWidthMultiplier.ts', () => {
 
     expect(results).toStrictEqual([0.4, 0, 0, 0.6, -12, 12])
   })
+
+  it('handles identity transform "none" with early return optimization', () => {
+    const div = document.createElement('div')
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      () =>
+        ({
+          transform: 'none',
+        }) as unknown as CSSStyleDeclaration
+    )
+    
+    const results = getTransformValues(div)
+    expect(results).toStrictEqual([1, 0, 0, 1, 0, 0])
+  })
+
+  it('handles identity transform matrix with early return optimization', () => {
+    const div = document.createElement('div')
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      () =>
+        ({
+          transform: 'matrix(1, 0, 0, 1, 0, 0)',
+        }) as unknown as CSSStyleDeclaration
+    )
+    
+    const results = getTransformValues(div)
+    expect(results).toStrictEqual([1, 0, 0, 1, 0, 0])
+  })
+
+  it('handles invalid transform with fallback to identity', () => {
+    const div = document.createElement('div')
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      () =>
+        ({
+          transform: 'invalid-transform',
+        }) as unknown as CSSStyleDeclaration
+    )
+    
+    const results = getTransformValues(div)
+    expect(results).toStrictEqual([1, 0, 0, 1, 0, 0])
+  })
 })
