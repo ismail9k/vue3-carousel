@@ -87,6 +87,11 @@ module.exports = {
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     [
       'script',
+      {},
+      "// First, clear any existing ismail9k.com domain cookies\nfunction clearMainDomainCookies() {\n  document.cookie = '_ga=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.ismail9k.com';\n  document.cookie = '_ga_37DX3WR4T0=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.ismail9k.com';\n  document.cookie = '_gid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.ismail9k.com';\n  document.cookie = '_gat=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.ismail9k.com';\n}\nclearMainDomainCookies();",
+    ],
+    [
+      'script',
       {
         async: true,
         src: 'https://www.googletagmanager.com/gtag/js?id=G-37DX3WR4T0',
@@ -95,7 +100,7 @@ module.exports = {
     [
       'script',
       {},
-      "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-37DX3WR4T0');",
+      "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-37DX3WR4T0', {\n  'cookie_domain': 'vue3-carousel.ismail9k.com'\n});",
     ],
   ],
 }
