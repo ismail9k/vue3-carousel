@@ -36,7 +36,11 @@ export const carouselProps = {
   breakpointMode: {
     default: DEFAULT_CONFIG.breakpointMode,
     validator(value: BreakpointMode) {
-      return BREAKPOINT_MODE_OPTIONS.includes(value)
+      const isValid = BREAKPOINT_MODE_OPTIONS.includes(value)
+      if (!isValid) {
+        console.warn(`[vue3-carousel]: Invalid breakpointMode "${value}". Allowed values: ${BREAKPOINT_MODE_OPTIONS.join(', ')}`)
+      }
+      return isValid
     },
   },
   clamp: {
@@ -47,20 +51,13 @@ export const carouselProps = {
     type: String as PropType<Dir>,
     default: DEFAULT_CONFIG.dir,
     validator(value: Dir, props: { height?: string }) {
-      // The value must match one of these strings
       if (!DIR_OPTIONS.includes(value)) {
+        console.warn(`[vue3-carousel]: Invalid dir "${value}". Allowed values: ${DIR_OPTIONS.join(', ')}`)
         return false
       }
-
-      const normalizedDir =
-        value in DIR_MAP ? DIR_MAP[value as NonNormalizedDir] : (value as NormalizedDir)
-      if (
-        ['ttb', 'btt'].includes(normalizedDir) &&
-        (!props.height || props.height === 'auto')
-      ) {
-        console.warn(
-          `[vue3-carousel]: The dir "${value}" is not supported with height "auto".`
-        )
+      const normalizedDir = value in DIR_MAP ? DIR_MAP[value as NonNormalizedDir] : (value as NormalizedDir)
+      if (["ttb", "btt"].includes(normalizedDir) && (!props.height || props.height === "auto")) {
+        console.warn(`[vue3-carousel]: The dir "${value}" is not supported with height "auto".`)
       }
       return true
     },
@@ -139,14 +136,22 @@ export const carouselProps = {
     type: String as PropType<SlideEffect>,
     default: DEFAULT_CONFIG.slideEffect,
     validator(value: SlideEffect) {
-      return SLIDE_EFFECTS.includes(value)
+      const isValid = SLIDE_EFFECTS.includes(value)
+      if (!isValid) {
+        console.warn(`[vue3-carousel]: Invalid slideEffect "${value}". Allowed values: ${SLIDE_EFFECTS.join(', ')}`)
+      }
+      return isValid
     },
   },
   // control snap position alignment
   snapAlign: {
     default: DEFAULT_CONFIG.snapAlign,
     validator(value: SnapAlign) {
-      return SNAP_ALIGN_OPTIONS.includes(value)
+      const isValid = SNAP_ALIGN_OPTIONS.includes(value)
+      if (!isValid) {
+        console.warn(`[vue3-carousel]: Invalid snapAlign "${value}". Allowed values: ${SNAP_ALIGN_OPTIONS.join(', ')}`)
+      }
+      return isValid
     },
   },
   // toggle touch dragging
