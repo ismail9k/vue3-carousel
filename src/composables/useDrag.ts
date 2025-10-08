@@ -54,7 +54,7 @@ export function useDrag(options: UseDragOptions) {
 
     const moveEvent = isTouch ? 'touchmove' : 'mousemove'
     const endEvent = isTouch ? 'touchend' : 'mouseup'
-    document.addEventListener(moveEvent, handleDrag, { passive: false })
+    document.addEventListener(moveEvent, handleDrag, { passive: isTouch })
     document.addEventListener(endEvent, handleDragEnd, { passive: true })
 
     options.onDragStart?.()

@@ -702,13 +702,17 @@ export const Carousel = defineComponent({
         let accumulatedSize = 0
         let index = 0 - clonedSlidesCount.value.before
         const offset = Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+        let iterations = 0
+        const maxIterations = slides.length * 2
 
-        while (accumulatedSize <= offset) {
+        while (accumulatedSize <= offset && iterations < maxIterations) {
           const normalizedIndex =
             ((index % slides.length) + slides.length) % slides.length
-          accumulatedSize +=
-            slidesRect.value[normalizedIndex]?.[dimension.value] + config.gap
+          const slideSize = slidesRect.value[normalizedIndex]?.[dimension.value] || 0
+          if (slideSize <= 0) break
+          accumulatedSize += slideSize + config.gap
           index++
+          iterations++
         }
         minIndex = index - 1
       }
@@ -717,6 +721,9 @@ export const Carousel = defineComponent({
       {
         let index = minIndex
         let accumulatedSize = 0
+        let iterations = 0
+        const maxIterations = slides.length * 2
+        
         if (index < 0) {
           accumulatedSize =
             slidesRect.value
@@ -731,12 +738,14 @@ export const Carousel = defineComponent({
             Math.abs(scrolledOffset.value)
         }
 
-        while (accumulatedSize < viewportRect.value[dimension.value]) {
+        while (accumulatedSize < viewportRect.value[dimension.value] && iterations < maxIterations) {
           const normalizedIndex =
             ((index % slides.length) + slides.length) % slides.length
-          accumulatedSize +=
-            slidesRect.value[normalizedIndex]?.[dimension.value] + config.gap
+          const slideSize = slidesRect.value[normalizedIndex]?.[dimension.value] || 0
+          if (slideSize <= 0) break
+          accumulatedSize += slideSize + config.gap
           index++
+          iterations++
         }
         maxIndex = index - 1
       }
