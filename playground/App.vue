@@ -48,6 +48,7 @@ const defaultConfig = {
   pauseAutoplayOnHover: true,
   useBreakpoints: false,
   threshold: 0.5,
+  focusInJumpToSlide: true
 }
 
 const config = reactive({ ...defaultConfig })
@@ -118,6 +119,11 @@ const formFields = [
         label: 'Wrap Around',
         path: 'wrapAround',
       },
+      {
+        type: 'checkbox',
+        label: 'Jump to slide on focus',
+        path: 'focusInJumpToSlide',
+      }
     ],
   },
   {

@@ -54,6 +54,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   breakpoints: undefined,
   dir: DIR_OPTIONS[0],
   enabled: true,
+  focusInJumpToSlide: true,
   gap: 0,
   height: 'auto',
   i18n: I18N_DEFAULT_CONFIG,
