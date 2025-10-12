@@ -43,15 +43,12 @@ describe('Carousel.ts', () => {
   })
 
   it('Should navigate the carousel with arrow keys', async () => {
-    let time = 1
-    // Avoid throttling
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
-      time += 200
-      cb(time)
-    })
+    vi.useFakeTimers()
     const track = wrapper.find('[tabindex="0"]')
     const triggerKeyEvent = async (key = 'ArrowRight', ctrl = false) => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: key, ctrlKey: ctrl }))
+      // Advance timers to handle throttle delay (200ms for arrow keys)
+      vi.advanceTimersByTime(200)
       await nextTick()
     }
     await triggerKeyEvent()
@@ -103,6 +100,8 @@ describe('Carousel.ts', () => {
 
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
+
+    vi.useRealTimers()
   })
 
   it('Should default itemsToShow to 1 if less than 1', async () => {
