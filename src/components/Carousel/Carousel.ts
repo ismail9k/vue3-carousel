@@ -37,6 +37,7 @@ import {
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
+  invalidateTransformCache,
   mapNumberToRange,
   throttle,
   toCssValue,
@@ -255,9 +256,14 @@ export const Carousel = defineComponent({
       }
 
       transformElements.add(target)
+      // Invalidate transform cache for this element as it's animating
+      invalidateTransformCache(new Set([target]))
+
       if (!animationInterval) {
         const stepAnimation = () => {
           animationInterval = requestAnimationFrame(() => {
+            // Invalidate cache during animation to get fresh values
+            invalidateTransformCache(transformElements)
             updateSlideSize()
             stepAnimation()
           })
@@ -269,6 +275,8 @@ export const Carousel = defineComponent({
       const target = event.target as HTMLElement
       if (target) {
         transformElements.delete(target)
+        // Invalidate cache one final time after animation completes
+        invalidateTransformCache(new Set([target]))
       }
       if (animationInterval && transformElements.size === 0) {
         cancelAnimationFrame(animationInterval)
@@ -281,8 +289,9 @@ export const Carousel = defineComponent({
     if (typeof document !== 'undefined') {
       watchEffect(() => {
         if (mounted.value && ignoreAnimations.value !== false) {
-          document.addEventListener('animationstart', setAnimationInterval)
-          document.addEventListener('animationend', finishAnimation)
+          // Use passive listeners for better performance
+          document.addEventListener('animationstart', setAnimationInterval, { passive: true })
+          document.addEventListener('animationend', finishAnimation, { passive: true })
         } else {
           document.removeEventListener('animationstart', setAnimationInterval)
           document.removeEventListener('animationend', finishAnimation)

@@ -1,5 +1,8 @@
 /**
- * Returns a throttled version of the function using requestAnimationFrame.
+ * Returns a throttled version of the function using requestAnimationFrame or setTimeout.
+ *
+ * Uses requestAnimationFrame for immediate/frame-based throttling (ms = 0)
+ * and setTimeout for longer delays to avoid unnecessary RAF calls.
  *
  * @param fn - The function to throttle.
  * @param ms - The number of milliseconds to wait for the throttled function to be called again
@@ -9,34 +12,41 @@ export function throttle<Args extends Array<unknown>>(
   ms = 0
 ): { (...args: Args): void; cancel: () => void } {
   let isThrottled = false
-  let start = 0
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
   let frameId: number | null = null
 
   function throttled(...args: Args) {
     if (isThrottled) return
 
     isThrottled = true
-    const step = () => {
-      frameId = requestAnimationFrame((time) => {
-        const elapsed = time - start
-        if (elapsed > ms) {
-          start = time
-          fn(...args)
-          isThrottled = false
-        } else {
-          step()
-        }
+
+    // For delays longer than one frame (16ms), use setTimeout
+    // For immediate or frame-based throttling, use requestAnimationFrame
+    if (ms > 16) {
+      timeoutId = setTimeout(() => {
+        fn(...args)
+        isThrottled = false
+        timeoutId = null
+      }, ms)
+    } else {
+      frameId = requestAnimationFrame(() => {
+        fn(...args)
+        isThrottled = false
+        frameId = null
       })
     }
-    step()
   }
 
   throttled.cancel = () => {
-    if (frameId) {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId)
+      timeoutId = null
+    }
+    if (frameId !== null) {
       cancelAnimationFrame(frameId)
       frameId = null
-      isThrottled = false
     }
+    isThrottled = false
   }
 
   return throttled
