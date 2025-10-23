@@ -43,6 +43,7 @@ export type CarouselConfig = {
   clamp?: boolean
   dir?: Dir
   enabled: boolean
+  focusInJumpToSlide?: boolean
   gap: number
   height: string | number
   i18n: { [key in I18nKeys]?: string }

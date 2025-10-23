@@ -21,8 +21,7 @@
     "typecheck:watch": "tsc -p . --watch --preserveWatchOutput",
     "test": "vitest run --coverage",
     "test:update": "vitest run --u",
-    "test:watch": "vitest watch",
-    "prepare": "husky"
+    "test:watch": "vitest watch"
   },
   "repository": {
     "type": "git",
