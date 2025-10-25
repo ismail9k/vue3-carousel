@@ -806,6 +806,7 @@ export const Carousel = defineComponent({
       '--vc-transition-duration': isSliding.value
         ? toCssValue(config.transition, 'ms')
         : undefined,
+      '--vc-transition-easing': config.transitionEasing,
     }))
 
     const nav: CarouselNav = { slideTo, next, prev }

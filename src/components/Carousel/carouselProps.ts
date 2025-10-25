@@ -7,6 +7,7 @@ import {
   DIR_OPTIONS,
   SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
+  TRANSITION_EASING_OPTIONS,
 } from '@/shared'
 
 import type {
@@ -18,6 +19,7 @@ import type {
   NormalizedDir,
   SlideEffect,
   SnapAlign,
+  TransitionEasing,
   WheelConfig,
 } from '@/shared'
 
@@ -163,6 +165,18 @@ export const carouselProps = {
   transition: {
     default: DEFAULT_CONFIG.transition,
     type: Number,
+  },
+  // transition easing function
+  transitionEasing: {
+    default: DEFAULT_CONFIG.transitionEasing,
+    type: String as PropType<TransitionEasing>,
+    validator(value: TransitionEasing) {
+      const isValid = TRANSITION_EASING_OPTIONS.includes(value)
+      if (!isValid) {
+        console.warn(`[vue3-carousel]: Invalid transitionEasing "${value}". Allowed values: ${TRANSITION_EASING_OPTIONS.join(', ')}`)
+      }
+      return isValid
+    },
   },
   // control infinite scrolling mode
   wrapAround: {
