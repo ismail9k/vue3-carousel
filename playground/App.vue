@@ -13,6 +13,7 @@ import {
   SNAP_ALIGN_OPTIONS,
   BREAKPOINT_MODE_OPTIONS,
   SLIDE_EFFECTS,
+  TRANSITION_EASING_OPTIONS,
 } from '@/shared/constants'
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
@@ -48,6 +49,7 @@ const defaultConfig = {
   pauseAutoplayOnHover: true,
   useBreakpoints: false,
   threshold: 0.5,
+  transitionEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad
 }
 
 const config = reactive({ ...defaultConfig })
@@ -106,6 +108,12 @@ const formFields = [
         label: 'Slide Effect',
         path: 'slideEffect',
         options: SLIDE_EFFECTS,
+      },
+      {
+        type: 'select',
+        label: 'Transition Easing',
+        path: 'transitionEasing',
+        options: TRANSITION_EASING_OPTIONS,
       },
       {
         type: 'select',

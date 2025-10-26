@@ -23,7 +23,7 @@
   margin: 0;
   padding: 0;
   position: relative;
-  transition: transform ease-out;
+  transition: transform var(--vc-transition-easing);
   transition-duration: var(--vc-transition-duration);
   width: 100%;
 }
@@ -77,7 +77,7 @@
   height: 100%;
   opacity: 0;
   pointer-events: none;
-  transition: opacity ease-in-out;
+  transition: opacity var(--vc-transition-easing);
   transition-duration: var(--vc-transition-duration);
   width: 100%;
 }

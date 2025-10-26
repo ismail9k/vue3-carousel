@@ -28,6 +28,8 @@ export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
 
 export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
+export type TransitionEasing = string
+
 export type DragConfig = {
   threshold?: number
 }
@@ -59,6 +61,7 @@ export type CarouselConfig = {
   snapAlign: SnapAlign
   touchDrag?: boolean | DragConfig
   transition?: number
+  transitionEasing?: TransitionEasing
   wrapAround?: boolean
 }
 
