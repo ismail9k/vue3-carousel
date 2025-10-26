@@ -139,7 +139,7 @@ These props control the appearance of the carousel:
 - **`transition`**: Duration of slide transitions in milliseconds.
   - Example: `:transition="500"` for a half-second transition.
 
-- **`transitionEasing`**: CSS timing function that controls the acceleration curve of transitions. <Badge text="0.13.0"/>
+- **`transitionEasing`**: CSS timing function that controls the acceleration curve of transitions.
   - Accepts any valid CSS timing function value
   - Default: `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` (ease-out-quad for smooth deceleration)
   - Common presets:
