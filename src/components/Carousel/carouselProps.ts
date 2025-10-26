@@ -7,7 +7,6 @@ import {
   DIR_OPTIONS,
   SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
-  TRANSITION_EASING_OPTIONS,
 } from '@/shared'
 
 import type {
@@ -170,13 +169,6 @@ export const carouselProps = {
   transitionEasing: {
     default: DEFAULT_CONFIG.transitionEasing,
     type: String as PropType<TransitionEasing>,
-    validator(value: TransitionEasing) {
-      const isValid = TRANSITION_EASING_OPTIONS.includes(value)
-      if (!isValid) {
-        console.warn(`[vue3-carousel]: Invalid transitionEasing "${value}". Allowed values: ${TRANSITION_EASING_OPTIONS.join(', ')}`)
-      }
-      return isValid
-    },
   },
   // control infinite scrolling mode
   wrapAround: {

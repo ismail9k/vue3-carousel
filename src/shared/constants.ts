@@ -37,18 +37,6 @@ export const NORMALIZED_DIR_OPTIONS = Object.values(DIR_MAP)
 
 export const SLIDE_EFFECTS = ['slide', 'fade'] as const
 
-export const TRANSITION_EASING_OPTIONS = [
-  'ease',
-  'ease-in',
-  'ease-out',
-  'ease-in-out',
-  'linear',
-  'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad
-  'cubic-bezier(0.55, 0.055, 0.675, 0.19)', // ease-in-cubic
-  'cubic-bezier(0.215, 0.61, 0.355, 1)', // ease-out-cubic
-  'cubic-bezier(0.645, 0.045, 0.355, 1)', // ease-in-out-cubic
-] as const
-
 export const SNAP_ALIGN_OPTIONS = [
   'center',
   'start',
@@ -81,6 +69,6 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   snapAlign: SNAP_ALIGN_OPTIONS[0],
   touchDrag: true,
   transition: 300,
-  transitionEasing: TRANSITION_EASING_OPTIONS[5], // ease-out-quad for smooth transitions
+  transitionEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad for smooth transitions
   wrapAround: false,
 }

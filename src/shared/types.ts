@@ -6,7 +6,6 @@ import {
   NORMALIZED_DIR_OPTIONS,
   SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
-  TRANSITION_EASING_OPTIONS,
 } from './constants'
 
 export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
@@ -29,7 +28,7 @@ export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
 
 export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
 
-export type TransitionEasing = (typeof TRANSITION_EASING_OPTIONS)[number]
+export type TransitionEasing = string
 
 export type DragConfig = {
   threshold?: number

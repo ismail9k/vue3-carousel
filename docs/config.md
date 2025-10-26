@@ -31,6 +31,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
 | `touchDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables touch navigation on touch-enabled devices. See [Drag Options](#drag-options) for configuration details. |
 | `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
+| `transitionEasing`         | `string`                                    | `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` | CSS easing function for slide transitions. Accepts any valid CSS timing function. <Badge text="0.17.0"/> |
 | `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
 
 ## Basic Configuration
@@ -138,6 +139,30 @@ These props control the appearance of the carousel:
 - **`transition`**: Duration of slide transitions in milliseconds.
   - Example: `:transition="500"` for a half-second transition.
 
+- **`transitionEasing`**: CSS timing function that controls the acceleration curve of transitions. <Badge text="0.13.0"/>
+  - Accepts any valid CSS timing function value
+  - Default: `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` (ease-out-quad for smooth deceleration)
+  - Common presets:
+    - `'ease'`: Slow start, fast middle, slow end
+    - `'ease-in'`: Slow start, fast end
+    - `'ease-out'`: Fast start, slow end
+    - `'ease-in-out'`: Slow start and end
+    - `'linear'`: Constant speed
+  - Custom cubic-bezier examples:
+    - `'cubic-bezier(0.68, -0.55, 0.265, 1.55)'`: Elastic effect
+    - `'cubic-bezier(0.4, 0, 0.2, 1)'`: Material Design standard
+
+  Example with custom easing:
+
+  ```vue
+  <Carousel
+    :transition="600"
+    transition-easing="cubic-bezier(0.4, 0, 0.2, 1)"
+  >
+    <!-- Slides -->
+  </Carousel>
+  ```
+
 ## Responsive Behavior
 
 These props control how the carousel adapts to different screen sizes:
@@ -201,6 +226,7 @@ Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `
 | `threshold` | `number` | 0.3     | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
 
 Example:
+
 ```vue
 <Carousel :mouse-drag="{ threshold: 0.5 }" :touch-drag="false">
   <!-- Slides -->
@@ -216,6 +242,7 @@ The `mouseWheel` property accepts either a boolean value or a `WheelConfig` obje
 | `threshold`   | `number` | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
 
 Example:
+
 ```vue
 <Carousel :mouse-wheel="{ threshold: 20 }">
   <!-- Slides -->
@@ -250,4 +277,3 @@ Available keys:
 | `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
-
