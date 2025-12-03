@@ -23,6 +23,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
+| `navigationBoundary`       | 'viewport', 'slides'                        | 'viewport'                       | Controls navigation and pagination boundaries. 'viewport' groups by itemsToShow, 'slides' navigates individually. <Badge text="0.18.0"/> |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
@@ -105,6 +106,12 @@ These props control how users can interact with the carousel:
 
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
+
+- **`navigationBoundary`**: Controls how navigation buttons and pagination behave.
+  - `'viewport'`: Navigation and pagination based on viewport capacity (groups by `itemsToShow`)
+  - `'slides'`: Navigation and pagination based on individual slides
+  - This setting affects both Navigation and Pagination components
+  - Works correctly with all `snapAlign` options (start, center, end, center-even, center-odd)
 
 ## Visual Customization
 
