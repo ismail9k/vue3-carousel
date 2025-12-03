@@ -27,7 +27,88 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 | Prop                    | Type    | Default | Description                                                     |
 | ----------------------- | ------- | ------- | --------------------------------------------------------------- |
 | `disableOnClick`        | Boolean | false   | When true, disables navigation when clicking pagination buttons |
-| `paginateByItemsToShow` | Boolean | false   | Groups slides into pages based on `itemsToShow` setting         |
+| `paginateByItemsToShow` | Boolean | false   | When true, overrides the carousel's `navigationBoundary` config and groups slides into pages based on `itemsToShow` setting. For new projects, prefer using the carousel's `navigationBoundary="viewport"` config instead |
+
+## Pagination Modes
+
+The pagination component automatically follows the carousel's `navigationBoundary` configuration:
+
+### Viewport Mode (Paginated)
+
+When `navigationBoundary="viewport"`, pagination shows page indicators grouped by `itemsToShow`:
+
+```vue
+<template>
+  <Carousel
+    :items-to-show="3"
+    navigation-boundary="viewport"
+  >
+    <Slide v-for="slide in 10" :key="slide">
+      <!-- slide content -->
+    </Slide>
+
+    <template #addons>
+      <CarouselPagination />
+    </template>
+  </Carousel>
+</template>
+```
+
+With 10 slides and `itemsToShow: 3`, this displays 4 page buttons (pages 0-3).
+
+### Slides Mode (Individual)
+
+When `navigationBoundary="slides"` (default), pagination shows one button per slide:
+
+```vue
+<template>
+  <Carousel
+    :items-to-show="3"
+    navigation-boundary="slides"
+  >
+    <Slide v-for="slide in 10" :key="slide">
+      <!-- slide content -->
+    </Slide>
+
+    <template #addons>
+      <CarouselPagination />
+    </template>
+  </Carousel>
+</template>
+```
+
+With 10 slides, this displays 10 individual slide buttons.
+
+## Legacy Prop vs. Modern Configuration
+
+The `paginateByItemsToShow` prop provides backward compatibility and can override the carousel's `navigationBoundary` setting. However, for new projects, the recommended approach is to use the carousel's `navigationBoundary` config:
+
+**Legacy approach (still supported):**
+
+```vue
+<Carousel>
+  <template #addons>
+    <CarouselPagination :paginate-by-items-to-show="true" />
+  </template>
+</Carousel>
+```
+
+**Recommended approach:**
+
+```vue
+<Carousel navigation-boundary="viewport">
+  <template #addons>
+    <CarouselPagination />
+  </template>
+</Carousel>
+```
+
+### Benefits of Using `navigationBoundary`
+
+- **Consistency**: Both Navigation and Pagination components use the same configuration
+- **Centralized Control**: Single source of truth for boundary behavior at the carousel level
+- **Snap Align Support**: Works correctly with all snap alignment options (start, center, end, center-even, center-odd)
+- **Better Architecture**: Configuration lives at the appropriate level (carousel) rather than individual components
 
 ## Styling
 
