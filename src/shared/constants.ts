@@ -1,6 +1,8 @@
 import { CarouselConfig } from './types'
 
 export const BREAKPOINT_MODE_OPTIONS = ['viewport', 'carousel'] as const
+export const NAVIGATION_BOUNDARY_OPTIONS = ['viewport', 'slides'] as const
+
 
 export const DIR_MAP = {
   'bottom-to-top': 'btt',
@@ -71,4 +73,5 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   transition: 300,
   transitionEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad for smooth transitions
   wrapAround: false,
-}
+  navigationBoundary: NAVIGATION_BOUNDARY_OPTIONS[0],
+} 
