@@ -78,15 +78,13 @@ exports[`Wrap around Carousel.ts > renders wrapAround correctly 1`] = `
       <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path>
     </svg></button>
   <ol class="carousel__pagination">
-    <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 1" aria-pressed="false" aria-controls="v-0" title="Navigate to slide 1"></button></li>
-    <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 2" aria-pressed="false" aria-controls="v-1" title="Navigate to slide 2"></button></li>
+    <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button carousel__pagination-button--active" aria-label="Navigate to slide 2" aria-pressed="true" aria-controls="v-1" title="Navigate to slide 2"></button></li>
     <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 3" aria-pressed="false" aria-controls="v-2" title="Navigate to slide 3"></button></li>
     <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 4" aria-pressed="false" aria-controls="v-3" title="Navigate to slide 4"></button></li>
     <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 5" aria-pressed="false" aria-controls="v-4" title="Navigate to slide 5"></button></li>
     <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 6" aria-pressed="false" aria-controls="v-5" title="Navigate to slide 6"></button></li>
     <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 7" aria-pressed="false" aria-controls="v-6" title="Navigate to slide 7"></button></li>
     <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button" aria-label="Navigate to slide 8" aria-pressed="false" aria-controls="v-7" title="Navigate to slide 8"></button></li>
-    <li class="carousel__pagination-item"><button type="button" class="carousel__pagination-button carousel__pagination-button--active" aria-label="Navigate to slide 9" aria-pressed="true" aria-controls="v-8" title="Navigate to slide 9"></button></li>
   </ol>
   <div class="carousel__liveregion carousel__sr-only" aria-live="polite" aria-atomic="true">Item 9 of 9</div>
 </section>"
