@@ -85,5 +85,5 @@ For Nuxt users, check out [vue3-carousel-nuxt](https://github.com/gaetansenn/vue
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date)](https://www.star-history.com/#Jismail9k/vue3-carousel&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date)](https://www.star-history.com/#ismail9k/vue3-carousel&Date)
 
