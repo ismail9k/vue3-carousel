@@ -16,7 +16,7 @@ export const Pagination = defineComponent<PaginationProps>({
     },
     carousel: {
       type: Object as PropType<PaginationProps['carousel']>,
-    }
+    },
   },
   setup(props) {
     let carousel = inject(injectCarousel, null)!
@@ -28,9 +28,13 @@ export const Pagination = defineComponent<PaginationProps>({
         itemsToShow: itemsToShow.value,
       })
     )
-    const isPaginated = computed(
-      () => props.paginateByItemsToShow && itemsToShow.value > 1
-    )
+    const isPaginated = computed(() => {
+      if (props.paginateByItemsToShow !== undefined) {
+        return props.paginateByItemsToShow && itemsToShow.value > 1
+      }
+
+      return carousel.config.navigationBoundary === 'viewport' && itemsToShow.value > 1
+    })
     const currentPage = computed(() =>
       Math.ceil((carousel.activeSlide - offset.value) / itemsToShow.value)
     )
@@ -53,11 +57,13 @@ export const Pagination = defineComponent<PaginationProps>({
 
     return () => {
       if (props.carousel) {
-        carousel = props.carousel;
+        carousel = props.carousel
       }
       if (!carousel) {
-        console.warn('[vue3-carousel]: A carousel component must be provided for the pagination component to display')
-        return '';
+        console.warn(
+          '[vue3-carousel]: A carousel component must be provided for the pagination component to display'
+        )
+        return ''
       }
       const children: Array<VNode> = []
 

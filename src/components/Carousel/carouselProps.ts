@@ -14,6 +14,7 @@ import type {
   CarouselConfig,
   Dir,
   DragConfig,
+  NavigationBoundaryOptions,
   NonNormalizedDir,
   NormalizedDir,
   SlideEffect,
@@ -39,7 +40,9 @@ export const carouselProps = {
     validator(value: BreakpointMode) {
       const isValid = BREAKPOINT_MODE_OPTIONS.includes(value)
       if (!isValid) {
-        console.warn(`[vue3-carousel]: Invalid breakpointMode "${value}". Allowed values: ${BREAKPOINT_MODE_OPTIONS.join(', ')}`)
+        console.warn(
+          `[vue3-carousel]: Invalid breakpointMode "${value}". Allowed values: ${BREAKPOINT_MODE_OPTIONS.join(', ')}`
+        )
       }
       return isValid
     },
@@ -53,12 +56,20 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.dir,
     validator(value: Dir, props: { height?: string }) {
       if (!DIR_OPTIONS.includes(value)) {
-        console.warn(`[vue3-carousel]: Invalid dir "${value}". Allowed values: ${DIR_OPTIONS.join(', ')}`)
+        console.warn(
+          `[vue3-carousel]: Invalid dir "${value}". Allowed values: ${DIR_OPTIONS.join(', ')}`
+        )
         return false
       }
-      const normalizedDir = value in DIR_MAP ? DIR_MAP[value as NonNormalizedDir] : (value as NormalizedDir)
-      if (["ttb", "btt"].includes(normalizedDir) && (!props.height || props.height === "auto")) {
-        console.warn(`[vue3-carousel]: The dir "${value}" is not supported with height "auto".`)
+      const normalizedDir =
+        value in DIR_MAP ? DIR_MAP[value as NonNormalizedDir] : (value as NormalizedDir)
+      if (
+        ['ttb', 'btt'].includes(normalizedDir) &&
+        (!props.height || props.height === 'auto')
+      ) {
+        console.warn(
+          `[vue3-carousel]: The dir "${value}" is not supported with height "auto".`
+        )
       }
       return true
     },
@@ -139,7 +150,9 @@ export const carouselProps = {
     validator(value: SlideEffect) {
       const isValid = SLIDE_EFFECTS.includes(value)
       if (!isValid) {
-        console.warn(`[vue3-carousel]: Invalid slideEffect "${value}". Allowed values: ${SLIDE_EFFECTS.join(', ')}`)
+        console.warn(
+          `[vue3-carousel]: Invalid slideEffect "${value}". Allowed values: ${SLIDE_EFFECTS.join(', ')}`
+        )
       }
       return isValid
     },
@@ -150,7 +163,9 @@ export const carouselProps = {
     validator(value: SnapAlign) {
       const isValid = SNAP_ALIGN_OPTIONS.includes(value)
       if (!isValid) {
-        console.warn(`[vue3-carousel]: Invalid snapAlign "${value}". Allowed values: ${SNAP_ALIGN_OPTIONS.join(', ')}`)
+        console.warn(
+          `[vue3-carousel]: Invalid snapAlign "${value}". Allowed values: ${SNAP_ALIGN_OPTIONS.join(', ')}`
+        )
       }
       return isValid
     },
@@ -174,5 +189,9 @@ export const carouselProps = {
   wrapAround: {
     default: DEFAULT_CONFIG.wrapAround,
     type: Boolean,
+  },
+  navigationBoundary: {
+    default: DEFAULT_CONFIG.navigationBoundary,
+    type: String as PropType<NavigationBoundaryOptions>,
   },
 }

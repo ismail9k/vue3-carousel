@@ -13,7 +13,7 @@ import {
   SNAP_ALIGN_OPTIONS,
   BREAKPOINT_MODE_OPTIONS,
   SLIDE_EFFECTS,
-  TRANSITION_EASING_OPTIONS,
+  NAVIGATION_BOUNDARY_OPTIONS,
 } from '@/shared/constants'
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
@@ -50,6 +50,7 @@ const defaultConfig = {
   useBreakpoints: false,
   threshold: 0.5,
   transitionEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad
+  navigationBoundary: 'viewport',
 }
 
 const config = reactive({ ...defaultConfig })
@@ -111,12 +112,6 @@ const formFields = [
       },
       {
         type: 'select',
-        label: 'Transition Easing',
-        path: 'transitionEasing',
-        options: TRANSITION_EASING_OPTIONS,
-      },
-      {
-        type: 'select',
         label: 'Direction',
         path: 'dir',
         options: Object.keys(DIR_MAP),
@@ -141,6 +136,12 @@ const formFields = [
         label: 'Autoplay time',
         path: 'autoplay',
         attrs: { step: '100', min: '0', max: '10000' },
+      },
+      {
+        type: 'select',
+        label: 'Navigation Boundary',
+        path: 'navigationBoundary',
+        options: NAVIGATION_BOUNDARY_OPTIONS,
       },
     ],
   },
@@ -257,19 +258,11 @@ onMounted(() => {
   <div class="playground">
     <main class="canvas">
       <div class="carousel-wrapper pop-in" ref="carouselWrapper">
-        <VueCarousel
-          ref="carousel"
-          v-model="config.currentSlide"
-          v-bind="config"
+        <VueCarousel ref="carousel" v-model="config.currentSlide" v-bind="config"
           :breakpoints="config.useBreakpoints ? breakpoints : null"
-          v-on="Object.fromEntries(events.map((e) => [e, handleEvent(e)]))"
-        >
+          v-on="Object.fromEntries(events.map((e) => [e, handleEvent(e)]))">
           <CarouselSlide v-for="(item, index) in items" :key="item.id" :index="index">
-            <div
-              class="carousel-item"
-              :key="item.id"
-              :style="{ backgroundColor: `${item.color}` }"
-            >
+            <div class="carousel-item" :key="item.id" :style="{ backgroundColor: `${item.color}` }">
               <h3>{{ item.title }}</h3>
               <p>{{ item.description }}</p>
               <button @click="handleButtonClick">This is a button</button>
@@ -293,30 +286,17 @@ onMounted(() => {
         <label v-for="field in section.fields" :key="field.label">
           {{ field.label }}
 
-          <select
-            v-if="field.type === 'select'"
-            :value="getConfigValue(field.path)"
-            @input="(e) => setConfigValue(field, e.target.value)"
-          >
+          <select v-if="field.type === 'select'" :value="getConfigValue(field.path)"
+            @input="(e) => setConfigValue(field, e.target.value)">
             <option v-for="opt in field.options" :value="opt" :key="opt">
               {{ opt }}
             </option>
           </select>
 
-          <input
-            v-else-if="field.type === 'checkbox'"
-            :checked="getConfigValue(field.path)"
-            @input="(e) => setConfigValue(field, e.target.checked)"
-            :type="field.type"
-            v-bind="field.attrs || {}"
-          />
-          <input
-            v-else
-            :value="getConfigValue(field.path)"
-            @input="(e) => setConfigValue(field, e.target.value)"
-            :type="field.type"
-            v-bind="field.attrs || {}"
-          />
+          <input v-else-if="field.type === 'checkbox'" :checked="getConfigValue(field.path)"
+            @input="(e) => setConfigValue(field, e.target.checked)" :type="field.type" v-bind="field.attrs || {}" />
+          <input v-else :value="getConfigValue(field.path)" @input="(e) => setConfigValue(field, e.target.value)"
+            :type="field.type" v-bind="field.attrs || {}" />
         </label>
       </div>
       <div class="config-panel-buttons-row">
@@ -442,6 +422,7 @@ select {
     opacity: 0;
     transform: scale(0);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -511,6 +492,7 @@ select {
 .carousel__slide--active .carousel-item {
   box-shadow: inset 0 0 0 2px red;
 }
+
 .config-panel-buttons-row {
   display: flex;
   flex-direction: column;

@@ -37,6 +37,8 @@ import {
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
+  getMinSlideIndex,
+  getMaxSlideIndex,
   invalidateTransformCache,
   mapNumberToRange,
   throttle,
@@ -93,8 +95,8 @@ export const Carousel = defineComponent({
     watch(currentSlideIndex, (val) => (activeSlideIndex.value = val))
     const prevSlideIndex = ref(0)
     const middleSlideIndex = computed(() => Math.ceil((slidesCount.value - 1) / 2))
-    const maxSlideIndex = computed(() => slidesCount.value - 1)
-    const minSlideIndex = computed(() => 0)
+    const maxSlideIndex = computed(() => getMaxSlideIndex(config, slidesCount.value))
+    const minSlideIndex = computed(() => getMinSlideIndex(config))
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
@@ -290,7 +292,9 @@ export const Carousel = defineComponent({
       watchEffect(() => {
         if (mounted.value && ignoreAnimations.value !== false) {
           // Use passive listeners for better performance
-          document.addEventListener('animationstart', setAnimationInterval, { passive: true })
+          document.addEventListener('animationstart', setAnimationInterval, {
+            passive: true,
+          })
           document.addEventListener('animationend', finishAnimation, { passive: true })
         } else {
           document.removeEventListener('animationstart', setAnimationInterval)
@@ -493,17 +497,17 @@ export const Carousel = defineComponent({
       if (!skipTransition && isSliding.value) {
         return
       }
-      
+
       const targetIndex = (config.wrapAround ? mapNumberToRange : getNumberInRange)({
         val: slideIndex,
         max: maxSlideIndex.value,
         min: minSlideIndex.value,
       })
-      
+
       if (currentSlideIndex.value === targetIndex) {
-        return;
+        return
       }
-      
+
       prevSlideIndex.value = currentSlideIndex.value
 
       emit('slide-start', {
@@ -732,7 +736,7 @@ export const Carousel = defineComponent({
         let accumulatedSize = 0
         let iterations = 0
         const maxIterations = slides.length * 2
-        
+
         if (index < 0) {
           accumulatedSize =
             slidesRect.value
@@ -747,7 +751,10 @@ export const Carousel = defineComponent({
             Math.abs(scrolledOffset.value)
         }
 
-        while (accumulatedSize < viewportRect.value[dimension.value] && iterations < maxIterations) {
+        while (
+          accumulatedSize < viewportRect.value[dimension.value] &&
+          iterations < maxIterations
+        ) {
           const normalizedIndex =
             ((index % slides.length) + slides.length) % slides.length
           const slideSize = slidesRect.value[normalizedIndex]?.[dimension.value] || 0

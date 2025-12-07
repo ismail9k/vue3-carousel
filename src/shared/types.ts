@@ -3,12 +3,14 @@ import {
   DIR_MAP,
   DIR_OPTIONS,
   I18N_DEFAULT_CONFIG,
+  NAVIGATION_BOUNDARY_OPTIONS,
   NORMALIZED_DIR_OPTIONS,
   SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
 } from './constants'
 
 export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
+export type NavigationBoundaryOptions = (typeof NAVIGATION_BOUNDARY_OPTIONS)[number]
 
 export type Breakpoints = {
   [key: number]: Partial<
@@ -63,6 +65,7 @@ export type CarouselConfig = {
   transition?: number
   transitionEasing?: TransitionEasing
   wrapAround?: boolean
+  navigationBoundary?: NavigationBoundaryOptions
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]

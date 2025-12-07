@@ -20,7 +20,7 @@ export default defineConfig({
     setupFiles: './vitest.setup.ts',
     environment: 'jsdom',
     globals: true,
-    reporters: ['basic'],
+    reporters: ['default'],
     include: ['**/*.spec.{ts,tsx,js,jsx}'],
     outputFile: {
       junit: './junit-report.xml',
