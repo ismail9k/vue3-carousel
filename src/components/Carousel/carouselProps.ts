@@ -18,6 +18,7 @@ import type {
   NormalizedDir,
   SlideEffect,
   SnapAlign,
+  TransitionEasing,
   WheelConfig,
 } from '@/shared'
 
@@ -163,6 +164,11 @@ export const carouselProps = {
   transition: {
     default: DEFAULT_CONFIG.transition,
     type: Number,
+  },
+  // transition easing function
+  transitionEasing: {
+    default: DEFAULT_CONFIG.transitionEasing,
+    type: String as PropType<TransitionEasing>,
   },
   // control infinite scrolling mode
   wrapAround: {

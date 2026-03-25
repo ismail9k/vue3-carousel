@@ -69,5 +69,6 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   snapAlign: SNAP_ALIGN_OPTIONS[0],
   touchDrag: true,
   transition: 300,
+  transitionEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad for smooth transitions
   wrapAround: false,
 }

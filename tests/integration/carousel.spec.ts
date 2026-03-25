@@ -16,7 +16,7 @@ describe('Carousel.ts', () => {
       props: {
         slideNum: 5,
         modelValue: 0,
-        'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+        'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
       },
     })
   })
@@ -114,6 +114,60 @@ describe('Carousel.ts', () => {
     await wrapper.setProps({ itemsToShow: 10 })
     const slides = wrapper.findAll('.carousel__slide')
     expect(slides.length).toBe(5)
+  })
+
+  it('Should exclude invisible slides from tab navigation', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        itemsToShow: 1,
+        modelValue: 0,
+      },
+    })
+    
+    const allSlides = wrapper.findAll('.carousel__slide')
+    const visibleSlides = wrapper.findAll('.carousel__slide--visible')
+    
+    // With itemsToShow: 1, only 1 slide should be visible
+    expect(visibleSlides.length).toBe(1)
+    expect(allSlides.length).toBe(5)
+    
+    // Check that visible slide has no tabindex or has tabindex="0"
+    const visibleSlide = visibleSlides[0].element as HTMLElement
+    const visibleTabindex = visibleSlide.getAttribute('tabindex')
+    expect(visibleTabindex === null || visibleTabindex === '0').toBe(true)
+    
+    // Check that non-visible slides have tabindex="-1"
+    for (let i = 0; i < allSlides.length; i++) {
+      const slide = allSlides[i].element as HTMLElement
+      const hasVisibleClass = slide.classList.contains('carousel__slide--visible')
+      
+      if (!hasVisibleClass) {
+        expect(slide.getAttribute('tabindex')).toBe('-1')
+      }
+    }
+  })
+
+  it('Should exclude cloned slides from tab navigation', async () => {
+    const wrapper = await mount(App, {
+      props: {
+        slideNum: 5,
+        itemsToShow: 3,
+        wrapAround: true,
+        modelValue: 0,
+      },
+    })
+    
+    const clonedSlides = wrapper.findAll('.carousel__slide--clone')
+    
+    // With wrapAround, there should be cloned slides
+    expect(clonedSlides.length).toBeGreaterThan(0)
+    
+    // Check that cloned slides have tabindex="-1"
+    for (const clonedSlide of clonedSlides) {
+      const slide = clonedSlide.element as HTMLElement
+      expect(slide.getAttribute('tabindex')).toBe('-1')
+    }
   })
 })
 

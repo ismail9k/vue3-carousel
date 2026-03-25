@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.17.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.17.0) - 2025-10-26
+
+- Improve prop validation with descriptive warnings in Carousel component by @Krishnaku007
+- Fix critical issues: mobile scrolling, auto mode crash, and wrapAround itemsToScroll
+- Optimizations and performance improvements  by @ismail9k
+- feat: exclude invisible and cloned slides from tab navigation (#521) by @abduelmorsi
+- Add smooth slide transition by @nikki-infinte
+
 ## [0.16.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.16.0) - 2025-06-11
 
 - Lower default drag threshold by @Tofandel in #517

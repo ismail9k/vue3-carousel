@@ -81,3 +81,25 @@ Visit our [documentation website](https://vue3-carousel.ismail9k.com/) for detai
 ## 💚 Nuxt Module
 
 For Nuxt users, check out [vue3-carousel-nuxt](https://github.com/gaetansenn/vue3-carousel-nuxt) module.
+
+
+## 🌟 Star History
+
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="
+      https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date&theme=dark
+    "
+  />
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="
+      https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date
+    "
+  />
+  <img
+    alt="Star History Chart"
+    src="https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date"
+  />
+</picture>
