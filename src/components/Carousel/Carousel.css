@@ -9,6 +9,7 @@
   position: relative;
   touch-action: pan-x pan-y pinch-zoom;
   z-index: 1;
+  --vc-transition-duration: 0.5s;
 }
 
 .carousel.is-dragging {
@@ -23,8 +24,8 @@
   margin: 0;
   padding: 0;
   position: relative;
-  transition: transform var(--vc-transition-easing);
-  transition-duration: var(--vc-transition-duration);
+  transition: transform ease-out;
+  transition-duration: var(--vc-transition-duration, 0.5s);
   width: 100%;
 }
 
@@ -77,8 +78,8 @@
   height: 100%;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--vc-transition-easing);
-  transition-duration: var(--vc-transition-duration);
+  transition: opacity ease-in-out;
+  transition-duration: var(--vc-transition-duration, 0.5s);
   width: 100%;
 }
 
