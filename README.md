@@ -103,3 +103,4 @@ For Nuxt users, check out [vue3-carousel-nuxt](https://github.com/gaetansenn/vue
     src="https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date"
   />
 </picture>
+<!-- Claude issue automation smoke test -->
