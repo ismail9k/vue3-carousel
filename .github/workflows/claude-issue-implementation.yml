@@ -54,7 +54,8 @@ jobs:
             Work in a focused branch and make the smallest complete implementation that satisfies
             the issue's acceptance criteria. Do not modify GitHub Actions, repository settings,
             release configuration, or unrelated files. Add or update focused tests when behavior
-            changes, and run the relevant validation commands from CLAUDE.md.
+            changes, and run the relevant validation commands from CLAUDE.md. Use pnpm for all
+            package commands; do not substitute npm, yarn, or npx.
 
             Open a draft pull request against master. Its body must include `Closes #<issue-number>`,
             a concise summary, and the validation commands/results. Never merge or enable auto-merge.
