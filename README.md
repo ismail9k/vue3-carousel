@@ -89,17 +89,17 @@ For Nuxt users, check out [vue3-carousel-nuxt](https://github.com/gaetansenn/vue
   <source
     media="(prefers-color-scheme: dark)"
     srcset="
-      https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date&theme=dark
+      https://star-history.dera.page/svg?repos=ismail9k/vue3-carousel&type=Date&theme=dark
     "
   />
   <source
     media="(prefers-color-scheme: light)"
     srcset="
-      https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date
+      https://star-history.dera.page/svg?repos=ismail9k/vue3-carousel&type=Date
     "
   />
   <img
     alt="Star History Chart"
-    src="https://api.star-history.com/svg?repos=ismail9k/vue3-carousel&type=Date"
+    src="https://star-history.dera.page/svg?repos=ismail9k/vue3-carousel&type=Date"
   />
 </picture>
