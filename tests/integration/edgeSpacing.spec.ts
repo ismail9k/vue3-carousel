@@ -144,6 +144,12 @@ describe('edgeSpacing', () => {
     try {
       const track = wrapper.find('.carousel__track')
       await track.trigger('mousedown', { clientX: 100, button: 0 })
+      // A drag away from the edge is applied unclamped, proving the drag registered.
+      document.dispatchEvent(new MouseEvent('mousemove', { clientX: 50 }))
+      await new Promise((resolve) => requestAnimationFrame(resolve))
+      await wrapper.vm.$nextTick()
+      expect(trackTransform(wrapper)).toBe('translateX(-34px)')
+      // Dragging past the spaced start edge is clamped to it.
       document.dispatchEvent(new MouseEvent('mousemove', { clientX: 150 }))
       await new Promise((resolve) => requestAnimationFrame(resolve))
       await wrapper.vm.$nextTick()
