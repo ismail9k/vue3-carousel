@@ -118,9 +118,16 @@ export const Carousel = defineComponent({
         return
       }
       // Determine the width source based on the 'breakpointMode' config
+      // The carousel is measured in layout px, like every other measurement,
+      // so breakpoints match the same way under a CSS-scaled ancestor
+      const carouselWidth = () =>
+        root.value
+          ? root.value.getBoundingClientRect().width *
+            getScaleMultipliers(root.value).widthMultiplier
+          : 0
       const widthSource =
         (fallbackConfig.value.breakpointMode === 'carousel'
-          ? root.value?.getBoundingClientRect().width
+          ? carouselWidth()
           : typeof window !== 'undefined'
             ? window.innerWidth
             : 0) || 0

@@ -411,6 +411,8 @@ describe('Carousel inside a scaled ancestor', () => {
     props: {
       dir: { type: String, default: 'ltr' },
       height: { type: [String, Number], default: 'auto' },
+      // Extra props merged over the defaults below, for per-test configuration
+      carouselProps: { type: Object, default: () => ({}) },
     },
     setup() {
       // The carousel's exposed API is only reachable through a template ref
@@ -427,6 +429,7 @@ describe('Carousel inside a scaled ancestor', () => {
             modelValue: 0,
             dir: this.dir,
             height: this.height,
+            ...this.carouselProps,
           },
           {
             default: () => [1, 2, 3, 4, 5].map((n) => h(Slide, { key: n }, () => `${n}`)),
@@ -438,7 +441,13 @@ describe('Carousel inside a scaled ancestor', () => {
 
   let wrapper: ReturnType<typeof mount<typeof ScaledApp>>
 
-  const mountScaled = async (props: { dir?: string; height?: string } = {}) => {
+  const mountScaled = async (
+    props: {
+      dir?: string
+      height?: string
+      carouselProps?: Record<string, unknown>
+    } = {}
+  ) => {
     wrapper = mount(ScaledApp, { props })
     await nextTick()
     return wrapper
@@ -537,6 +546,18 @@ describe('Carousel inside a scaled ancestor', () => {
     // vitest.setup.ts stubs ResizeObserver as a no-op, so no resize callback
     // fires (a real browser would re-measure and the offset would become 2000).
     expect(track.attributes('style')).toContain('translateX(-1240px)')
+  })
+
+  it("matches 'carousel' breakpoints on the layout width", async () => {
+    await mountScaled({
+      carouselProps: {
+        breakpointMode: 'carousel',
+        breakpoints: { 800: { itemsToShow: 2 } },
+      },
+    })
+
+    // root is 500 screen px at scale 0.5 = 1000 layout px, which is >= 800
+    expect(wrapper.findAll('.carousel__slide--visible').length).toBe(2)
   })
 
   it('uses the height multiplier for vertical drags', async () => {
