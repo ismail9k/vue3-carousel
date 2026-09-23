@@ -77,6 +77,30 @@ describe('Carousel.ts', () => {
       expect(event.defaultPrevented).toBe(true)
       expect(wheelWrapper.emitted('wheel')).toHaveLength(1)
       expect(wheelWrapper.emitted('wheel')?.[0]).toEqual([{ deltaX: 100, deltaY: 0 }])
+      expect(wheelWrapper.emitted('update:modelValue')?.[0]).toEqual([1])
+    })
+
+    it('handles vertical wheel events on a horizontal carousel by default', () => {
+      const wheelWrapper = mount(Carousel, {
+        props: { mouseWheel: true },
+        slots: {
+          default: [
+            mount(Slide, { props: { index: 0 } }).html(),
+            mount(Slide, { props: { index: 1 } }).html(),
+          ],
+        },
+      })
+      const event = new WheelEvent('wheel', {
+        deltaY: 100,
+        bubbles: true,
+        cancelable: true,
+      })
+
+      wheelWrapper.find('.carousel__track').element.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
+      expect(wheelWrapper.emitted('wheel')?.[0]).toEqual([{ deltaX: 0, deltaY: 100 }])
+      expect(wheelWrapper.emitted('update:modelValue')?.[0]).toEqual([1])
     })
   })
 })
