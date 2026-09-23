@@ -77,4 +77,27 @@ The Carousel component provides several CSS classes that you can use for styling
 | `.carousel__viewport`| Carousel viewport/wrapper element |
 | `.carousel__track`   | Container for slides              |
 
+## Layout
+
+The carousel is sized by its container, so make sure the container can shrink. `.carousel` already sets `min-width: 0`, which lets it shrink when it is a flex or grid item. In a grid column that is all it needs. In a flex row its flex basis is still the width of all its slides, so also give it `flex: 1`; otherwise it claims most of the row and squeezes its siblings. If you wrap it in your own element that is the flex or grid item, give that wrapper `min-width: 0` (flex and grid items default to `min-width: auto`, which prevents shrinking below the slides' content):
+
+```css
+.two-columns-grid {
+  display: grid;
+  grid-template-columns: 1fr 250px;
+}
+
+.two-columns-flex {
+  display: flex;
+}
+
+.two-columns-flex .carousel {
+  flex: 1;
+}
+
+.carousel-wrapper {
+  min-width: 0;
+}
+```
+
 For more information about configuration options, see the [Configuration documentation](/config).

@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -102,5 +105,16 @@ describe('Carousel.ts', () => {
       expect(wheelWrapper.emitted('wheel')?.[0]).toEqual([{ deltaX: 0, deltaY: 100 }])
       expect(wheelWrapper.emitted('update:modelValue')?.[0]).toEqual([1])
     })
+  })
+})
+
+describe('Carousel.css', () => {
+  // jsdom does no layout, so the stylesheet text is what can be asserted.
+  const css = readFileSync(resolve(__dirname, 'Carousel.css'), 'utf8')
+  const carouselRule = css.match(/^\.carousel \{([^}]*)\}/m)?.[1] ?? ''
+
+  it('declares min-width: 0 on .carousel so it can shrink as a flex or grid item (#540)', () => {
+    expect(carouselRule, 'expected a top-level `.carousel { ... }` rule').not.toBe('')
+    expect(carouselRule).toMatch(/min-width:\s*0;/)
   })
 })
