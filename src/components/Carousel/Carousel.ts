@@ -103,6 +103,11 @@ export const Carousel = defineComponent({
 
     const effectiveSlideSize = computed(() => slideSize.value + config.gap)
 
+    // Sanitized edge spacing: never negative, and never applied while wrapping around.
+    const edgeSpacing = computed(() =>
+      config.wrapAround ? 0 : Math.max(0, config.edgeSpacing)
+    )
+
     const normalizedDir = computed<NormalizedDir>(() => {
       const dir = config.dir || 'ltr'
       return dir in DIR_MAP ? DIR_MAP[dir as NonNormalizedDir] : (dir as NormalizedDir)
@@ -659,7 +664,7 @@ export const Carousel = defineComponent({
           output = applyEdgeSpacing({
             value: getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
             max: maxSlidingValue,
-            spacing: config.edgeSpacing,
+            spacing: edgeSpacing.value,
           })
         }
       } else {
@@ -675,7 +680,7 @@ export const Carousel = defineComponent({
               getNumberInRange({ val: scrolledSlides, max: maxScrolledSlides, min: 0 }) *
               effectiveSlideSize.value,
             max: maxScrolledSlides * effectiveSlideSize.value,
-            spacing: config.edgeSpacing,
+            spacing: edgeSpacing.value,
           })
         }
       }
@@ -720,11 +725,10 @@ export const Carousel = defineComponent({
       {
         let accumulatedSize = 0
         let index = 0 - clonedSlidesCount.value.before
-        const offset = trackOffset
         let iterations = 0
         const maxIterations = slides.length * 2
 
-        while (accumulatedSize <= offset && iterations < maxIterations) {
+        while (accumulatedSize <= trackOffset && iterations < maxIterations) {
           const normalizedIndex =
             ((index % slides.length) + slides.length) % slides.length
           const slideSize = slidesRect.value[normalizedIndex]?.[dimension.value] || 0
@@ -798,9 +802,9 @@ export const Carousel = defineComponent({
           maxSlidingValue =
             (slidesCount.value - Number(config.itemsToShow)) * effectiveSlideSize.value
         }
-        maxSlidingValue += config.edgeSpacing
-        const min = isReversed.value ? -config.edgeSpacing : -1 * maxSlidingValue
-        const max = isReversed.value ? maxSlidingValue : config.edgeSpacing
+        maxSlidingValue += edgeSpacing.value
+        const min = isReversed.value ? -edgeSpacing.value : -1 * maxSlidingValue
+        const max = isReversed.value ? maxSlidingValue : edgeSpacing.value
         totalOffset = getNumberInRange({
           val: totalOffset,
           min,
