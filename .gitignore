@@ -24,9 +24,3 @@ yarn-error.log*
 package-lock.json
 coverage/*
 
-*.md
-!README.md
-!LICENSE
-!CHANGELOG.md
-!CODE_OF_CONDUCT.md
-!CONTRIBUTING.md
