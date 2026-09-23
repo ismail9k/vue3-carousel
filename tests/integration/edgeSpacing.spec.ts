@@ -97,4 +97,23 @@ describe('edgeSpacing', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('edgeSpacing'))
     warn.mockRestore()
   })
+
+  it('marks only the first slide visible in auto mode at the start', async () => {
+    const wrapper = mountCarousel({ itemsToShow: 'auto' })
+    // Slide sizes are measured after mount, so wait for the first update.
+    await wrapper.vm.$nextTick()
+    // The track is pushed 16px past the start, so slide 2 begins at 316px > 300px.
+    expect(wrapper.findAll('.carousel__slide--visible').length).toBe(1)
+  })
+
+  it('lets preventExcessiveDragging reach, but not exceed, the spaced edge', async () => {
+    const wrapper = mountCarousel({ preventExcessiveDragging: true })
+    const track = wrapper.find('.carousel__track')
+    await track.trigger('mousedown', { clientX: 100, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 150 }))
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+    await wrapper.vm.$nextTick()
+    expect(trackTransform(wrapper)).toBe('translateX(16px)')
+    document.dispatchEvent(new MouseEvent('mouseup'))
+  })
 })

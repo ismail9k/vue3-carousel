@@ -711,11 +711,16 @@ export const Carousel = defineComponent({
       }
 
       // Auto width mode
+      // Distance the track has scrolled forward, in px. edgeSpacing can push the
+      // track before the first slide; that counts as not scrolled at all.
+      const forwardOffset = scrolledOffset.value * (isReversed.value ? 1 : -1)
+      const trackOffset = Math.max(0, forwardOffset - clonedSlidesOffset.value)
+
       let minIndex = 0
       {
         let accumulatedSize = 0
         let index = 0 - clonedSlidesCount.value.before
-        const offset = Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+        const offset = trackOffset
         let iterations = 0
         const maxIterations = slides.length * 2
 
@@ -743,13 +748,13 @@ export const Carousel = defineComponent({
             slidesRect.value
               .slice(0, index)
               .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
-            Math.abs(scrolledOffset.value + clonedSlidesOffset.value)
+            trackOffset
         } else {
           accumulatedSize =
             slidesRect.value
               .slice(0, index)
               .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
-            Math.abs(scrolledOffset.value)
+            Math.max(0, forwardOffset)
         }
 
         while (accumulatedSize < viewportRect.value[dimension.value] && iterations < maxIterations) {
@@ -793,8 +798,9 @@ export const Carousel = defineComponent({
           maxSlidingValue =
             (slidesCount.value - Number(config.itemsToShow)) * effectiveSlideSize.value
         }
-        const min = isReversed.value ? 0 : -1 * maxSlidingValue
-        const max = isReversed.value ? maxSlidingValue : 0
+        maxSlidingValue += config.edgeSpacing
+        const min = isReversed.value ? -config.edgeSpacing : -1 * maxSlidingValue
+        const max = isReversed.value ? maxSlidingValue : config.edgeSpacing
         totalOffset = getNumberInRange({
           val: totalOffset,
           min,
