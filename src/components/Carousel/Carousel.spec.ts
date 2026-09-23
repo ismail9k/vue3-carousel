@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -35,5 +38,14 @@ describe('Carousel.ts', () => {
     const carousel = wrapper.find('.carousel')
     const style = carousel.attributes('style')
     expect(style).toContain('ease-in-out')
+  })
+})
+
+describe('Carousel.css', () => {
+  const css = readFileSync(resolve(__dirname, 'Carousel.css'), 'utf8')
+  const carouselRule = css.match(/^\.carousel \{([^}]*)\}/m)?.[1] ?? ''
+
+  it('lets the carousel shrink below its slides when it is a flex or grid item (#540)', () => {
+    expect(carouselRule).toMatch(/min-width:\s*0;/)
   })
 })
