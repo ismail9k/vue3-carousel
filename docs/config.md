@@ -130,6 +130,7 @@ These props control the appearance of the carousel:
 - **`edgeSpacing`**: Space (in pixels) before the first slide and after the last one.
   - Example: `:edge-spacing="16"` shifts the track by 16px at the first and last positions; positions in between are unchanged.
   - Slides keep their size, so pair it with a fractional or `'auto'` `itemsToShow` to keep every slide fully visible at the edges.
+  - When every slide already fits in the viewport, only the space before the first slide is applied.
   - Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`.
 
 - **`snapAlign`**: Controls how slides align within the viewport.
