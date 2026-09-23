@@ -1,7 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vitest'
-import { Component, createSSRApp, h, nextTick } from 'vue'
+import { Component, createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { renderToString } from 'vue/server-renderer'
+
+import { Carousel, Slide } from '@/index'
 
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
@@ -124,24 +126,24 @@ describe('Carousel.ts', () => {
         modelValue: 0,
       },
     })
-    
+
     const allSlides = wrapper.findAll('.carousel__slide')
     const visibleSlides = wrapper.findAll('.carousel__slide--visible')
-    
+
     // With itemsToShow: 1, only 1 slide should be visible
     expect(visibleSlides.length).toBe(1)
     expect(allSlides.length).toBe(5)
-    
+
     // Check that visible slide has no tabindex or has tabindex="0"
     const visibleSlide = visibleSlides[0].element as HTMLElement
     const visibleTabindex = visibleSlide.getAttribute('tabindex')
     expect(visibleTabindex === null || visibleTabindex === '0').toBe(true)
-    
+
     // Check that non-visible slides have tabindex="-1"
     for (let i = 0; i < allSlides.length; i++) {
       const slide = allSlides[i].element as HTMLElement
       const hasVisibleClass = slide.classList.contains('carousel__slide--visible')
-      
+
       if (!hasVisibleClass) {
         expect(slide.getAttribute('tabindex')).toBe('-1')
       }
@@ -157,12 +159,12 @@ describe('Carousel.ts', () => {
         modelValue: 0,
       },
     })
-    
+
     const clonedSlides = wrapper.findAll('.carousel__slide--clone')
-    
+
     // With wrapAround, there should be cloned slides
     expect(clonedSlides.length).toBeGreaterThan(0)
-    
+
     // Check that cloned slides have tabindex="-1"
     for (const clonedSlide of clonedSlides) {
       const slide = clonedSlide.element as HTMLElement
@@ -397,5 +399,145 @@ describe('Carousel Clone Count Logic', () => {
     const slides = wrapper.findAll('.carousel__slide')
     // Original slides (1) + cloned slides before (1) + cloned slides after (1)
     expect(slides.length).toBe(3)
+  })
+})
+
+describe('Carousel inside a scaled ancestor', () => {
+  const VIEWPORT_SCREEN_WIDTH = 500
+  let scale = 0.5 // layout width is 1000 at this scale
+
+  const ScaledApp = defineComponent({
+    props: {
+      dir: { type: String, default: 'ltr' },
+      height: { type: [String, Number], default: 'auto' },
+    },
+    setup() {
+      // The carousel's exposed API is only reachable through a template ref
+      return { carousel: ref() }
+    },
+    render() {
+      return h('div', { class: 'scaled-wrapper' }, [
+        h(
+          Carousel,
+          {
+            ref: 'carousel',
+            itemsToShow: 1,
+            snapAlign: 'start',
+            modelValue: 0,
+            dir: this.dir,
+            height: this.height,
+          },
+          {
+            default: () => [1, 2, 3, 4, 5].map((n) => h(Slide, { key: n }, () => `${n}`)),
+          }
+        ),
+      ])
+    },
+  })
+
+  let wrapper: ReturnType<typeof mount<typeof ScaledApp>>
+
+  const mountScaled = async (props: { dir?: string; height?: string } = {}) => {
+    wrapper = mount(ScaledApp, { props })
+    await nextTick()
+    return wrapper
+  }
+
+  beforeEach(() => {
+    scale = 0.5
+    vi.useFakeTimers()
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      (el) =>
+        ({
+          transform: (el as Element).classList?.contains('scaled-wrapper')
+            ? `matrix(${scale}, 0, 0, ${scale}, 0, 0)`
+            : 'none',
+        }) as CSSStyleDeclaration
+    )
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+      () =>
+        ({
+          width: VIEWPORT_SCREEN_WIDTH,
+          height: VIEWPORT_SCREEN_WIDTH,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        }) as DOMRect
+    )
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  const dragMouse = async (from: [number, number], to: [number, number]) => {
+    const track = wrapper.find('.carousel__track')
+    await track.trigger('mousedown', { clientX: from[0], clientY: from[1], button: 0 })
+    document.dispatchEvent(
+      new MouseEvent('mousemove', { clientX: to[0], clientY: to[1] })
+    )
+    vi.runAllTimers() // flush the throttled drag handler
+    await nextTick()
+    return track
+  }
+
+  const releaseMouse = async () => {
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+  }
+
+  it('measures the slide size in layout pixels', async () => {
+    await mountScaled()
+
+    expect(wrapper.vm.carousel.data.slideSize).toBe(VIEWPORT_SCREEN_WIDTH / scale)
+  })
+
+  it('moves the track by one layout-pixel slide per slide', async () => {
+    await mountScaled()
+
+    wrapper.vm.carousel.slideTo(1)
+    await nextTick()
+
+    expect(wrapper.find('.carousel__track').attributes('style')).toContain(
+      'translateX(-1000px)'
+    )
+  })
+
+  it('converts mouse drag distance from screen pixels to layout pixels', async () => {
+    await mountScaled()
+
+    // 60 screen px at scale 0.5 is 120 layout px
+    const track = await dragMouse([400, 0], [340, 0])
+    expect(track.attributes('style')).toContain('translateX(-120px)')
+
+    await releaseMouse()
+    // 120 / 1000 = 0.12 of a slide, above the 0.08 default threshold
+    expect(wrapper.findComponent(Carousel).emitted('update:modelValue')?.[0]).toEqual([1])
+  })
+
+  it('resamples the scale on each drag', async () => {
+    await mountScaled()
+
+    await dragMouse([400, 0], [340, 0])
+    await releaseMouse()
+    vi.runAllTimers() // finish the slide transition
+
+    scale = 0.25 // the wrapper rescaled (e.g. window resize) between drags
+    const track = await dragMouse([400, 0], [340, 0])
+    // 60 screen px at scale 0.25 is 240 layout px, on top of the 1000px scroll
+    expect(track.attributes('style')).toContain('translateX(-1240px)')
+  })
+
+  it('uses the height multiplier for vertical drags', async () => {
+    await mountScaled({ dir: 'ttb', height: '500px' })
+
+    const track = await dragMouse([0, 400], [0, 340])
+    expect(track.attributes('style')).toContain('translateY(-120px)')
   })
 })
