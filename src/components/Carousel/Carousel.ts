@@ -299,9 +299,16 @@ export const Carousel = defineComponent({
             passive: true,
           })
           document.addEventListener('animationend', finishAnimation, { passive: true })
+          // A cancelled animation never fires `animationend`, so without this
+          // its element would stay in `transformElements` and the rAF loop
+          // would keep walking ancestors every frame
+          document.addEventListener('animationcancel', finishAnimation, {
+            passive: true,
+          })
         } else {
           document.removeEventListener('animationstart', setAnimationInterval)
           document.removeEventListener('animationend', finishAnimation)
+          document.removeEventListener('animationcancel', finishAnimation)
         }
       })
     }

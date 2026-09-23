@@ -446,9 +446,11 @@ describe('Carousel inside a scaled ancestor', () => {
       dir?: string
       height?: string
       carouselProps?: Record<string, unknown>
-    } = {}
+    } = {},
+    // Only needed by tests that rely on events bubbling up to the document
+    options: { attachTo?: Element } = {}
   ) => {
-    wrapper = mount(ScaledApp, { props })
+    wrapper = mount(ScaledApp, { props, ...options })
     await nextTick()
     return wrapper
   }
@@ -558,6 +560,17 @@ describe('Carousel inside a scaled ancestor', () => {
 
     // root is 500 screen px at scale 0.5 = 1000 layout px, which is >= 800
     expect(wrapper.findAll('.carousel__slide--visible').length).toBe(2)
+  })
+
+  it('stops the ancestor animation loop when the animation is cancelled', async () => {
+    await mountScaled({}, { attachTo: document.body })
+    const cancelSpy = vi.spyOn(window, 'cancelAnimationFrame')
+    const ancestor = wrapper.element as HTMLElement // .scaled-wrapper contains the carousel root
+
+    ancestor.dispatchEvent(new Event('animationstart', { bubbles: true }))
+    ancestor.dispatchEvent(new Event('animationcancel', { bubbles: true }))
+
+    expect(cancelSpy).toHaveBeenCalledTimes(1)
   })
 
   it('uses the height multiplier for vertical drags', async () => {
