@@ -237,14 +237,15 @@ Example:
 
 The `mouseWheel` property accepts either a boolean value or a `WheelConfig` object with the following properties:
 
-| Property      | Type     | Default | Description                                                                                |
-|---------------|----------|---------|--------------------------------------------------------------------------------------------|
-| `threshold`   | `number` | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
+| Property          | Type      | Default | Description                                                                                |
+|-------------------|-----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold`       | `number`  | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
+| `ignoreCrossAxis` | `boolean` | false   | When true, the carousel only reacts to wheel movement along its own axis (horizontal for a horizontal carousel, vertical for a vertical one) and lets other wheel movement scroll the page. Useful on trackpads, where a horizontal carousel would otherwise capture vertical page scrolling. <Badge text="0.18.0"/> |
 
 Example:
 
 ```vue
-<Carousel :mouse-wheel="{ threshold: 20 }">
+<Carousel :mouse-wheel="{ threshold: 20, ignoreCrossAxis: true }">
   <!-- Slides -->
 </Carousel>
 ```

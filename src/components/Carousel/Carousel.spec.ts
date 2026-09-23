@@ -36,4 +36,35 @@ describe('Carousel.ts', () => {
     const style = carousel.attributes('style')
     expect(style).toContain('ease-in-out')
   })
+
+  describe('mouseWheel.ignoreCrossAxis', () => {
+    function mountWithWheel() {
+      return mount(Carousel, {
+        props: { mouseWheel: { ignoreCrossAxis: true } },
+        slots: {
+          default: [
+            mount(Slide, { props: { index: 0 } }).html(),
+            mount(Slide, { props: { index: 1 } }).html(),
+          ],
+        },
+      })
+    }
+
+    it('ignores vertical wheel events on a horizontal carousel', async () => {
+      const wheelWrapper = mountWithWheel()
+
+      await wheelWrapper.find('.carousel__track').trigger('wheel', { deltaY: 100 })
+
+      expect(wheelWrapper.emitted('wheel')).toBeUndefined()
+    })
+
+    it('handles horizontal wheel events on a horizontal carousel', async () => {
+      const wheelWrapper = mountWithWheel()
+
+      await wheelWrapper.find('.carousel__track').trigger('wheel', { deltaX: 100 })
+
+      expect(wheelWrapper.emitted('wheel')).toHaveLength(1)
+      expect(wheelWrapper.emitted('wheel')?.[0]).toEqual([{ deltaX: 100, deltaY: 0 }])
+    })
+  })
 })
