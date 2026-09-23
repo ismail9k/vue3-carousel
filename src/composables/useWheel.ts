@@ -29,29 +29,33 @@ export function useWheel(options: UseWheelOptions) {
   })
 
   const handleScroll = (event: WheelEvent): void => {
+    const wheelConfig = typeof config.mouseWheel === 'object' ? config.mouseWheel : {}
+
+    // Add sensitivity threshold to prevent small movements from triggering navigation
+    const threshold = wheelConfig.threshold ?? DEFAULT_MOUSE_WHEEL_THRESHOLD
+
+    // Determine scroll direction
+    const deltaY = Math.abs(event.deltaY) > threshold ? event.deltaY : 0
+    const deltaX = Math.abs(event.deltaX) > threshold ? event.deltaX : 0
+
+    // Determine primary delta based on carousel orientation
+    const primaryDelta = vertical.value ? deltaY : deltaX
+
+    // Leave cross-axis wheel input to the browser (e.g. page scroll over a horizontal carousel)
+    if (wheelConfig.ignoreCrossAxis && primaryDelta === 0) {
+      return
+    }
+
     event.preventDefault()
 
     if (!config.mouseWheel || sliding.value) {
       return
     }
 
-    // Add sensitivity threshold to prevent small movements from triggering navigation
-    const threshold =
-      typeof config.mouseWheel === 'object'
-        ? (config.mouseWheel.threshold ?? DEFAULT_MOUSE_WHEEL_THRESHOLD)
-        : DEFAULT_MOUSE_WHEEL_THRESHOLD
-
-    // Determine scroll direction
-    const deltaY = Math.abs(event.deltaY) > threshold ? event.deltaY : 0
-    const deltaX = Math.abs(event.deltaX) > threshold ? event.deltaX : 0
-
     // If neither delta exceeds the threshold, don't navigate
     if (deltaY === 0 && deltaX === 0) {
       return
     }
-
-    // Determine primary delta based on carousel orientation
-    const primaryDelta = vertical.value ? deltaY : deltaX
 
     // If primaryDelta is 0, use the other delta as fallback
     const effectiveDelta =
