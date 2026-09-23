@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.18.0) - 2026-09-23
+
+- feat: add `ignoreCrossAxis` option to `mouseWheel` (#543) in #559
+- feat: add `edgeSpacing` prop for space before the first and after the last slide (#545) in #563
+- fix: keep slide sizing and drag in layout px under scaled ancestors (#544) in #560
+- fix: let carousel shrink inside flex and grid layouts (#540) in #561
+- fix: keep pointer focus inside a slide from navigating the carousel (#538) in #562
+
 ## [0.17.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.17.0) - 2025-10-26
 
 - Improve prop validation with descriptive warnings in Carousel component by @Krishnaku007
