@@ -3,6 +3,8 @@ import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vite
 import { Component, createSSRApp, h, nextTick } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
+import { Carousel, Slide } from '@/index'
+
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
 
@@ -40,6 +42,81 @@ describe('Carousel.ts', () => {
     const slide = wrapper.find('.carousel__slide:nth-child(4)')
     await slide.trigger('focusin')
     expect(wrapper.props('modelValue')).toBe(3)
+  })
+
+  it('Should not navigate when focus is caused by a pointer (mousedown)', async () => {
+    const viewport = wrapper.find('.carousel__viewport').element
+    viewport.scrollLeft = 20
+    const slide = wrapper.find('.carousel__slide:nth-child(4)')
+    await slide.trigger('mousedown')
+    await slide.trigger('focusin')
+    expect(wrapper.props('modelValue')).toBe(0)
+    // The focus still scrolls the viewport, so the reset must run regardless
+    expect(viewport.scrollLeft).toBe(0)
+  })
+
+  it('Should not navigate when a pointer focuses an input inside a slide with mouseDrag enabled', async () => {
+    const input = wrapper.find('.carousel__slide:nth-child(4) input')
+    await input.trigger('mousedown')
+    await input.trigger('focusin')
+    expect(wrapper.props('modelValue')).toBe(0)
+  })
+
+  it('Should navigate on keyboard focus after a pointer interaction has ended', async () => {
+    vi.useFakeTimers()
+    const slide = wrapper.find('.carousel__slide:nth-child(4)')
+    await slide.trigger('mousedown')
+    // No focusin: the mousedown target was not focusable. Fire the flag's 0 ms timer.
+    vi.advanceTimersByTime(1)
+    vi.useRealTimers()
+    await slide.trigger('focusin')
+    expect(wrapper.props('modelValue')).toBe(3)
+  })
+
+  it('Should not navigate when a pointer focuses content inside a non-active slide with mouseDrag disabled', async () => {
+    const onClick = vi.fn()
+    const clickWrapper = mount(Carousel, {
+      props: { itemsToShow: 3, mouseDrag: false, modelValue: 0 },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4].map((i) =>
+            h(Slide, { key: i }, () => h('button', { onClick }, `slide ${i}`))
+          ),
+      },
+    })
+    await nextTick()
+    const button = clickWrapper.findAll('.carousel__slide')[2].find('button')
+    await button.trigger('mousedown')
+    await button.trigger('focusin')
+    await button.trigger('mouseup')
+    await button.trigger('click')
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(clickWrapper.emitted('update:modelValue')).toBeUndefined()
+    clickWrapper.unmount()
+  })
+
+  it('Should not navigate when slide content stops mousedown propagation', async () => {
+    const stopWrapper = mount(Carousel, {
+      props: { itemsToShow: 3, mouseDrag: false, modelValue: 0 },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4].map((i) =>
+            h(Slide, { key: i }, () =>
+              h(
+                'button',
+                { onMousedown: (e: Event) => e.stopPropagation() },
+                `slide ${i}`
+              )
+            )
+          ),
+      },
+    })
+    await nextTick()
+    const button = stopWrapper.findAll('.carousel__slide')[2].find('button')
+    await button.trigger('mousedown')
+    await button.trigger('focusin')
+    expect(stopWrapper.emitted('update:modelValue')).toBeUndefined()
+    stopWrapper.unmount()
   })
 
   it('Should navigate the carousel with arrow keys', async () => {
@@ -124,24 +201,24 @@ describe('Carousel.ts', () => {
         modelValue: 0,
       },
     })
-    
+
     const allSlides = wrapper.findAll('.carousel__slide')
     const visibleSlides = wrapper.findAll('.carousel__slide--visible')
-    
+
     // With itemsToShow: 1, only 1 slide should be visible
     expect(visibleSlides.length).toBe(1)
     expect(allSlides.length).toBe(5)
-    
+
     // Check that visible slide has no tabindex or has tabindex="0"
     const visibleSlide = visibleSlides[0].element as HTMLElement
     const visibleTabindex = visibleSlide.getAttribute('tabindex')
     expect(visibleTabindex === null || visibleTabindex === '0').toBe(true)
-    
+
     // Check that non-visible slides have tabindex="-1"
     for (let i = 0; i < allSlides.length; i++) {
       const slide = allSlides[i].element as HTMLElement
       const hasVisibleClass = slide.classList.contains('carousel__slide--visible')
-      
+
       if (!hasVisibleClass) {
         expect(slide.getAttribute('tabindex')).toBe('-1')
       }
@@ -157,12 +234,12 @@ describe('Carousel.ts', () => {
         modelValue: 0,
       },
     })
-    
+
     const clonedSlides = wrapper.findAll('.carousel__slide--clone')
-    
+
     // With wrapAround, there should be cloned slides
     expect(clonedSlides.length).toBeGreaterThan(0)
-    
+
     // Check that cloned slides have tabindex="-1"
     for (const clonedSlide of clonedSlides) {
       const slide = clonedSlide.element as HTMLElement
