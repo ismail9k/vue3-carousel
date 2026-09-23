@@ -50,19 +50,31 @@ describe('Carousel.ts', () => {
       })
     }
 
-    it('ignores vertical wheel events on a horizontal carousel', async () => {
+    it('ignores vertical wheel events on a horizontal carousel', () => {
       const wheelWrapper = mountWithWheel()
+      const event = new WheelEvent('wheel', {
+        deltaY: 100,
+        bubbles: true,
+        cancelable: true,
+      })
 
-      await wheelWrapper.find('.carousel__track').trigger('wheel', { deltaY: 100 })
+      wheelWrapper.find('.carousel__track').element.dispatchEvent(event)
 
+      expect(event.defaultPrevented).toBe(false)
       expect(wheelWrapper.emitted('wheel')).toBeUndefined()
     })
 
-    it('handles horizontal wheel events on a horizontal carousel', async () => {
+    it('handles horizontal wheel events on a horizontal carousel', () => {
       const wheelWrapper = mountWithWheel()
+      const event = new WheelEvent('wheel', {
+        deltaX: 100,
+        bubbles: true,
+        cancelable: true,
+      })
 
-      await wheelWrapper.find('.carousel__track').trigger('wheel', { deltaX: 100 })
+      wheelWrapper.find('.carousel__track').element.dispatchEvent(event)
 
+      expect(event.defaultPrevented).toBe(true)
       expect(wheelWrapper.emitted('wheel')).toHaveLength(1)
       expect(wheelWrapper.emitted('wheel')?.[0]).toEqual([{ deltaX: 100, deltaY: 0 }])
     })

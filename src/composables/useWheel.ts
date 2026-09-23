@@ -29,7 +29,8 @@ export function useWheel(options: UseWheelOptions) {
   })
 
   const handleScroll = (event: WheelEvent): void => {
-    const wheelConfig = typeof config.mouseWheel === 'object' ? config.mouseWheel : {}
+    const wheelConfig =
+      config.mouseWheel && typeof config.mouseWheel === 'object' ? config.mouseWheel : {}
 
     // Add sensitivity threshold to prevent small movements from triggering navigation
     const threshold = wheelConfig.threshold ?? DEFAULT_MOUSE_WHEEL_THRESHOLD
@@ -40,9 +41,13 @@ export function useWheel(options: UseWheelOptions) {
 
     // Determine primary delta based on carousel orientation
     const primaryDelta = vertical.value ? deltaY : deltaX
+    const crossDelta = vertical.value ? deltaX : deltaY
 
     // Leave cross-axis wheel input to the browser (e.g. page scroll over a horizontal carousel)
-    if (wheelConfig.ignoreCrossAxis && primaryDelta === 0) {
+    if (
+      wheelConfig.ignoreCrossAxis &&
+      (primaryDelta === 0 || Math.abs(crossDelta) > Math.abs(primaryDelta))
+    ) {
       return
     }
 

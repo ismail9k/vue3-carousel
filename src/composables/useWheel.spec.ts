@@ -98,16 +98,26 @@ describe('useWheel', () => {
 
     it('uses the on-axis delta for diagonal events', () => {
       const { handleScroll, onWheel } = setup({ mouseWheel })
-      const { event, preventDefault } = wheel(-50, 100)
+      const { event, preventDefault } = wheel(-100, 50)
 
       handleScroll(event)
 
       expect(preventDefault).toHaveBeenCalledTimes(1)
       expect(onWheel).toHaveBeenCalledWith({
-        deltaX: -50,
-        deltaY: 100,
+        deltaX: -100,
+        deltaY: 50,
         isScrollingForward: false,
       })
+    })
+
+    it('ignores diagonal events dominated by the cross axis', () => {
+      const { handleScroll, onWheel } = setup({ mouseWheel })
+      const { event, preventDefault } = wheel(15, 120)
+
+      handleScroll(event)
+
+      expect(preventDefault).not.toHaveBeenCalled()
+      expect(onWheel).not.toHaveBeenCalled()
     })
 
     it('ignores sub-threshold on-axis events', () => {
@@ -142,6 +152,16 @@ describe('useWheel', () => {
       handleScroll(event)
 
       expect(preventDefault).not.toHaveBeenCalled()
+      expect(onWheel).not.toHaveBeenCalled()
+    })
+
+    it('prevents on-axis events while sliding without navigating', () => {
+      const { handleScroll, onWheel } = setup({ mouseWheel, isSliding: true })
+      const { event, preventDefault } = wheel(100, 0)
+
+      handleScroll(event)
+
+      expect(preventDefault).toHaveBeenCalledTimes(1)
       expect(onWheel).not.toHaveBeenCalled()
     })
 
