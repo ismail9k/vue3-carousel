@@ -98,6 +98,29 @@ export const Slide = defineComponent({
       carousel.slideRegistry.unregisterSlide(instance)
     })
 
+    // Focus caused by a pointer (mouse click or the compat mousedown after a
+    // touch tap) must not navigate; only keyboard/programmatic focus should.
+    let isPointerFocus = false
+    let pointerFocusTimer: ReturnType<typeof setTimeout> | null = null
+
+    const handleMousedown = () => {
+      isPointerFocus = true
+      if (pointerFocusTimer) {
+        clearTimeout(pointerFocusTimer)
+      }
+      // The browser focuses synchronously after mousedown; a macrotask runs after that.
+      pointerFocusTimer = setTimeout(() => {
+        isPointerFocus = false
+        pointerFocusTimer = null
+      }, 0)
+    }
+
+    onUnmounted(() => {
+      if (pointerFocusTimer) {
+        clearTimeout(pointerFocusTimer)
+      }
+    })
+
     if (props.isClone) {
       // Prevent cloned slides from being focusable
       onMounted(() => {
@@ -126,10 +149,14 @@ export const Slide = defineComponent({
             'carousel__slide--next': isNext.value,
             'carousel__slide--sliding': carousel.isSliding,
           },
+          onMousedown: handleMousedown,
           onFocusin: () => {
             // Prevent the viewport being scrolled by the focus
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
+            }
+            if (isPointerFocus) {
+              return
             }
             carousel.nav.slideTo(currentIndex.value)
           },
