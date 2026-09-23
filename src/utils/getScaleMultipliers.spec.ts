@@ -152,6 +152,51 @@ describe('getScaleMultipliers', () => {
       heightMultiplier: 1,
     })
   })
+
+  it('uses the magnitude of a mirrored scale', () => {
+    const wrapper = document.createElement('div')
+    const child = document.createElement('div')
+    wrapper.appendChild(child)
+    mockTransforms(new Map([[wrapper, 'matrix(-0.5, 0, 0, -0.5, 0, 0)']]))
+
+    expect(getScaleMultipliers(child)).toEqual({
+      widthMultiplier: 2,
+      heightMultiplier: 2,
+    })
+  })
+
+  it('ignores a rotated or skewed ancestor', () => {
+    const wrapper = document.createElement('div')
+    const child = document.createElement('div')
+    wrapper.appendChild(child)
+    // rotate(60deg): a = d = 0.5, b = -c = 0.866
+    mockTransforms(new Map([[wrapper, 'matrix(0.5, 0.866, -0.866, 0.5, 0, 0)']]))
+
+    expect(getScaleMultipliers(child)).toEqual({
+      widthMultiplier: 1,
+      heightMultiplier: 1,
+    })
+  })
+
+  it('ignores a rotated matrix3d ancestor', () => {
+    const wrapper = document.createElement('div')
+    const child = document.createElement('div')
+    wrapper.appendChild(child)
+    // rotateZ(60deg) as a 3D matrix: m12 and m21 are non-zero
+    mockTransforms(
+      new Map([
+        [
+          wrapper,
+          'matrix3d(0.5, 0.866, 0, 0, -0.866, 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
+        ],
+      ])
+    )
+
+    expect(getScaleMultipliers(child)).toEqual({
+      widthMultiplier: 1,
+      heightMultiplier: 1,
+    })
+  })
 })
 
 describe('getScaleValues', () => {
@@ -197,6 +242,20 @@ describe('getScaleValues', () => {
   it('reads the first two of three values as x then y', () => {
     const div = document.createElement('div')
     mockStyles(new Map([[div, { scale: '0.5 0.25 2' }]]))
+
+    expect(getScaleValues(div)).toEqual({ scaleX: 0.5, scaleY: 0.25 })
+  })
+
+  it('uses the magnitude of a negative single value', () => {
+    const div = document.createElement('div')
+    mockStyles(new Map([[div, { scale: '-1' }]]))
+
+    expect(getScaleValues(div)).toEqual({ scaleX: 1, scaleY: 1 })
+  })
+
+  it('uses the magnitude of negative per-axis values', () => {
+    const div = document.createElement('div')
+    mockStyles(new Map([[div, { scale: '-0.5 0.25' }]]))
 
     expect(getScaleValues(div)).toEqual({ scaleX: 0.5, scaleY: 0.25 })
   })

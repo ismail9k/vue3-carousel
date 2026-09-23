@@ -27,14 +27,29 @@ export function getTransformValues(el: Element): readonly number[] {
   return values.length > 0 && !values.some(isNaN) ? values : IDENTITY_MATRIX
 }
 
+/**
+ * Reads the axis scales out of a transform matrix.
+ *
+ * A non-zero b or c is a rotation or a skew: the element's axis-aligned
+ * bounding box is then not a scaled copy of its layout box, so there is no
+ * multiplier to derive and we bail out to identity. `getBoundingClientRect()`
+ * is never negative, so a mirrored axis (`scaleX(-1)`, `rotate(180deg)`) has to
+ * be read as its magnitude.
+ */
 function getScale(values: readonly number[]): ScaleValues {
   // matrix(a, b, c, d, e, f): a = scaleX, d = scaleY
   if (values.length === 6) {
-    return { scaleX: values[0], scaleY: values[3] }
+    if (values[1] || values[2]) {
+      return IDENTITY_SCALE
+    }
+    return { scaleX: Math.abs(values[0]), scaleY: Math.abs(values[3]) }
   }
   // matrix3d(m11, ..., m44): m11 = scaleX, m22 = scaleY
   if (values.length === 16) {
-    return { scaleX: values[0], scaleY: values[5] }
+    if (values[1] || values[4]) {
+      return IDENTITY_SCALE
+    }
+    return { scaleX: Math.abs(values[0]), scaleY: Math.abs(values[5]) }
   }
   return IDENTITY_SCALE
 }
@@ -59,7 +74,11 @@ export function getScaleValues(el: Element): ScaleValues {
     return IDENTITY_SCALE
   }
 
-  return { scaleX: values[0], scaleY: values.length > 1 ? values[1] : values[0] }
+  // `scale: -1` is valid CSS, and a rect is never negative
+  return {
+    scaleX: Math.abs(values[0]),
+    scaleY: Math.abs(values.length > 1 ? values[1] : values[0]),
+  }
 }
 
 /**
