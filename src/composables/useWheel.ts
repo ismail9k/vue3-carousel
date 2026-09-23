@@ -43,7 +43,8 @@ export function useWheel(options: UseWheelOptions) {
     const primaryDelta = vertical.value ? deltaY : deltaX
     const crossDelta = vertical.value ? deltaX : deltaY
 
-    // Leave cross-axis wheel input to the browser (e.g. page scroll over a horizontal carousel)
+    // Leave cross-axis wheel input to the browser (e.g. page scroll over a horizontal carousel).
+    // A tie in magnitude goes to the carousel (strict `>`), so an ambiguous gesture still navigates.
     if (
       wheelConfig.ignoreCrossAxis &&
       (primaryDelta === 0 || Math.abs(crossDelta) > Math.abs(primaryDelta))
