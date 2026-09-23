@@ -15,6 +15,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled. <Badge text="0.18.0"/> |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
 | `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
@@ -125,6 +126,11 @@ These props control the appearance of the carousel:
 
 - **`gap`**: Space (in pixels) between slides.
   - Example: `:gap="20"` creates 20px spacing between slides.
+
+- **`edgeSpacing`**: Space (in pixels) before the first slide and after the last one.
+  - Example: `:edge-spacing="16"` shifts the track by 16px at the first and last positions; positions in between are unchanged.
+  - Slides keep their size, so pair it with a fractional or `'auto'` `itemsToShow` to keep every slide fully visible at the edges.
+  - Ignored when `wrapAround` is enabled.
 
 - **`snapAlign`**: Controls how slides align within the viewport.
   - 'start': Aligns slides to the beginning of the carousel
