@@ -163,7 +163,9 @@ export const Carousel = defineComponent({
       updateSlideSize()
     })
 
-    const transformElements = shallowReactive<Set<HTMLElement>>(new Set())
+    // Plain Set: nothing reads it reactively — the rAF loop and finishAnimation
+    // call updateSlideSize() explicitly
+    const transformElements = new Set<HTMLElement>()
 
     /**
      * Setup functions
@@ -274,6 +276,8 @@ export const Carousel = defineComponent({
       }
       if (animationInterval && transformElements.size === 0) {
         cancelAnimationFrame(animationInterval)
+        // Reset so the guard in setAnimationInterval can restart the loop
+        animationInterval = 0
         updateSlideSize()
       }
     }
@@ -421,6 +425,8 @@ export const Carousel = defineComponent({
     }
 
     const onDrag = ({ deltaX, deltaY, isTouch }: DragEventData) => {
+      // Emitted as raw screen px on purpose (public API); the values below are
+      // converted to layout px for the carousel's own maths
       emit('drag', { deltaX, deltaY })
 
       const threshold = isTouch

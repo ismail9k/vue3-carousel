@@ -405,6 +405,7 @@ describe('Carousel Clone Count Logic', () => {
 describe('Carousel inside a scaled ancestor', () => {
   const VIEWPORT_SCREEN_WIDTH = 500
   let scale = 0.5 // layout width is 1000 at this scale
+  let scaleY = scale // kept separate so a test can pin a non-uniform scale
 
   const ScaledApp = defineComponent({
     props: {
@@ -445,12 +446,13 @@ describe('Carousel inside a scaled ancestor', () => {
 
   beforeEach(() => {
     scale = 0.5
+    scaleY = scale
     vi.useFakeTimers()
     vi.spyOn(window, 'getComputedStyle').mockImplementation(
       (el) =>
         ({
           transform: (el as Element).classList?.contains('scaled-wrapper')
-            ? `matrix(${scale}, 0, 0, ${scale}, 0, 0)`
+            ? `matrix(${scale}, 0, 0, ${scaleY}, 0, 0)`
             : 'none',
         }) as CSSStyleDeclaration
     )
@@ -531,13 +533,19 @@ describe('Carousel inside a scaled ancestor', () => {
     scale = 0.25 // the wrapper rescaled (e.g. window resize) between drags
     const track = await dragMouse([400, 0], [340, 0])
     // 60 screen px at scale 0.25 is 240 layout px, on top of the 1000px scroll
+    // The 1000px offset was measured at scale 0.5 and is not re-measured here:
+    // vitest.setup.ts stubs ResizeObserver as a no-op, so no resize callback
+    // fires (a real browser would re-measure and the offset would become 2000).
     expect(track.attributes('style')).toContain('translateX(-1240px)')
   })
 
   it('uses the height multiplier for vertical drags', async () => {
+    // Non-uniform on purpose: a uniform scale cannot catch an axis swap
+    scaleY = 0.25
     await mountScaled({ dir: 'ttb', height: '500px' })
 
+    // 60 screen px at scaleY 0.25 is 240 layout px (widthMultiplier is only 2)
     const track = await dragMouse([0, 400], [0, 340])
-    expect(track.attributes('style')).toContain('translateY(-120px)')
+    expect(track.attributes('style')).toContain('translateY(-240px)')
   })
 })
