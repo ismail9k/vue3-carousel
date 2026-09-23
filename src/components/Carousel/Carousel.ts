@@ -30,6 +30,7 @@ import {
 } from '@/shared'
 import {
   ScaleMultipliers,
+  applyEdgeSpacing,
   calculateAverage,
   createCloneSlides,
   except,
@@ -655,24 +656,28 @@ export const Carousel = defineComponent({
             viewportRect.value[dimension.value] -
             config.gap
 
-          output = getNumberInRange({
-            val: output,
+          output = applyEdgeSpacing({
+            value: getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
             max: maxSlidingValue,
-            min: 0,
+            spacing: config.edgeSpacing,
           })
         }
       } else {
-        let scrolledSlides = currentSlideIndex.value - snapAlignOffset.value
+        const scrolledSlides = currentSlideIndex.value - snapAlignOffset.value
 
-        // remove whitespace
-        if (!config.wrapAround) {
-          scrolledSlides = getNumberInRange({
-            val: scrolledSlides,
-            max: slidesCount.value - +config.itemsToShow,
-            min: 0,
+        if (config.wrapAround) {
+          output = scrolledSlides * effectiveSlideSize.value
+        } else {
+          // remove whitespace
+          const maxScrolledSlides = slidesCount.value - +config.itemsToShow
+          output = applyEdgeSpacing({
+            value:
+              getNumberInRange({ val: scrolledSlides, max: maxScrolledSlides, min: 0 }) *
+              effectiveSlideSize.value,
+            max: maxScrolledSlides * effectiveSlideSize.value,
+            spacing: config.edgeSpacing,
           })
         }
-        output = scrolledSlides * effectiveSlideSize.value
       }
 
       return output * (isReversed.value ? 1 : -1)
