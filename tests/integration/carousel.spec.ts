@@ -63,10 +63,12 @@ describe('Carousel.ts', () => {
   })
 
   it('Should navigate on keyboard focus after a pointer interaction has ended', async () => {
+    vi.useFakeTimers()
     const slide = wrapper.find('.carousel__slide:nth-child(4)')
     await slide.trigger('mousedown')
-    // No focusin: the mousedown target was not focusable
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    // No focusin: the mousedown target was not focusable. Fire the flag's 0 ms timer.
+    vi.advanceTimersByTime(1)
+    vi.useRealTimers()
     await slide.trigger('focusin')
     expect(wrapper.props('modelValue')).toBe(3)
   })
