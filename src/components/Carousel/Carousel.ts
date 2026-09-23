@@ -104,7 +104,7 @@ export const Carousel = defineComponent({
     const effectiveSlideSize = computed(() => slideSize.value + config.gap)
 
     // Sanitized edge spacing: never negative, and never applied while wrapping around.
-    const edgeSpacing = computed(() =>
+    const normalizedEdgeSpacing = computed(() =>
       config.wrapAround ? 0 : Math.max(0, config.edgeSpacing)
     )
 
@@ -664,7 +664,7 @@ export const Carousel = defineComponent({
           output = applyEdgeSpacing({
             value: getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
             max: maxSlidingValue,
-            spacing: edgeSpacing.value,
+            spacing: normalizedEdgeSpacing.value,
           })
         }
       } else {
@@ -680,7 +680,7 @@ export const Carousel = defineComponent({
               getNumberInRange({ val: scrolledSlides, max: maxScrolledSlides, min: 0 }) *
               effectiveSlideSize.value,
             max: maxScrolledSlides * effectiveSlideSize.value,
-            spacing: edgeSpacing.value,
+            spacing: normalizedEdgeSpacing.value,
           })
         }
       }
@@ -717,7 +717,8 @@ export const Carousel = defineComponent({
 
       // Auto width mode
       // Distance the track has scrolled forward, in px. edgeSpacing can push the
-      // track before the first slide; that counts as not scrolled at all.
+      // track before the first slide, which makes this negative; trackOffset clamps
+      // that away so the minIndex walk still starts at the first slide.
       const forwardOffset = scrolledOffset.value * (isReversed.value ? 1 : -1)
       const trackOffset = Math.max(0, forwardOffset - clonedSlidesOffset.value)
 
@@ -758,7 +759,7 @@ export const Carousel = defineComponent({
             slidesRect.value
               .slice(0, index)
               .reduce((acc, slide) => acc + slide[dimension.value] + config.gap, 0) -
-            Math.max(0, forwardOffset)
+            forwardOffset
         }
 
         while (accumulatedSize < viewportRect.value[dimension.value] && iterations < maxIterations) {
@@ -802,9 +803,9 @@ export const Carousel = defineComponent({
           maxSlidingValue =
             (slidesCount.value - Number(config.itemsToShow)) * effectiveSlideSize.value
         }
-        maxSlidingValue += edgeSpacing.value
-        const min = isReversed.value ? -edgeSpacing.value : -1 * maxSlidingValue
-        const max = isReversed.value ? maxSlidingValue : edgeSpacing.value
+        maxSlidingValue += normalizedEdgeSpacing.value
+        const min = isReversed.value ? -normalizedEdgeSpacing.value : -1 * maxSlidingValue
+        const max = isReversed.value ? maxSlidingValue : normalizedEdgeSpacing.value
         totalOffset = getNumberInRange({
           val: totalOffset,
           min,

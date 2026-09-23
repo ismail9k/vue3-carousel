@@ -38,7 +38,7 @@ describe('edgeSpacing', () => {
   })
   afterAll(() => vi.restoreAllMocks())
 
-  it('is 0 by default and leaves the track flush at both ends', async () => {
+  it('leaves the track flush at both ends when 0', async () => {
     const wrapper = mountCarousel({ edgeSpacing: 0 })
     expect(trackTransform(wrapper)).toBe('translateX(0px)')
     await wrapper.setProps({ modelValue: 4 })
@@ -109,6 +109,25 @@ describe('edgeSpacing', () => {
     await wrapper.vm.$nextTick()
     // The track is pushed 16px past the start, so slide 2 begins at 316px > 300px.
     expect(wrapper.findAll('.carousel__slide--visible').length).toBe(1)
+  })
+
+  it('counts auto-mode visibility from the spaced start', async () => {
+    // Slides narrower than the viewport, so a slide edge lands inside the spacing band.
+    const spy = vi
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const width = this.classList.contains('carousel__slide') ? 145 : 300
+        return { ...RECT, width, right: width, toJSON: () => RECT }
+      })
+    try {
+      const wrapper = mountCarousel({ itemsToShow: 'auto' })
+      await wrapper.vm.$nextTick()
+      // The track starts 16px in, so slide 1 spans 16-161px, slide 2 spans 161-306px
+      // and slide 3 begins at 306px, past the 300px viewport.
+      expect(wrapper.findAll('.carousel__slide--visible').length).toBe(2)
+    } finally {
+      spy.mockReturnValue({ ...RECT, toJSON: () => RECT })
+    }
   })
 
   it('marks only the last slide visible in auto mode at the end', async () => {
