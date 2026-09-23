@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vitest'
-import { Component, createSSRApp, h, nextTick } from 'vue'
+import { Component, createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
 import { Carousel, Slide } from '@/index'
@@ -474,5 +474,187 @@ describe('Carousel Clone Count Logic', () => {
     const slides = wrapper.findAll('.carousel__slide')
     // Original slides (1) + cloned slides before (1) + cloned slides after (1)
     expect(slides.length).toBe(3)
+  })
+})
+
+describe('Carousel inside a scaled ancestor', () => {
+  const VIEWPORT_SCREEN_WIDTH = 500
+  let scale = 0.5 // layout width is 1000 at this scale
+  let scaleY = scale // kept separate so a test can pin a non-uniform scale
+
+  const ScaledApp = defineComponent({
+    props: {
+      dir: { type: String, default: 'ltr' },
+      height: { type: [String, Number], default: 'auto' },
+      // Extra props merged over the defaults below, for per-test configuration
+      carouselProps: { type: Object, default: () => ({}) },
+    },
+    setup() {
+      // The carousel's exposed API is only reachable through a template ref
+      return { carousel: ref() }
+    },
+    render() {
+      return h('div', { class: 'scaled-wrapper' }, [
+        h(
+          Carousel,
+          {
+            ref: 'carousel',
+            itemsToShow: 1,
+            snapAlign: 'start',
+            modelValue: 0,
+            dir: this.dir,
+            height: this.height,
+            ...this.carouselProps,
+          },
+          {
+            default: () => [1, 2, 3, 4, 5].map((n) => h(Slide, { key: n }, () => `${n}`)),
+          }
+        ),
+      ])
+    },
+  })
+
+  let wrapper: ReturnType<typeof mount<typeof ScaledApp>>
+
+  const mountScaled = async (
+    props: {
+      dir?: string
+      height?: string
+      carouselProps?: Record<string, unknown>
+    } = {},
+    // Only needed by tests that rely on events bubbling up to the document
+    options: { attachTo?: Element } = {}
+  ) => {
+    wrapper = mount(ScaledApp, { props, ...options })
+    await nextTick()
+    return wrapper
+  }
+
+  beforeEach(() => {
+    scale = 0.5
+    scaleY = scale
+    vi.useFakeTimers()
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      (el) =>
+        ({
+          transform: (el as Element).classList?.contains('scaled-wrapper')
+            ? `matrix(${scale}, 0, 0, ${scaleY}, 0, 0)`
+            : 'none',
+        }) as CSSStyleDeclaration
+    )
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+      () =>
+        ({
+          width: VIEWPORT_SCREEN_WIDTH,
+          height: VIEWPORT_SCREEN_WIDTH,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        }) as DOMRect
+    )
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  const dragMouse = async (from: [number, number], to: [number, number]) => {
+    const track = wrapper.find('.carousel__track')
+    await track.trigger('mousedown', { clientX: from[0], clientY: from[1], button: 0 })
+    document.dispatchEvent(
+      new MouseEvent('mousemove', { clientX: to[0], clientY: to[1] })
+    )
+    vi.runAllTimers() // flush the throttled drag handler
+    await nextTick()
+    return track
+  }
+
+  const releaseMouse = async () => {
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+  }
+
+  it('measures the slide size in layout pixels', async () => {
+    await mountScaled()
+
+    expect(wrapper.vm.carousel.data.slideSize).toBe(VIEWPORT_SCREEN_WIDTH / scale)
+  })
+
+  it('moves the track by one layout-pixel slide per slide', async () => {
+    await mountScaled()
+
+    wrapper.vm.carousel.slideTo(1)
+    await nextTick()
+
+    expect(wrapper.find('.carousel__track').attributes('style')).toContain(
+      'translateX(-1000px)'
+    )
+  })
+
+  it('converts mouse drag distance from screen pixels to layout pixels', async () => {
+    await mountScaled()
+
+    // 60 screen px at scale 0.5 is 120 layout px
+    const track = await dragMouse([400, 0], [340, 0])
+    expect(track.attributes('style')).toContain('translateX(-120px)')
+
+    await releaseMouse()
+    // 120 / 1000 = 0.12 of a slide, above the 0.08 default threshold
+    expect(wrapper.findComponent(Carousel).emitted('update:modelValue')?.[0]).toEqual([1])
+  })
+
+  it('resamples the scale on each drag', async () => {
+    await mountScaled()
+
+    await dragMouse([400, 0], [340, 0])
+    await releaseMouse()
+    vi.runAllTimers() // finish the slide transition
+
+    scale = 0.25 // the wrapper rescaled (e.g. window resize) between drags
+    const track = await dragMouse([400, 0], [340, 0])
+    // 60 screen px at scale 0.25 is 240 layout px, on top of the 1000px scroll
+    // The 1000px offset was measured at scale 0.5 and is not re-measured here:
+    // vitest.setup.ts stubs ResizeObserver as a no-op, so no resize callback
+    // fires (a real browser would re-measure and the offset would become 2000).
+    expect(track.attributes('style')).toContain('translateX(-1240px)')
+  })
+
+  it("matches 'carousel' breakpoints on the layout width", async () => {
+    await mountScaled({
+      carouselProps: {
+        breakpointMode: 'carousel',
+        breakpoints: { 800: { itemsToShow: 2 } },
+      },
+    })
+
+    // root is 500 screen px at scale 0.5 = 1000 layout px, which is >= 800
+    expect(wrapper.findAll('.carousel__slide--visible').length).toBe(2)
+  })
+
+  it('stops the ancestor animation loop when the animation is cancelled', async () => {
+    await mountScaled({}, { attachTo: document.body })
+    const cancelSpy = vi.spyOn(window, 'cancelAnimationFrame')
+    const ancestor = wrapper.element as HTMLElement // .scaled-wrapper contains the carousel root
+
+    ancestor.dispatchEvent(new Event('animationstart', { bubbles: true }))
+    ancestor.dispatchEvent(new Event('animationcancel', { bubbles: true }))
+
+    expect(cancelSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses the height multiplier for vertical drags', async () => {
+    // Non-uniform on purpose: a uniform scale cannot catch an axis swap
+    scaleY = 0.25
+    await mountScaled({ dir: 'ttb', height: '500px' })
+
+    // 60 screen px at scaleY 0.25 is 240 layout px (widthMultiplier is only 2)
+    const track = await dragMouse([0, 400], [0, 340])
+    expect(track.attributes('style')).toContain('translateY(-240px)')
   })
 })

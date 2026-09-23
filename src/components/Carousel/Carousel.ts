@@ -11,6 +11,7 @@ import {
   reactive,
   ref,
   shallowReactive,
+  shallowRef,
   toRefs,
   watch,
   watchEffect,
@@ -37,7 +38,6 @@ import {
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
-  invalidateTransformCache,
   mapNumberToRange,
   throttle,
   toCssValue,
@@ -118,9 +118,16 @@ export const Carousel = defineComponent({
         return
       }
       // Determine the width source based on the 'breakpointMode' config
+      // The carousel is measured in layout px, like every other measurement,
+      // so breakpoints match the same way under a CSS-scaled ancestor
+      const carouselWidth = () =>
+        root.value
+          ? root.value.getBoundingClientRect().width *
+            getScaleMultipliers(root.value).widthMultiplier
+          : 0
       const widthSource =
         (fallbackConfig.value.breakpointMode === 'carousel'
-          ? root.value?.getBoundingClientRect().width
+          ? carouselWidth()
           : typeof window !== 'undefined'
             ? window.innerWidth
             : 0) || 0
@@ -163,7 +170,9 @@ export const Carousel = defineComponent({
       updateSlideSize()
     })
 
-    const transformElements = shallowReactive<Set<HTMLElement>>(new Set())
+    // Plain Set: nothing reads it reactively — the rAF loop and finishAnimation
+    // call updateSlideSize() explicitly
+    const transformElements = new Set<HTMLElement>()
 
     /**
      * Setup functions
@@ -199,7 +208,7 @@ export const Carousel = defineComponent({
     function updateSlideSize(): void {
       if (!viewport.value) return
 
-      const scaleMultipliers = getScaleMultipliers(transformElements)
+      const scaleMultipliers = getScaleMultipliers(root.value)
 
       updateViewportRectSize(scaleMultipliers)
       updateSlidesRectSize(scaleMultipliers)
@@ -256,14 +265,10 @@ export const Carousel = defineComponent({
       }
 
       transformElements.add(target)
-      // Invalidate transform cache for this element as it's animating
-      invalidateTransformCache(new Set([target]))
 
       if (!animationInterval) {
         const stepAnimation = () => {
           animationInterval = requestAnimationFrame(() => {
-            // Invalidate cache during animation to get fresh values
-            invalidateTransformCache(transformElements)
             updateSlideSize()
             stepAnimation()
           })
@@ -275,11 +280,11 @@ export const Carousel = defineComponent({
       const target = event.target as HTMLElement
       if (target) {
         transformElements.delete(target)
-        // Invalidate cache one final time after animation completes
-        invalidateTransformCache(new Set([target]))
       }
       if (animationInterval && transformElements.size === 0) {
         cancelAnimationFrame(animationInterval)
+        // Reset so the guard in setAnimationInterval can restart the loop
+        animationInterval = 0
         updateSlideSize()
       }
     }
@@ -290,11 +295,20 @@ export const Carousel = defineComponent({
       watchEffect(() => {
         if (mounted.value && ignoreAnimations.value !== false) {
           // Use passive listeners for better performance
-          document.addEventListener('animationstart', setAnimationInterval, { passive: true })
+          document.addEventListener('animationstart', setAnimationInterval, {
+            passive: true,
+          })
           document.addEventListener('animationend', finishAnimation, { passive: true })
+          // A cancelled animation never fires `animationend`, so without this
+          // its element would stay in `transformElements` and the rAF loop
+          // would keep walking ancestors every frame
+          document.addEventListener('animationcancel', finishAnimation, {
+            passive: true,
+          })
         } else {
           document.removeEventListener('animationstart', setAnimationInterval)
           document.removeEventListener('animationend', finishAnimation)
+          document.removeEventListener('animationcancel', finishAnimation)
         }
       })
     }
@@ -413,7 +427,20 @@ export const Carousel = defineComponent({
      */
     const isSliding = ref(false)
 
+    // Screen px → layout px multipliers, sampled when a drag starts so the
+    // drag follows the pointer 1:1 under scaled ancestors
+    const dragScale = shallowRef<ScaleMultipliers>({
+      widthMultiplier: 1,
+      heightMultiplier: 1,
+    })
+
+    const onDragStart = () => {
+      dragScale.value = getScaleMultipliers(root.value)
+    }
+
     const onDrag = ({ deltaX, deltaY, isTouch }: DragEventData) => {
+      // Emitted as raw screen px on purpose (public API); the values below are
+      // converted to layout px for the carousel's own maths
       emit('drag', { deltaX, deltaY })
 
       const threshold = isTouch
@@ -427,7 +454,10 @@ export const Carousel = defineComponent({
       const draggedSlides = getDraggedSlidesCount({
         isVertical: isVertical.value,
         isReversed: isReversed.value,
-        dragged: { x: deltaX, y: deltaY },
+        dragged: {
+          x: deltaX * dragScale.value.widthMultiplier,
+          y: deltaY * dragScale.value.heightMultiplier,
+        },
         effectiveSlideSize: effectiveSlideSize.value,
         threshold,
       })
@@ -451,6 +481,7 @@ export const Carousel = defineComponent({
     const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
       onDrag,
+      onDragStart,
       onDragEnd,
     })
 
@@ -493,17 +524,17 @@ export const Carousel = defineComponent({
       if (!skipTransition && isSliding.value) {
         return
       }
-      
+
       const targetIndex = (config.wrapAround ? mapNumberToRange : getNumberInRange)({
         val: slideIndex,
         max: maxSlideIndex.value,
         min: minSlideIndex.value,
       })
-      
+
       if (currentSlideIndex.value === targetIndex) {
-        return;
+        return
       }
-      
+
       prevSlideIndex.value = currentSlideIndex.value
 
       emit('slide-start', {
@@ -732,7 +763,7 @@ export const Carousel = defineComponent({
         let accumulatedSize = 0
         let iterations = 0
         const maxIterations = slides.length * 2
-        
+
         if (index < 0) {
           accumulatedSize =
             slidesRect.value
@@ -747,7 +778,10 @@ export const Carousel = defineComponent({
             Math.abs(scrolledOffset.value)
         }
 
-        while (accumulatedSize < viewportRect.value[dimension.value] && iterations < maxIterations) {
+        while (
+          accumulatedSize < viewportRect.value[dimension.value] &&
+          iterations < maxIterations
+        ) {
           const normalizedIndex =
             ((index % slides.length) + slides.length) % slides.length
           const slideSize = slidesRect.value[normalizedIndex]?.[dimension.value] || 0
@@ -772,8 +806,10 @@ export const Carousel = defineComponent({
 
       const translateAxis = isVertical.value ? 'Y' : 'X'
 
-      // Include user drag interaction offset
-      const dragOffset = isVertical.value ? dragged.y : dragged.x
+      // Include user drag interaction offset, converted to layout px
+      const dragOffset = isVertical.value
+        ? dragged.y * dragScale.value.heightMultiplier
+        : dragged.x * dragScale.value.widthMultiplier
 
       let totalOffset = scrolledOffset.value + dragOffset
 

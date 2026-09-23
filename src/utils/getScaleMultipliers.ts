@@ -1,86 +1,111 @@
-// Cache for transform values to avoid repeated parsing
-// WeakMap automatically handles memory cleanup when elements are garbage collected
-const transformCache = new WeakMap<HTMLElement, number[]>()
-
-export function getTransformValues(el: HTMLElement) {
-  // Check cache first
-  const cached = transformCache.get(el)
-  if (cached) {
-    return cached
-  }
-
-  const { transform } = window.getComputedStyle(el)
-
-  // Handle edge cases: no transform or 'none'
-  if (!transform || transform === 'none') {
-    const result = [1, 0, 0, 1, 0, 0] // Identity matrix
-    transformCache.set(el, result)
-    return result
-  }
-
-  // Parse transform matrix
-  const values = transform
-    .split(/[(,)]/)
-    .slice(1, -1)
-    .map((v) => parseFloat(v))
-
-  // Cache the result
-  if (values.length > 0 && !values.some(isNaN)) {
-    transformCache.set(el, values)
-  }
-
-  return values
-}
-
-/**
- * Invalidates the transform cache for specific elements
- * Call this when you know transform values have changed
- *
- * Note: WeakMap doesn't have a clear() method for global invalidation.
- * If elements parameter is not provided, this function does nothing.
- */
-export function invalidateTransformCache(elements?: Set<HTMLElement>) {
-  if (elements) {
-    elements.forEach((el) => transformCache.delete(el))
-  }
-  // Note: Cannot clear entire WeakMap - it has no clear() method
-  // Cached values will be garbage collected when elements are no longer referenced
-}
-
 export type ScaleMultipliers = {
   widthMultiplier: number
   heightMultiplier: number
 }
 
-export function getScaleMultipliers(
-  transformElements: Set<HTMLElement>
-): ScaleMultipliers {
-  // Early return if no transform elements
-  if (transformElements.size === 0) {
-    return { widthMultiplier: 1, heightMultiplier: 1 }
+type ScaleValues = { scaleX: number; scaleY: number }
+
+const IDENTITY_MATRIX = Object.freeze([1, 0, 0, 1, 0, 0])
+const IDENTITY_SCALE: ScaleValues = { scaleX: 1, scaleY: 1 }
+
+/**
+ * Parses the computed transform of an element into its matrix values.
+ * Returns the 2D identity matrix when the element has no (parsable) transform.
+ */
+export function getTransformValues(el: Element): readonly number[] {
+  const { transform } = window.getComputedStyle(el)
+
+  if (!transform || transform === 'none') {
+    return IDENTITY_MATRIX
   }
 
+  const values = transform
+    .split(/[(,)]/)
+    .slice(1, -1)
+    .map((v) => parseFloat(v))
+
+  return values.length > 0 && !values.some(isNaN) ? values : IDENTITY_MATRIX
+}
+
+/**
+ * Reads the axis scales out of a transform matrix.
+ *
+ * A non-zero b or c is a rotation or a skew: the element's axis-aligned
+ * bounding box is then not a scaled copy of its layout box, so there is no
+ * multiplier to derive and we bail out to identity. `getBoundingClientRect()`
+ * is never negative, so a mirrored axis (`scaleX(-1)`, `rotate(180deg)`) has to
+ * be read as its magnitude.
+ */
+function getScale(values: readonly number[]): ScaleValues {
+  // matrix(a, b, c, d, e, f): a = scaleX, d = scaleY
+  if (values.length === 6) {
+    if (values[1] || values[2]) {
+      return IDENTITY_SCALE
+    }
+    return { scaleX: Math.abs(values[0]), scaleY: Math.abs(values[3]) }
+  }
+  // matrix3d(m11, ..., m44): m11 = scaleX, m22 = scaleY
+  if (values.length === 16) {
+    if (values[1] || values[4]) {
+      return IDENTITY_SCALE
+    }
+    return { scaleX: Math.abs(values[0]), scaleY: Math.abs(values[5]) }
+  }
+  return IDENTITY_SCALE
+}
+
+/**
+ * Parses the computed `scale` of an element — the CSS Transforms Level 2
+ * individual property, which is *not* reflected in `transform`. The computed
+ * value is `none` or 1 to 3 space-separated numbers (a single value applies to
+ * both axes; two or three are x then y). jsdom does not implement it and
+ * reports `undefined` or an empty string, which yields identity values.
+ */
+export function getScaleValues(el: Element): ScaleValues {
+  const { scale } = window.getComputedStyle(el)
+
+  if (!scale || scale === 'none') {
+    return IDENTITY_SCALE
+  }
+
+  const values = scale.trim().split(/\s+/).map(parseFloat)
+
+  if (values.length > 3 || values.some(isNaN)) {
+    return IDENTITY_SCALE
+  }
+
+  // `scale: -1` is valid CSS, and a rect is never negative
+  return {
+    scaleX: Math.abs(values[0]),
+    scaleY: Math.abs(values.length > 1 ? values[1] : values[0]),
+  }
+}
+
+/**
+ * Multipliers that convert screen-space sizes of `el` (getBoundingClientRect)
+ * back into layout pixels, accounting for CSS scaling on `el` and on every
+ * ancestor — both the `transform` matrix and the individual `scale` property.
+ * Deliberately uncached: an ancestor's transform can change without any event
+ * the carousel observes (e.g. a screen-fitting wrapper rescaling on window
+ * resize).
+ */
+export function getScaleMultipliers(el: Element | null): ScaleMultipliers {
   let widthMultiplier = 1
   let heightMultiplier = 1
 
-  transformElements.forEach((el) => {
-    const transformArr = getTransformValues(el)
+  let current: Element | null = el
+  while (current) {
+    // A zero scale (mid-animation) is skipped rather than divided by
+    const matrixScale = getScale(getTransformValues(current))
+    if (matrixScale.scaleX) widthMultiplier /= matrixScale.scaleX
+    if (matrixScale.scaleY) heightMultiplier /= matrixScale.scaleY
 
-    // Standard 2D transform matrix has 6 values: matrix(a, b, c, d, e, f)
-    // where a = scaleX, d = scaleY
-    if (transformArr.length === 6) {
-      const scaleX = transformArr[0]
-      const scaleY = transformArr[3]
+    const propertyScale = getScaleValues(current)
+    if (propertyScale.scaleX) widthMultiplier /= propertyScale.scaleX
+    if (propertyScale.scaleY) heightMultiplier /= propertyScale.scaleY
 
-      // Avoid division by zero
-      if (scaleX !== 0) {
-        widthMultiplier /= scaleX
-      }
-      if (scaleY !== 0) {
-        heightMultiplier /= scaleY
-      }
-    }
-  })
+    current = current.parentElement
+  }
 
   return { widthMultiplier, heightMultiplier }
 }
