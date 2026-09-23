@@ -146,7 +146,7 @@ export const Slide = defineComponent({
             'carousel__slide--next': isNext.value,
             'carousel__slide--sliding': carousel.isSliding,
           },
-          onMousedown: handleMousedown,
+          onMousedownCapture: handleMousedown,
           onFocusin: () => {
             // Prevent the viewport being scrolled by the focus
             if (carousel.viewport) {

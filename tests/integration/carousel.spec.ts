@@ -86,6 +86,30 @@ describe('Carousel.ts', () => {
     clickWrapper.unmount()
   })
 
+  it('Should not navigate when slide content stops mousedown propagation', async () => {
+    const stopWrapper = mount(Carousel, {
+      props: { itemsToShow: 3, mouseDrag: false, modelValue: 0 },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4].map((i) =>
+            h(Slide, { key: i }, () =>
+              h(
+                'button',
+                { onMousedown: (e: Event) => e.stopPropagation() },
+                `slide ${i}`
+              )
+            )
+          ),
+      },
+    })
+    await nextTick()
+    const button = stopWrapper.findAll('.carousel__slide')[2].find('button')
+    await button.trigger('mousedown')
+    await button.trigger('focusin')
+    expect(stopWrapper.emitted('update:modelValue')).toBeUndefined()
+    stopWrapper.unmount()
+  })
+
   it('Should navigate the carousel with arrow keys', async () => {
     vi.useFakeTimers()
     const track = wrapper.find('[tabindex="0"]')
