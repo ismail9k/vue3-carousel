@@ -42,10 +42,12 @@ describe('Carousel.ts', () => {
 })
 
 describe('Carousel.css', () => {
+  // jsdom does no layout, so the stylesheet text is what can be asserted.
   const css = readFileSync(resolve(__dirname, 'Carousel.css'), 'utf8')
   const carouselRule = css.match(/^\.carousel \{([^}]*)\}/m)?.[1] ?? ''
 
   it('lets the carousel shrink below its slides when it is a flex or grid item (#540)', () => {
+    expect(carouselRule, 'expected a top-level `.carousel { ... }` rule').not.toBe('')
     expect(carouselRule).toMatch(/min-width:\s*0;/)
   })
 })
