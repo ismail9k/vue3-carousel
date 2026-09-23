@@ -1,3 +1,4 @@
+export * from './applyEdgeSpacing'
 export * from './calculateAverage'
 export * from './camelCaseToKebabCase'
 export * from './createCloneSlides'
