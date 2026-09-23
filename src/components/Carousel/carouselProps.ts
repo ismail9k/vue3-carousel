@@ -63,6 +63,20 @@ export const carouselProps = {
       return true
     },
   },
+  // space in pixels before the first slide and after the last slide
+  edgeSpacing: {
+    default: DEFAULT_CONFIG.edgeSpacing,
+    type: Number,
+    validator(value: number) {
+      const isValid = value >= 0
+      if (!isValid) {
+        console.warn(
+          `[vue3-carousel]: Invalid edgeSpacing "${value}". It must be 0 or greater.`
+        )
+      }
+      return isValid
+    },
+  },
   // enable/disable the carousel component
   enabled: {
     default: DEFAULT_CONFIG.enabled,

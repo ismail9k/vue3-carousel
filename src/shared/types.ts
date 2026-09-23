@@ -45,6 +45,7 @@ export type CarouselConfig = {
   breakpoints?: Breakpoints
   clamp?: boolean
   dir?: Dir
+  edgeSpacing: number
   enabled: boolean
   gap: number
   height: string | number
