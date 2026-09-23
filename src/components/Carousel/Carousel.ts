@@ -103,9 +103,12 @@ export const Carousel = defineComponent({
 
     const effectiveSlideSize = computed(() => slideSize.value + config.gap)
 
-    // Sanitized edge spacing: never negative, and never applied while wrapping around.
+    // Sanitized edge spacing: never negative, and never applied while wrapping around
+    // or fading (the track is not translated with the fade effect).
     const normalizedEdgeSpacing = computed(() =>
-      config.wrapAround ? 0 : Math.max(0, config.edgeSpacing)
+      config.wrapAround || config.slideEffect === 'fade'
+        ? 0
+        : Math.max(0, config.edgeSpacing)
     )
 
     const normalizedDir = computed<NormalizedDir>(() => {

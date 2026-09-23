@@ -130,6 +130,25 @@ describe('edgeSpacing', () => {
     }
   })
 
+  it('is ignored with the fade effect in the auto-mode visible range', async () => {
+    // Slides narrower than the viewport, so a slide edge lands inside the spacing band.
+    const spy = vi
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const width = this.classList.contains('carousel__slide') ? 145 : 300
+        return { ...RECT, width, right: width, toJSON: () => RECT }
+      })
+    try {
+      const wrapper = mountCarousel({ itemsToShow: 'auto', slideEffect: 'fade' })
+      await wrapper.vm.$nextTick()
+      // The fade effect never translates the track, so the range starts flush at 0:
+      // slides 1-3 span 0-145, 145-290 and 290-435, and the third one starts in view.
+      expect(wrapper.findAll('.carousel__slide--visible').length).toBe(3)
+    } finally {
+      spy.mockReturnValue({ ...RECT, toJSON: () => RECT })
+    }
+  })
+
   it('marks only the last slide visible in auto mode at the end', async () => {
     const wrapper = mountCarousel({ itemsToShow: 'auto' })
     await wrapper.setProps({ modelValue: 4 })
