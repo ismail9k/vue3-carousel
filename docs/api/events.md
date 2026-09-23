@@ -34,8 +34,10 @@ Triggered before the carousel is initialized. Use this to perform any setup task
 
 Triggered while the carousel is being dragged, providing live positional data. Emits the following:
 
-- `x`: The horizontal drag position.
-- `y`: The vertical drag position.
+- `deltaX`: The horizontal distance dragged.
+- `deltaY`: The vertical distance dragged.
+
+The deltas are the pointer's movement in screen pixels since the drag started; they are not converted for CSS-scaled ancestors, unlike the carousel's own slide movement, so divide them by the ancestor scale if you need layout pixels.
 
 ### @init
 
