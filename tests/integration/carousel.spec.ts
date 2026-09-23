@@ -55,6 +55,13 @@ describe('Carousel.ts', () => {
     expect(viewport.scrollLeft).toBe(0)
   })
 
+  it('Should not navigate when a pointer focuses an input inside a slide with mouseDrag enabled', async () => {
+    const input = wrapper.find('.carousel__slide:nth-child(4) input')
+    await input.trigger('mousedown')
+    await input.trigger('focusin')
+    expect(wrapper.props('modelValue')).toBe(0)
+  })
+
   it('Should navigate on keyboard focus after a pointer interaction has ended', async () => {
     const slide = wrapper.find('.carousel__slide:nth-child(4)')
     await slide.trigger('mousedown')
