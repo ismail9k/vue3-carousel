@@ -93,11 +93,6 @@ export const Slide = defineComponent({
       return carousel.isVertical ? { height: dimension } : { width: dimension }
     })
 
-    carousel.slideRegistry.registerSlide(instance, props.index)
-    onUnmounted(() => {
-      carousel.slideRegistry.unregisterSlide(instance)
-    })
-
     // Focus caused by a pointer (mouse click or the compat mousedown after a
     // touch tap) must not navigate; only keyboard/programmatic focus should.
     let isPointerFocus = false
@@ -115,7 +110,9 @@ export const Slide = defineComponent({
       }, 0)
     }
 
+    carousel.slideRegistry.registerSlide(instance, props.index)
     onUnmounted(() => {
+      carousel.slideRegistry.unregisterSlide(instance)
       if (pointerFocusTimer) {
         clearTimeout(pointerFocusTimer)
       }

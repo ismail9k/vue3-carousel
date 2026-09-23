@@ -45,10 +45,14 @@ describe('Carousel.ts', () => {
   })
 
   it('Should not navigate when focus is caused by a pointer (mousedown)', async () => {
+    const viewport = wrapper.find('.carousel__viewport').element
+    viewport.scrollLeft = 20
     const slide = wrapper.find('.carousel__slide:nth-child(4)')
     await slide.trigger('mousedown')
     await slide.trigger('focusin')
     expect(wrapper.props('modelValue')).toBe(0)
+    // The focus still scrolls the viewport, so the reset must run regardless
+    expect(viewport.scrollLeft).toBe(0)
   })
 
   it('Should navigate on keyboard focus after a pointer interaction has ended', async () => {
@@ -60,7 +64,7 @@ describe('Carousel.ts', () => {
     expect(wrapper.props('modelValue')).toBe(3)
   })
 
-  it('Should deliver clicks inside a non-active slide when mouseDrag is disabled', async () => {
+  it('Should not navigate when a pointer focuses content inside a non-active slide with mouseDrag disabled', async () => {
     const onClick = vi.fn()
     const clickWrapper = mount(Carousel, {
       props: { itemsToShow: 3, mouseDrag: false, modelValue: 0 },
