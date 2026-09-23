@@ -36,6 +36,7 @@ export type DragConfig = {
 export type WheelConfig = {
   threshold?: number
   throttleTime?: number
+  ignoreCrossAxis?: boolean
 }
 
 export type CarouselConfig = {
