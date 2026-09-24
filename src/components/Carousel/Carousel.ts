@@ -37,6 +37,7 @@ import {
   createCloneSlides,
   except,
   getDraggedSlidesCount,
+  getNativeScrollDelta,
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
@@ -208,6 +209,9 @@ export const Carousel = defineComponent({
       updateBreakpointsConfig()
       updateSlidesData()
       updateSlideSize()
+      if (isNative.value) {
+        scrollToSlide(currentSlideIndex.value, 'auto')
+      }
     })
 
     // Plain Set: nothing reads it reactively — the rAF loop and finishAnimation
@@ -365,6 +369,9 @@ export const Carousel = defineComponent({
       }
 
       emit('init')
+      if (isNative.value) {
+        scrollToSlide(currentSlideIndex.value, 'auto')
+      }
     })
 
     onBeforeUnmount(() => {
@@ -616,6 +623,38 @@ export const Carousel = defineComponent({
       }
 
       transitionTimer = setTimeout(transitionCallback, config.transition)
+
+      if (isNative.value) {
+        scrollToSlide(targetIndex)
+      }
+    }
+
+    /**
+     * Native mode: scroll the viewport so `index` meets its snap point. Uses
+     * client rects so it works for every direction; scaled like every other
+     * measurement (layout px).
+     */
+    function scrollToSlide(index: number, behavior: ScrollBehavior = 'smooth'): void {
+      const slideEl = slides[index]?.vnode.el as Element | null | undefined
+      if (!viewport.value || !slideEl?.getBoundingClientRect) {
+        return
+      }
+      const delta = getNativeScrollDelta({
+        align: NATIVE_SNAP_ALIGN[config.snapAlign],
+        isReversed: isReversed.value,
+        isVertical: isVertical.value,
+        slideRect: slideEl.getBoundingClientRect(),
+        viewportRect: viewport.value.getBoundingClientRect(),
+      })
+      if (Math.abs(delta) < 1) {
+        return
+      }
+      const { widthMultiplier, heightMultiplier } = getScaleMultipliers(root.value)
+      viewport.value.scrollBy(
+        isVertical.value
+          ? { top: delta * heightMultiplier, behavior }
+          : { left: delta * widthMultiplier, behavior }
+      )
     }
 
     function restartCarousel(): void {
@@ -635,6 +674,18 @@ export const Carousel = defineComponent({
     watch(
       () => props.autoplay,
       () => resetAutoplay()
+    )
+
+    // Turning native mode on after mount: the track is no longer transformed,
+    // so put the scroller on the current slide once the DOM has updated
+    watch(
+      isNative,
+      (native) => {
+        if (native && mounted.value) {
+          scrollToSlide(currentSlideIndex.value, 'auto')
+        }
+      },
+      { flush: 'post' }
     )
 
     // Handle changing v-model value

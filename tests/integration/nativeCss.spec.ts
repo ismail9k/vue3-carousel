@@ -26,7 +26,6 @@ function makeRect({ left, right, top, bottom }: Rect): DOMRect {
  * Fakes a layout: every element is SIZE px square at the origin, except slides,
  * which sit one after the other along the axis, shifted back by `scrolled`.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by the scroll tests
 function mockLayout({ scrolled = 0, vertical = false } = {}) {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
     this: Element
@@ -165,6 +164,105 @@ describe('nativeCss', () => {
       await wrapper.findAll('.carousel__slide')[3].trigger('focusin')
       expect(viewport.scrollLeft).toBe(20)
       expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([3])
+    })
+  })
+
+  describe('navigation', () => {
+    it('scrolls the viewport to the next slide', async () => {
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start' })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.find('.carousel__next').trigger('click')
+      expect(scrollBy).toHaveBeenCalledWith({ left: SIZE, behavior: 'smooth' })
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([1])
+    })
+
+    it('scrolls by itemsToScroll slides', async () => {
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start', itemsToScroll: 2 })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.find('.carousel__next').trigger('click')
+      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'smooth' })
+    })
+
+    it('scrolls backwards for prev', async () => {
+      mockLayout({ scrolled: 2 * SIZE })
+      const wrapper = mountCarousel({ snapAlign: 'start', modelValue: 2 })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.find('.carousel__prev').trigger('click')
+      expect(scrollBy).toHaveBeenCalledWith({ left: -SIZE, behavior: 'smooth' })
+    })
+
+    it('scrolls to the initial modelValue instantly on mount', async () => {
+      mockLayout()
+      const scrollBy = vi.spyOn(Element.prototype, 'scrollBy')
+      mountCarousel({ snapAlign: 'start', modelValue: 2 })
+      await nextTick()
+      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'auto' })
+    })
+
+    it('scrolls to the current slide when nativeCss is turned on at runtime', async () => {
+      mockLayout()
+      const wrapper = mountCarousel({
+        nativeCss: false,
+        snapAlign: 'start',
+        modelValue: 2,
+      })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.setProps({ nativeCss: true })
+      await nextTick()
+      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'auto' })
+    })
+
+    it('scrolls leftwards for next in rtl', async () => {
+      // rtl layout: slide i sits i*SIZE to the left of the viewport
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+        this: Element
+      ) {
+        let left = 0
+        if (this.classList.contains('carousel__slide')) {
+          const index = Array.from(this.parentElement!.children).indexOf(this)
+          left = -index * SIZE
+        }
+        return makeRect({ left, right: left + SIZE, top: 0, bottom: SIZE })
+      })
+      const wrapper = mountCarousel({ dir: 'rtl', snapAlign: 'start' })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.find('.carousel__next').trigger('click')
+      expect(scrollBy).toHaveBeenCalledWith({ left: -SIZE, behavior: 'smooth' })
+    })
+
+    it('scrolls vertically for ttb', async () => {
+      mockLayout({ vertical: true })
+      const wrapper = mountCarousel({ dir: 'ttb', height: SIZE, snapAlign: 'start' })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.find('.carousel__next').trigger('click')
+      expect(scrollBy).toHaveBeenCalledWith({ top: SIZE, behavior: 'smooth' })
+    })
+
+    it('uses the slide rect with itemsToShow auto', async () => {
+      mockLayout()
+      const wrapper = mountCarousel({ itemsToShow: 'auto', snapAlign: 'start' })
+      await nextTick()
+      expect(wrapper.find('.carousel__slide').attributes('style')).toBeUndefined()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      await wrapper.find('.carousel__next').trigger('click')
+      expect(scrollBy).toHaveBeenCalledWith({ left: SIZE, behavior: 'smooth' })
+    })
+
+    it('does not scroll when the slide is already aligned', async () => {
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start' })
+      await nextTick()
+      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
+      wrapper.vm.slideTo(0)
+      expect(scrollBy).not.toHaveBeenCalled()
     })
   })
 })
