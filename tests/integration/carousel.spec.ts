@@ -692,6 +692,7 @@ describe('Drag on a carousel with no measurable size (#518)', () => {
     document.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, clientY: 100 }))
     vi.runAllTimers() // flush the throttled drag handler
     await nextTick()
+    expect(wrapper.findComponent(Carousel).emitted('drag')).toHaveLength(1)
 
     expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
 
