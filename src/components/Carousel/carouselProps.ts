@@ -28,7 +28,7 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.autoplay,
     type: Number,
   },
-  // navigate to a slide when it, or an element inside it, receives keyboard focus
+  // slide to a slide when it, or an element inside it, receives keyboard or programmatic focus
   autoScrollOnFocus: {
     default: DEFAULT_CONFIG.autoScrollOnFocus,
     type: Boolean,

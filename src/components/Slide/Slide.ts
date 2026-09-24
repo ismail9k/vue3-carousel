@@ -152,7 +152,7 @@ export const Slide = defineComponent({
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
             }
-            if (isPointerFocus || !carousel.config.autoScrollOnFocus) {
+            if (isPointerFocus || carousel.config.autoScrollOnFocus === false) {
               return
             }
             carousel.nav.slideTo(currentIndex.value)
