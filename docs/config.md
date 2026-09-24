@@ -276,7 +276,7 @@ Available keys:
 
 | Key                   | Defaults                               | Description                                                                |
 | --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `ariaGallery`         | "Gallery {id}"                         | Carousel aria-label. Prefer a meaningful name; `{id}` is an instance id.   |
 | `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
 | `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
 | `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
@@ -285,3 +285,5 @@ Available keys:
 | `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.

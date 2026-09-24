@@ -13,6 +13,7 @@ import {
   shallowReactive,
   shallowRef,
   toRefs,
+  useId,
   watch,
   watchEffect,
 } from 'vue'
@@ -39,6 +40,7 @@ import {
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
+  i18nFormatter,
   mapNumberToRange,
   throttle,
   toCssValue,
@@ -72,6 +74,7 @@ export const Carousel = defineComponent({
     const slideRegistry = createSlideRegistry(emit)
     const slides = slideRegistry.getSlides()
     const slidesCount = computed(() => slides.length)
+    const id = useId()
 
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
@@ -972,7 +975,7 @@ export const Carousel = defineComponent({
           ],
           dir: normalizedDir.value,
           style: carouselStyle.value,
-          'aria-label': config.i18n['ariaGallery'],
+          'aria-label': i18nFormatter(config.i18n['ariaGallery'], { id }),
           tabindex: '0',
           onBlur: handleBlur,
           onFocus: handleFocus,
