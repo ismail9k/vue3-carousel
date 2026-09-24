@@ -159,8 +159,11 @@ describe('buildLlmsTxt', () => {
       markdown: `# ${page.title}\n\nAbout ${page.title}.\n`,
     }))
     const out = buildLlmsTxt(site, docs)
-    expect(out.startsWith('# Vue3-carousel\n\n> A carousel.\n')).toBe(true)
-    expect(out).toContain('https://example.test/llms-full.txt')
+    expect(
+      out.startsWith(
+        '# Vue3-carousel\n\n> A carousel.\n\nInstall with `npm i vue3-carousel`, import `vue3-carousel/carousel.css`, and import `Carousel`, `Slide`, `Navigation` and `Pagination` from `vue3-carousel`.\nEvery page below is also served as Markdown at its `.md` URL. The whole documentation in one file: https://example.test/llms-full.txt\n\n## Introduction\n'
+      )
+    ).toBe(true)
     expect(out).toContain(
       '## Introduction\n\n- [Getting Started](https://example.test/getting-started.md): About Getting Started.\n- [Configuration](https://example.test/config.md): About Configuration.\n\n## Components\n\n- [Carousel](https://example.test/components/carousel.md): About Carousel.\n'
     )

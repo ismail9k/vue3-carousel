@@ -106,7 +106,6 @@ export function buildLlmsTxt(site: SiteInfo, docs: AgentDoc[]): string {
     `> ${site.description}`,
     '',
     'Install with `npm i vue3-carousel`, import `vue3-carousel/carousel.css`, and import `Carousel`, `Slide`, `Navigation` and `Pagination` from `vue3-carousel`.',
-    '',
     `Every page below is also served as Markdown at its \`.md\` URL. The whole documentation in one file: ${site.siteUrl}/llms-full.txt`,
     '',
   ]
