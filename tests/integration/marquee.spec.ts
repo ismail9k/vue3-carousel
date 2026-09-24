@@ -393,6 +393,28 @@ describe('marquee', () => {
     })
   })
 
+  describe('breakpoints', () => {
+    const innerWidth = window.innerWidth
+    afterEach(() => {
+      window.innerWidth = innerWidth
+    })
+
+    it('turns the marquee on and off per breakpoint', async () => {
+      // jsdom's window is 1024px wide, so the 1024 breakpoint applies first
+      const wrapper = mountCarousel({
+        itemsToShow: 2,
+        breakpoints: { 1024: { marquee: false } },
+      })
+      await wrapper.vm.$nextTick()
+      expect(rootClasses(wrapper)).not.toContain('is-marquee')
+
+      window.innerWidth = 500
+      wrapper.vm.updateBreakpointsConfig()
+      await wrapper.vm.$nextTick()
+      expect(rootClasses(wrapper)).toContain('is-marquee')
+    })
+  })
+
   describe('slide state', () => {
     const slides = (wrapper: ReturnType<typeof mountCarousel>) =>
       wrapper.findAll('.carousel__slide')
@@ -526,6 +548,37 @@ describe('marquee', () => {
         await wrapper.vm.$nextTick()
         expect(wrapper.vm.data.currentSlide).toBe(1)
         expect(wrapper.emitted('slide-start')).toHaveLength(1)
+      })
+    })
+
+    describe('arrow keys', () => {
+      beforeEach(() => vi.useFakeTimers())
+      afterEach(() => vi.useRealTimers())
+
+      const pressArrowRight = async (wrapper: ReturnType<typeof mountCarousel>) => {
+        await wrapper.find('.carousel').trigger('focus')
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+        // The key handler is throttled to 200ms
+        vi.advanceTimersByTime(200)
+        await wrapper.vm.$nextTick()
+      }
+
+      it('ignores them', async () => {
+        const wrapper = mountCarousel({ itemsToShow: 2 })
+        await wrapper.vm.$nextTick()
+        await pressArrowRight(wrapper)
+        expect(wrapper.vm.data.currentSlide).toBe(0)
+        expect(wrapper.emitted('slide-start')).toBeUndefined()
+        wrapper.unmount()
+      })
+
+      it('navigates with them when marquee is off', async () => {
+        const wrapper = mountCarousel({ itemsToShow: 2, marquee: false })
+        await wrapper.vm.$nextTick()
+        await pressArrowRight(wrapper)
+        expect(wrapper.vm.data.currentSlide).toBe(1)
+        expect(wrapper.emitted('slide-start')).toHaveLength(1)
+        wrapper.unmount()
       })
     })
 
