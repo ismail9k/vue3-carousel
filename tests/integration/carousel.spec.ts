@@ -682,6 +682,9 @@ describe('Drag release without a slide change', () => {
   })
 
   afterEach(() => {
+    // Release any drag an assertion failure left open, or its document
+    // listeners leak into the next test
+    document.dispatchEvent(new MouseEvent('mouseup'))
     wrapper?.unmount()
     vi.restoreAllMocks()
     vi.useRealTimers()
@@ -795,12 +798,8 @@ describe('Drag release without a slide change', () => {
     await releaseMouse()
     expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
 
-    try {
-      await pressMouse(500)
-      await nextTick()
-      expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
-    } finally {
-      await releaseMouse()
-    }
+    await pressMouse(500)
+    await nextTick()
+    expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
   })
 })
