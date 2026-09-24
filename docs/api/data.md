@@ -27,6 +27,7 @@ if (myCarousel.currentSlide === 10) {
 | `activeSlide`  | current slide index even while dragging                                                           |
 | `isSliding`    | if the slider is dragging                                                                         |
 | `isVertical`   | if the slider is vertical                                                                         |
+| `isNative`     | if the carousel runs in native CSS mode (`nativeCss` and browser support)                         |
 | `nav`          | An object of navigation methods                                                                   |
 | `config`       | the current carousel configuration                                                                |
 | `maxSlide`     | maximum slide index                                                                               |

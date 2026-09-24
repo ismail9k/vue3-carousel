@@ -45,6 +45,15 @@ export const SNAP_ALIGN_OPTIONS = [
   'center-odd',
 ] as const
 
+// scroll-snap-align value used by each snapAlign option in native CSS mode
+export const NATIVE_SNAP_ALIGN = {
+  center: 'center',
+  'center-even': 'center',
+  'center-odd': 'center',
+  end: 'end',
+  start: 'start',
+} as const
+
 export const DEFAULT_MOUSE_WHEEL_THRESHOLD = 10
 export const DEFAULT_DRAG_THRESHOLD = 0.08
 
@@ -64,6 +73,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   modelValue: 0,
   mouseDrag: true,
   mouseWheel: false,
+  nativeCss: false,
   pauseAutoplayOnHover: false,
   preventExcessiveDragging: false,
   slideEffect: SLIDE_EFFECTS[0],

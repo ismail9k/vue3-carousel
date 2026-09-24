@@ -14,6 +14,8 @@ import GalleryExampleRaw from './ExampleGallery.vue?raw'
 // @ts-ignore
 import MouseWheelExampleRaw from './ExampleMouseWheel.vue?raw'
 // @ts-ignore
+import NativeCssExampleRaw from './ExampleNativeCss.vue?raw'
+// @ts-ignore
 import VerticalExampleRaw from './ExampleVertical.vue?raw'
 // @ts-ignore
 import WrapAroundExampleRaw from './ExampleWrapAround.vue?raw'
@@ -33,3 +35,4 @@ export const ActiveClassesExample = formatExample(ActiveClassesExampleRaw)
 export const CustomNavigationExample = formatExample(CustomNavigationExampleRaw)
 export const GalleryExample = formatExample(GalleryExampleRaw)
 export const MouseWheelExample = formatExample(MouseWheelExampleRaw)
+export const NativeCssExample = formatExample(NativeCssExampleRaw)

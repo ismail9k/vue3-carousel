@@ -131,6 +131,11 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.mouseScrollThreshold,
     type: Number,
   },
+  // render a CSS scroll-snap carousel instead of a transformed track
+  nativeCss: {
+    default: DEFAULT_CONFIG.nativeCss,
+    type: Boolean,
+  },
   pauseAutoplayOnHover: {
     default: DEFAULT_CONFIG.pauseAutoplayOnHover,
     type: Boolean,

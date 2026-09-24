@@ -3,6 +3,7 @@ import {
   DIR_MAP,
   DIR_OPTIONS,
   I18N_DEFAULT_CONFIG,
+  NATIVE_SNAP_ALIGN,
   NORMALIZED_DIR_OPTIONS,
   SLIDE_EFFECTS,
   SNAP_ALIGN_OPTIONS,
@@ -27,6 +28,8 @@ export type NormalizedDir = (typeof NORMALIZED_DIR_OPTIONS)[number]
 export type SlideEffect = (typeof SLIDE_EFFECTS)[number]
 
 export type SnapAlign = (typeof SNAP_ALIGN_OPTIONS)[number]
+
+export type NativeSnapAlign = (typeof NATIVE_SNAP_ALIGN)[SnapAlign]
 
 export type TransitionEasing = string
 
@@ -57,6 +60,7 @@ export type CarouselConfig = {
   mouseDrag?: boolean | DragConfig
   mouseWheel?: boolean | WheelConfig
   mouseScrollThreshold?: number
+  nativeCss?: boolean
   pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect
