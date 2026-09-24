@@ -12,7 +12,7 @@ export function createCloneSlides({ slides, position, toShow }: CreateCloneSlide
   const start = isBefore ? -toShow : 0
   const end = isBefore ? 0 : toShow
 
-  if (slides.length <= 0) {
+  if (slides.length <= 0 || !Number.isFinite(toShow) || toShow <= 0) {
     return clones
   }
 
