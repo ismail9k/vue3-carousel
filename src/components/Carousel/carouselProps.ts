@@ -28,6 +28,11 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.autoplay,
     type: Number,
   },
+  // navigate to a slide when it, or an element inside it, receives keyboard focus
+  autoScrollOnFocus: {
+    default: DEFAULT_CONFIG.autoScrollOnFocus,
+    type: Boolean,
+  },
   // an object to store breakpoints
   breakpoints: {
     default: DEFAULT_CONFIG.breakpoints,
