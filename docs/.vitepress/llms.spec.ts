@@ -1,5 +1,8 @@
+import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
+import config from './config'
 import {
   buildLlmsFull,
   buildLlmsTxt,
@@ -7,7 +10,10 @@ import {
   firstParagraph,
   pagesFromSidebar,
   toAgentMarkdown,
+  writeAgentDocs,
 } from './llms'
+
+import type { SiteConfig, TransformContext } from 'vitepress'
 
 const siteUrl = 'https://example.test'
 
@@ -237,5 +243,59 @@ describe('exampleFile', () => {
     expect(exampleFile('/docs', 'WrapAroundExample')).toBe(
       path.join('/docs', 'examples', 'ExampleWrapAround.vue')
     )
+  })
+})
+
+describe('writeAgentDocs', () => {
+  it('writes llms.txt, llms-full.txt and a .md twin per sidebar page, warning on a missing example', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'llms-'))
+    const srcDir = path.join(root, 'src')
+    const outDir = path.join(root, 'out')
+    fs.mkdirSync(path.join(srcDir, 'examples'), { recursive: true })
+    fs.mkdirSync(path.join(srcDir, 'guide'), { recursive: true })
+    fs.writeFileSync(
+      path.join(srcDir, 'examples', 'ExampleBasic.vue'),
+      "<script setup>\nimport '../../dist/carousel.css'\n</script>\n"
+    )
+    fs.writeFileSync(
+      path.join(srcDir, 'guide', 'intro.md'),
+      '# Intro\n\nHello.\n\n<live-codes :code="examples.BasicExample" />\n\n<live-codes :code="examples.NopeExample" />\n'
+    )
+    const warn = vi.fn()
+    const sidebar = [{ text: 'Guide', items: [{ text: 'Intro', link: '/guide/intro' }] }]
+    await writeAgentDocs({
+      srcDir,
+      outDir,
+      site: { title: 'T', description: 'D', themeConfig: { sidebar } },
+      logger: { warn },
+    } as unknown as SiteConfig)
+    const read = (file: string) => fs.readFileSync(path.join(outDir, file), 'utf-8')
+    expect(read('guide/intro.md')).toBe(
+      "# Intro\n\nHello.\n\n```vue\n<script setup>\nimport 'vue3-carousel/carousel.css'\n</script>\n```\n"
+    )
+    expect(read('llms.txt')).toContain(
+      '## Guide\n\n- [Intro](https://vue3-carousel.ismail9k.com/guide/intro.md): Hello.\n'
+    )
+    expect(read('llms-full.txt')).toContain(
+      '# Intro\n\nSource: https://vue3-carousel.ismail9k.com/guide/intro.md\n\nHello.'
+    )
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(warn.mock.calls[0][0]).toContain('examples.NopeExample')
+    expect(warn.mock.calls[0][0]).toContain(
+      path.join(srcDir, 'examples', 'ExampleNope.vue')
+    )
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+})
+
+describe('config transformHead', () => {
+  const head = (relativePath: string) =>
+    config.transformHead({ pageData: { relativePath } } as TransformContext)
+
+  it('adds a markdown alternate link to sidebar pages only', () => {
+    expect(head('components/slide.md')).toEqual([
+      ['link', { rel: 'alternate', type: 'text/markdown', href: '/components/slide.md' }],
+    ])
+    expect(head('index.md')).toBeUndefined()
   })
 })
