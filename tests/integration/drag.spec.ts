@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
 
@@ -44,7 +44,12 @@ describe('drag threshold', () => {
       toJSON: () => RECT,
     })
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    // Drop any click-suppression listener a mouse drag left on window
+    window.dispatchEvent(new MouseEvent('click'))
+    vi.restoreAllMocks()
+  })
+  enableAutoUnmount(afterEach)
 
   it('slides on a processed touch move past the threshold and emits drag once', async () => {
     const wrapper = mountCarousel({ touchDrag: { threshold: 0.1 } })
@@ -125,8 +130,6 @@ describe('drag threshold', () => {
   })
 
   it('suppresses the click when only the flushed final sample passes 10px', async () => {
-    // Consume any click-suppression listener left behind by earlier mouse drags
-    window.dispatchEvent(new MouseEvent('click'))
     const wrapper = mountCarousel()
     await wrapper
       .find('.carousel__track')
