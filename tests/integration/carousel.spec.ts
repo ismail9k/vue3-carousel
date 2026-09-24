@@ -658,3 +658,162 @@ describe('Carousel inside a scaled ancestor', () => {
     expect(track.attributes('style')).toContain('translateY(-240px)')
   })
 })
+
+describe('Drag release without a slide change', () => {
+  const SLIDE_WIDTH = 1000
+  let wrapper: ReturnType<typeof mount<typeof Carousel>>
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+      () =>
+        ({
+          width: SLIDE_WIDTH,
+          height: SLIDE_WIDTH,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        }) as DOMRect
+    )
+  })
+
+  afterEach(() => {
+    // Release any drag an assertion failure left open, or its document
+    // listeners leak into the next test
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    wrapper?.unmount()
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  const mountCarousel = async (props: ComponentProps<typeof Carousel> = {}) => {
+    wrapper = mount(Carousel, {
+      props: { itemsToShow: 1, modelValue: 0, ...props },
+      slots: {
+        default: () => [1, 2, 3, 4, 5].map((n) => h(Slide, { key: n }, () => `${n}`)),
+      },
+    })
+    await nextTick()
+  }
+
+  const pressMouse = async (clientX: number, clientY = 0) => {
+    await wrapper
+      .find('.carousel__track')
+      .trigger('mousedown', { clientX, clientY, button: 0 })
+  }
+
+  const moveMouse = async (clientX: number, clientY = 0) => {
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX, clientY }))
+    vi.advanceTimersToNextFrame() // flush the rAF-throttled drag handler only
+    await nextTick()
+  }
+
+  const releaseMouse = async () => {
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+  }
+
+  it('animates the snap-back of a drag that stays under the threshold', async () => {
+    await mountCarousel()
+    await pressMouse(500)
+    // 40px is 4% of the slide, under the 8% default threshold
+    await moveMouse(460)
+    expect(wrapper.find('.carousel__track').attributes('style')).toContain(
+      'translateX(-40px)'
+    )
+
+    await releaseMouse()
+
+    expect(wrapper.find('.carousel__track').attributes('style')).toContain(
+      'translateX(0px)'
+    )
+    expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
+    expect(wrapper.classes()).not.toContain('is-sliding')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.emitted('slide-start')).toBeUndefined()
+
+    vi.advanceTimersByTime(300)
+    await nextTick()
+    expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
+  })
+
+  it('animates the snap-back of a drag clamped at the first slide', async () => {
+    await mountCarousel()
+    await pressMouse(500)
+    // Dragging toward the previous slide at index 0 is clamped to index 0
+    await moveMouse(800)
+    await releaseMouse()
+
+    expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
+    expect(wrapper.classes()).not.toContain('is-sliding')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('does not enter the sliding state on a click without movement', async () => {
+    await mountCarousel()
+    await pressMouse(500)
+    await releaseMouse()
+
+    expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
+  })
+
+  it('does not transition after movement off the carousel axis', async () => {
+    await mountCarousel()
+    // Vertical movement (e.g. a page scroll) over a horizontal carousel
+    await pressMouse(500, 500)
+    await moveMouse(500, 300)
+    await releaseMouse()
+
+    expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
+  })
+
+  it('animates the snap-back of a vertical drag on a vertical carousel', async () => {
+    await mountCarousel({ dir: 'ttb', height: '500px' })
+    await pressMouse(0, 500)
+    // 40px is 4% of the slide, under the 8% default threshold
+    await moveMouse(0, 460)
+    await releaseMouse()
+
+    expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('does not transition after a drag with the fade effect', async () => {
+    await mountCarousel({ slideEffect: 'fade' })
+    await pressMouse(500)
+    await moveMouse(460)
+    await releaseMouse()
+
+    expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
+  })
+
+  it('lets a new drag start during the snap-back without easing', async () => {
+    await mountCarousel()
+    await pressMouse(500)
+    await moveMouse(460)
+    await releaseMouse()
+    expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
+
+    await pressMouse(500)
+    await nextTick()
+    expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
+  })
+
+  it('keeps the transition when a slide starts during the snap-back', async () => {
+    await mountCarousel()
+    await pressMouse(500)
+    await moveMouse(460)
+    await releaseMouse()
+    vi.advanceTimersByTime(200)
+    wrapper.vm.slideTo(1)
+    await nextTick()
+    vi.advanceTimersByTime(150) // snap-back timer has expired, the slide has not
+    await nextTick()
+    expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
+    expect(wrapper.classes()).toContain('is-sliding')
+  })
+})

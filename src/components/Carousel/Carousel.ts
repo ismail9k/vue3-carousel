@@ -99,6 +99,7 @@ export const Carousel = defineComponent({
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
+    let snapBackTimer: ReturnType<typeof setTimeout> | null = null
     let resizeObserver: ResizeObserver | null = null
 
     const effectiveSlideSize = computed(() => slideSize.value + config.gap)
@@ -343,6 +344,9 @@ export const Carousel = defineComponent({
       if (transitionTimer) {
         clearTimeout(transitionTimer)
       }
+      if (snapBackTimer) {
+        clearTimeout(snapBackTimer)
+      }
       if (animationInterval) {
         cancelAnimationFrame(animationInterval)
       }
@@ -435,6 +439,9 @@ export const Carousel = defineComponent({
      * Navigation function
      */
     const isSliding = ref(false)
+    // Transitions the track back after a drag that did not change slide,
+    // without locking input the way isSliding does
+    const isSnappingBack = ref(false)
 
     // Screen px → layout px multipliers, sampled when a drag starts so the
     // drag follows the pointer 1:1 under scaled ancestors
@@ -444,6 +451,12 @@ export const Carousel = defineComponent({
     })
 
     const onDragStart = () => {
+      // A new drag must follow the pointer directly, not with easing
+      if (snapBackTimer) {
+        clearTimeout(snapBackTimer)
+        snapBackTimer = null
+      }
+      isSnappingBack.value = false
       dragScale.value = getScaleMultipliers(root.value)
     }
 
@@ -485,7 +498,24 @@ export const Carousel = defineComponent({
           })
     }
 
-    const onDragEnd = () => slideTo(activeSlideIndex.value)
+    const onDragEnd = () => {
+      slideTo(activeSlideIndex.value)
+
+      // slideTo returns early when the drag did not change the slide (under the
+      // threshold or clamped at an edge). The track's return to its slot must
+      // still be transitioned instead of snapping back.
+      const axisOffset = isVertical.value ? dragged.y : dragged.x
+      if (!isSliding.value && config.slideEffect !== 'fade' && axisOffset !== 0) {
+        isSnappingBack.value = true
+        if (snapBackTimer) {
+          clearTimeout(snapBackTimer)
+        }
+        snapBackTimer = setTimeout(() => {
+          isSnappingBack.value = false
+          snapBackTimer = null
+        }, config.transition)
+      }
+    }
 
     const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
@@ -858,9 +888,10 @@ export const Carousel = defineComponent({
       '--vc-carousel-height': toCssValue(config.height),
       '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
       '--vc-slide-gap': toCssValue(config.gap),
-      '--vc-transition-duration': isSliding.value
-        ? toCssValue(config.transition, 'ms')
-        : undefined,
+      '--vc-transition-duration':
+        isSliding.value || isSnappingBack.value
+          ? toCssValue(config.transition, 'ms')
+          : undefined,
       '--vc-transition-easing': config.transitionEasing,
     }))
 
