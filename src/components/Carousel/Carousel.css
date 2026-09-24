@@ -71,9 +71,17 @@
   transition: none;
 }
 
-/* Focus always pauses, so keyboard and touch users can stop the marquee */
+/*
+ * Keyboard focus on or inside the carousel pauses the marquee; a pointer click
+ * does not. The :has() rule is separate so engines without it still apply the
+ * first one.
+ */
 .carousel.is-marquee.is-paused .carousel__track,
-.carousel.is-marquee:focus-within .carousel__track {
+.carousel.is-marquee:focus-visible .carousel__track {
+  animation-play-state: paused;
+}
+
+.carousel.is-marquee:has(:focus-visible) .carousel__track {
   animation-play-state: paused;
 }
 

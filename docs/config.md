@@ -106,7 +106,7 @@ These props control how users can interact with the carousel:
   - The `Navigation` and `Pagination` addons render nothing while `marquee` is on, so they can stay in the template when `marquee` is set per breakpoint.
   - All slides count as visible: the `--active`, `--prev` and `--next` slide classes and slot props are off, and the `itemXofY` announcement is empty.
   - Pair with `pauseAutoplayOnHover` to pause while the cursor is over the carousel.
-  - Pauses while the carousel has focus, so keyboard and touch users can stop it.
+  - Pauses while keyboard focus is on or inside the carousel; a mouse click does not pause it. Use `pauseAutoplayOnHover` for pointer users.
 
 - **`mouseDrag`** and **`touchDrag`**: Enable/disable drag navigation.
   - Basic usage: `:mouse-drag="true"` or `:touch-drag="false"`
