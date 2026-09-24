@@ -278,4 +278,76 @@ describe('nativeCss', () => {
       expect(scrollBy).not.toHaveBeenCalled()
     })
   })
+
+  describe('scrolling', () => {
+    async function scrollTo(wrapper: ReturnType<typeof mountCarousel>, scrolled: number) {
+      vi.restoreAllMocks()
+      mockLayout({ scrolled })
+      await wrapper.find('.carousel__viewport').trigger('scroll')
+      vi.advanceTimersByTime(100)
+      await nextTick()
+    }
+
+    it('updates the current slide once scrolling settles', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start' })
+      await nextTick()
+      await scrollTo(wrapper, 2 * SIZE)
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([2])
+      expect(wrapper.emitted('slide-start')?.at(-1)).toEqual([
+        { slidingToIndex: 2, currentSlideIndex: 0, prevSlideIndex: 0, slidesCount: 5 },
+      ])
+      expect(wrapper.emitted('slide-end')?.at(-1)).toEqual([
+        { currentSlideIndex: 2, prevSlideIndex: 0, slidesCount: 5 },
+      ])
+      expect(wrapper.findAll('.carousel__slide')[2].classes()).toContain(
+        'carousel__slide--active'
+      )
+    })
+
+    it('waits for the scroll to settle before reporting', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start' })
+      await nextTick()
+      vi.restoreAllMocks()
+      mockLayout({ scrolled: SIZE })
+      await wrapper.find('.carousel__viewport').trigger('scroll')
+      vi.advanceTimersByTime(60)
+      await wrapper.find('.carousel__viewport').trigger('scroll')
+      vi.advanceTimersByTime(60)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      vi.advanceTimersByTime(40)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([1])
+    })
+
+    it('does not emit when the slide is unchanged', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start' })
+      await nextTick()
+      await scrollTo(wrapper, 0)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+
+    it('reports the last slide at the scroll end', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start', itemsToShow: 2 })
+      await nextTick()
+      await scrollTo(wrapper, 4 * SIZE)
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([4])
+    })
+
+    it('does not listen to scroll in JS mode', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel({ nativeCss: false, snapAlign: 'start' })
+      await nextTick()
+      await scrollTo(wrapper, 2 * SIZE)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+  })
 })

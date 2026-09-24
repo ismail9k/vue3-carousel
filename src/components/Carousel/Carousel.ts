@@ -35,9 +35,11 @@ import {
   applyEdgeSpacing,
   calculateAverage,
   createCloneSlides,
+  debounce,
   except,
   getDraggedSlidesCount,
   getNativeScrollDelta,
+  getNativeSlideIndex,
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
@@ -378,6 +380,7 @@ export const Carousel = defineComponent({
       mounted.value = false
 
       slideRegistry.cleanup()
+      handleNativeScroll.cancel()
 
       if (transitionTimer) {
         clearTimeout(transitionTimer)
@@ -656,6 +659,42 @@ export const Carousel = defineComponent({
           : { left: delta * widthMultiplier, behavior }
       )
     }
+
+    // Native mode: once the user's scroll settles, adopt the slide the scroller
+    // landed on. A smooth scroll fires `scroll` every frame, so the debounce
+    // cannot fire in the middle of a programmatic scroll.
+    const handleNativeScroll = debounce(() => {
+      if (!isNative.value || !viewport.value) {
+        return
+      }
+      const index = getNativeSlideIndex({
+        align: NATIVE_SNAP_ALIGN[config.snapAlign],
+        isReversed: isReversed.value,
+        isVertical: isVertical.value,
+        slideRects: slides.map((slide) =>
+          (slide.vnode.el as Element).getBoundingClientRect()
+        ),
+        viewportRect: viewport.value.getBoundingClientRect(),
+      })
+      if (index === -1 || index === currentSlideIndex.value) {
+        return
+      }
+      prevSlideIndex.value = currentSlideIndex.value
+      emit('slide-start', {
+        slidingToIndex: index,
+        currentSlideIndex: currentSlideIndex.value,
+        prevSlideIndex: prevSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+      currentSlideIndex.value = index
+      emit('update:modelValue', index)
+      emit('slide-end', {
+        currentSlideIndex: index,
+        prevSlideIndex: prevSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+      resetAutoplay()
+    }, 100)
 
     function restartCarousel(): void {
       updateBreakpointsConfig()
@@ -1043,7 +1082,15 @@ export const Carousel = defineComponent({
         },
         output
       )
-      const viewPortEl = h('div', { class: 'carousel__viewport', ref: viewport }, trackEl)
+      const viewPortEl = h(
+        'div',
+        {
+          class: 'carousel__viewport',
+          ref: viewport,
+          onScrollPassive: isNative.value ? handleNativeScroll : undefined,
+        },
+        trackEl
+      )
 
       return h(
         'section',
