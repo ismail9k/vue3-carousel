@@ -3,7 +3,7 @@ import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vite
 import { Component, createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import { Carousel, Slide } from '@/index'
+import { Carousel, Navigation, Slide } from '@/index'
 
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
@@ -656,5 +656,72 @@ describe('Carousel inside a scaled ancestor', () => {
     // 60 screen px at scaleY 0.25 is 240 layout px (widthMultiplier is only 2)
     const track = await dragMouse([0, 400], [0, 340])
     expect(track.attributes('style')).toContain('translateY(-240px)')
+  })
+})
+
+describe('itemsToScroll paging (#522)', () => {
+  const mountCarousel = (props: Record<string, unknown> = {}) =>
+    mount(Carousel, {
+      props: {
+        itemsToShow: 3,
+        itemsToScroll: 3,
+        snapAlign: 'center',
+        wrapAround: false,
+        ...props,
+      },
+      slots: {
+        default: () =>
+          Array.from({ length: 9 }, (_, i) => h(Slide, { key: i }, () => `${i}`)),
+        addons: () => h(Navigation),
+      },
+    })
+  const visible = (wrapper: ReturnType<typeof mountCarousel>) =>
+    wrapper.findAll('.carousel__slide--visible').map((slide) => slide.text())
+  const step = async (
+    wrapper: ReturnType<typeof mountCarousel>,
+    direction: 'next' | 'prev'
+  ) => {
+    wrapper.vm[direction]()
+    vi.advanceTimersByTime(300)
+    await nextTick()
+  }
+
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('moves the visible slides by itemsToScroll from the clamped edges', async () => {
+    const wrapper = mountCarousel()
+    await nextTick()
+    expect(visible(wrapper)).toEqual(['0', '1', '2'])
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['3', '4', '5'])
+    expect(wrapper.vm.currentSlide).toBe(4)
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['6', '7', '8'])
+    expect(wrapper.vm.currentSlide).toBe(8)
+    expect(wrapper.find('.carousel__next').attributes('disabled')).toBeDefined()
+
+    await step(wrapper, 'prev')
+    expect(visible(wrapper)).toEqual(['3', '4', '5'])
+
+    await step(wrapper, 'prev')
+    expect(visible(wrapper)).toEqual(['0', '1', '2'])
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.find('.carousel__prev').attributes('disabled')).toBeDefined()
+  })
+
+  it('keeps wrapAround stepping by itemsToScroll', async () => {
+    const wrapper = mountCarousel({ wrapAround: true })
+    await nextTick()
+    expect(visible(wrapper)).toEqual(['8', '0', '1'])
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['2', '3', '4'])
+    expect(wrapper.vm.currentSlide).toBe(3)
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['5', '6', '7'])
   })
 })

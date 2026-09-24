@@ -35,6 +35,7 @@ import {
   calculateAverage,
   createCloneSlides,
   except,
+  getClampedScrollTarget,
   getDraggedSlidesCount,
   getNumberInRange,
   getScaleMultipliers,
@@ -521,12 +522,26 @@ export const Carousel = defineComponent({
       onWheel,
     })
 
+    function getStepTarget(direction: 1 | -1): number {
+      if (config.wrapAround || isAuto.value) {
+        return currentSlideIndex.value + direction * config.itemsToScroll
+      }
+      return getClampedScrollTarget({
+        currentIndex: currentSlideIndex.value,
+        direction,
+        itemsToScroll: config.itemsToScroll,
+        itemsToShow: Number(config.itemsToShow),
+        slidesCount: slidesCount.value,
+        snapAlignOffset: snapAlignOffset.value,
+      })
+    }
+
     function next(skipTransition = false): void {
-      slideTo(currentSlideIndex.value + config.itemsToScroll, skipTransition)
+      slideTo(getStepTarget(1), skipTransition)
     }
 
     function prev(skipTransition = false): void {
-      slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
+      slideTo(getStepTarget(-1), skipTransition)
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
@@ -731,17 +746,17 @@ export const Carousel = defineComponent({
             max: Math.ceil(base + Number(config.itemsToShow) - 1),
           }
         }
+        const itemsToShow = Number(config.itemsToShow)
+        const start = getNumberInRange({
+          val: base,
+          max: slidesCount.value - itemsToShow,
+          min: 0,
+        })
         return {
-          min: Math.floor(
-            getNumberInRange({
-              val: base,
-              max: slidesCount.value - Number(config.itemsToShow),
-              min: 0,
-            })
-          ),
+          min: Math.floor(start),
           max: Math.ceil(
             getNumberInRange({
-              val: base + Number(config.itemsToShow) - 1,
+              val: start + itemsToShow - 1,
               max: slidesCount.value - 1,
               min: 0,
             })

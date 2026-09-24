@@ -58,6 +58,7 @@ These props control the fundamental behavior of the carousel:
 - **`itemsToScroll`**: Number of slides to move when navigating.
   - Set to a value higher than 1 to create slide groups.
   - Example: `:items-to-show="3" :items-to-scroll="3"` creates page-like navigation.
+  - Without `wrapAround`, navigation moves the visible slides by this amount, so a first or last page clamped at the edge still advances a full step.
 
 ### Direction Settings
 
