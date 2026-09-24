@@ -676,6 +676,7 @@ describe('Drag on a carousel with no measurable size (#518)', () => {
     wrapper = mount(App, {
       props: {
         dir: 'ttb',
+        height: 200, // jsdom still measures 0; only satisfies the ttb/height validator
         wrapAround: true,
         slideNum: 5,
         modelValue: 0,
