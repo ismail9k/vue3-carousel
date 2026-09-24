@@ -90,4 +90,23 @@ describe('toAgentMarkdown', () => {
   it('collapses runs of blank lines to one blank line and ends with a single newline', () => {
     expect(toAgentMarkdown('a\n\n\n\n\nb\n\n\n', { siteUrl })).toBe('a\n\nb\n')
   })
+
+  it('keeps a fenced code block with consecutive blank lines byte-identical', () => {
+    const fence = '```ts\nconst a = 1\n\n\n\nconst b = 2\n```'
+    const out = toAgentMarkdown(`Intro\n\n${fence}\n\n\n\nOutro`, { siteUrl })
+    expect(out).toBe(`Intro\n\n${fence}\n\nOutro\n`)
+  })
+
+  it('inlines a live-codes example containing a double blank line unchanged', () => {
+    const code = '<script setup>\nconst a = 1\n\n\nconst b = 2\n</script>'
+    const resolveExample = (name: string) => (name === 'BasicExample' ? code : undefined)
+    const out = toAgentMarkdown(
+      '## Basic\n\n<live-codes :code="examples.BasicExample" />\n',
+      {
+        siteUrl,
+        resolveExample,
+      }
+    )
+    expect(out).toBe('## Basic\n\n```vue\n' + code + '\n```\n')
+  })
 })
