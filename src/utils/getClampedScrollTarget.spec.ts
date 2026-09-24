@@ -26,8 +26,8 @@ describe('getClampedScrollTarget', () => {
   })
 
   it('equals index +/- itemsToScroll when the window is not clamped', () => {
-    expect(next(4, { slidesCount: 10, itemsToScroll: 1 })).toBe(5)
-    expect(prev(4, { slidesCount: 10, itemsToScroll: 1 })).toBe(3)
+    expect(next(4, { slidesCount: 12, itemsToScroll: 2 })).toBe(6)
+    expect(prev(6, { slidesCount: 12, itemsToScroll: 2 })).toBe(4)
   })
 
   it('moves a full step back from a clamped last index with start alignment', () => {
