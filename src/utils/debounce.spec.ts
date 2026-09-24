@@ -38,4 +38,27 @@ describe('debounce', () => {
     vi.advanceTimersByTime(200)
     expect(fn).not.toHaveBeenCalled()
   })
+
+  it('flush runs the pending call now, with the last arguments, and only once', () => {
+    const fn = vi.fn()
+    const debounced = debounce(fn, 100)
+    debounced(1)
+    debounced(2)
+    debounced.flush()
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith(2)
+    vi.advanceTimersByTime(200)
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it('flush does nothing without a pending call', () => {
+    const fn = vi.fn()
+    const debounced = debounce(fn, 100)
+    debounced.flush()
+    expect(fn).not.toHaveBeenCalled()
+    debounced()
+    vi.advanceTimersByTime(100)
+    debounced.flush()
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
 })

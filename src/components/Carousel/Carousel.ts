@@ -564,14 +564,17 @@ export const Carousel = defineComponent({
     })
 
     function next(skipTransition = false): void {
+      flushNativeScroll()
       slideTo(currentSlideIndex.value + config.itemsToScroll, skipTransition)
     }
 
     function prev(skipTransition = false): void {
+      flushNativeScroll()
       slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
+      flushNativeScroll()
       if (!skipTransition && isSliding.value) {
         return
       }
@@ -663,7 +666,7 @@ export const Carousel = defineComponent({
     // Native mode: once the user's scroll settles, adopt the slide the scroller
     // landed on. A smooth scroll fires `scroll` every frame, so the debounce
     // cannot fire in the middle of a programmatic scroll.
-    const handleNativeScroll = debounce(() => {
+    function adoptNativeScrollIndex(): void {
       if (!isNative.value || !viewport.value) {
         return
       }
@@ -694,8 +697,30 @@ export const Carousel = defineComponent({
         prevSlideIndex: prevSlideIndex.value,
         slidesCount: slidesCount.value,
       })
+    }
+
+    const handleNativeScroll = debounce(() => {
+      adoptNativeScrollIndex()
       resetAutoplay()
     }, 100)
+
+    // A user scroll pauses autoplay until it settles; while sliding, the scroll
+    // is the carousel's own and autoplay restarts when the slide ends
+    function onNativeScroll(): void {
+      if (!isSliding.value) {
+        stopAutoplay()
+      }
+      handleNativeScroll()
+    }
+
+    // Before navigating, adopt a user scroll that has not settled yet so the
+    // move starts from the slide in view. Skipped while sliding: the pending
+    // scroll is then the carousel's own, still on its way to the current slide
+    function flushNativeScroll(): void {
+      if (isNative.value && !isSliding.value) {
+        handleNativeScroll.flush()
+      }
+    }
 
     function restartCarousel(): void {
       updateBreakpointsConfig()
@@ -1088,7 +1113,7 @@ export const Carousel = defineComponent({
         {
           class: 'carousel__viewport',
           ref: viewport,
-          onScrollPassive: isNative.value ? handleNativeScroll : undefined,
+          onScrollPassive: isNative.value ? onNativeScroll : undefined,
         },
         trackEl
       )

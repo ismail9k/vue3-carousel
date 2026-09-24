@@ -378,6 +378,59 @@ describe('nativeCss', () => {
       expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     })
 
+    it('pauses autoplay while the user scrolls and restarts it once scrolling settles', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel({ autoplay: 1000 })
+      await nextTick()
+      const viewport = wrapper.find('.carousel__viewport')
+      // a user scroll longer than one autoplay interval: 1080 ms of scroll events
+      await viewport.trigger('scroll')
+      for (let i = 0; i < 12; i++) {
+        vi.advanceTimersByTime(90)
+        await viewport.trigger('scroll')
+      }
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      // the scroll settles on the same slide and autoplay restarts from there
+      vi.advanceTimersByTime(100)
+      vi.advanceTimersByTime(999)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      vi.advanceTimersByTime(1)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toEqual([[1]])
+    })
+
+    it('navigates from the scrolled-to slide before the scroll settles', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel()
+      await nextTick()
+      vi.restoreAllMocks()
+      mockLayout({ scrolled: 2 * SIZE })
+      const viewport = wrapper.find('.carousel__viewport')
+      const scrollBy = vi.spyOn(viewport.element, 'scrollBy')
+      await viewport.trigger('scroll')
+      wrapper.vm.next()
+      expect(scrollBy).toHaveBeenCalledTimes(1)
+      expect(scrollBy).toHaveBeenCalledWith({ left: SIZE, behavior: 'smooth' })
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([3])
+    })
+
+    it('does not adopt its own unfinished scroll when navigating mid-slide', async () => {
+      vi.useFakeTimers()
+      mockLayout()
+      const wrapper = mountCarousel()
+      await nextTick()
+      wrapper.vm.next()
+      // halfway through the smooth scroll to slide 1
+      vi.restoreAllMocks()
+      mockLayout({ scrolled: SIZE / 2 })
+      await wrapper.find('.carousel__viewport').trigger('scroll')
+      wrapper.vm.next()
+      expect(wrapper.emitted('update:modelValue')).toEqual([[1]])
+    })
+
     it('does not listen to scroll in JS mode', async () => {
       vi.useFakeTimers()
       mockLayout()
