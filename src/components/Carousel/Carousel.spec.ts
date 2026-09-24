@@ -151,10 +151,13 @@ describe('Carousel.ts', () => {
 
     it('warns and falls back to the default for an empty prefix', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-      const root = mountWithPrefix({ classPrefix: '' }).find('section')
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('classPrefix'))
-      expect(root.classes()).toContain('carousel')
-      warn.mockRestore()
+      try {
+        const root = mountWithPrefix({ classPrefix: '' }).find('section')
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('classPrefix'))
+        expect(root.classes()).toContain('carousel')
+      } finally {
+        warn.mockRestore()
+      }
     })
   })
 })
