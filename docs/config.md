@@ -230,7 +230,7 @@ Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `
 
 | Property    | Type     | Default | Description                                                                                |
 |-------------|----------|---------|--------------------------------------------------------------------------------------------|
-| `threshold` | `number` | 0.3     | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+| `threshold` | `number` | 0.08    | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
 
 Example:
 
