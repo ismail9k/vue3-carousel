@@ -119,6 +119,30 @@ describe('adaptiveHeight', () => {
     expect(carouselHeight(wrapper)).toBe('200px')
   })
 
+  it('can be enabled through breakpoints', async () => {
+    const wrapper = mountCarousel({
+      adaptiveHeight: false,
+      breakpoints: { 0: { adaptiveHeight: true } },
+    })
+    await nextTick()
+    expect(root(wrapper).classes()).toContain('is-adaptive-height')
+    expect(carouselHeight(wrapper)).toBe('120px')
+  })
+
+  it('only sets a transition duration while sliding', async () => {
+    vi.useFakeTimers()
+    const wrapper = mountCarousel()
+    await nextTick()
+    expect(root(wrapper).attributes('style')).not.toContain('--vc-transition-duration')
+    await wrapper.setProps({ modelValue: 1 })
+    expect(root(wrapper).attributes('style')).toContain('--vc-transition-duration: 300ms')
+    expect(carouselHeight(wrapper)).toBe('200px')
+    vi.runAllTimers()
+    await nextTick()
+    expect(root(wrapper).attributes('style')).not.toContain('--vc-transition-duration')
+    expect(carouselHeight(wrapper)).toBe('200px')
+  })
+
   it('is ignored for vertical directions', async () => {
     const wrapper = mountCarousel({ dir: 'ttb', height: 100 })
     await nextTick()
