@@ -218,6 +218,32 @@ describe('Carousel.ts', () => {
     vi.useRealTimers()
   })
 
+  it('Should honour keyboardNavigation from a matching breakpoint', async () => {
+    vi.useFakeTimers()
+    const bpWrapper = mount(Carousel, {
+      props: {
+        breakpoints: { 0: { keyboardNavigation: false } },
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => bpWrapper.setProps({ modelValue: e }),
+      },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const track = bpWrapper.find('[tabindex="0"]')
+
+    await track.trigger('focus')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    vi.advanceTimersByTime(200)
+    await nextTick()
+    expect(bpWrapper.props('modelValue')).toBe(0)
+
+    await track.trigger('blur')
+    bpWrapper.unmount()
+    vi.useRealTimers()
+  })
+
   it('Should default itemsToShow to 1 if less than 1', async () => {
     await wrapper.setProps({ itemsToShow: 0 })
     const slides = wrapper.findAll('.carousel__slide--visible')
