@@ -71,7 +71,9 @@
   transition: none;
 }
 
-.carousel.is-marquee.is-paused .carousel__track {
+/* Focus always pauses, so keyboard and touch users can stop the marquee */
+.carousel.is-marquee.is-paused .carousel__track,
+.carousel.is-marquee:focus-within .carousel__track {
   animation-play-state: paused;
 }
 

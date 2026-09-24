@@ -104,6 +104,7 @@ These props control how users can interact with the carousel:
   - Ignored when `slideEffect` is `'fade'`.
   - Navigation, pagination, drag, mouse wheel, keyboard and `v-model` are inactive while `marquee` is on.
   - Pair with `pauseAutoplayOnHover` to pause while the cursor is over the carousel.
+  - Pauses while the carousel has focus, so keyboard and touch users can stop it.
 
 - **`mouseDrag`** and **`touchDrag`**: Enable/disable drag navigation.
   - Basic usage: `:mouse-drag="true"` or `:touch-drag="false"`
