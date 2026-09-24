@@ -782,6 +782,10 @@ export const Carousel = defineComponent({
     })
 
     const visibleRange = computed(() => {
+      if (isLocked.value) {
+        // A locked track is pinned at its first slide with every slide on screen
+        return { min: 0, max: slidesCount.value - 1 }
+      }
       if (!isAuto.value) {
         const base = currentSlideIndex.value - snapAlignOffset.value
         if (config.wrapAround) {

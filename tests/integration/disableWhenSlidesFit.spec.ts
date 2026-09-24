@@ -238,6 +238,26 @@ describe('disableWhenSlidesFit', () => {
       await nextTick()
       expect(transform(wrapper)).toBe('translateX(0px)')
     })
+
+    it('marks every slide visible and tabbable when locked with a non-start snapAlign', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 4, snapAlign: 'end' })
+      await nextTick()
+      expect(transform(wrapper)).toBe('translateX(0px)')
+      expect(wrapper.vm.visibleRange).toEqual({ min: 0, max: 2 })
+      const slides = wrapper.findAll('.carousel__slide')
+      expect(slides).toHaveLength(3)
+      slides.forEach((slide) => {
+        expect(slide.classes()).toContain('carousel__slide--visible')
+        expect(slide.attributes('tabindex')).toBeUndefined()
+      })
+    })
+
+    it('keeps the slide-based visible range once unlocked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, snapAlign: 'start', modelValue: 1 })
+      await nextTick()
+      expect(wrapper.vm.isLocked).toBe(false)
+      expect(wrapper.vm.visibleRange).toEqual({ min: 1, max: 2 })
+    })
   })
 
   describe('index sync', () => {
