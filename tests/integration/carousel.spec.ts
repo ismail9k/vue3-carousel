@@ -865,6 +865,23 @@ describe('v-model with wrapAround (#519)', () => {
     expect(wrapper.emitted('loop')).toHaveLength(1)
   })
 
+  it('round-trips the canonical index through the parent while looping', async () => {
+    const wrapper = mountCarousel({
+      modelValue: 0,
+      'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
+    })
+    await nextTick()
+
+    await setModel(wrapper, -1)
+    expect(wrapper.vm.currentSlide).toBe(-1)
+    expect(wrapper.props('modelValue')).toBe(2)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+    expect(wrapper.emitted('slide-start')).toHaveLength(1)
+  })
+
   it('does not wrap on a tie', async () => {
     const wrapper = mountCarousel({ modelValue: 0 }, 4)
     await nextTick()
