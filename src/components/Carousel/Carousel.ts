@@ -375,9 +375,9 @@ export const Carousel = defineComponent({
         case 'ArrowUp':
           if (isVertical.value === event.key.endsWith('Up')) {
             if (isReversed.value) {
-              next(true)
+              next()
             } else {
-              prev(true)
+              prev()
             }
           }
           break
@@ -385,9 +385,9 @@ export const Carousel = defineComponent({
         case 'ArrowDown':
           if (isVertical.value === event.key.endsWith('Down')) {
             if (isReversed.value) {
-              prev(true)
+              prev()
             } else {
-              next(true)
+              next()
             }
           }
           break
