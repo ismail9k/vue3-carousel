@@ -21,6 +21,7 @@ import { ARIA as ARIAComponent } from '@/components/ARIA'
 import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
 import {
   CarouselConfig,
+  DEFAULT_CLASS_PREFIX,
   DEFAULT_CONFIG,
   DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
@@ -51,7 +52,7 @@ import {
   ElRect,
   InjectedCarousel,
 } from './Carousel.types'
-import { carouselProps } from './carouselProps'
+import { carouselProps, isValidClassPrefix } from './carouselProps'
 
 export const Carousel = defineComponent({
   name: 'VueCarousel',
@@ -81,6 +82,10 @@ export const Carousel = defineComponent({
       ...DEFAULT_CONFIG,
       // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
       ...except(props, ['breakpoints', 'modelValue']),
+      // The validator only warns, so an invalid prefix falls back here
+      classPrefix: isValidClassPrefix(props.classPrefix)
+        ? props.classPrefix
+        : DEFAULT_CLASS_PREFIX,
       i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
     }))
 
@@ -161,7 +166,10 @@ export const Carousel = defineComponent({
         return false
       })
 
-      Object.assign(config, fallbackConfig.value, newConfig)
+      // classPrefix is not a breakpoint option (see Breakpoints); keep the prop value
+      Object.assign(config, fallbackConfig.value, newConfig, {
+        classPrefix: fallbackConfig.value.classPrefix,
+      })
 
       // Validate itemsToShow
       if (!isAuto.value) {
@@ -929,12 +937,14 @@ export const Carousel = defineComponent({
 
       const output = [...slidesBefore, ...outputSlides, ...slidesAfter]
 
+      const prefix = config.classPrefix
+
       if (!config.enabled || !output.length) {
         return h(
           'section',
           {
             ref: root,
-            class: ['carousel', 'is-disabled'],
+            class: [prefix, 'is-disabled'],
           },
           output
         )
@@ -945,7 +955,7 @@ export const Carousel = defineComponent({
       const trackEl = h(
         'ol',
         {
-          class: 'carousel__track',
+          class: `${prefix}__track`,
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
           onWheel: config.mouseWheel ? handleScroll : null,
@@ -953,14 +963,18 @@ export const Carousel = defineComponent({
         },
         output
       )
-      const viewPortEl = h('div', { class: 'carousel__viewport', ref: viewport }, trackEl)
+      const viewPortEl = h(
+        'div',
+        { class: `${prefix}__viewport`, ref: viewport },
+        trackEl
+      )
 
       return h(
         'section',
         {
           ref: root,
           class: [
-            'carousel',
+            prefix,
             `is-${normalizedDir.value}`,
             `is-effect-${config.slideEffect}`,
             {

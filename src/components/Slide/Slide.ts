@@ -15,7 +15,7 @@ import {
   useId,
 } from 'vue'
 
-import { injectCarousel } from '@/shared'
+import { DEFAULT_CLASS_PREFIX, injectCarousel } from '@/shared'
 import { disableChildrenTabbing } from '@/utils'
 
 import { SlideProps } from './Slide.types'
@@ -133,18 +133,20 @@ export const Slide = defineComponent({
         return slots.default?.()
       }
 
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
+
       return h(
         'li',
         {
           style: [attrs.style, { ...slideStyle.value }],
           class: {
-            carousel__slide: true,
-            'carousel__slide--clone': props.isClone,
-            'carousel__slide--visible': isVisible.value,
-            'carousel__slide--active': isActive.value,
-            'carousel__slide--prev': isPrev.value,
-            'carousel__slide--next': isNext.value,
-            'carousel__slide--sliding': carousel.isSliding,
+            [`${prefix}__slide`]: true,
+            [`${prefix}__slide--clone`]: props.isClone,
+            [`${prefix}__slide--visible`]: isVisible.value,
+            [`${prefix}__slide--active`]: isActive.value,
+            [`${prefix}__slide--prev`]: isPrev.value,
+            [`${prefix}__slide--next`]: isNext.value,
+            [`${prefix}__slide--sliding`]: carousel.isSliding,
           },
           onMousedownCapture: handleMousedown,
           onFocusin: () => {

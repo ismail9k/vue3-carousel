@@ -27,6 +27,16 @@ describe('Icon.ts', () => {
     expect(consoleMock.mock.calls[0][0]).toBe('[Vue warn]: Missing required prop: "name"')
   })
 
+  it('It should take the class prefix and title from the carousel prop', () => {
+    const carousel = {
+      config: { classPrefix: 'vc', i18n: { iconArrowRight: 'Go right' } },
+    } as unknown as IconProps['carousel']
+    const wrapper = mount(Icon, { props: { name: 'arrowRight', carousel } })
+    expect(wrapper.classes()).toEqual(['vc__icon'])
+    expect(wrapper.find('title').text()).toBe('Go right')
+    expect(consoleMock).not.toHaveBeenCalled()
+  })
+
   it('It should render standalone', async () => {
     await Promise.all(
       Object.values(IconName).map(async (name) => {

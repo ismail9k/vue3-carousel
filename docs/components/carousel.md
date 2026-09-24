@@ -77,6 +77,18 @@ The Carousel component provides several CSS classes that you can use for styling
 | `.carousel__viewport`| Carousel viewport/wrapper element |
 | `.carousel__track`   | Container for slides              |
 
+### Class prefix <Badge text="0.19.0"/>
+
+Every class above (and the ones from Slide, Navigation and Pagination) starts with `carousel`. If that name collides with another stylesheet or script on your page, set `classPrefix` and every class is renamed, e.g. `classPrefix="vc"` renders `vc`, `vc__track`, `vc__slide--active`. The `is-*` state classes are unchanged.
+
+The bundled `carousel.css` targets the default prefix, so with a custom prefix the carousel is unstyled until you load a copy with `.carousel` replaced by `.<prefix>` (the `is-*` and `--vc-*` names are unaffected), or write your own styles for the prefixed classes. For example, for `classPrefix="vc"`: `sed 's/\.carousel/.vc/g' node_modules/vue3-carousel/dist/carousel.css > src/vc-carousel.css`, then import that file instead of `vue3-carousel/carousel.css`.
+
+```vue
+<Carousel class-prefix="vc">
+  <Slide v-for="slide in 10" :key="slide">{{ slide }}</Slide>
+</Carousel>
+```
+
 ## Layout
 
 The carousel is sized by its container, so make sure the container can shrink. `.carousel` already sets `min-width: 0`, which lets it shrink when it is a flex or grid item. In a grid column that is all it needs. In a flex row its flex basis is still the width of all its slides, so also give it `flex: 1`; otherwise it claims most of the row and squeezes its siblings. If you wrap it in your own element that is the flex or grid item, give that wrapper `min-width: 0` (flex and grid items default to `min-width: auto`, which prevents shrinking below the slides' content):
