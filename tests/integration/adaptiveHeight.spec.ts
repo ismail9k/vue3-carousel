@@ -167,11 +167,18 @@ describe('adaptiveHeight slide observation', () => {
   const observer = () => FakeResizeObserver.instances[0]
   const slideElements = (wrapper: ReturnType<typeof mount>) =>
     wrapper.findAll('.carousel__slide').map((slide) => slide.element)
-  const flushResize = async () => {
-    observer().callback([], observer() as unknown as ResizeObserver)
+  const flushResize = async (entries: unknown[] = []) => {
+    observer().callback(
+      entries as ResizeObserverEntry[],
+      observer() as unknown as ResizeObserver
+    )
     await new Promise((resolve) => requestAnimationFrame(resolve))
     await nextTick()
   }
+  const rootEntry = (wrapper: ReturnType<typeof mount>, width: number) => ({
+    target: wrapper.find('.carousel').element,
+    contentRect: { width },
+  })
 
   beforeEach(() => {
     mockRects()
@@ -208,6 +215,35 @@ describe('adaptiveHeight slide observation', () => {
     expect(observer().observed.has(resized)).toBe(true)
     resized.setAttribute('data-height', '300')
     await flushResize()
+    expect(carouselHeight(wrapper)).toBe('300px')
+  })
+
+  it('skips root-only entries with an unchanged width in adaptive mode', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS } })
+    await nextTick()
+    await flushResize([rootEntry(wrapper, 300)])
+    slideElements(wrapper)[0].setAttribute('data-height', '300')
+    // A frame of the height transition: same width, only the root resized
+    await flushResize([rootEntry(wrapper, 300)])
+    expect(carouselHeight(wrapper)).toBe('120px')
+    // A real resize re-measures
+    await flushResize([rootEntry(wrapper, 320)])
+    expect(carouselHeight(wrapper)).toBe('300px')
+  })
+
+  it('re-measures root-only entries when adaptiveHeight is off', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS, adaptiveHeight: false } })
+    await nextTick()
+    await flushResize([rootEntry(wrapper, 300)])
+    await wrapper.setProps({ adaptiveHeight: true })
+    await nextTick()
+    expect(carouselHeight(wrapper)).toBe('120px')
+    await wrapper.setProps({ adaptiveHeight: false })
+    await nextTick()
+    slideElements(wrapper)[0].setAttribute('data-height', '300')
+    await flushResize([rootEntry(wrapper, 300)])
+    await wrapper.setProps({ adaptiveHeight: true })
+    await nextTick()
     expect(carouselHeight(wrapper)).toBe('300px')
   })
 

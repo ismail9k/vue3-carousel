@@ -174,8 +174,9 @@ export const Carousel = defineComponent({
     }
 
     // With adaptiveHeight the root ResizeObserver fires on every frame of the height
-    // transition. The work is rAF-throttled and the measured slide heights do not
-    // depend on the root height, so it is bounded and cannot loop.
+    // transition; those root-only, width-unchanged entries are skipped where the
+    // observer is created. The measured slide heights do not depend on the root
+    // height, so a re-measure cannot loop.
     const handleResize = throttle(() => {
       updateBreakpointsConfig()
       updateSlidesData()
@@ -331,7 +332,23 @@ export const Carousel = defineComponent({
       initAutoplay()
 
       if (root.value) {
-        resizeObserver = new ResizeObserver(handleResize)
+        let rootWidth = -1
+        resizeObserver = new ResizeObserver((entries) => {
+          // In adaptive mode the root height follows the slides, so a root-only
+          // entry with an unchanged width is a frame of the height transition
+          const rootEntry = entries.find((entry) => entry.target === root.value)
+          const onlyRootHeight =
+            isAdaptiveHeight.value &&
+            entries.length === 1 &&
+            rootEntry !== undefined &&
+            rootEntry.contentRect.width === rootWidth
+          if (rootEntry) {
+            rootWidth = rootEntry.contentRect.width
+          }
+          if (!onlyRootHeight) {
+            handleResize()
+          }
+        })
         resizeObserver.observe(root.value)
         updateObservedSlides()
       }
