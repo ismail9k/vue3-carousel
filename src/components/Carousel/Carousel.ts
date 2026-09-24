@@ -943,6 +943,7 @@ export const Carousel = defineComponent({
       activeSlide: activeSlideIndex,
       config,
       currentSlide: currentSlideIndex,
+      isMarquee,
       isSliding,
       isVertical,
       maxSlide: maxSlideIndex,

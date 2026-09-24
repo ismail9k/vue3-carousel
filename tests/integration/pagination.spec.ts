@@ -80,6 +80,21 @@ describe('Navigation.ts', () => {
     expect(buttons[0].attributes()).to.contain({ disabled: '' })
   })
 
+  it('renders nothing while marquee is on', async () => {
+    const inject = makeCarouselInject()
+    inject.isMarquee = true
+    const wrapper = await mount(Pagination, {
+      global: { provide: { [injectCarousel]: inject } },
+    })
+    expect(consoleMock).not.toHaveBeenCalled()
+    expect(wrapper.find('.carousel__pagination').exists()).toBe(false)
+
+    inject.isMarquee = false
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.carousel__pagination').exists()).toBe(true)
+    expect(wrapper.findAll('.carousel__pagination-item').length).toBe(3)
+  })
+
   it("doesn't render without a carousel", async () => {
     const wrapper = await mount(Pagination)
 
