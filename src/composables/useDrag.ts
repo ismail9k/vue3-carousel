@@ -16,7 +16,7 @@ export interface UseDragOptions {
 
 export function useDrag(options: UseDragOptions) {
   let isTouch = false
-  let hasMoved = false
+  let hasPendingMove = false
   const startPosition = { x: 0, y: 0 }
   const lastPosition = { x: 0, y: 0 }
   const dragged = reactive({ x: 0, y: 0 })
@@ -52,7 +52,7 @@ export function useDrag(options: UseDragOptions) {
       }
     }
 
-    hasMoved = false
+    hasPendingMove = false
     const { x, y } = getPosition(event)
     startPosition.x = x
     startPosition.y = y
@@ -66,6 +66,7 @@ export function useDrag(options: UseDragOptions) {
   }
 
   const applyDrag = (): void => {
+    hasPendingMove = false
     isDragging.value = true
     dragged.x = lastPosition.x - startPosition.x
     dragged.y = lastPosition.y - startPosition.y
@@ -81,13 +82,13 @@ export function useDrag(options: UseDragOptions) {
     const { x, y } = getPosition(event)
     lastPosition.x = x
     lastPosition.y = y
-    hasMoved = true
+    hasPendingMove = true
     throttledApplyDrag()
   }
 
   const handleDragEnd = (): void => {
     throttledApplyDrag.cancel()
-    if (hasMoved) {
+    if (hasPendingMove) {
       applyDrag()
     }
 
@@ -109,7 +110,6 @@ export function useDrag(options: UseDragOptions) {
     dragged.x = 0
     dragged.y = 0
     isDragging.value = false
-    hasMoved = false
 
     const moveEvent = isTouch ? 'touchmove' : 'mousemove'
     const endEvent = isTouch ? 'touchend' : 'mouseup'

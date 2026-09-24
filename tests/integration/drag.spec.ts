@@ -46,15 +46,41 @@ describe('drag threshold', () => {
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('honors touchDrag.threshold when the move is processed', async () => {
+  it('slides on a processed touch move past the threshold and emits drag once', async () => {
     const wrapper = mountCarousel({ touchDrag: { threshold: 0.1 } })
+    wrapper.find('.carousel__track').element.dispatchEvent(touchEvent('touchstart', 200))
+    document.dispatchEvent(touchEvent('touchmove', 160)) // 40px = 0.133 of 300
+    await flushFrame()
+    await nextTick()
+    expect(wrapper.emitted('drag')).toHaveLength(1)
+    document.dispatchEvent(touchEvent('touchend', 160))
+    await nextTick()
+    expect(emittedIndex(wrapper)).toEqual([1])
+    expect(wrapper.emitted('drag')).toHaveLength(1)
+  })
+
+  it('honors a touchDrag.threshold larger than the swipe', async () => {
+    const wrapper = mountCarousel({ touchDrag: { threshold: 0.5 } })
     wrapper.find('.carousel__track').element.dispatchEvent(touchEvent('touchstart', 200))
     document.dispatchEvent(touchEvent('touchmove', 160)) // 40px = 0.133 of 300
     await flushFrame()
     await nextTick()
     document.dispatchEvent(touchEvent('touchend', 160))
     await nextTick()
-    expect(emittedIndex(wrapper)).toEqual([1])
+    expect(emittedIndex(wrapper)).toBeUndefined()
+  })
+
+  it('honors a mouseDrag.threshold larger than the drag', async () => {
+    const wrapper = mountCarousel({ mouseDrag: { threshold: 0.5 } })
+    await wrapper
+      .find('.carousel__track')
+      .trigger('mousedown', { clientX: 200, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 160 }))
+    await flushFrame()
+    await nextTick()
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+    expect(emittedIndex(wrapper)).toBeUndefined()
   })
 
   it('uses the last touchmove when touchend lands in the same frame', async () => {
@@ -96,6 +122,24 @@ describe('drag threshold', () => {
     document.dispatchEvent(new MouseEvent('mouseup'))
     await nextTick()
     expect(emittedIndex(wrapper)).toEqual([1])
+  })
+
+  it('suppresses the click when only the flushed final sample passes 10px', async () => {
+    // Consume any click-suppression listener left behind by earlier mouse drags
+    window.dispatchEvent(new MouseEvent('click'))
+    const wrapper = mountCarousel()
+    await wrapper
+      .find('.carousel__track')
+      .trigger('mousedown', { clientX: 200, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 195 })) // 5px
+    await flushFrame()
+    await nextTick()
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 150 })) // 50px, not yet flushed
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+    const click = new MouseEvent('click', { cancelable: true })
+    window.dispatchEvent(click)
+    expect(click.defaultPrevented).toBe(true)
   })
 
   it('does not slide on a release without any move', async () => {
