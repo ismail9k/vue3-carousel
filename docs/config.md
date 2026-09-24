@@ -108,6 +108,10 @@ These props control how users can interact with the carousel:
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
 
+- **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
+  - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
+  - With `false`, focusable content inside off-screen slides can still receive keyboard focus without being scrolled into view.
+
 ## Visual Customization
 
 These props control the appearance of the carousel:
