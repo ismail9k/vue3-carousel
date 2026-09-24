@@ -797,4 +797,22 @@ describe('itemsToScroll paging (#522)', () => {
       expect(buttons[2].classes()).toContain('carousel__pagination-button--active')
     }
   )
+
+  it.each(['start', 'center'])(
+    'lands the last page dot where next() lands (snapAlign %s)',
+    async (snapAlign) => {
+      const wrapper = mountCarousel({ snapAlign }, { paginateByItemsToShow: true })
+      await nextTick()
+
+      const buttons = wrapper.findAll('.carousel__pagination-button')
+      await buttons[2].trigger('click')
+      vi.advanceTimersByTime(300)
+      await nextTick()
+
+      expect(visible(wrapper)).toEqual(['6', '7', '8'])
+      expect(wrapper.vm.currentSlide).toBe(8)
+      expect(wrapper.find('.carousel__next').attributes('disabled')).toBeDefined()
+      expect(buttons[2].classes()).toContain('carousel__pagination-button--active')
+    }
+  )
 })

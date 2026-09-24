@@ -58,6 +58,20 @@ export const Pagination = defineComponent<PaginationProps>({
             }
       ) === slide
 
+    // Without wrapAround the last page targets the last slide, where next() also
+    // lands, so the Navigation button disables there too.
+    const getPageTarget = (slide: number): number => {
+      if (!isPaginated.value) {
+        return slide
+      }
+      const index = Math.floor(slide * itemsToShow.value + offset.value)
+      const reachesEnd =
+        !carousel.config.wrapAround &&
+        itemsToShow.value <= carousel.slidesCount &&
+        index - offset.value >= carousel.slidesCount - itemsToShow.value
+      return reachesEnd ? carousel.maxSlide : index
+    }
+
     return () => {
       if (props.carousel) {
         carousel = props.carousel;
@@ -93,12 +107,7 @@ export const Pagination = defineComponent<PaginationProps>({
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
           disabled: props.disableOnClick,
-          onClick: () =>
-            carousel.nav.slideTo(
-              isPaginated.value
-                ? Math.floor(slide * +carousel.config.itemsToShow + offset.value)
-                : slide
-            ),
+          onClick: () => carousel.nav.slideTo(getPageTarget(slide)),
         })
         const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
         children.push(item)
