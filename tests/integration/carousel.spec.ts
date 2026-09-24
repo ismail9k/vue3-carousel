@@ -816,3 +816,135 @@ describe('itemsToScroll paging (#522)', () => {
     }
   )
 })
+
+describe('v-model with wrapAround (#519)', () => {
+  const mountCarousel = (props: Record<string, unknown> = {}, slides = 3) =>
+    mount(Carousel, {
+      props: { itemsToShow: 1, snapAlign: 'start', wrapAround: true, ...props },
+      slots: {
+        default: () =>
+          Array.from({ length: slides }, (_, i) => h(Slide, { key: i }, () => `${i}`)),
+      },
+    })
+  const setModel = async (wrapper: ReturnType<typeof mountCarousel>, value: number) => {
+    await wrapper.setProps({ modelValue: value })
+    await nextTick()
+  }
+  const finish = async () => {
+    vi.advanceTimersByTime(300)
+    await nextTick()
+  }
+
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('loops forward through the clone from the last slide to the first', async () => {
+    const wrapper = mountCarousel({ modelValue: 2 })
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(3)
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([0])
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.emitted('loop')?.at(-1)).toEqual([
+      { currentSlideIndex: 0, slidingToIndex: 3 },
+    ])
+  })
+
+  it('loops backward through the clone from the first slide to the last', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 })
+    await nextTick()
+
+    await setModel(wrapper, 2)
+    expect(wrapper.vm.currentSlide).toBe(-1)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+  })
+
+  it('round-trips the canonical index through the parent while looping', async () => {
+    const wrapper = mountCarousel({
+      modelValue: 0,
+      'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
+    })
+    await nextTick()
+
+    await setModel(wrapper, -1)
+    expect(wrapper.vm.currentSlide).toBe(-1)
+    expect(wrapper.props('modelValue')).toBe(2)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+    expect(wrapper.emitted('slide-start')).toHaveLength(1)
+  })
+
+  it('does not wrap on a tie', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 }, 4)
+    await nextTick()
+
+    await setModel(wrapper, 2)
+    expect(wrapper.vm.currentSlide).toBe(2)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('normalizes an out-of-range value, then takes the shortest path', async () => {
+    const wrapper = mountCarousel({ modelValue: 2 })
+    await nextTick()
+
+    await setModel(wrapper, 3)
+    expect(wrapper.vm.currentSlide).toBe(3)
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+  })
+
+  it('takes the shortest path to an out-of-range model value', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 })
+    await nextTick()
+
+    await setModel(wrapper, 7)
+    expect(wrapper.vm.currentSlide).toBe(1)
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(1)
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('loops through the clone with several items shown', async () => {
+    const wrapper = mountCarousel(
+      { modelValue: 4, itemsToShow: 3, snapAlign: 'center' },
+      5
+    )
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(5)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+  })
+
+  it('slides directly without wrapAround', async () => {
+    const wrapper = mountCarousel({ modelValue: 2, wrapAround: false })
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(0)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('slides directly in auto width mode', async () => {
+    const wrapper = mountCarousel({ modelValue: 2, itemsToShow: 'auto' })
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(0)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+})

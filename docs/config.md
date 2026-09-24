@@ -222,6 +222,7 @@ These props provide additional customization for specific use cases:
 
 - **`wrapAround`**: Creates an infinite loop effect by connecting the last slide to the first.
   - Example: `:wrap-around="true"` allows continuous navigation in either direction.
+  - A `v-model` change takes the shortest path, looping through the clone slides when that is shorter than crossing the track (not with `itemsToShow: 'auto'`).
 
 ## Option Details
 
