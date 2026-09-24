@@ -201,6 +201,7 @@ describe('nativeCss', () => {
       const scrollBy = vi.spyOn(Element.prototype, 'scrollBy')
       mountCarousel({ snapAlign: 'start', modelValue: 2 })
       await nextTick()
+      expect(scrollBy).toHaveBeenCalledTimes(1)
       expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'auto' })
     })
 
@@ -215,7 +216,20 @@ describe('nativeCss', () => {
       const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
       await wrapper.setProps({ nativeCss: true })
       await nextTick()
+      expect(scrollBy).toHaveBeenCalledTimes(1)
       expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'auto' })
+    })
+
+    it('resets the viewport scroll when nativeCss is turned off at runtime', async () => {
+      mockLayout()
+      const wrapper = mountCarousel()
+      await nextTick()
+      const viewport = wrapper.find('.carousel__viewport').element
+      viewport.scrollLeft = 600
+      await wrapper.setProps({ nativeCss: false })
+      await nextTick()
+      expect(viewport.scrollLeft).toBe(0)
+      expect(wrapper.find('.carousel__track').attributes('style')).toContain('transform')
     })
 
     it('scrolls leftwards for next in rtl', async () => {
@@ -256,12 +270,11 @@ describe('nativeCss', () => {
       expect(scrollBy).toHaveBeenCalledWith({ left: SIZE, behavior: 'smooth' })
     })
 
-    it('does not scroll when the slide is already aligned', async () => {
+    it('does not scroll on mount when the slide is already aligned', async () => {
       mockLayout()
-      const wrapper = mountCarousel({ snapAlign: 'start' })
+      const scrollBy = vi.spyOn(Element.prototype, 'scrollBy')
+      mountCarousel({ snapAlign: 'start' })
       await nextTick()
-      const scrollBy = vi.spyOn(wrapper.find('.carousel__viewport').element, 'scrollBy')
-      wrapper.vm.slideTo(0)
       expect(scrollBy).not.toHaveBeenCalled()
     })
   })

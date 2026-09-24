@@ -677,12 +677,17 @@ export const Carousel = defineComponent({
     )
 
     // Turning native mode on after mount: the track is no longer transformed,
-    // so put the scroller on the current slide once the DOM has updated
+    // so put the scroller on the current slide once the DOM has updated.
+    // Turning it off: the viewport's leftover native scroll offset would add to
+    // the track transform under `overflow: hidden`, so reset it
     watch(
       isNative,
       (native) => {
         if (native && mounted.value) {
           scrollToSlide(currentSlideIndex.value, 'auto')
+        } else if (!native && viewport.value) {
+          viewport.value.scrollLeft = 0
+          viewport.value.scrollTop = 0
         }
       },
       { flush: 'post' }
