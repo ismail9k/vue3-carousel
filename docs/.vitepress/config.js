@@ -3,7 +3,6 @@ module.exports = {
   title: 'Vue3-carousel',
   description:
     'A highly customizable, lightweight Vue 3 carousel component for your next awesome project.',
-  srcExclude: ['superpowers/**'],
 
   themeConfig: {
     repo: 'ismail9k/vue3-carousel',
