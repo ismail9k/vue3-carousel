@@ -38,7 +38,7 @@ const carouselConfig = {
 .carousel__item {
   min-height: 200px;
   width: 100%;
-  background-color: var(--vc-clr-primary);
+  background-color: #3b3f5c;
   color: var(--vc-clr-white);
   font-size: 20px;
   border-radius: 8px;

@@ -84,7 +84,7 @@ describe('nativeCss', () => {
       await nextTick()
       expect(wrapper.find('.carousel').classes()).toContain('is-native')
       expect(wrapper.find('.carousel').attributes('style')).toContain(
-        '--vc-snap-align: center'
+        '--vc-snap-align: center;'
       )
       expect(wrapper.find('.carousel__track').attributes('style')).toBeUndefined()
       expect(wrapper.vm.isNative).toBe(true)
@@ -107,7 +107,9 @@ describe('nativeCss', () => {
     })
 
     it('is off by default', async () => {
-      const wrapper = mountCarousel({ nativeCss: false })
+      const wrapper = mount(Carousel, {
+        slots: { default: () => h(Slide, () => 'slide') },
+      })
       await nextTick()
       expect(wrapper.find('.carousel').classes()).not.toContain('is-native')
       expect(wrapper.find('.carousel').attributes('style')).not.toContain(
@@ -205,7 +207,7 @@ describe('nativeCss', () => {
       mountCarousel({ snapAlign: 'start', modelValue: 2 })
       await nextTick()
       expect(scrollBy).toHaveBeenCalledTimes(1)
-      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'auto' })
+      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'instant' })
     })
 
     it('scrolls to the current slide when nativeCss is turned on at runtime', async () => {
@@ -220,7 +222,7 @@ describe('nativeCss', () => {
       await wrapper.setProps({ nativeCss: true })
       await nextTick()
       expect(scrollBy).toHaveBeenCalledTimes(1)
-      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'auto' })
+      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'instant' })
     })
 
     it('resets the viewport scroll when nativeCss is turned off at runtime', async () => {

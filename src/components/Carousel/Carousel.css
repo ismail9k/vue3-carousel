@@ -95,10 +95,6 @@
   scrollbar-width: none;
 }
 
-.carousel.is-native .carousel__viewport::-webkit-scrollbar {
-  display: none;
-}
-
 .carousel.is-native.is-vertical .carousel__viewport {
   overflow: hidden auto;
   overscroll-behavior-x: auto;

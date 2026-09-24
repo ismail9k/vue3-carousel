@@ -212,7 +212,7 @@ export const Carousel = defineComponent({
       updateSlidesData()
       updateSlideSize()
       if (isNative.value) {
-        scrollToSlide(currentSlideIndex.value, 'auto')
+        scrollToSlide(currentSlideIndex.value, 'instant')
       }
     })
 
@@ -372,7 +372,7 @@ export const Carousel = defineComponent({
 
       emit('init')
       if (isNative.value) {
-        scrollToSlide(currentSlideIndex.value, 'auto')
+        scrollToSlide(currentSlideIndex.value, 'instant')
       }
     })
 
@@ -635,6 +635,13 @@ export const Carousel = defineComponent({
       }
     }
 
+    // Native mode: the snap point every scroll measurement aligns on
+    const nativeAlignOptions = computed(() => ({
+      align: NATIVE_SNAP_ALIGN[config.snapAlign],
+      isReversed: isReversed.value,
+      isVertical: isVertical.value,
+    }))
+
     /**
      * Native mode: scroll the viewport so `index` meets its snap point. Uses
      * client rects so it works for every direction; scaled like every other
@@ -646,9 +653,7 @@ export const Carousel = defineComponent({
         return
       }
       const delta = getNativeScrollDelta({
-        align: NATIVE_SNAP_ALIGN[config.snapAlign],
-        isReversed: isReversed.value,
-        isVertical: isVertical.value,
+        ...nativeAlignOptions.value,
         slideRect: slideEl.getBoundingClientRect(),
         viewportRect: viewport.value.getBoundingClientRect(),
       })
@@ -670,13 +675,14 @@ export const Carousel = defineComponent({
       if (!isNative.value || !viewport.value) {
         return
       }
+      const slideEls = slides.map((slide) => slide.vnode.el as Element | null | undefined)
+      // Every slide must be measurable, or the indexes would not line up
+      if (!slideEls.every((el): el is Element => !!el?.getBoundingClientRect)) {
+        return
+      }
       const index = getNativeSlideIndex({
-        align: NATIVE_SNAP_ALIGN[config.snapAlign],
-        isReversed: isReversed.value,
-        isVertical: isVertical.value,
-        slideRects: slides.map((slide) =>
-          (slide.vnode.el as Element).getBoundingClientRect()
-        ),
+        ...nativeAlignOptions.value,
+        slideRects: slideEls.map((el) => el.getBoundingClientRect()),
         viewportRect: viewport.value.getBoundingClientRect(),
         currentIndex: currentSlideIndex.value,
       })
@@ -749,7 +755,7 @@ export const Carousel = defineComponent({
       isNative,
       (native) => {
         if (native && mounted.value) {
-          scrollToSlide(currentSlideIndex.value, 'auto')
+          scrollToSlide(currentSlideIndex.value, 'instant')
         } else if (!native && viewport.value) {
           viewport.value.scrollLeft = 0
           viewport.value.scrollTop = 0
