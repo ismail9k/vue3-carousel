@@ -1,6 +1,6 @@
 import { defineComponent, h, inject } from 'vue'
 
-import { injectCarousel } from '@/shared'
+import { DEFAULT_CLASS_PREFIX, injectCarousel } from '@/shared'
 import { i18nFormatter } from '@/utils'
 
 export const ARIA = defineComponent({
@@ -12,11 +12,13 @@ export const ARIA = defineComponent({
       return () => ''
     }
 
-    return () =>
-      h(
+    return () => {
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
+
+      return h(
         'div',
         {
-          class: ['carousel__liveregion', 'carousel__sr-only'],
+          class: [`${prefix}__liveregion`, `${prefix}__sr-only`],
           'aria-live': 'polite',
           'aria-atomic': 'true',
         },
@@ -25,5 +27,6 @@ export const ARIA = defineComponent({
           slidesCount: carousel.slidesCount,
         })
       )
+    }
   },
 })
