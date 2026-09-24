@@ -107,6 +107,7 @@ These props control how users can interact with the carousel:
 
 - **`keyboardNavigation`**: Enable/disable arrow-key navigation while the carousel is focused.
   - Basic usage: `:keyboard-navigation="false"`
+  - Only arrow keys are affected; focusing a slide still brings it into view, and the Navigation buttons still work.
 
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
