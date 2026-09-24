@@ -259,5 +259,29 @@ describe('disableWhenSlidesFit', () => {
       expect(event.defaultPrevented).toBe(true)
       document.dispatchEvent(new MouseEvent('mouseup'))
     })
+
+    it('resets the active slide when a drag ends after the carousel locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, modelValue: 0 })
+      // Slides register during the first render; the lock settles next tick
+      await nextTick()
+      wrapper
+        .find('.carousel__track')
+        .element.dispatchEvent(
+          new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 })
+        )
+      // One slide forward (150px slides); the drag handler is throttled to a frame
+      document.dispatchEvent(new MouseEvent('mousemove', { clientX: -150 }))
+      await new Promise((resolve) => requestAnimationFrame(resolve))
+      expect(wrapper.vm.activeSlide).toBe(1)
+
+      await wrapper.setProps({ itemsToShow: 3 })
+      expect(wrapper.vm.isLocked).toBe(true)
+      document.dispatchEvent(new MouseEvent('mouseup'))
+      await nextTick()
+
+      expect(wrapper.vm.activeSlide).toBe(0)
+      expect(wrapper.vm.currentSlide).toBe(0)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
   })
 })

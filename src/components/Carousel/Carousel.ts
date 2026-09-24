@@ -512,7 +512,13 @@ export const Carousel = defineComponent({
           })
     }
 
-    const onDragEnd = () => slideTo(activeSlideIndex.value)
+    const onDragEnd = () => {
+      if (isLocked.value) {
+        activeSlideIndex.value = currentSlideIndex.value
+        return
+      }
+      slideTo(activeSlideIndex.value)
+    }
 
     const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
