@@ -1,8 +1,10 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { h, nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 
 import { Carousel, Slide } from '@/index'
+
+import type { PropType } from 'vue'
 
 const VIEWPORT = { width: 300, height: 100 }
 const HEIGHTS = [120, 200, 80, 160, 240]
@@ -120,5 +122,110 @@ describe('adaptiveHeight', () => {
     await nextTick()
     expect(carouselHeight(wrapper)).toBe('100px')
     expect(root(wrapper).classes()).not.toContain('is-adaptive-height')
+  })
+})
+
+describe('adaptiveHeight slide observation', () => {
+  class FakeResizeObserver {
+    static instances: FakeResizeObserver[] = []
+    observed = new Set<Element>()
+    constructor(public callback: ResizeObserverCallback) {
+      FakeResizeObserver.instances.push(this)
+    }
+    observe(el: Element) {
+      this.observed.add(el)
+    }
+    unobserve(el: Element) {
+      this.observed.delete(el)
+    }
+    disconnect() {
+      this.observed.clear()
+    }
+  }
+
+  const Host = defineComponent({
+    props: {
+      heights: { type: Array as PropType<number[]>, required: true },
+      adaptiveHeight: { type: Boolean, default: true },
+    },
+    render() {
+      return h(
+        Carousel,
+        { adaptiveHeight: this.adaptiveHeight },
+        {
+          default: () =>
+            this.heights.map((height, i) =>
+              h(Slide, { key: height, 'data-height': height }, () => `${i + 1}`)
+            ),
+        }
+      )
+    },
+  })
+
+  const observer = () => FakeResizeObserver.instances[0]
+  const slideElements = (wrapper: ReturnType<typeof mount>) =>
+    wrapper.findAll('.carousel__slide').map((slide) => slide.element)
+  const flushResize = async () => {
+    observer().callback([], observer() as unknown as ResizeObserver)
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+    await nextTick()
+  }
+
+  beforeEach(() => {
+    mockRects()
+    FakeResizeObserver.instances = []
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver)
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  it('observes every registered slide', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS } })
+    await nextTick()
+    const slides = slideElements(wrapper)
+    expect(slides).toHaveLength(5)
+    slides.forEach((el) => expect(observer().observed.has(el)).toBe(true))
+  })
+
+  it('does not observe slides when adaptiveHeight is off', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS, adaptiveHeight: false } })
+    await nextTick()
+    slideElements(wrapper).forEach((el) =>
+      expect(observer().observed.has(el)).toBe(false)
+    )
+    expect(observer().observed.has(wrapper.find('.carousel').element)).toBe(true)
+  })
+
+  it('re-measures when an observed slide resizes', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS } })
+    await nextTick()
+    expect(carouselHeight(wrapper)).toBe('120px')
+    slideElements(wrapper)[0].setAttribute('data-height', '300')
+    await flushResize()
+    expect(carouselHeight(wrapper)).toBe('300px')
+  })
+
+  it('stops observing removed slides', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS } })
+    await nextTick()
+    const removed = slideElements(wrapper)[0]
+    await wrapper.setProps({ heights: HEIGHTS.slice(1) })
+    await nextTick()
+    expect(observer().observed.has(removed)).toBe(false)
+    expect(slideElements(wrapper)).toHaveLength(4)
+    slideElements(wrapper).forEach((el) => expect(observer().observed.has(el)).toBe(true))
+  })
+
+  it('drops the slide observers when adaptiveHeight turns off', async () => {
+    const wrapper = mount(Host, { props: { heights: HEIGHTS } })
+    await nextTick()
+    await wrapper.setProps({ adaptiveHeight: false })
+    await nextTick()
+    slideElements(wrapper).forEach((el) =>
+      expect(observer().observed.has(el)).toBe(false)
+    )
+    expect(carouselHeight(wrapper)).toBe('auto')
   })
 })

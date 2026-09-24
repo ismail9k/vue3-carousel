@@ -330,6 +330,7 @@ export const Carousel = defineComponent({
       if (root.value) {
         resizeObserver = new ResizeObserver(handleResize)
         resizeObserver.observe(root.value)
+        updateObservedSlides()
       }
 
       emit('init')
@@ -351,6 +352,7 @@ export const Carousel = defineComponent({
       }
       if (resizeObserver) {
         resizeObserver.disconnect()
+        observedSlides.clear()
         resizeObserver = null
       }
 
@@ -836,6 +838,43 @@ export const Carousel = defineComponent({
         height = Math.max(height, slidesRect.value[normalizedIndex]?.height || 0)
       }
       return height > 0 ? height : undefined
+    })
+
+    // In adaptive height mode the root no longer grows with its content, so slide
+    // content changing size later (images loading) is caught by observing the
+    // slide elements themselves. Clones mirror real slides and are not observed.
+    const observedSlides = new Set<Element>()
+    function updateObservedSlides(): void {
+      const observer = resizeObserver
+      if (!observer) {
+        return
+      }
+      const next = new Set<Element>()
+      if (isAdaptiveHeight.value) {
+        slides.forEach((slide) => {
+          const el = slide.vnode.el
+          if (el instanceof Element) {
+            next.add(el)
+          }
+        })
+      }
+      observedSlides.forEach((el) => {
+        if (!next.has(el)) {
+          observer.unobserve(el)
+          observedSlides.delete(el)
+        }
+      })
+      next.forEach((el) => {
+        if (!observedSlides.has(el)) {
+          observer.observe(el)
+          observedSlides.add(el)
+        }
+      })
+    }
+    // Spread `slides` so registry changes re-run the watcher; post flush so the
+    // slide elements exist
+    watch(() => [isAdaptiveHeight.value, ...slides], updateObservedSlides, {
+      flush: 'post',
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
