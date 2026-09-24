@@ -802,4 +802,18 @@ describe('Drag release without a slide change', () => {
     await nextTick()
     expect(wrapper.attributes('style')).not.toContain('--vc-transition-duration')
   })
+
+  it('keeps the transition when a slide starts during the snap-back', async () => {
+    await mountCarousel()
+    await pressMouse(500)
+    await moveMouse(460)
+    await releaseMouse()
+    vi.advanceTimersByTime(200)
+    wrapper.vm.slideTo(1)
+    await nextTick()
+    vi.advanceTimersByTime(150) // snap-back timer has expired, the slide has not
+    await nextTick()
+    expect(wrapper.attributes('style')).toContain('--vc-transition-duration: 300ms')
+    expect(wrapper.classes()).toContain('is-sliding')
+  })
 })
