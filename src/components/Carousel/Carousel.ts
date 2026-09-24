@@ -731,20 +731,17 @@ export const Carousel = defineComponent({
             max: Math.ceil(base + Number(config.itemsToShow) - 1),
           }
         }
+        // Clamp the start like scrolledOffset clamps the track, then derive the end
+        // from it, so every slide on screen at the edges counts as visible
+        const start = getNumberInRange({
+          val: base,
+          max: slidesCount.value - Number(config.itemsToShow),
+          min: 0,
+        })
         return {
-          min: Math.floor(
-            getNumberInRange({
-              val: base,
-              max: slidesCount.value - Number(config.itemsToShow),
-              min: 0,
-            })
-          ),
+          min: Math.floor(start),
           max: Math.ceil(
-            getNumberInRange({
-              val: base + Number(config.itemsToShow) - 1,
-              max: slidesCount.value - 1,
-              min: 0,
-            })
+            Math.min(start + Number(config.itemsToShow) - 1, slidesCount.value - 1)
           ),
         }
       }
