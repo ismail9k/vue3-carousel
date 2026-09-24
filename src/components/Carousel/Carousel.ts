@@ -915,7 +915,7 @@ export const Carousel = defineComponent({
       return isMarquee.value && speed > 0 ? marqueeDistance.value / speed : 0
     })
 
-    useMarqueePhase({ track, duration: marqueeDuration })
+    useMarqueePhase({ track, duration: marqueeDuration, slidesCount })
 
     const carouselStyle = computed(() => {
       const marqueeOffset = isMarquee.value

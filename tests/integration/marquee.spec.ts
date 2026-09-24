@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, VueWrapper } from '@vue/test-utils'
 import {
   afterAll,
   afterEach,
@@ -9,7 +9,7 @@ import {
   it,
   vi,
 } from 'vitest'
-import { h } from 'vue'
+import { defineComponent, h } from 'vue'
 
 import { Carousel, Slide } from '@/index'
 
@@ -156,7 +156,7 @@ describe('marquee', () => {
   describe('phase on duration change', () => {
     // Fakes the track's running CSS animation, which jsdom does not implement
     const fakeAnimations = (
-      wrapper: ReturnType<typeof mountCarousel>,
+      wrapper: VueWrapper,
       animations: Array<{ animationName: string; currentTime: number | null }>
     ) => {
       Object.defineProperty(wrapper.find('.carousel__track').element, 'getAnimations', {
@@ -212,6 +212,57 @@ describe('marquee', () => {
       ])
       await wrapper.setProps({ marqueeSpeed: 30 })
       expect(animation.currentTime).toBe(6250)
+    })
+
+    describe('when slides are added or removed', () => {
+      const SlidesCarousel = defineComponent({
+        props: { count: { type: Number, required: true } },
+        setup(props) {
+          return () =>
+            h(
+              Carousel,
+              { marquee: true, itemsToShow: 2 },
+              {
+                default: () =>
+                  Array.from({ length: props.count }, (_, i) =>
+                    h(Slide, { key: i }, () => `${i + 1}`)
+                  ),
+              }
+            )
+        },
+      })
+
+      const mountSlides = async (count: number) => {
+        const wrapper = mount(SlidesCarousel, { props: { count } })
+        await wrapper.vm.$nextTick()
+        const [animation] = fakeAnimations(wrapper, [
+          { animationName: 'vc-marquee', currentTime: 3125 },
+        ])
+        return { wrapper, animation }
+      }
+
+      it('keeps the slide position when a slide is added', async () => {
+        // 5 slides: 750px / 12.5s; 3125ms is 25% = 1.25 slides = 187.5px
+        // 6 slides: 900px / 15s; 187.5px is 1.25 / 6 of the loop = 3125ms
+        const { wrapper, animation } = await mountSlides(5)
+        await wrapper.setProps({ count: 6 })
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('.carousel').attributes('style')).toContain(
+          '--vc-marquee-duration: 15s'
+        )
+        expect(animation.currentTime).toBe(3125)
+      })
+
+      it('keeps the slide position when a slide is removed', async () => {
+        // 4 slides: 600px / 10s; 187.5px is 1.25 / 4 of the loop = 3125ms
+        const { wrapper, animation } = await mountSlides(5)
+        await wrapper.setProps({ count: 4 })
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('.carousel').attributes('style')).toContain(
+          '--vc-marquee-duration: 10s'
+        )
+        expect(animation.currentTime).toBe(3125)
+      })
     })
 
     it('leaves other animations alone', async () => {
