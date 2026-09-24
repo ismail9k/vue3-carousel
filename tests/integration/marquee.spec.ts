@@ -115,6 +115,13 @@ describe('marquee', () => {
       expect(rootStyle(wrapper)).not.toContain('--vc-marquee-x')
     })
 
+    it('reverses the distance in btt', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, dir: 'btt', height: 100 })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-y: 250px')
+      expect(rootStyle(wrapper)).not.toContain('--vc-marquee-x')
+    })
+
     it('sums the slide sizes in auto mode', async () => {
       // every slide measures 300px wide; distance = 5 * 300 = 1500
       const wrapper = mountCarousel({ itemsToShow: 'auto', marqueeSpeed: 100 })
