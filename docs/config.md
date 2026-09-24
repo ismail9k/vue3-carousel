@@ -111,6 +111,7 @@ These props control how users can interact with the carousel:
 - **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
   - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
   - Content inside off-screen slides is removed from the tab order either way; with `false`, focusing it programmatically no longer scrolls it into view.
+  - Known limitation: focusable elements inside a shadow root (web components) cannot be reached, so they stay in the tab order while their slide is off screen.
 
 ## Visual Customization
 
