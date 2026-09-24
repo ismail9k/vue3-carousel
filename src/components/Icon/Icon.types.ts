@@ -1,4 +1,4 @@
-import { InjectedCarousel } from '@/components/Carousel'
+import type { InjectedCarousel } from '@/components/Carousel'
 
 export enum IconName {
   arrowDown = 'arrowDown',
