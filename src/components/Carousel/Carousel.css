@@ -98,7 +98,6 @@
 .carousel.is-native.is-vertical .carousel__viewport {
   overflow: hidden auto;
   overscroll-behavior-x: auto;
-  overscroll-behavior-y: contain;
   scroll-snap-type: y mandatory;
 }
 
