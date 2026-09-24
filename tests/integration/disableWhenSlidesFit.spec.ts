@@ -31,6 +31,9 @@ const mountCarousel = (props: Record<string, unknown> = {}, slideNum = 3) =>
     },
   })
 
+const transform = (wrapper: ReturnType<typeof mountCarousel>) =>
+  (wrapper.find('.carousel__track').element as HTMLElement).style.transform
+
 describe('disableWhenSlidesFit', () => {
   beforeAll(() => {
     // Slides measure 100px wide, everything else (viewport, root) 300px
@@ -160,10 +163,42 @@ describe('disableWhenSlidesFit', () => {
     })
   })
 
-  describe('interaction', () => {
-    const transform = (wrapper: ReturnType<typeof mountCarousel>) =>
-      (wrapper.find('.carousel__track').element as HTMLElement).style.transform
+  describe('layout', () => {
+    it('pins the track at the first slide when the slides fit with room to spare', async () => {
+      // 3 slides at itemsToShow 4: each slide is 75px in the 300px viewport
+      const wrapper = mountCarousel({ itemsToShow: 4 })
+      await nextTick()
+      expect(transform(wrapper)).toBe('translateX(0px)')
+    })
 
+    it('keeps the unlocked centred layout when the prop is off', async () => {
+      const wrapper = mountCarousel({ disableWhenSlidesFit: false, itemsToShow: 4 })
+      await nextTick()
+      // Pre-existing behaviour: snapAlign 'center' centres slide 0 (1.5 × 75px)
+      expect(transform(wrapper)).toBe('translateX(112.5px)')
+    })
+
+    it('pins the track at the first slide in auto mode', async () => {
+      // 2 × 100px slides in the 300px viewport
+      const wrapper = mountCarousel({ itemsToShow: 'auto' }, 2)
+      await nextTick()
+      expect(transform(wrapper)).toBe('translateX(0px)')
+    })
+
+    it('keeps the edge spacing before the first slide', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 4, edgeSpacing: 16 })
+      await nextTick()
+      expect(transform(wrapper)).toBe('translateX(16px)')
+    })
+
+    it('pins the track at the first slide in rtl', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 4, dir: 'rtl' })
+      await nextTick()
+      expect(transform(wrapper)).toBe('translateX(0px)')
+    })
+  })
+
+  describe('interaction', () => {
     it('makes slideTo a no-op while locked', async () => {
       const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
       wrapper.vm.slideTo(2)

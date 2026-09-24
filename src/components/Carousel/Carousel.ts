@@ -728,8 +728,11 @@ export const Carousel = defineComponent({
             viewportRect.value[dimension.value] -
             config.gap
 
+          // A locked carousel is pinned at its first slide: every slide is already on screen
           output = applyEdgeSpacing({
-            value: getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
+            value: isLocked.value
+              ? 0
+              : getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
             max: maxSlidingValue,
             spacing: normalizedEdgeSpacing.value,
           })
@@ -742,10 +745,16 @@ export const Carousel = defineComponent({
         } else {
           // remove whitespace
           const maxScrolledSlides = slidesCount.value - +config.itemsToShow
+          // A locked carousel is pinned at its first slide: every slide is already on screen
           output = applyEdgeSpacing({
             value:
-              getNumberInRange({ val: scrolledSlides, max: maxScrolledSlides, min: 0 }) *
-              effectiveSlideSize.value,
+              (isLocked.value
+                ? 0
+                : getNumberInRange({
+                    val: scrolledSlides,
+                    max: maxScrolledSlides,
+                    min: 0,
+                  })) * effectiveSlideSize.value,
             max: maxScrolledSlides * effectiveSlideSize.value,
             spacing: normalizedEdgeSpacing.value,
           })
