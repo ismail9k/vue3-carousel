@@ -50,3 +50,7 @@ const carouselConfig = {
   </Carousel>
 </template>
 ```
+
+::: warning
+`vue3-carousel/carousel.css` styles the default `carousel` classes. If you set a custom [`classPrefix`](/components/carousel#class-prefix), load a copy of the stylesheet with `.carousel` replaced by your prefix instead.
+:::
