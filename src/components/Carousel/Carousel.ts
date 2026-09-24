@@ -406,7 +406,7 @@ export const Carousel = defineComponent({
      * Autoplay
      */
     function initAutoplay(): void {
-      if (!config.autoplay || config.autoplay <= 0) {
+      if (config.marquee || !config.autoplay || config.autoplay <= 0) {
         return
       }
 
@@ -530,6 +530,10 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
+      if (config.marquee) {
+        return
+      }
+
       if (!skipTransition && isSliding.value) {
         return
       }
@@ -620,6 +624,14 @@ export const Carousel = defineComponent({
     emit('before-init')
 
     const clonedSlidesCount = computed(() => {
+      if (config.marquee) {
+        // The clones after the real set must cover one viewport, so the jump
+        // back to the start shows the same pixels
+        return {
+          before: 0,
+          after: isAuto.value ? slides.length : Math.ceil(Number(config.itemsToShow)),
+        }
+      }
       if (!config.wrapAround) {
         return { before: 0, after: 0 }
       }
@@ -651,6 +663,20 @@ export const Carousel = defineComponent({
       }
 
       return clonedSlidesCount.value.before * effectiveSlideSize.value * -1
+    })
+
+    // Length of the real slide set, gaps included: the distance one marquee loop travels
+    const marqueeDistance = computed(() => {
+      if (!config.marquee) {
+        return 0
+      }
+      if (isAuto.value) {
+        return slidesRect.value.reduce(
+          (acc, slide) => acc + slide[dimension.value] + config.gap,
+          0
+        )
+      }
+      return slidesCount.value * effectiveSlideSize.value
     })
 
     const snapAlignOffset = computed(() => {
@@ -818,7 +844,7 @@ export const Carousel = defineComponent({
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
-      if (config.slideEffect === 'fade') {
+      if (config.slideEffect === 'fade' || config.marquee) {
         return undefined
       }
 
@@ -854,15 +880,26 @@ export const Carousel = defineComponent({
       return `translate${translateAxis}(${totalOffset}px)`
     })
 
-    const carouselStyle = computed(() => ({
-      '--vc-carousel-height': toCssValue(config.height),
-      '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
-      '--vc-slide-gap': toCssValue(config.gap),
-      '--vc-transition-duration': isSliding.value
-        ? toCssValue(config.transition, 'ms')
-        : undefined,
-      '--vc-transition-easing': config.transitionEasing,
-    }))
+    const carouselStyle = computed(() => {
+      const speed = Number(config.marqueeSpeed) || 0
+      const marqueeOffset = config.marquee
+        ? toCssValue(marqueeDistance.value * (isReversed.value ? 1 : -1))
+        : undefined
+      return {
+        '--vc-carousel-height': toCssValue(config.height),
+        '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
+        '--vc-marquee-duration': config.marquee
+          ? toCssValue(speed > 0 ? marqueeDistance.value / speed : 0, 's')
+          : undefined,
+        '--vc-marquee-x': isVertical.value ? undefined : marqueeOffset,
+        '--vc-marquee-y': isVertical.value ? marqueeOffset : undefined,
+        '--vc-slide-gap': toCssValue(config.gap),
+        '--vc-transition-duration': isSliding.value
+          ? toCssValue(config.transition, 'ms')
+          : undefined,
+        '--vc-transition-easing': config.transitionEasing,
+      }
+    })
 
     const nav: CarouselNav = { slideTo, next, prev }
 
@@ -946,9 +983,11 @@ export const Carousel = defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          onMousedownCapture: config.mouseDrag ? handleDragStart : null,
-          onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
-          onWheel: config.mouseWheel ? handleScroll : null,
+          onMousedownCapture:
+            config.mouseDrag && !config.marquee ? handleDragStart : null,
+          onTouchstartPassiveCapture:
+            config.touchDrag && !config.marquee ? handleDragStart : null,
+          onWheel: config.mouseWheel && !config.marquee ? handleScroll : null,
           style: { transform: trackTransform.value },
         },
         output
@@ -966,6 +1005,9 @@ export const Carousel = defineComponent({
             {
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-marquee': !!config.marquee,
+              'is-paused':
+                !!config.marquee && !!config.pauseAutoplayOnHover && isHover.value,
               'is-sliding': isSliding.value,
               'is-vertical': isVertical.value,
             },

@@ -66,6 +66,25 @@
   margin-inline-start: var(--vc-cloned-offset);
 }
 
+.carousel.is-marquee .carousel__track {
+  animation: vc-marquee var(--vc-marquee-duration) linear infinite;
+  transition: none;
+}
+
+.carousel.is-marquee.is-paused .carousel__track {
+  animation-play-state: paused;
+}
+
+@keyframes vc-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(var(--vc-marquee-x, 0px), var(--vc-marquee-y, 0px), 0);
+  }
+}
+
 .carousel.is-effect-fade .carousel__track {
   display: grid;
   grid-template-columns: 100%;
