@@ -49,7 +49,7 @@ import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
 const carouselConfig = {
   itemsToShow: 2.5,
-  wrapAround: true,
+  wrapAround: true
 }
 </script>
 

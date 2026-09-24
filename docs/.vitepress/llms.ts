@@ -24,7 +24,9 @@ function transformText(text: string, opts: TransformOptions): string {
   const embeds: string[] = []
   return text
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '')
-    .replace(/<p\b[^>]*>[\s\S]*?<\/p>/g, (block) => (block.includes('<img') ? '' : block))
+    .replace(/[ \t]*<p\b[^>]*>[\s\S]*?<\/p>/g, (block) =>
+      block.includes('<img') ? '' : block
+    )
     .replace(/<Badge\s+text="([^"]*)"\s*\/>/g, '(added in $1)')
     .replace(/<live-codes\s+:code="examples\.(\w+)"[^>]*\/>/g, (_match, name: string) => {
       const code = opts.resolveExample?.(name)

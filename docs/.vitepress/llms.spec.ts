@@ -57,10 +57,11 @@ describe('toAgentMarkdown', () => {
 
   it('drops the html badge row (a <p> containing <img>) but keeps other html', () => {
     const src =
-      '<p style="display: flex">\n  <a href="x"><img src="y" /></a>\n</p>\n\n<kbd>Tab</kbd>'
+      '# Getting started\n\n <p style="display: flex">\n  <a href="x"><img src="y" /></a>\n</p>\n\n<kbd>Tab</kbd>'
     const out = toAgentMarkdown(src, { siteUrl })
     expect(out).not.toContain('<img')
     expect(out).toContain('<kbd>Tab</kbd>')
+    expect(out).not.toMatch(/^[ \t]+$/m)
   })
 
   it('inlines a live-codes embed as a vue code block', () => {
