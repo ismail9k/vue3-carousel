@@ -77,6 +77,41 @@ describe('classPrefix', () => {
     wrapper.unmount()
   })
 
+  it('re-renders every class when classPrefix changes after mount', async () => {
+    const wrapper = mount(Carousel, {
+      props: { classPrefix: 'vc' },
+      slots: {
+        default: () =>
+          Array.from({ length: 3 }, (_, i) => h(Slide, { key: i }, () => `${i + 1}`)),
+        addons: () => [h(Navigation), h(Pagination)],
+      },
+      attachTo: document.body,
+    })
+    await wrapper.vm.$nextTick()
+    await wrapper.setProps({ classPrefix: 'xx' })
+    for (const selector of [
+      '.xx',
+      '.xx__track',
+      '.xx__slide--active',
+      '.xx__prev',
+      '.xx__icon',
+      '.xx__pagination-button--active',
+      '.xx__liveregion',
+    ]) {
+      expect(wrapper.find(selector).exists(), selector).toBe(true)
+    }
+    expect(wrapper.html()).not.toMatch(/class="[^"]*\bvc/)
+    wrapper.unmount()
+  })
+
+  it('gives the icons of a standalone navigation the bound carousel i18n', async () => {
+    const wrapper = mountAll({ i18n: { iconArrowLeft: 'Custom left' } })
+    await wrapper.vm.$nextTick()
+    const titles = wrapper.findAll('.vc__prev svg title').map((title) => title.text())
+    expect(titles).toEqual(['Custom left', 'Custom left'])
+    wrapper.unmount()
+  })
+
   it('prefixes the icons of a navigation rendered before its carousel ref is set', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {
