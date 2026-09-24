@@ -557,7 +557,7 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      if (!skipTransition && isSliding.value) {
+      if (isLocked.value || (!skipTransition && isSliding.value)) {
         return
       }
 
@@ -975,9 +975,11 @@ export const Carousel = defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          onMousedownCapture: config.mouseDrag ? handleDragStart : null,
-          onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
-          onWheel: config.mouseWheel ? handleScroll : null,
+          onMousedownCapture:
+            config.mouseDrag && !isLocked.value ? handleDragStart : null,
+          onTouchstartPassiveCapture:
+            config.touchDrag && !isLocked.value ? handleDragStart : null,
+          onWheel: config.mouseWheel && !isLocked.value ? handleScroll : null,
           style: { transform: trackTransform.value },
         },
         output

@@ -159,4 +159,105 @@ describe('disableWhenSlidesFit', () => {
       })
     })
   })
+
+  describe('interaction', () => {
+    const transform = (wrapper: ReturnType<typeof mountCarousel>) =>
+      (wrapper.find('.carousel__track').element as HTMLElement).style.transform
+
+    it('makes slideTo a no-op while locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
+      wrapper.vm.slideTo(2)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      expect(wrapper.vm.currentSlide).toBe(0)
+      expect(transform(wrapper)).toBe('translateX(0px)')
+    })
+
+    it('still slides when the prop is off', async () => {
+      const wrapper = mountCarousel({
+        disableWhenSlidesFit: false,
+        itemsToShow: 3,
+        modelValue: 0,
+      })
+      wrapper.vm.slideTo(2)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toEqual([[2]])
+    })
+
+    it('ignores modelValue changes while locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
+      await wrapper.setProps({ modelValue: 2 })
+      expect(wrapper.vm.currentSlide).toBe(0)
+      expect(transform(wrapper)).toBe('translateX(0px)')
+    })
+
+    it('does not navigate when a slide is focused while locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
+      await wrapper.findAll('.carousel__slide')[2].trigger('focusin')
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+
+    it('slides again once unlocked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
+      await wrapper.setProps({ itemsToShow: 2 })
+      wrapper.vm.slideTo(1)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toEqual([[1]])
+    })
+
+    it('leaves the wheel to the browser while locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, mouseWheel: true })
+      // Slides register during the first render; the lock settles next tick
+      await nextTick()
+      const event = new WheelEvent('wheel', {
+        deltaX: 100,
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('.carousel__track').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+      expect(wrapper.emitted('wheel')).toBeUndefined()
+    })
+
+    it('handles the wheel when not locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, mouseWheel: true })
+      // Slides register during the first render; the lock settles next tick
+      await nextTick()
+      const event = new WheelEvent('wheel', {
+        deltaX: 100,
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('.carousel__track').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('does not start a mouse drag while locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3 })
+      // Slides register during the first render; the lock settles next tick
+      await nextTick()
+      const event = new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+      })
+      wrapper.find('.carousel__track').element.dispatchEvent(event)
+      // handleDragStart calls preventDefault for mouse events; a locked track has no listener
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('starts a mouse drag when not locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      // Slides register during the first render; the lock settles next tick
+      await nextTick()
+      const event = new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+      })
+      wrapper.find('.carousel__track').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(true)
+      document.dispatchEvent(new MouseEvent('mouseup'))
+    })
+  })
 })
