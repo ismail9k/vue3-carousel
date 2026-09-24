@@ -1,6 +1,9 @@
+import path from 'node:path'
+
 import {
   buildLlmsFull,
   buildLlmsTxt,
+  exampleFile,
   firstParagraph,
   pagesFromSidebar,
   toAgentMarkdown,
@@ -91,6 +94,15 @@ describe('toAgentMarkdown', () => {
     const out = toAgentMarkdown(src, { siteUrl })
     expect(out).toBe(
       '[Config](https://example.test/config.md) [Wheel](https://example.test/config.md#wheel-options) [Logo](/logo.svg) [i18n](#i18n)\n'
+    )
+  })
+
+  it('rewrites page links with an explicit .md or .html suffix to absolute .md urls', () => {
+    const src =
+      '[A](/config.md) [B](/config.html) [C](/api/events.md#slide-start) [D](/config.html#wheel) [Logo](/logo.svg)'
+    const out = toAgentMarkdown(src, { siteUrl })
+    expect(out).toBe(
+      '[A](https://example.test/config.md) [B](https://example.test/config.md) [C](https://example.test/api/events.md#slide-start) [D](https://example.test/config.md#wheel) [Logo](/logo.svg)\n'
     )
   })
 
@@ -198,6 +210,27 @@ describe('buildLlmsFull', () => {
     ])
     expect(out).toContain(
       '---\n\n# No Heading\n\nSource: https://example.test/nh.md\n\njust text\n'
+    )
+  })
+
+  it('ignores a "# " line inside a code fence when looking for the H1', () => {
+    const markdown = 'Install it:\n\n```bash\n# or use yarn\nyarn add x\n```\n\nDone.\n'
+    const out = buildLlmsFull(site, [
+      { title: 'Setup', section: 'S', path: 'setup', markdown },
+    ])
+    expect(out.slice(out.indexOf('\n---\n\n'))).toBe(
+      `\n---\n\n# Setup\n\nSource: https://example.test/setup.md\n\n${markdown}`
+    )
+  })
+})
+
+describe('exampleFile', () => {
+  it('maps an examples.<Name>Example embed to <srcDir>/examples/Example<Name>.vue', () => {
+    expect(exampleFile('/docs', 'BasicExample')).toBe(
+      path.join('/docs', 'examples', 'ExampleBasic.vue')
+    )
+    expect(exampleFile('/docs', 'WrapAroundExample')).toBe(
+      path.join('/docs', 'examples', 'ExampleWrapAround.vue')
     )
   })
 })

@@ -35,7 +35,7 @@ function transformText(text: string, opts: TransformOptions): string {
       return `\u0000${embeds.length - 1}\u0000`
     })
     .replace(
-      /\]\(\/([\w\-/]+)(#[^)]*)?\)/g,
+      /\]\(\/([\w\-/]+)(?:\.(?:md|html))?(#[^)]*)?\)/g,
       (_match, page: string, hash: string = '') => `](${opts.siteUrl}/${page}.md${hash})`
     )
     .replace(/\n{3,}/g, '\n\n')
@@ -140,10 +140,11 @@ export function buildLlmsTxt(site: SiteInfo, docs: AgentDoc[]): string {
 
 function withSource(site: SiteInfo, doc: AgentDoc): string {
   const source = `Source: ${pageUrl(site, doc)}`
-  const h1 = doc.markdown.match(/^# .*$/m)
-  if (!h1 || h1.index === undefined)
-    return `# ${doc.title}\n\n${source}\n\n${doc.markdown}`
-  const end = h1.index + h1[0].length
+  // Agent markdown is trimmed, so a real H1 is the first line; a later `# ` line may be
+  // a comment inside a code fence.
+  const h1 = doc.markdown.match(/^# .*/)
+  if (!h1) return `# ${doc.title}\n\n${source}\n\n${doc.markdown}`
+  const end = h1[0].length
   return `${doc.markdown.slice(0, end)}\n\n${source}${doc.markdown.slice(end)}`
 }
 
@@ -152,21 +153,28 @@ export function buildLlmsFull(site: SiteInfo, docs: AgentDoc[]): string {
   return [header, ...docs.map((doc) => withSource(site, doc))].join('\n---\n\n')
 }
 
+/** Expected file for an `examples.<Name>Example` embed: `<srcDir>/examples/Example<Name>.vue`. */
+export function exampleFile(srcDir: string, name: string): string {
+  return path.join(srcDir, 'examples', `Example${name.replace(/Example$/, '')}.vue`)
+}
+
 /** VitePress `buildEnd` hook: writes llms.txt, llms-full.txt and a .md twin per sidebar page. */
 export async function writeAgentDocs(siteConfig: SiteConfig): Promise<void> {
-  const { srcDir, outDir, site } = siteConfig
+  const { srcDir, outDir, site, logger } = siteConfig
   const info: SiteInfo = {
     title: site.title,
     description: site.description,
     siteUrl: SITE_URL,
   }
   const resolveExample = (name: string) => {
-    const file = path.join(
-      srcDir,
-      'examples',
-      `Example${name.replace(/Example$/, '')}.vue`
-    )
-    return fs.existsSync(file) ? formatExample(fs.readFileSync(file, 'utf-8')) : undefined
+    const file = exampleFile(srcDir, name)
+    if (!fs.existsSync(file)) {
+      logger.warn(
+        `[llms] examples.${name}: example file not found at ${file}; the embed is omitted from the agent docs`
+      )
+      return undefined
+    }
+    return formatExample(fs.readFileSync(file, 'utf-8'))
   }
   const docs: AgentDoc[] = pagesFromSidebar(site.themeConfig.sidebar).map((page) => ({
     ...page,
