@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
 
 import { Slide } from '@/components/Slide'
@@ -22,6 +22,10 @@ describe('Carousel.ts', () => {
         ],
       },
     })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('It renders correctly', () => {
@@ -127,7 +131,9 @@ describe('Carousel.ts', () => {
     expect(eventWrapper.emitted('slide-start')).toHaveLength(1)
 
     vi.runAllTimers()
-    vi.useRealTimers()
+    await nextTick()
+    expect(eventWrapper.emitted('slide-end')).toHaveLength(1)
+    expect(eventWrapper.emitted('update:modelValue')).toEqual([[1]])
     eventWrapper.unmount()
   })
 })

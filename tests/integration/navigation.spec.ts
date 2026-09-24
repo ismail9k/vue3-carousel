@@ -46,6 +46,7 @@ describe('Navigation.ts', () => {
 
   afterEach(() => {
     consoleMock.mockReset()
+    vi.useRealTimers()
   })
 
   it('renders properly with a carousel', async () => {
@@ -167,7 +168,6 @@ describe('Navigation.ts', () => {
       '--vc-transition-duration'
     )
 
-    vi.useRealTimers()
     wrapper.unmount()
   })
 })
