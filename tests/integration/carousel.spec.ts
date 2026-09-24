@@ -694,3 +694,177 @@ describe('Carousel inside a scaled ancestor', () => {
     expect(track.attributes('style')).toContain('translateY(-240px)')
   })
 })
+
+describe('Slide content tab order', () => {
+  const mountLinks = (props: Record<string, unknown> = {}) =>
+    mount(Carousel, {
+      props: { itemsToShow: 1, modelValue: 0, ...props },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4].map((i) =>
+            h(Slide, { key: i }, () => h('a', { href: '#' }, `slide ${i}`))
+          ),
+      },
+    })
+
+  it('Should exclude links inside non-visible slides from the tab order', async () => {
+    const wrapper = mountLinks()
+    await nextTick()
+    const links = wrapper.findAll('.carousel__slide a')
+    expect(links[0].attributes('tabindex')).toBeUndefined()
+    for (const link of links.slice(1)) {
+      expect(link.attributes('tabindex')).toBe('-1')
+    }
+    wrapper.unmount()
+  })
+
+  it('Should restore the tab order of slide content when it becomes visible', async () => {
+    const wrapper = mountLinks()
+    await nextTick()
+    await wrapper.setProps({ modelValue: 3 })
+    await nextTick()
+    const links = wrapper.findAll('.carousel__slide a')
+    expect(links[3].attributes('tabindex')).toBeUndefined()
+    expect(links[0].attributes('tabindex')).toBe('-1')
+    wrapper.unmount()
+  })
+
+  it('Should keep an author-set tabindex when a slide becomes visible', async () => {
+    const wrapper = mount(Carousel, {
+      props: { itemsToShow: 1, modelValue: 0 },
+      slots: {
+        default: () =>
+          [0, 1, 2].map((i) =>
+            h(Slide, { key: i }, () => h('div', { tabindex: '0' }, `slide ${i}`))
+          ),
+      },
+    })
+    await nextTick()
+    const divs = wrapper.findAll('.carousel__slide div')
+    expect(divs[1].attributes('tabindex')).toBe('-1')
+    await wrapper.setProps({ modelValue: 1 })
+    await nextTick()
+    expect(divs[1].attributes('tabindex')).toBe('0')
+    expect(divs[0].attributes('tabindex')).toBe('-1')
+    wrapper.unmount()
+  })
+
+  it('Should keep clone content out of the tab order even inside the visible range', async () => {
+    const wrapper = mountLinks({ itemsToShow: 3, wrapAround: true, snapAlign: 'center' })
+    await nextTick()
+    const cloneLinks = wrapper.findAll('.carousel__slide--clone a')
+    expect(cloneLinks.length).toBeGreaterThan(0)
+    for (const link of cloneLinks) {
+      expect(link.attributes('tabindex')).toBe('-1')
+    }
+    expect(
+      wrapper.find('.carousel__slide--active a').attributes('tabindex')
+    ).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('Should leave slot content alone when the carousel is disabled', async () => {
+    const wrapper = mountLinks({ enabled: false })
+    await nextTick()
+    for (const link of wrapper.findAll('a')) {
+      expect(link.attributes('tabindex')).toBeUndefined()
+    }
+    wrapper.unmount()
+  })
+
+  it.each(['center', 'end'] as const)(
+    'Should keep every on-screen slide tabbable at the clamped start (snapAlign: %s)',
+    async (snapAlign) => {
+      const wrapper = mount(Carousel, {
+        props: { itemsToShow: 3, modelValue: 0, snapAlign },
+        slots: {
+          default: () =>
+            [0, 1, 2, 3, 4, 5].map((i) =>
+              h(Slide, { key: i }, () => h('a', { href: '#' }, `slide ${i}`))
+            ),
+        },
+      })
+      await nextTick()
+      const links = wrapper.findAll('.carousel__slide a')
+      expect(links).toHaveLength(6)
+      for (const link of links.slice(0, 3)) {
+        expect(link.attributes('tabindex')).toBeUndefined()
+      }
+      for (const link of links.slice(3)) {
+        expect(link.attributes('tabindex')).toBe('-1')
+      }
+      wrapper.unmount()
+    }
+  )
+
+  it('Should keep every on-screen slide tabbable with a fractional itemsToShow', async () => {
+    const wrapper = mount(Carousel, {
+      props: { itemsToShow: 2.5, modelValue: 1, snapAlign: 'end' },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4, 5].map((i) =>
+            h(Slide, { key: i }, () => h('a', { href: '#' }, `slide ${i}`))
+          ),
+      },
+    })
+    await nextTick()
+    const links = wrapper.findAll('.carousel__slide a')
+    expect(links).toHaveLength(6)
+    for (const link of links.slice(0, 3)) {
+      expect(link.attributes('tabindex')).toBeUndefined()
+    }
+    for (const link of links.slice(3)) {
+      expect(link.attributes('tabindex')).toBe('-1')
+    }
+    wrapper.unmount()
+  })
+
+  it("Should keep an inner carousel's hidden and clone content out of the tab order", async () => {
+    const wrapper = mount(Carousel, {
+      props: { itemsToShow: 1, modelValue: 0 },
+      slots: {
+        default: () => [
+          h(Slide, { key: 'outer-0' }, () =>
+            h(Carousel, { itemsToShow: 1, wrapAround: true, class: 'inner' }, () =>
+              [0, 1, 2].map((i) =>
+                h(Slide, { key: i }, () => h('a', { href: '#' }, `inner ${i}`))
+              )
+            )
+          ),
+          h(Slide, { key: 'outer-1' }, () => 'outer 1'),
+        ],
+      },
+    })
+    await nextTick()
+    // Classify the inner slides themselves: a descendant selector such as
+    // '.carousel__slide--active a' would also match through the outer active slide
+    const innerSlides = wrapper.find('.inner').findAll('.carousel__slide')
+    const linkOf = (slide: (typeof innerSlides)[number]) => slide.find('a')
+    const clones = innerSlides.filter((s) => s.classes('carousel__slide--clone'))
+    const real = innerSlides.filter((s) => !s.classes('carousel__slide--clone'))
+    const hidden = real.filter((s) => !s.classes('carousel__slide--visible'))
+    const active = real.filter((s) => s.classes('carousel__slide--active'))
+
+    expect(clones.length).toBeGreaterThan(0)
+    for (const slide of clones) {
+      expect(linkOf(slide).attributes('tabindex')).toBe('-1')
+    }
+    expect(hidden).toHaveLength(2)
+    for (const slide of hidden) {
+      expect(linkOf(slide).attributes('tabindex')).toBe('-1')
+    }
+    expect(active).toHaveLength(1)
+    expect(linkOf(active[0]).attributes('tabindex')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('Should reset the viewport scroll on focus in a vertical carousel', async () => {
+    const wrapper = mountLinks({ dir: 'ttb', height: 200 })
+    await nextTick()
+    const viewport = wrapper.find('.carousel__viewport').element
+    viewport.scrollTop = 20
+    await wrapper.findAll('.carousel__slide')[3].trigger('focusin')
+    expect(viewport.scrollTop).toBe(0)
+    wrapper.unmount()
+  })
+})

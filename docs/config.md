@@ -11,7 +11,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | Prop                       | Type                                        | Default                          | Description                                                                                            |
 |----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
-| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Focusable content in off-screen slides can then receive focus without being shown. <Badge text="0.19.0"/> |
+| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Content inside off-screen slides is kept out of the tab order; with false, focusing it programmatically no longer scrolls it into view. <Badge text="0.19.0"/> |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
@@ -110,7 +110,8 @@ These props control how users can interact with the carousel:
 
 - **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
   - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
-  - With `false`, focusable content inside off-screen slides can still receive keyboard focus without being scrolled into view.
+  - Content inside off-screen slides is removed from the tab order either way; with `false`, focusing it programmatically no longer scrolls it into view.
+  - Known limitation: focusable elements inside a shadow root (web components) cannot be reached, so they stay in the tab order while their slide is off screen.
 
 ## Visual Customization
 

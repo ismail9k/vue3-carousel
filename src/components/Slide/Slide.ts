@@ -16,7 +16,7 @@ import {
 } from 'vue'
 
 import { injectCarousel } from '@/shared'
-import { disableChildrenTabbing } from '@/utils'
+import { disableChildrenTabbing, restoreChildrenTabbing } from '@/utils'
 
 import { SlideProps } from './Slide.types'
 
@@ -118,15 +118,24 @@ export const Slide = defineComponent({
       }
     })
 
-    if (props.isClone) {
-      // Prevent cloned slides from being focusable
-      onMounted(() => {
+    // Keep focusable content of clones and off-screen slides out of the tab order.
+    // Slides re-render on every navigation, so only query the DOM when this
+    // slide has actually disabled something.
+    let hasDisabledChildren = false
+    const updateChildrenTabbing = () => {
+      if (!carousel.config.enabled) {
+        return
+      }
+      if (props.isClone || !isVisible.value) {
         disableChildrenTabbing(instance.vnode)
-      })
-      onUpdated(() => {
-        disableChildrenTabbing(instance.vnode)
-      })
+        hasDisabledChildren = true
+      } else if (hasDisabledChildren) {
+        restoreChildrenTabbing(instance.vnode)
+        hasDisabledChildren = false
+      }
     }
+    onMounted(updateChildrenTabbing)
+    onUpdated(updateChildrenTabbing)
 
     return () => {
       if (!carousel.config.enabled) {
@@ -151,6 +160,7 @@ export const Slide = defineComponent({
             // Prevent the viewport being scrolled by the focus
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
+              carousel.viewport.scrollTop = 0
             }
             if (isPointerFocus || carousel.config.autoScrollOnFocus === false) {
               return
