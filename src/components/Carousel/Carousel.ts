@@ -162,7 +162,10 @@ export const Carousel = defineComponent({
         return false
       })
 
-      Object.assign(config, fallbackConfig.value, newConfig)
+      // classPrefix is not a breakpoint option (see Breakpoints); keep the prop value
+      Object.assign(config, fallbackConfig.value, newConfig, {
+        classPrefix: fallbackConfig.value.classPrefix,
+      })
 
       // Validate itemsToShow
       if (!isAuto.value) {

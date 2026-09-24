@@ -140,6 +140,15 @@ describe('Carousel.ts', () => {
       expect(root.classes()).toEqual(['vc', 'is-disabled'])
     })
 
+    it('ignores a classPrefix override in breakpoints', async () => {
+      const prefixed = mountWithPrefix({ breakpoints: { 0: { classPrefix: 'bp' } } })
+      await prefixed.vm.$nextTick()
+      const root = prefixed.find('section')
+      expect(root.classes()).toContain('vc')
+      expect(root.classes()).not.toContain('bp')
+      expect(prefixed.find('.vc__track').exists()).toBe(true)
+    })
+
     it('warns and falls back to the default for an empty prefix', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
       const root = mountWithPrefix({ classPrefix: '' }).find('section')
