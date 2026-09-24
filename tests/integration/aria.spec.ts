@@ -36,6 +36,15 @@ describe('Aria.ts', () => {
     expect(wrapper.html()).toContain('Item 2 of 3')
   })
 
+  it('renders an empty live region while marquee is on', async () => {
+    const inject = makeCarouselInject()
+    inject.isMarquee = true
+    const wrapper = await mount(ARIA, { global: { provide: { [injectCarousel]: inject }} })
+
+    expect(wrapper.find('.carousel__liveregion').exists()).toBe(true)
+    expect(wrapper.find('.carousel__liveregion').text()).toBe('')
+  })
+
   it("doesn't render without a carousel", async () => {
     const wrapper = await mount(ARIA)
 

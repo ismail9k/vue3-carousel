@@ -342,6 +342,59 @@ describe('marquee', () => {
     })
   })
 
+  describe('slide state', () => {
+    const slides = (wrapper: ReturnType<typeof mountCarousel>) =>
+      wrapper.findAll('.carousel__slide')
+    const liveRegion = (wrapper: ReturnType<typeof mountCarousel>) =>
+      wrapper.find('.carousel__liveregion')
+
+    it('marks every slide visible and none active, prev or next', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(slides(wrapper).length).toBe(7)
+      for (const slide of slides(wrapper)) {
+        expect(slide.classes()).toContain('carousel__slide--visible')
+        expect(slide.classes()).not.toContain('carousel__slide--active')
+        expect(slide.classes()).not.toContain('carousel__slide--prev')
+        expect(slide.classes()).not.toContain('carousel__slide--next')
+      }
+    })
+
+    it('keeps real slides focusable and clones out of the tab order', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const real = slides(wrapper).filter(
+        (slide) => !slide.classes('carousel__slide--clone')
+      )
+      const cloned = slides(wrapper).filter((slide) =>
+        slide.classes('carousel__slide--clone')
+      )
+      expect(real.length).toBe(5)
+      expect(cloned.length).toBe(2)
+      for (const slide of real) {
+        expect(slide.attributes('tabindex')).toBeUndefined()
+      }
+      for (const slide of cloned) {
+        expect(slide.attributes('tabindex')).toBe('-1')
+        expect(slide.attributes('aria-hidden')).toBe('true')
+      }
+    })
+
+    it('announces nothing in the live region', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(liveRegion(wrapper).exists()).toBe(true)
+      expect(liveRegion(wrapper).text()).toBe('')
+    })
+
+    it('keeps the active slide and announcement when off', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, marquee: false })
+      await wrapper.vm.$nextTick()
+      expect(slides(wrapper)[0].classes()).toContain('carousel__slide--active')
+      expect(liveRegion(wrapper).text()).toBe('Item 1 of 5')
+    })
+  })
+
   describe('pause on hover', () => {
     it('adds is-paused while hovered with pauseAutoplayOnHover', async () => {
       const wrapper = mountCarousel({ pauseAutoplayOnHover: true })

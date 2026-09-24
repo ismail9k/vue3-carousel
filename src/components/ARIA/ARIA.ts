@@ -20,10 +20,13 @@ export const ARIA = defineComponent({
           'aria-live': 'polite',
           'aria-atomic': 'true',
         },
-        i18nFormatter(carousel.config.i18n['itemXofY'], {
-          currentSlide: carousel.currentSlide + 1,
-          slidesCount: carousel.slidesCount,
-        })
+        // A marquee has no current item to announce
+        carousel.isMarquee
+          ? ''
+          : i18nFormatter(carousel.config.i18n['itemXofY'], {
+              currentSlide: carousel.currentSlide + 1,
+              slidesCount: carousel.slidesCount,
+            })
       )
   },
 })

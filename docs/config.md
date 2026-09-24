@@ -104,6 +104,7 @@ These props control how users can interact with the carousel:
   - Ignored when `slideEffect` is `'fade'`.
   - Navigation, pagination, drag, mouse wheel, keyboard and `v-model` are inactive while `marquee` is on.
   - The `Navigation` and `Pagination` addons render nothing while `marquee` is on, so they can stay in the template when `marquee` is set per breakpoint.
+  - All slides count as visible: the `--active`, `--prev` and `--next` slide classes and slot props are off, and the `itemXofY` announcement is empty.
   - Pair with `pauseAutoplayOnHover` to pause while the cursor is over the carousel.
   - Pauses while the carousel has focus, so keyboard and touch users can stop it.
 
