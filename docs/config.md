@@ -235,7 +235,7 @@ These props provide additional customization for specific use cases:
 
 - Needs `scroll-snap-type` support. The server renders the native markup and the browser check runs on mount: where scroll snap is unsupported, the carousel then switches to the regular JS mode. The exposed `isNative` reports the mode in use, and the root element gets the `is-native` class.
 - Works with `itemsToShow` (number or `'auto'`), `itemsToScroll`, `gap`, `snapAlign` (`center-odd`/`center-even` snap as `center`), `dir` `ltr`/`rtl`/`ttb`, `height`, `breakpoints`, `autoplay`, `pauseAutoplayOnHover`, `clamp`, `i18n` and arrow keys.
-- Turned off in this mode: `wrapAround`, `slideEffect: 'fade'`, `edgeSpacing`, `mouseDrag`, `touchDrag`, `mouseWheel` and `preventExcessiveDragging` (the exposed `config` shows the effective values). Native scrolling replaces touch drag and wheel; mouse drag is not available.
+- Turned off in this mode: `wrapAround`, `slideEffect: 'fade'`, `edgeSpacing`, `mouseDrag`, `touchDrag`, `mouseWheel` and `preventExcessiveDragging` (the exposed `config` shows the effective values). Native scrolling replaces touch drag; trackpads and horizontal or shift+wheel scroll the carousel, but a vertical mouse wheel and mouse drag do not, so add `Navigation` or `Pagination` for mouse users. With `wrapAround` off, `autoplay` stops at the last slide.
 - `dir: 'btt'` is not supported natively and uses the JS mode.
 - The scroll duration is the browser's; `transition` only times `isSliding` and the `slide-end` event, and `transitionEasing` has no effect.
 - Scrollbars are hidden; override `.carousel.is-native .carousel__viewport { scrollbar-width: auto }` to show them.
