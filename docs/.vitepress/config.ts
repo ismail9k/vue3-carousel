@@ -1,5 +1,7 @@
 import { pagesFromSidebar, writeAgentDocs } from './llms'
 
+import type { TransformContext } from 'vitepress'
+
 const sidebar = [
   {
     text: 'Introduction',
@@ -111,7 +113,7 @@ export default {
     ],
   ],
 
-  transformHead({ pageData }) {
+  transformHead({ pageData }: TransformContext) {
     if (!agentPages.has(pageData.relativePath)) return
     return [
       [
