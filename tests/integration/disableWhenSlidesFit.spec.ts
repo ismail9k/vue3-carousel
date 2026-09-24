@@ -188,6 +188,27 @@ describe('disableWhenSlidesFit', () => {
       }
     })
 
+    it('counts the leading edgeSpacing the locked track keeps', async () => {
+      const spy = mockSlideSize(95)
+      try {
+        // 3 × 95px = 285px fits the 300px viewport, but not with 40px before the first slide
+        const clipped = mountCarousel({ itemsToShow: 'auto', edgeSpacing: 40 }, 3)
+        await nextTick()
+        expect(clipped.vm.allSlidesFit).toBe(false)
+        expect(clipped.vm.isLocked).toBe(false)
+
+        // 285px + 15px fits exactly: locked, and the spacing is kept before the first slide
+        const fitting = mountCarousel({ itemsToShow: 'auto', edgeSpacing: 15 }, 3)
+        await nextTick()
+        expect(fitting.vm.isLocked).toBe(true)
+        expect(transform(fitting)).toBe('translateX(15px)')
+      } finally {
+        spy.mockRestore()
+        // Restore the sized mock for the remaining tests
+        mockSlideSize(SLIDE)
+      }
+    })
+
     it('does not lock before the viewport is measured', async () => {
       const spy = vi
         .spyOn(Element.prototype, 'getBoundingClientRect')

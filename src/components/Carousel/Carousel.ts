@@ -236,8 +236,9 @@ export const Carousel = defineComponent({
         (acc, slide) => acc + slide[dimension.value] + config.gap,
         -config.gap
       )
+      // The locked track keeps its leading edgeSpacing, so that has to fit as well.
       // 1px tolerance: fractional widths and scale multipliers make an exact fit measure a hair over
-      return slidesSize - viewportSize <= 1
+      return slidesSize + normalizedEdgeSpacing.value - viewportSize <= 1
     })
 
     const isLocked = computed(() => config.disableWhenSlidesFit && allSlidesFit.value)
