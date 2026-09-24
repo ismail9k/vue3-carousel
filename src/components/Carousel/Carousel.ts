@@ -817,6 +817,27 @@ export const Carousel = defineComponent({
       }
     })
 
+    const isAdaptiveHeight = computed(() => !!config.adaptiveHeight && !isVertical.value)
+
+    // Tallest visible slide in layout px; undefined until a slide has a height, so
+    // the `height` prop stays in effect before the first measurement
+    const adaptiveHeight = computed<number | undefined>(() => {
+      if (!isAdaptiveHeight.value) {
+        return undefined
+      }
+      const count = slidesRect.value.length
+      if (!count) {
+        return undefined
+      }
+      const { min, max } = visibleRange.value
+      let height = 0
+      for (let index = min; index <= max; index++) {
+        const normalizedIndex = ((index % count) + count) % count
+        height = Math.max(height, slidesRect.value[normalizedIndex]?.height || 0)
+      }
+      return height > 0 ? height : undefined
+    })
+
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
       if (config.slideEffect === 'fade') {
         return undefined
@@ -855,7 +876,10 @@ export const Carousel = defineComponent({
     })
 
     const carouselStyle = computed(() => ({
-      '--vc-carousel-height': toCssValue(config.height),
+      '--vc-carousel-height':
+        adaptiveHeight.value !== undefined
+          ? toCssValue(adaptiveHeight.value)
+          : toCssValue(config.height),
       '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
       '--vc-slide-gap': toCssValue(config.gap),
       '--vc-transition-duration': isSliding.value
@@ -964,6 +988,7 @@ export const Carousel = defineComponent({
             `is-${normalizedDir.value}`,
             `is-effect-${config.slideEffect}`,
             {
+              'is-adaptive-height': isAdaptiveHeight.value,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
               'is-sliding': isSliding.value,
