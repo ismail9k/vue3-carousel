@@ -47,6 +47,20 @@ export const carouselProps = {
   clamp: {
     type: Boolean,
   },
+  // prefix for every CSS class the carousel renders
+  classPrefix: {
+    default: DEFAULT_CONFIG.classPrefix,
+    type: String,
+    validator(value: string) {
+      const isValid = typeof value === 'string' && /^\S+$/.test(value)
+      if (!isValid) {
+        console.warn(
+          `[vue3-carousel]: Invalid classPrefix "${value}". It must be a non-empty string without whitespace.`
+        )
+      }
+      return isValid
+    },
+  },
   // control the direction of the carousel
   dir: {
     type: String as PropType<Dir>,

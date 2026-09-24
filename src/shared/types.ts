@@ -12,7 +12,7 @@ export type BreakpointMode = (typeof BREAKPOINT_MODE_OPTIONS)[number]
 
 export type Breakpoints = {
   [key: number]: Partial<
-    Omit<CarouselConfig, 'breakpoints' | 'modelValue' | 'breakpointMode'>
+    Omit<CarouselConfig, 'breakpoints' | 'modelValue' | 'breakpointMode' | 'classPrefix'>
   >
 }
 
@@ -44,6 +44,7 @@ export type CarouselConfig = {
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
   clamp?: boolean
+  classPrefix?: string
   dir?: Dir
   edgeSpacing: number
   enabled: boolean

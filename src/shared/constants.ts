@@ -48,10 +48,13 @@ export const SNAP_ALIGN_OPTIONS = [
 export const DEFAULT_MOUSE_WHEEL_THRESHOLD = 10
 export const DEFAULT_DRAG_THRESHOLD = 0.08
 
+export const DEFAULT_CLASS_PREFIX = 'carousel'
+
 export const DEFAULT_CONFIG: CarouselConfig = {
   autoplay: 0,
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
+  classPrefix: DEFAULT_CLASS_PREFIX,
   dir: DIR_OPTIONS[0],
   edgeSpacing: 0,
   enabled: true,

@@ -21,6 +21,7 @@ import { ARIA as ARIAComponent } from '@/components/ARIA'
 import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
 import {
   CarouselConfig,
+  DEFAULT_CLASS_PREFIX,
   DEFAULT_CONFIG,
   DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
@@ -929,12 +930,14 @@ export const Carousel = defineComponent({
 
       const output = [...slidesBefore, ...outputSlides, ...slidesAfter]
 
+      const prefix = config.classPrefix || DEFAULT_CLASS_PREFIX
+
       if (!config.enabled || !output.length) {
         return h(
           'section',
           {
             ref: root,
-            class: ['carousel', 'is-disabled'],
+            class: [prefix, 'is-disabled'],
           },
           output
         )
@@ -945,7 +948,7 @@ export const Carousel = defineComponent({
       const trackEl = h(
         'ol',
         {
-          class: 'carousel__track',
+          class: `${prefix}__track`,
           onMousedownCapture: config.mouseDrag ? handleDragStart : null,
           onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
           onWheel: config.mouseWheel ? handleScroll : null,
@@ -953,14 +956,18 @@ export const Carousel = defineComponent({
         },
         output
       )
-      const viewPortEl = h('div', { class: 'carousel__viewport', ref: viewport }, trackEl)
+      const viewPortEl = h(
+        'div',
+        { class: `${prefix}__viewport`, ref: viewport },
+        trackEl
+      )
 
       return h(
         'section',
         {
           ref: root,
           class: [
-            'carousel',
+            prefix,
             `is-${normalizedDir.value}`,
             `is-effect-${config.slideEffect}`,
             {
