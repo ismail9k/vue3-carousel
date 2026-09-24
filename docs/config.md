@@ -129,6 +129,8 @@ These props control the appearance of the carousel:
 - **`adaptiveHeight`**: Sizes the carousel to the tallest visible slide instead of the tallest slide overall, and animates the height on navigation with the `transition` settings.
   - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
   - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
+  - Visible slides are no longer stretched to the same height; with `itemsToShow > 1` shorter slides align to the top.
+  - Slide content styled with `height: 100%` measures as the current carousel height, so the height never changes; size the content itself instead.
   - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
 
 - **`gap`**: Space (in pixels) between slides.

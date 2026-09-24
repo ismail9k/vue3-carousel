@@ -173,6 +173,9 @@ export const Carousel = defineComponent({
       }
     }
 
+    // With adaptiveHeight the root ResizeObserver fires on every frame of the height
+    // transition. The work is rAF-throttled and the measured slide heights do not
+    // depend on the root height, so it is bounded and cannot loop.
     const handleResize = throttle(() => {
       updateBreakpointsConfig()
       updateSlidesData()

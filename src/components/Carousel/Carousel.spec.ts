@@ -130,4 +130,18 @@ describe('Carousel.css', () => {
       ''
     expect(trackRule).toMatch(/align-items:\s*flex-start;/)
   })
+
+  it('lets fade slides keep their content height in adaptive height mode (#382)', () => {
+    const fadeTrackRule =
+      css.match(
+        /^\.carousel\.is-adaptive-height\.is-effect-fade \.carousel__track \{([^}]*)\}/m
+      )?.[1] ?? ''
+    expect(fadeTrackRule).toMatch(/grid-template-rows:\s*auto;/)
+    expect(fadeTrackRule).toMatch(/align-items:\s*start;/)
+    const fadeSlideRule =
+      css.match(
+        /^\.carousel\.is-adaptive-height\.is-effect-fade \.carousel__slide \{([^}]*)\}/m
+      )?.[1] ?? ''
+    expect(fadeSlideRule).toMatch(/height:\s*auto;/)
+  })
 })

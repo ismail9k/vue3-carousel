@@ -57,7 +57,10 @@ describe('adaptiveHeight', () => {
     mockRects()
     warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
 
   it('is off by default and exposed on the config', () => {
     const wrapper = mountCarousel({ adaptiveHeight: undefined })
@@ -108,7 +111,6 @@ describe('adaptiveHeight', () => {
     await wrapper.setProps({ modelValue: 5 })
     // currentSlideIndex is 5 while looping: the first slide
     expect(carouselHeight(wrapper)).toBe('120px')
-    vi.useRealTimers()
   })
 
   it('keeps the height prop until a slide has a height', async () => {
@@ -202,7 +204,9 @@ describe('adaptiveHeight slide observation', () => {
     const wrapper = mount(Host, { props: { heights: HEIGHTS } })
     await nextTick()
     expect(carouselHeight(wrapper)).toBe('120px')
-    slideElements(wrapper)[0].setAttribute('data-height', '300')
+    const resized = slideElements(wrapper)[0]
+    expect(observer().observed.has(resized)).toBe(true)
+    resized.setAttribute('data-height', '300')
     await flushResize()
     expect(carouselHeight(wrapper)).toBe('300px')
   })
