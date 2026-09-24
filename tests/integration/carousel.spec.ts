@@ -779,7 +779,7 @@ describe('itemsToScroll paging (#522)', () => {
     expect(wrapper.vm.currentSlide).toBe(2)
   })
 
-  it.each(['start', 'center'])(
+  it.each(['start', 'center', 'end'])(
     'highlights the last page after paging to the end (snapAlign %s)',
     async (snapAlign) => {
       const wrapper = mountCarousel({ snapAlign }, { paginateByItemsToShow: true })
