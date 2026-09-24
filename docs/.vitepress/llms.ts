@@ -45,3 +45,101 @@ export function toAgentMarkdown(source: string, opts: TransformOptions): string 
     .join('')
   return out.trim() + '\n'
 }
+
+export interface SidebarItem {
+  text: string
+  link: string
+}
+export interface SidebarGroup {
+  text: string
+  items: SidebarItem[]
+}
+export interface DocPage {
+  title: string
+  section: string
+  /** Page path without leading slash or extension, e.g. `components/carousel`. */
+  path: string
+}
+export interface AgentDoc extends DocPage {
+  markdown: string
+}
+export interface SiteInfo {
+  title: string
+  description: string
+  siteUrl: string
+}
+
+export function pagesFromSidebar(sidebar: SidebarGroup[]): DocPage[] {
+  return sidebar.flatMap((group) =>
+    group.items.map((item) => ({
+      title: item.text,
+      section: group.text,
+      path: item.link.replace(/^\//, ''),
+    }))
+  )
+}
+
+export function firstParagraph(markdown: string): string {
+  let inFence = false
+  for (const raw of markdown.split('\n')) {
+    const line = raw.trim()
+    if (line.startsWith('```')) {
+      inFence = !inFence
+      continue
+    }
+    if (inFence || !line || /^[#|<>*-]/.test(line)) continue
+    return line.replace(/:$/, '')
+  }
+  return ''
+}
+
+const pageUrl = (site: SiteInfo, doc: DocPage) => `${site.siteUrl}/${doc.path}.md`
+
+export function buildLlmsTxt(site: SiteInfo, docs: AgentDoc[]): string {
+  const sections = new Map<string, AgentDoc[]>()
+  for (const doc of docs) {
+    sections.set(doc.section, [...(sections.get(doc.section) ?? []), doc])
+  }
+  const lines = [
+    `# ${site.title}`,
+    '',
+    `> ${site.description}`,
+    '',
+    'Install with `npm i vue3-carousel`, import `vue3-carousel/carousel.css`, and import `Carousel`, `Slide`, `Navigation` and `Pagination` from `vue3-carousel`.',
+    '',
+    `Every page below is also served as Markdown at its \`.md\` URL. The whole documentation in one file: ${site.siteUrl}/llms-full.txt`,
+    '',
+  ]
+  for (const [section, items] of sections) {
+    lines.push(`## ${section}`, '')
+    for (const doc of items) {
+      const summary = firstParagraph(doc.markdown)
+      lines.push(
+        `- [${doc.title}](${pageUrl(site, doc)})${summary ? `: ${summary}` : ''}`
+      )
+    }
+    lines.push('')
+  }
+  lines.push(
+    '## Optional',
+    '',
+    '- [GitHub repository](https://github.com/ismail9k/vue3-carousel)',
+    '- [Changelog](https://github.com/ismail9k/vue3-carousel/blob/master/CHANGELOG.md)',
+    ''
+  )
+  return lines.join('\n')
+}
+
+function withSource(site: SiteInfo, doc: AgentDoc): string {
+  const source = `Source: ${pageUrl(site, doc)}`
+  const h1 = doc.markdown.match(/^# .*$/m)
+  if (!h1 || h1.index === undefined)
+    return `# ${doc.title}\n\n${source}\n\n${doc.markdown}`
+  const end = h1.index + h1[0].length
+  return `${doc.markdown.slice(0, end)}\n\n${source}${doc.markdown.slice(end)}`
+}
+
+export function buildLlmsFull(site: SiteInfo, docs: AgentDoc[]): string {
+  const header = `# ${site.title} — full documentation\n\n> ${site.description}\n\nIndex: ${site.siteUrl}/llms.txt\n`
+  return [header, ...docs.map((doc) => withSource(site, doc))].join('\n---\n\n')
+}

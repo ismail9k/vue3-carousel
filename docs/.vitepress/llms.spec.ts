@@ -1,4 +1,10 @@
-import { toAgentMarkdown } from './llms'
+import {
+  buildLlmsFull,
+  buildLlmsTxt,
+  firstParagraph,
+  pagesFromSidebar,
+  toAgentMarkdown,
+} from './llms'
 
 const siteUrl = 'https://example.test'
 
@@ -108,5 +114,86 @@ describe('toAgentMarkdown', () => {
       }
     )
     expect(out).toBe('## Basic\n\n```vue\n' + code + '\n```\n')
+  })
+})
+
+const site = { title: 'Vue3-carousel', description: 'A carousel.', siteUrl }
+
+const sidebar = [
+  {
+    text: 'Introduction',
+    items: [
+      { text: 'Getting Started', link: '/getting-started' },
+      { text: 'Configuration', link: '/config' },
+    ],
+  },
+  { text: 'Components', items: [{ text: 'Carousel', link: '/components/carousel' }] },
+]
+
+describe('pagesFromSidebar', () => {
+  it('flattens groups in order, keeping section and stripping the leading slash', () => {
+    expect(pagesFromSidebar(sidebar)).toEqual([
+      { title: 'Getting Started', section: 'Introduction', path: 'getting-started' },
+      { title: 'Configuration', section: 'Introduction', path: 'config' },
+      { title: 'Carousel', section: 'Components', path: 'components/carousel' },
+    ])
+  })
+})
+
+describe('firstParagraph', () => {
+  it('returns the first prose line, skipping headings, tables, html, lists and fences', () => {
+    const md =
+      '# T\n\n```js\nnot me\n```\n\n| a |\n|---|\n\n<kbd>x</kbd>\n\n- li\n\n## H\n\nThe prose line:\n\nsecond'
+    expect(firstParagraph(md)).toBe('The prose line')
+  })
+
+  it('returns an empty string when there is no prose', () => {
+    expect(firstParagraph('# Only\n\n## Headings')).toBe('')
+  })
+})
+
+describe('buildLlmsTxt', () => {
+  it('lists pages under their sidebar sections with .md links and summaries', () => {
+    const docs = pagesFromSidebar(sidebar).map((page) => ({
+      ...page,
+      markdown: `# ${page.title}\n\nAbout ${page.title}.\n`,
+    }))
+    const out = buildLlmsTxt(site, docs)
+    expect(out.startsWith('# Vue3-carousel\n\n> A carousel.\n')).toBe(true)
+    expect(out).toContain('https://example.test/llms-full.txt')
+    expect(out).toContain(
+      '## Introduction\n\n- [Getting Started](https://example.test/getting-started.md): About Getting Started.\n- [Configuration](https://example.test/config.md): About Configuration.\n\n## Components\n\n- [Carousel](https://example.test/components/carousel.md): About Carousel.\n'
+    )
+    expect(out).toContain(
+      '## Optional\n\n- [GitHub repository](https://github.com/ismail9k/vue3-carousel)'
+    )
+  })
+
+  it('omits the summary colon when a page has no prose', () => {
+    const out = buildLlmsTxt(site, [
+      { title: 'Empty', section: 'S', path: 'empty', markdown: '# Empty\n' },
+    ])
+    expect(out).toContain('- [Empty](https://example.test/empty.md)\n')
+  })
+})
+
+describe('buildLlmsFull', () => {
+  it('concatenates pages in order with a Source line under each H1', () => {
+    const out = buildLlmsFull(site, [
+      { title: 'A', section: 'S', path: 'a', markdown: '# A\n\nbody a\n' },
+      { title: 'B', section: 'S', path: 'sub/b', markdown: '# B\n\nbody b\n' },
+    ])
+    expect(out).toBe(
+      '# Vue3-carousel — full documentation\n\n> A carousel.\n\nIndex: https://example.test/llms.txt\n\n---\n\n# A\n\nSource: https://example.test/a.md\n\nbody a\n\n---\n\n# B\n\nSource: https://example.test/sub/b.md\n\nbody b\n'
+    )
+  })
+
+  it('adds a title when a page has no H1', () => {
+    const out = buildLlmsFull(site, [
+      { title: 'No Heading', section: 'S', path: 'nh', markdown: 'just text\n' },
+    ])
+    expect(out).toContain(
+      '---\n\n# No Heading\n\nSource: https://example.test/nh.md\n\njust text\n'
+    )
   })
 })
