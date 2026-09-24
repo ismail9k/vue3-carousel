@@ -36,3 +36,5 @@ if (myCarousel.currentSlide === 10) {
 | `slides`       | an array of Slides component                                                                      |
 | `viewport`     | the viewport element                                                                              |
 | `visibleRange` | an object with {min, max} properties min being the lowest visible slide index and max the highest |
+| `allSlidesFit` | `true` when every slide fits in the viewport without `wrapAround` (always `false` with `wrapAround`) |
+| `isLocked`     | `true` while `disableWhenSlidesFit` is on and `allSlidesFit` holds; Navigation and Pagination render nothing |

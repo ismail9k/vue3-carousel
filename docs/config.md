@@ -15,6 +15,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `disableWhenSlidesFit`     | `boolean`                                   | false                            | When every slide fits in the viewport and `wrapAround` is off, hides Navigation and Pagination and stops sliding (drag, wheel, keyboard, autoplay, `slideTo`). The carousel stays laid out and measured. <Badge text="0.19.0"/> |
 | `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`. <Badge text="0.18.0"/> |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
@@ -212,6 +213,11 @@ These props provide additional customization for specific use cases:
 
 - **`enabled`**: When `false`, disables all carousel interactions.
   - Useful for conditionally disabling the carousel functionality.
+
+- **`disableWhenSlidesFit`**: When `true`, locks the carousel while every slide already fits in the viewport (never with `wrapAround`).
+  - Navigation and Pagination render nothing, and drag, wheel, keyboard, autoplay, and `slideTo()` do nothing.
+  - Unlike `enabled: false`, the carousel keeps its layout and measurements, so it unlocks by itself when the viewport shrinks or slides are added.
+  - The root element gets the `is-locked` class, and the exposed `isLocked` / `allSlidesFit` values report the state for custom addons.
 
 - **`ignoreAnimations`**: Excludes specified CSS animations from slide size calculations.
   - Useful when animations are causing layout issues.
