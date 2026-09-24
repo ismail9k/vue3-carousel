@@ -111,6 +111,33 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.itemsToShow,
     type: [Number, String],
   },
+  // continuously scroll the slides at a constant speed
+  marquee: {
+    default: DEFAULT_CONFIG.marquee,
+    type: Boolean,
+    validator(value: boolean, props: { slideEffect?: SlideEffect }) {
+      if (value && props.slideEffect === 'fade') {
+        console.warn(
+          `[vue3-carousel]: "marquee" cannot be used with slideEffect "fade". The slides will not move.`
+        )
+      }
+      return true
+    },
+  },
+  // marquee speed in pixels per second
+  marqueeSpeed: {
+    default: DEFAULT_CONFIG.marqueeSpeed,
+    type: Number,
+    validator(value: number) {
+      const isValid = value > 0
+      if (!isValid) {
+        console.warn(
+          `[vue3-carousel]: Invalid marqueeSpeed "${value}". It must be greater than 0.`
+        )
+      }
+      return isValid
+    },
+  },
   // slide number number of initial slide
   modelValue: {
     default: undefined,
