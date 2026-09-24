@@ -1,4 +1,36 @@
-module.exports = {
+import { pagesFromSidebar, writeAgentDocs } from './llms'
+
+const sidebar = [
+  {
+    text: 'Introduction',
+    items: [
+      { text: 'Getting Started', link: '/getting-started' },
+      { text: 'Configuration', link: '/config' },
+      { text: 'Examples', link: '/examples' },
+    ],
+  },
+  {
+    text: 'Components',
+    items: [
+      { text: 'Carousel', link: '/components/carousel' },
+      { text: 'Slide', link: '/components/slide' },
+      { text: 'Navigation', link: '/components/navigation' },
+      { text: 'Pagination', link: '/components/pagination' },
+    ],
+  },
+  {
+    text: 'API',
+    items: [
+      { text: 'Methods', link: '/api/methods' },
+      { text: 'Data', link: '/api/data' },
+      { text: 'Events', link: '/api/events' },
+    ],
+  },
+]
+
+const agentPages = new Set(pagesFromSidebar(sidebar).map((page) => `${page.path}.md`))
+
+export default {
   lang: 'en-US',
   title: 'Vue3-carousel',
   description:
@@ -19,33 +51,7 @@ module.exports = {
     nav: [{ text: 'Guide', link: '/getting-started' }],
 
     socialLinks: [{ icon: 'github', link: 'https://github.com/ismail9k/vue3-carousel' }],
-    sidebar: [
-      {
-        text: 'Introduction',
-        items: [
-          { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Configuration', link: '/config' },
-          { text: 'Examples', link: '/examples' },
-        ],
-      },
-      {
-        text: 'Components',
-        items: [
-          { text: 'Carousel', link: '/components/carousel' },
-          { text: 'Slide', link: '/components/slide' },
-          { text: 'Navigation', link: '/components/navigation' },
-          { text: 'Pagination', link: '/components/pagination' },
-        ],
-      },
-      {
-        text: 'API',
-        items: [
-          { text: 'Methods', link: '/api/methods' },
-          { text: 'Data', link: '/api/data' },
-          { text: 'Events', link: '/api/events' },
-        ],
-      },
-    ],
+    sidebar,
 
     search: {
       provider: 'local',
@@ -104,4 +110,16 @@ module.exports = {
       });`,
     ],
   ],
+
+  transformHead({ pageData }) {
+    if (!agentPages.has(pageData.relativePath)) return
+    return [
+      [
+        'link',
+        { rel: 'alternate', type: 'text/markdown', href: `/${pageData.relativePath}` },
+      ],
+    ]
+  },
+
+  buildEnd: writeAgentDocs,
 }

@@ -1,3 +1,10 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
+import type { SiteConfig } from 'vitepress'
+
+import { formatExample } from '../examples/format'
+
 export const SITE_URL = 'https://vue3-carousel.ismail9k.com'
 
 export interface TransformOptions {
@@ -141,4 +148,39 @@ function withSource(site: SiteInfo, doc: AgentDoc): string {
 export function buildLlmsFull(site: SiteInfo, docs: AgentDoc[]): string {
   const header = `# ${site.title} — full documentation\n\n> ${site.description}\n\nIndex: ${site.siteUrl}/llms.txt\n`
   return [header, ...docs.map((doc) => withSource(site, doc))].join('\n---\n\n')
+}
+
+/** VitePress `buildEnd` hook: writes llms.txt, llms-full.txt and a .md twin per sidebar page. */
+export async function writeAgentDocs(siteConfig: SiteConfig): Promise<void> {
+  const { srcDir, outDir, site } = siteConfig
+  const info: SiteInfo = {
+    title: site.title,
+    description: site.description,
+    siteUrl: SITE_URL,
+  }
+  const resolveExample = (name: string) => {
+    const file = path.join(
+      srcDir,
+      'examples',
+      `Example${name.replace(/Example$/, '')}.vue`
+    )
+    return fs.existsSync(file) ? formatExample(fs.readFileSync(file, 'utf-8')) : undefined
+  }
+  const docs: AgentDoc[] = pagesFromSidebar(site.themeConfig.sidebar).map((page) => ({
+    ...page,
+    markdown: toAgentMarkdown(
+      fs.readFileSync(path.join(srcDir, `${page.path}.md`), 'utf-8'),
+      {
+        siteUrl: SITE_URL,
+        resolveExample,
+      }
+    ),
+  }))
+  for (const doc of docs) {
+    const target = path.join(outDir, `${doc.path}.md`)
+    fs.mkdirSync(path.dirname(target), { recursive: true })
+    fs.writeFileSync(target, doc.markdown)
+  }
+  fs.writeFileSync(path.join(outDir, 'llms.txt'), buildLlmsTxt(info, docs))
+  fs.writeFileSync(path.join(outDir, 'llms-full.txt'), buildLlmsFull(info, docs))
 }

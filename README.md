@@ -49,7 +49,7 @@ import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
 const carouselConfig = {
   itemsToShow: 2.5,
-  wrapAround: true
+  wrapAround: true,
 }
 </script>
 
@@ -82,6 +82,9 @@ Visit our [documentation website](https://vue3-carousel.ismail9k.com/) for detai
 
 For Nuxt users, check out [vue3-carousel-nuxt](https://github.com/gaetansenn/vue3-carousel-nuxt) module.
 
+## 🤖 For AI agents
+
+The documentation is also published as Markdown: [`llms.txt`](https://vue3-carousel.ismail9k.com/llms.txt) indexes every page (each also served at its `.md` URL), and [`llms-full.txt`](https://vue3-carousel.ismail9k.com/llms-full.txt) holds all of it in one file.
 
 ## 🌟 Star History
 
