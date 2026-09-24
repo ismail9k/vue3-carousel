@@ -658,3 +658,48 @@ describe('Carousel inside a scaled ancestor', () => {
     expect(track.attributes('style')).toContain('translateY(-240px)')
   })
 })
+
+describe('Drag on a carousel with no measurable size (#518)', () => {
+  let wrapper: ReturnType<typeof mount<typeof App>>
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    vi.useRealTimers()
+  })
+
+  it('ignores a vertical wrapAround drag instead of creating infinite clones', async () => {
+    // jsdom lays nothing out: every rect is 0, so slideSize and gap are both 0
+    wrapper = mount(App, {
+      props: {
+        dir: 'ttb',
+        wrapAround: true,
+        slideNum: 5,
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
+      },
+    })
+    await nextTick()
+    const clonesBefore = wrapper.findAll('.carousel__slide--clone').length
+    expect(clonesBefore).toBeGreaterThan(0)
+
+    const track = wrapper.find('.carousel__track')
+    await track.trigger('mousedown', { clientX: 0, clientY: 200, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, clientY: 100 }))
+    vi.runAllTimers() // flush the throttled drag handler
+    await nextTick()
+
+    expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
+
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+    vi.runAllTimers() // any slide transition
+    await nextTick()
+
+    expect(wrapper.props('modelValue')).toBe(0)
+    expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
+  })
+})
