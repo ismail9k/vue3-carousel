@@ -101,7 +101,7 @@ These props control how users can interact with the carousel:
 - **`marquee`**: Scrolls the slides continuously, like a ticker, instead of stepping between them.
   - Example: `marquee :marquee-speed="80"` moves the track 80px per second.
   - The loop is seamless; `wrapAround` is not needed. `snapAlign` and `edgeSpacing` do not apply.
-  - Not compatible with `slideEffect: 'fade'`: the slides do not move.
+  - Ignored when `slideEffect` is `'fade'`.
   - Navigation, pagination, drag, mouse wheel, keyboard and `v-model` are inactive while `marquee` is on.
   - Pair with `pauseAutoplayOnHover` to pause while the cursor is over the carousel.
 

@@ -118,7 +118,7 @@ export const carouselProps = {
     validator(value: boolean, props: { slideEffect?: SlideEffect }) {
       if (value && props.slideEffect === 'fade') {
         console.warn(
-          `[vue3-carousel]: "marquee" cannot be used with slideEffect "fade". The slides will not move.`
+          `[vue3-carousel]: "marquee" cannot be used with slideEffect "fade". The setting will be ignored.`
         )
       }
       return true

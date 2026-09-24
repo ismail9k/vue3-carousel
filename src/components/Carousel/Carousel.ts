@@ -119,6 +119,8 @@ export const Carousel = defineComponent({
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
     const isAuto = computed(() => config.itemsToShow === 'auto')
+    // Marquee is ignored with the fade effect: the stacked slides cannot scroll
+    const isMarquee = computed(() => !!config.marquee && config.slideEffect !== 'fade')
 
     const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
@@ -406,7 +408,7 @@ export const Carousel = defineComponent({
      * Autoplay
      */
     function initAutoplay(): void {
-      if (config.marquee || !config.autoplay || config.autoplay <= 0) {
+      if (isMarquee.value || !config.autoplay || config.autoplay <= 0) {
         return
       }
 
@@ -530,7 +532,7 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      if (config.marquee) {
+      if (isMarquee.value) {
         return
       }
 
@@ -625,7 +627,7 @@ export const Carousel = defineComponent({
 
     // Length of the real slide set, gaps included: the distance one marquee loop travels
     const marqueeDistance = computed(() => {
-      if (!config.marquee) {
+      if (!isMarquee.value) {
         return 0
       }
       if (isAuto.value) {
@@ -638,7 +640,7 @@ export const Carousel = defineComponent({
     })
 
     const clonedSlidesCount = computed(() => {
-      if (config.marquee) {
+      if (isMarquee.value) {
         // The clones after the real set must cover one viewport, so the jump
         // back to the start shows the same pixels
         if (!isAuto.value) {
@@ -852,7 +854,7 @@ export const Carousel = defineComponent({
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
-      if (config.slideEffect === 'fade' || config.marquee) {
+      if (config.slideEffect === 'fade' || isMarquee.value) {
         return undefined
       }
 
@@ -890,13 +892,13 @@ export const Carousel = defineComponent({
 
     const carouselStyle = computed(() => {
       const speed = Number(config.marqueeSpeed) || 0
-      const marqueeOffset = config.marquee
+      const marqueeOffset = isMarquee.value
         ? toCssValue(marqueeDistance.value * (isReversed.value ? 1 : -1))
         : undefined
       return {
         '--vc-carousel-height': toCssValue(config.height),
         '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
-        '--vc-marquee-duration': config.marquee
+        '--vc-marquee-duration': isMarquee.value
           ? toCssValue(speed > 0 ? marqueeDistance.value / speed : 0, 's')
           : undefined,
         '--vc-marquee-x': isVertical.value ? undefined : marqueeOffset,
@@ -992,10 +994,10 @@ export const Carousel = defineComponent({
         {
           class: 'carousel__track',
           onMousedownCapture:
-            config.mouseDrag && !config.marquee ? handleDragStart : null,
+            config.mouseDrag && !isMarquee.value ? handleDragStart : null,
           onTouchstartPassiveCapture:
-            config.touchDrag && !config.marquee ? handleDragStart : null,
-          onWheel: config.mouseWheel && !config.marquee ? handleScroll : null,
+            config.touchDrag && !isMarquee.value ? handleDragStart : null,
+          onWheel: config.mouseWheel && !isMarquee.value ? handleScroll : null,
           style: { transform: trackTransform.value },
         },
         output
@@ -1013,9 +1015,9 @@ export const Carousel = defineComponent({
             {
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
-              'is-marquee': !!config.marquee,
+              'is-marquee': isMarquee.value,
               'is-paused':
-                !!config.marquee && !!config.pauseAutoplayOnHover && isHover.value,
+                isMarquee.value && !!config.pauseAutoplayOnHover && isHover.value,
               'is-sliding': isSliding.value,
               'is-vertical': isVertical.value,
             },

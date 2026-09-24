@@ -58,7 +58,9 @@ describe('marquee', () => {
 
     it('warns when combined with the fade effect', () => {
       mountCarousel({ slideEffect: 'fade' })
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('fade'))
+      expect(warn).toHaveBeenCalledWith(
+        '[vue3-carousel]: "marquee" cannot be used with slideEffect "fade". The setting will be ignored.'
+      )
     })
 
     it('does not warn for a valid setup', () => {
@@ -257,6 +259,25 @@ describe('marquee', () => {
       const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
       wrapper.find('.carousel__track').element.dispatchEvent(event)
       expect(event.defaultPrevented).toBe(false)
+    })
+
+    describe('with the fade effect', () => {
+      let warn: ReturnType<typeof vi.spyOn>
+      beforeEach(() => {
+        warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      })
+      afterEach(() => warn.mockRestore())
+
+      it('is ignored, so the carousel navigates normally', async () => {
+        const wrapper = mountCarousel({ slideEffect: 'fade' })
+        await wrapper.vm.$nextTick()
+        expect(rootClasses(wrapper)).not.toContain('is-marquee')
+        expect(rootStyle(wrapper)).not.toContain('--vc-marquee')
+        wrapper.vm.next()
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.data.currentSlide).toBe(1)
+        expect(wrapper.emitted('slide-start')).toHaveLength(1)
+      })
     })
 
     it('ignores the mouse wheel', () => {
