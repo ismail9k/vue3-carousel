@@ -51,6 +51,11 @@ describe('toAgentMarkdown', () => {
     expect(out).toContain('after (added in 0.18.0)')
   })
 
+  it('replaces a Badge that carries other attributes besides text', () => {
+    const out = toAgentMarkdown('a <Badge type="tip" text="0.19.0" /> b', { siteUrl })
+    expect(out).toBe('a (added in 0.19.0) b\n')
+  })
+
   it('replaces Badge with "(added in X)" for both self-closing spellings', () => {
     const out = toAgentMarkdown('a <Badge text="0.13.0" /> b <Badge text="0.17.0"/>', {
       siteUrl,

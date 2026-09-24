@@ -28,7 +28,7 @@ function transformText(text: string, opts: TransformOptions): string {
     .replace(/[ \t]*<p\b[^>]*>[\s\S]*?<\/p>/g, (block) =>
       block.includes('<img') ? '' : block
     )
-    .replace(/<Badge\s+text="([^"]*)"\s*\/>/g, '(added in $1)')
+    .replace(/<Badge\b[^>]*\btext="([^"]*)"[^>]*\/>/g, '(added in $1)')
     .replace(/<live-codes\s+:code="examples\.(\w+)"[^>]*\/>/g, (_match, name: string) => {
       const code = opts.resolveExample?.(name)
       if (!code) return ''
