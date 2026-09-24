@@ -369,7 +369,7 @@ export const Carousel = defineComponent({
     const { isHover, handleMouseEnter, handleMouseLeave } = useHover()
 
     const handleArrowKeys = throttle((event: KeyboardEvent): void => {
-      if (event.ctrlKey) return
+      if (!config.keyboardNavigation || event.ctrlKey) return
       switch (event.key) {
         case 'ArrowLeft':
         case 'ArrowUp':

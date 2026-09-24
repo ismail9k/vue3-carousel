@@ -53,6 +53,7 @@ export type CarouselConfig = {
   ignoreAnimations: boolean | string[] | string
   itemsToScroll: number
   itemsToShow: number | 'auto'
+  keyboardNavigation?: boolean
   modelValue?: number
   mouseDrag?: boolean | DragConfig
   mouseWheel?: boolean | WheelConfig
