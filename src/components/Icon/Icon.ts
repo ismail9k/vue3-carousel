@@ -34,11 +34,15 @@ export const Icon = defineComponent<IconProps>({
       default: (props: { name: IconNameValue }) =>
         props.name ? DEFAULT_CONFIG.i18n[iconI18n(props.name)] : '',
     },
+    carousel: {
+      type: Object as PropType<IconProps['carousel']>,
+    },
   },
   setup(props) {
-    const carousel = inject(injectCarousel, null)
+    const injected = inject(injectCarousel, null)
 
     return () => {
+      const carousel = props.carousel ?? injected
       const iconName = props.name
       if (!iconName || !validateIconName(iconName)) return
 

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { h, ref } from 'vue'
 
 import { Carousel, Navigation, Pagination, Slide } from '@/index'
@@ -71,9 +71,32 @@ describe('classPrefix', () => {
   it('prefixes a standalone navigation bound through the carousel prop', async () => {
     const wrapper = mountAll()
     await wrapper.vm.$nextTick()
-    await wrapper.vm.$forceUpdate()
-    await wrapper.vm.$nextTick()
     expect(wrapper.findAll('.vc__prev').length).toBe(2)
+    expect(wrapper.findAll('.vc__icon').length).toBe(4)
+    expect(wrapper.find('.carousel__icon').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('prefixes the icons of a navigation rendered before its carousel ref is set', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const wrapper = mount(
+      {
+        setup() {
+          const carousel = ref()
+          return () => [
+            h(Carousel, { ref: carousel, classPrefix: 'vc' }, () =>
+              Array.from({ length: 3 }, (_, i) => h(Slide, { key: i }, () => `${i + 1}`))
+            ),
+            h(Navigation, { carousel: carousel.value }),
+          ]
+        },
+      },
+      { attachTo: document.body }
+    )
+    await wrapper.vm.$nextTick()
+    warn.mockRestore()
+    expect(wrapper.findAll('.vc__icon').length).toBe(2)
+    expect(wrapper.find('.carousel__icon').exists()).toBe(false)
     wrapper.unmount()
   })
 })

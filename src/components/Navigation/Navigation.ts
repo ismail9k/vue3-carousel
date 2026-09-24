@@ -1,4 +1,4 @@
-import { computed, defineComponent, h, inject, PropType, provide } from 'vue'
+import { computed, defineComponent, h, inject, PropType } from 'vue'
 
 import { DEFAULT_CLASS_PREFIX, injectCarousel, NormalizedDir } from '@/shared'
 
@@ -16,10 +16,6 @@ export const Navigation = defineComponent<NavigationProps>({
   },
   setup(props, { slots, attrs }) {
     let carousel = inject(injectCarousel, null)!
-    if (props.carousel) {
-      // Let descendants such as Icon read the bound carousel's config
-      provide(injectCarousel, props.carousel)
-    }
     const { next: slotNext, prev: slotPrev } = slots
 
     const getPrevIcon = () => {
@@ -75,7 +71,7 @@ export const Navigation = defineComponent<NavigationProps>({
             attrs.class,
           ],
         },
-        slotPrev?.() || h(Icon, { name: getPrevIcon() })
+        slotPrev?.() || h(Icon, { name: getPrevIcon(), carousel })
       )
       const nextButton = h(
         'button',
@@ -92,7 +88,7 @@ export const Navigation = defineComponent<NavigationProps>({
             attrs.class,
           ],
         },
-        slotNext?.() || h(Icon, { name: getNextIcon() })
+        slotNext?.() || h(Icon, { name: getNextIcon(), carousel })
       )
 
       return [prevButton, nextButton]
