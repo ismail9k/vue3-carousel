@@ -10,6 +10,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 
 | Prop                       | Type                                        | Default                          | Description                                                                                            |
 |----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. <Badge text="0.19.0"/> |
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
@@ -114,6 +115,7 @@ These props control the appearance of the carousel:
 ```vue
 <template>
   <Carousel 
+    :adaptive-height="true"
     :gap="20"
     snap-align="start"
     slide-effect="fade"
@@ -123,6 +125,11 @@ These props control the appearance of the carousel:
   </Carousel>
 </template>
 ```
+
+- **`adaptiveHeight`**: Sizes the carousel to the tallest visible slide instead of the tallest slide overall, and animates the height on navigation with the `transition` settings.
+  - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
+  - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
+  - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
 
 - **`gap`**: Space (in pixels) between slides.
   - Example: `:gap="20"` creates 20px spacing between slides.
