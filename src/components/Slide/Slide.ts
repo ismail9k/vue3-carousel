@@ -118,15 +118,20 @@ export const Slide = defineComponent({
       }
     })
 
-    // Keep focusable content of clones and off-screen slides out of the tab order
+    // Keep focusable content of clones and off-screen slides out of the tab order.
+    // Slides re-render on every navigation, so only query the DOM when this
+    // slide has actually disabled something.
+    let hasDisabledChildren = false
     const updateChildrenTabbing = () => {
       if (!carousel.config.enabled) {
         return
       }
       if (props.isClone || !isVisible.value) {
         disableChildrenTabbing(instance.vnode)
-      } else {
+        hasDisabledChildren = true
+      } else if (hasDisabledChildren) {
         restoreChildrenTabbing(instance.vnode)
+        hasDisabledChildren = false
       }
     }
     onMounted(updateChildrenTabbing)
