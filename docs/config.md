@@ -130,7 +130,7 @@ These props control the appearance of the carousel:
   - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
   - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
   - Visible slides are no longer stretched to the same height; with `itemsToShow > 1` shorter slides align to the top.
-  - Slide content styled with `height: 100%` measures as the current carousel height, so the height never changes; size the content itself instead.
+  - Visible slides size to their content, so percentage heights inside a slide (`height: 100%`) resolve to `auto`: give the content an intrinsic or explicit height (images keep their aspect ratio).
   - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
 
 - **`gap`**: Space (in pixels) between slides.
