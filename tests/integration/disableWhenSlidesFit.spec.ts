@@ -47,7 +47,13 @@ describe('disableWhenSlidesFit', () => {
 
   describe('state', () => {
     it('is off by default: slides fit but nothing is locked', async () => {
-      const wrapper = mountCarousel({ disableWhenSlidesFit: false, itemsToShow: 3 })
+      // mountCarousel turns the prop on, so mount without it to exercise the default
+      const wrapper = mount(Carousel, {
+        props: { itemsToShow: 3 },
+        slots: {
+          default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `${i + 1}`)),
+        },
+      })
       // Slides register during the first render; the root class updates next tick
       await nextTick()
       expect(wrapper.vm.allSlidesFit).toBe(true)
@@ -387,6 +393,31 @@ describe('disableWhenSlidesFit', () => {
       expect(wrapper.vm.activeSlide).toBe(0)
       expect(wrapper.vm.currentSlide).toBe(0)
       expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+
+    it('ignores the arrow keys while locked', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
+      await nextTick()
+      await wrapper.trigger('focus')
+      vi.useFakeTimers()
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+      // The arrow key handler is throttled to 200ms
+      vi.advanceTimersByTime(250)
+      vi.useRealTimers()
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      await wrapper.trigger('blur')
+    })
+
+    it('locks when a breakpoint turns the prop on', async () => {
+      const wrapper = mount(Carousel, {
+        props: { itemsToShow: 3, breakpoints: { 0: { disableWhenSlidesFit: true } } },
+        slots: {
+          default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `${i + 1}`)),
+        },
+      })
+      await nextTick()
+      expect(wrapper.vm.isLocked).toBe(true)
     })
   })
 
