@@ -18,11 +18,7 @@ import VerticalExampleRaw from './ExampleVertical.vue?raw'
 // @ts-ignore
 import WrapAroundExampleRaw from './ExampleWrapAround.vue?raw'
 
-function formatExample(exampleRaw: string) {
-  return exampleRaw
-    .replace('../../dist/carousel.css', 'vue3-carousel/carousel.css')
-    .replace('../../dist/carousel.mjs', 'vue3-carousel')
-}
+import { formatExample } from './format'
 
 export const BasicExample = formatExample(BasicExampleRaw)
 export const WrapAroundExample = formatExample(WrapAroundExampleRaw)
