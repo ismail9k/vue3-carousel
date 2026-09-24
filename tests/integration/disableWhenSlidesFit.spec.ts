@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { h, nextTick, ref } from 'vue'
 
-import { Carousel, Slide } from '@/index'
+import { Carousel, Navigation, Pagination, Slide } from '@/index'
 
 const VIEWPORT = 300
 const SLIDE = 100
@@ -282,6 +282,33 @@ describe('disableWhenSlidesFit', () => {
       expect(wrapper.vm.activeSlide).toBe(0)
       expect(wrapper.vm.currentSlide).toBe(0)
       expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+  })
+
+  describe('addons', () => {
+    const mountWithAddons = (props: Record<string, unknown> = {}) =>
+      mount(Carousel, {
+        props: { disableWhenSlidesFit: true, ...props },
+        slots: {
+          default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `${i + 1}`)),
+          addons: () => [h(Navigation), h(Pagination)],
+        },
+      })
+
+    it('hides Navigation and Pagination while locked and shows them again', async () => {
+      const wrapper = mountWithAddons({ itemsToShow: 3 })
+      expect(wrapper.find('.carousel__prev').exists()).toBe(false)
+      expect(wrapper.find('.carousel__next').exists()).toBe(false)
+      expect(wrapper.find('.carousel__pagination').exists()).toBe(false)
+      await wrapper.setProps({ itemsToShow: 2 })
+      expect(wrapper.find('.carousel__prev').exists()).toBe(true)
+      expect(wrapper.find('.carousel__pagination').exists()).toBe(true)
+    })
+
+    it('keeps the addons when the prop is off', () => {
+      const wrapper = mountWithAddons({ disableWhenSlidesFit: false, itemsToShow: 3 })
+      expect(wrapper.find('.carousel__prev').exists()).toBe(true)
+      expect(wrapper.find('.carousel__pagination').exists()).toBe(true)
     })
   })
 })
