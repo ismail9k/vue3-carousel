@@ -149,4 +149,22 @@ describe('drag threshold', () => {
     await nextTick()
     expect(emittedIndex(wrapper)).toBeUndefined()
   })
+
+  it('ignores a two-finger touchmove when applying the release sample', async () => {
+    const wrapper = mountCarousel({ touchDrag: { threshold: 0.1 } })
+    await nextTick() // let the carousel measure its slides before the first sample
+    wrapper.find('.carousel__track').element.dispatchEvent(touchEvent('touchstart', 200))
+    document.dispatchEvent(touchEvent('touchmove', 190)) // 10px, below threshold
+    const pinch = new Event('touchmove', { bubbles: true, cancelable: true })
+    Object.defineProperty(pinch, 'touches', {
+      value: [
+        { clientX: 100, clientY: 0 },
+        { clientX: 300, clientY: 0 },
+      ],
+    })
+    document.dispatchEvent(pinch) // must not overwrite the recorded position
+    document.dispatchEvent(touchEvent('touchend', 190))
+    await nextTick()
+    expect(emittedIndex(wrapper)).toBeUndefined()
+  })
 })
