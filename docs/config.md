@@ -286,4 +286,4 @@ Available keys:
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
 
-If a page mounts several Vue apps, set `app.config.idPrefix` per app, or give each carousel its own `ariaGallery` label. A meaningful label per carousel is best for screen-reader users.
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.
