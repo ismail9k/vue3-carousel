@@ -885,6 +885,32 @@ describe('v-model with wrapAround (#519)', () => {
     expect(wrapper.vm.currentSlide).toBe(0)
   })
 
+  it('takes the shortest path to an out-of-range model value', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 })
+    await nextTick()
+
+    await setModel(wrapper, 7)
+    expect(wrapper.vm.currentSlide).toBe(1)
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(1)
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('loops through the clone with several items shown', async () => {
+    const wrapper = mountCarousel(
+      { modelValue: 4, itemsToShow: 3, snapAlign: 'center' },
+      5
+    )
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(5)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+  })
+
   it('slides directly without wrapAround', async () => {
     const wrapper = mountCarousel({ modelValue: 2, wrapAround: false })
     await nextTick()
@@ -901,5 +927,7 @@ describe('v-model with wrapAround (#519)', () => {
 
     await setModel(wrapper, 0)
     expect(wrapper.vm.currentSlide).toBe(0)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
   })
 })

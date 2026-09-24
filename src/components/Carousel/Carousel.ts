@@ -635,10 +635,11 @@ export const Carousel = defineComponent({
         return val
       }
       const current = currentSlideIndex.value
-      return [val - slidesCount.value, val + slidesCount.value].reduce(
+      const canonical = mapNumberToRange({ val, max: maxSlideIndex.value, min: 0 })
+      return [canonical - slidesCount.value, canonical + slidesCount.value].reduce(
         (best, candidate) =>
           Math.abs(candidate - current) < Math.abs(best - current) ? candidate : best,
-        val
+        canonical
       )
     }
 
