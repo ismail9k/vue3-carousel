@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import type { SiteConfig } from 'vitepress'
-
 import { formatExample } from '../examples/format'
+
+import type { SiteConfig } from 'vitepress'
 
 export const SITE_URL = 'https://vue3-carousel.ismail9k.com'
 
@@ -18,6 +18,7 @@ const FRONTMATTER = /^---\n[\s\S]*?\n---\n/
 const FENCE = /(^[ \t]*```[^\n]*\n[\s\S]*?^[ \t]*```[ \t]*$)/m
 
 /** Stands in for an inlined example so prose-only rewrites never touch its code. */
+// eslint-disable-next-line no-control-regex -- NUL cannot occur in Markdown source
 const EMBED_PLACEHOLDER = /\u0000(\d+)\u0000/g
 
 function transformText(text: string, opts: TransformOptions): string {
