@@ -442,4 +442,53 @@ describe('nativeCss', () => {
       expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     })
   })
+
+  describe('resize', () => {
+    function nextFrame() {
+      return new Promise((resolve) => requestAnimationFrame(resolve))
+    }
+
+    it('does not re-scroll on resize while a user scroll is unsettled', async () => {
+      // rAF stays real: the resize handler is throttled to one frame
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      let resize: () => void = () => {}
+      vi.stubGlobal(
+        'ResizeObserver',
+        class {
+          constructor(callback: () => void) {
+            resize = callback
+          }
+          observe() {}
+          unobserve() {}
+          disconnect() {}
+        }
+      )
+      mockLayout()
+      const wrapper = mountCarousel({ snapAlign: 'start' })
+      await nextTick()
+      // the view is on slide 1 while the current slide is still 0
+      vi.restoreAllMocks()
+      mockLayout({ scrolled: SIZE })
+      const viewport = wrapper.find('.carousel__viewport')
+      let scrollBy = vi.spyOn(viewport.element, 'scrollBy')
+      await viewport.trigger('scroll')
+      resize()
+      await nextFrame()
+      await nextTick()
+      expect(scrollBy).not.toHaveBeenCalled()
+
+      vi.advanceTimersByTime(100)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([1])
+
+      vi.restoreAllMocks()
+      mockLayout({ scrolled: 0 })
+      scrollBy = vi.spyOn(viewport.element, 'scrollBy')
+      resize()
+      await nextFrame()
+      await nextTick()
+      expect(scrollBy).toHaveBeenCalledTimes(1)
+      expect(scrollBy).toHaveBeenCalledWith({ left: SIZE, behavior: 'instant' })
+    })
+  })
 })

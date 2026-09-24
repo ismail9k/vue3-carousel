@@ -211,7 +211,9 @@ export const Carousel = defineComponent({
       updateBreakpointsConfig()
       updateSlidesData()
       updateSlideSize()
-      if (isNative.value) {
+      // A user scroll that has not settled yet is still moving away from the
+      // current slide; snapping back to it would undo the scroll
+      if (isNative.value && !nativeScrollPending) {
         scrollToSlide(currentSlideIndex.value, 'instant')
       }
     })
@@ -705,7 +707,11 @@ export const Carousel = defineComponent({
       })
     }
 
+    // Set by a scroll event, cleared once that scroll settles
+    let nativeScrollPending = false
+
     const handleNativeScroll = debounce(() => {
+      nativeScrollPending = false
       adoptNativeScrollIndex()
       resetAutoplay()
     }, 100)
@@ -716,6 +722,7 @@ export const Carousel = defineComponent({
       if (!isSliding.value) {
         stopAutoplay()
       }
+      nativeScrollPending = true
       handleNativeScroll()
     }
 
