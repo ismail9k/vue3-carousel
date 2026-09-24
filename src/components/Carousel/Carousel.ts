@@ -530,7 +530,9 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      if (!skipTransition && isSliding.value) {
+      // Only an explicit `true` bypasses the guard, so a handler that forwards
+      // its event (`@click="carousel.next"`) cannot start an overlapping slide
+      if (skipTransition !== true && isSliding.value) {
         return
       }
 
