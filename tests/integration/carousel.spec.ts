@@ -837,7 +837,7 @@ describe('Slide content tab order', () => {
   })
 
   it('Should reset the viewport scroll on focus in a vertical carousel', async () => {
-    const wrapper = mountLinks({ dir: 'ttb' })
+    const wrapper = mountLinks({ dir: 'ttb', height: 200 })
     await nextTick()
     const viewport = wrapper.find('.carousel__viewport').element
     viewport.scrollTop = 20
