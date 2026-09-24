@@ -225,7 +225,7 @@ These props provide additional customization for specific use cases:
 
 ## Native CSS mode
 
-`nativeCss` turns the viewport into a CSS scroll-snap container: the browser scrolls, snaps and handles touch, wheel and momentum, and no track transform is applied. `Navigation`, `Pagination`, `v-model`, slide classes and the events keep working; `slideTo`, `next` and `prev` scroll the viewport, and the current slide follows the scroll position once scrolling settles.
+`nativeCss` turns the viewport into a CSS scroll-snap container: the browser scrolls, snaps and handles touch, wheel and momentum, and no track transform is applied. `Navigation`, `Pagination`, `v-model`, slide classes and the events other than `drag`, `wheel` and `loop` keep working; `slideTo`, `next` and `prev` scroll the viewport, and the current slide follows the scroll position once scrolling settles.
 
 ```vue
 <Carousel :native-css="true" :items-to-show="2.5" :gap="10" snap-align="start">
