@@ -53,6 +53,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
   dir: DIR_OPTIONS[0],
+  disableWhenSlidesFit: false,
   edgeSpacing: 0,
   enabled: true,
   gap: 0,

@@ -214,6 +214,29 @@ export const Carousel = defineComponent({
       }
     }
 
+    // Every slide is on screen at once, so there is nothing to slide to.
+    // Never true with wrapAround: the loop always has somewhere to go.
+    const allSlidesFit = computed(() => {
+      if (config.wrapAround) {
+        return false
+      }
+      if (!isAuto.value) {
+        return slidesCount.value <= Number(config.itemsToShow)
+      }
+      const viewportSize = viewportRect.value[dimension.value]
+      if (viewportSize <= 0) {
+        // Not measured yet: keep the controls until the sizes are known
+        return false
+      }
+      const slidesSize = slidesRect.value.reduce(
+        (acc, slide) => acc + slide[dimension.value] + config.gap,
+        -config.gap
+      )
+      return slidesSize <= viewportSize
+    })
+
+    const isLocked = computed(() => config.disableWhenSlidesFit && allSlidesFit.value)
+
     function updateSlideSize(): void {
       if (!viewport.value) return
 
@@ -868,9 +891,11 @@ export const Carousel = defineComponent({
 
     const provided: InjectedCarousel = reactive({
       activeSlide: activeSlideIndex,
+      allSlidesFit,
       config,
       currentSlide: currentSlideIndex,
       isSliding,
+      isLocked,
       isVertical,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
@@ -966,6 +991,7 @@ export const Carousel = defineComponent({
             {
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-locked': isLocked.value,
               'is-sliding': isSliding.value,
               'is-vertical': isVertical.value,
             },

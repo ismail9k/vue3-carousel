@@ -45,6 +45,7 @@ export type CarouselConfig = {
   breakpoints?: Breakpoints
   clamp?: boolean
   dir?: Dir
+  disableWhenSlidesFit: boolean
   edgeSpacing: number
   enabled: boolean
   gap: number

@@ -63,6 +63,11 @@ export const carouselProps = {
       return true
     },
   },
+  // lock the carousel and hide its addons while every slide fits in the viewport
+  disableWhenSlidesFit: {
+    default: DEFAULT_CONFIG.disableWhenSlidesFit,
+    type: Boolean,
+  },
   // space in pixels before the first slide and after the last slide
   edgeSpacing: {
     default: DEFAULT_CONFIG.edgeSpacing,

@@ -47,9 +47,11 @@ export type CarouselNav = {
 
 export type InjectedCarousel = Reactive<{
   activeSlide: Ref<number>
+  allSlidesFit: ComputedRef<boolean>
   config: CarouselConfig
   currentSlide: Ref<number>
   isSliding: Ref<boolean>
+  isLocked: ComputedRef<boolean>
   isVertical: ComputedRef<boolean>
   maxSlide: ComputedRef<number>
   minSlide: ComputedRef<number>
