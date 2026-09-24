@@ -107,6 +107,18 @@ describe('disableWhenSlidesFit', () => {
       await nextTick()
       expect(wrapper.vm.isLocked).toBe(true)
     })
+    it('never locks with no registered slides', () => {
+      const wrapper = mountCarousel({ itemsToShow: 3 }, 0)
+      expect(wrapper.vm.allSlidesFit).toBe(false)
+      expect(wrapper.vm.isLocked).toBe(false)
+    })
+
+    it('does not lock on the first render, before slides register', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3 })
+      expect(wrapper.classes()).not.toContain('is-locked')
+      await nextTick()
+      expect(wrapper.classes()).toContain('is-locked')
+    })
   })
 
   describe('auto mode', () => {

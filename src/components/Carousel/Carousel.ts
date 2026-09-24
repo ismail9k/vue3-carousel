@@ -217,6 +217,10 @@ export const Carousel = defineComponent({
     // Every slide is on screen at once, so there is nothing to slide to.
     // Never true with wrapAround: the loop always has somewhere to go.
     const allSlidesFit = computed(() => {
+      if (slidesCount.value === 0) {
+        // Nothing registered yet (first render, SSR): never lock an empty carousel
+        return false
+      }
       if (config.wrapAround) {
         return false
       }
