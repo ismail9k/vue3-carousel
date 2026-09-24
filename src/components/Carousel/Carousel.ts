@@ -236,7 +236,8 @@ export const Carousel = defineComponent({
         (acc, slide) => acc + slide[dimension.value] + config.gap,
         -config.gap
       )
-      return slidesSize <= viewportSize
+      // 1px tolerance: fractional widths and scale multipliers make an exact fit measure a hair over
+      return slidesSize - viewportSize <= 1
     })
 
     const isLocked = computed(() => config.disableWhenSlidesFit && allSlidesFit.value)

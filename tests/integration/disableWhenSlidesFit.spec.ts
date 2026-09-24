@@ -125,6 +125,14 @@ describe('disableWhenSlidesFit', () => {
   })
 
   describe('auto mode', () => {
+    // Re-mocks the slide width; the viewport and root stay 300px
+    const mockSlideSize = (slide: number) =>
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+        this: Element
+      ) {
+        return rect(this.classList.contains('carousel__slide') ? slide : VIEWPORT)
+      })
+
     it('locks when the slides total width fits the viewport', async () => {
       const wrapper = mountCarousel({ itemsToShow: 'auto' }, 3)
       await nextTick()
@@ -144,6 +152,34 @@ describe('disableWhenSlidesFit', () => {
       await nextTick()
       // 3 × 100px + 2 × 10px > 300px
       expect(wrapper.vm.allSlidesFit).toBe(false)
+    })
+
+    it('tolerates 1px of sub-pixel overflow', async () => {
+      const spy = mockSlideSize(100.3)
+      try {
+        const wrapper = mountCarousel({ itemsToShow: 'auto' }, 3)
+        await nextTick()
+        // 3 × 100.3px = 300.9px, within 1px of the 300px viewport
+        expect(wrapper.vm.allSlidesFit).toBe(true)
+      } finally {
+        spy.mockRestore()
+        // Restore the sized mock for the remaining tests
+        mockSlideSize(SLIDE)
+      }
+    })
+
+    it('does not lock when the overflow exceeds 1px', async () => {
+      const spy = mockSlideSize(101)
+      try {
+        const wrapper = mountCarousel({ itemsToShow: 'auto' }, 3)
+        await nextTick()
+        // 3 × 101px = 303px overflows the 300px viewport
+        expect(wrapper.vm.allSlidesFit).toBe(false)
+      } finally {
+        spy.mockRestore()
+        // Restore the sized mock for the remaining tests
+        mockSlideSize(SLIDE)
+      }
     })
 
     it('does not lock before the viewport is measured', async () => {
