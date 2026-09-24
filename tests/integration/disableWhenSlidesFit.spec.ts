@@ -88,6 +88,25 @@ describe('disableWhenSlidesFit', () => {
       expect(wrapper.vm.isLocked).toBe(false)
     })
 
+    it('locks a fade carousel only when it has a single slide', async () => {
+      // Fade stacks every slide in one cell, so 3 slides never all show at once
+      const stacked = mountCarousel({
+        itemsToShow: 3,
+        slideEffect: 'fade',
+        modelValue: 0,
+      })
+      await nextTick()
+      expect(stacked.vm.allSlidesFit).toBe(false)
+      expect(stacked.vm.isLocked).toBe(false)
+      stacked.vm.slideTo(2)
+      await nextTick()
+      expect(stacked.emitted('update:modelValue')).toEqual([[2]])
+
+      const single = mountCarousel({ itemsToShow: 3, slideEffect: 'fade' }, 1)
+      await nextTick()
+      expect(single.vm.isLocked).toBe(true)
+    })
+
     it('reacts to itemsToShow changes', async () => {
       const wrapper = mountCarousel({ itemsToShow: 3 })
       expect(wrapper.vm.isLocked).toBe(true)

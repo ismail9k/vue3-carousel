@@ -224,6 +224,10 @@ export const Carousel = defineComponent({
       if (config.wrapAround) {
         return false
       }
+      if (config.slideEffect === 'fade') {
+        // Fade stacks every slide in one cell, so only a single slide ever fits
+        return slidesCount.value <= 1
+      }
       if (!isAuto.value) {
         return slidesCount.value <= Number(config.itemsToShow)
       }
