@@ -52,6 +52,8 @@ export function useDrag(options: UseDragOptions) {
       }
     }
 
+    // A drag that never ended (e.g. touchcancel) may still have a frame scheduled
+    throttledApplyDrag.cancel()
     hasPendingMove = false
     const { x, y } = getPosition(event)
     startPosition.x = x
