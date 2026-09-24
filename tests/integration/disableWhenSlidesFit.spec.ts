@@ -198,6 +198,40 @@ describe('disableWhenSlidesFit', () => {
     })
   })
 
+  describe('index sync', () => {
+    it('resets to the first slide when the carousel locks on a later slide', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 1, modelValue: 2 })
+      await nextTick()
+      expect(wrapper.vm.currentSlide).toBe(2)
+
+      await wrapper.setProps({ itemsToShow: 3 })
+      expect(wrapper.vm.isLocked).toBe(true)
+      expect(wrapper.vm.currentSlide).toBe(0)
+      expect(wrapper.emitted('update:modelValue')).toEqual([[0]])
+      expect(transform(wrapper)).toBe('translateX(0px)')
+      expect(wrapper.findAll('.carousel__slide')[0].classes()).toContain(
+        'carousel__slide--active'
+      )
+    })
+
+    it('applies a modelValue change made while locked once it unlocks', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })
+      await wrapper.setProps({ modelValue: 1 })
+      expect(wrapper.vm.currentSlide).toBe(0)
+
+      await wrapper.setProps({ itemsToShow: 1 })
+      expect(wrapper.vm.isLocked).toBe(false)
+      expect(wrapper.vm.currentSlide).toBe(1)
+    })
+
+    it('does not emit when the carousel locks already on the first slide', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 1, modelValue: 0 })
+      await nextTick()
+      await wrapper.setProps({ itemsToShow: 3 })
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+  })
+
   describe('interaction', () => {
     it('makes slideTo a no-op while locked', async () => {
       const wrapper = mountCarousel({ itemsToShow: 3, modelValue: 0 })

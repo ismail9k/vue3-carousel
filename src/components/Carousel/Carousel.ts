@@ -649,6 +649,22 @@ export const Carousel = defineComponent({
       }
     )
 
+    // Locking pins the carousel at its first slide; unlocking re-applies the
+    // v-model value that was ignored while locked
+    watch(isLocked, (locked) => {
+      if (locked) {
+        if (currentSlideIndex.value !== minSlideIndex.value) {
+          currentSlideIndex.value = minSlideIndex.value
+          emit('update:modelValue', minSlideIndex.value)
+        }
+      } else if (
+        props.modelValue !== undefined &&
+        props.modelValue !== currentSlideIndex.value
+      ) {
+        slideTo(props.modelValue, true)
+      }
+    })
+
     // Init carousel
     emit('before-init')
 
