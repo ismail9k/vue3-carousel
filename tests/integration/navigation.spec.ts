@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, vi } from 'vitest'
-import { reactive } from 'vue'
+import { nextTick, reactive } from 'vue'
 
 import {
   I18N_DEFAULT_CONFIG,
@@ -77,6 +77,18 @@ describe('Navigation.ts', () => {
 
     expect(consoleMock).toHaveBeenCalledOnce()
     expect(wrapper.html()).toBe('')
+  })
+
+  it('renders nothing while the carousel is locked', async () => {
+    const inject = makeCarouselInject()
+    inject.isLocked = true
+    const wrapper = await mount(Navigation, {
+      global: { provide: { [injectCarousel]: inject } },
+    })
+    expect(wrapper.html()).toBe('')
+    inject.isLocked = false
+    await nextTick()
+    expect(wrapper.find('.carousel__next').exists()).toBe(true)
   })
 
   it('inherits attrs on buttons', async () => {

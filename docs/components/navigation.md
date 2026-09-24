@@ -29,6 +29,7 @@ import { Navigation as CarouselNavigation } from 'vue3-carousel'
 - Customizable button appearance
 - Automatic disable state when reaching bounds
 - Built-in accessibility features
+- Renders nothing while the carousel is locked by `disableWhenSlidesFit`
 
 ## Custom Navigation Buttons
 
