@@ -485,7 +485,19 @@ export const Carousel = defineComponent({
           })
     }
 
-    const onDragEnd = () => slideTo(activeSlideIndex.value)
+    const onDragEnd = () => {
+      slideTo(activeSlideIndex.value)
+
+      // slideTo returns early when the drag did not change the slide (under the
+      // threshold or clamped at an edge). Enter the sliding state anyway so the
+      // track's return to its slot is transitioned instead of snapping back.
+      if (!isSliding.value && (dragged.x !== 0 || dragged.y !== 0)) {
+        isSliding.value = true
+        transitionTimer = setTimeout(() => {
+          isSliding.value = false
+        }, config.transition)
+      }
+    }
 
     const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
