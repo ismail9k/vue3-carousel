@@ -20,11 +20,16 @@ export function getDraggedSlidesCount(params: DragParams): number {
   // If no drag, return +0 explicitly
   if (dragValue === 0) return 0
 
+  // A carousel with no measurable size cannot map a drag to slides (#518):
+  // dividing by 0 would make the count Infinity and, with wrapAround, the
+  // clone count with it
+  if (!Number.isFinite(effectiveSlideSize) || effectiveSlideSize <= 0) return 0
+
   const dragRatio = dragValue / effectiveSlideSize
   const absRatio = Math.abs(dragRatio)
 
-  // If below the threshold, consider it no movement
-  if (absRatio < threshold) return 0
+  // If not finite or below the threshold, consider it no movement
+  if (!Number.isFinite(dragRatio) || absRatio < threshold) return 0
   
   // For drags less than a full slide, move one slide in the drag direction
   // For drags of a full slide or more, move the corresponding number of slides

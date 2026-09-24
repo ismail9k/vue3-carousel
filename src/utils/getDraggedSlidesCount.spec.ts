@@ -145,4 +145,51 @@ describe('getDraggedSlidesCount', () => {
     }
     expect(getDraggedSlidesCount(params)).toBe(0)
   })
+
+  describe('carousel with no measurable size (#518)', () => {
+    it('returns 0 when the effective slide size is 0 instead of Infinity', () => {
+      const params = {
+        isVertical: true,
+        isReversed: false,
+        dragged: { x: 0, y: 150 },
+        effectiveSlideSize: 0,
+        threshold: 0.5,
+      }
+      expect(getDraggedSlidesCount(params)).toBe(0)
+    })
+
+    it('returns 0 for a horizontal, reversed drag with a slide size of 0', () => {
+      const params = {
+        isVertical: false,
+        isReversed: true,
+        dragged: { x: -150, y: 0 },
+        effectiveSlideSize: 0,
+        threshold: 0.5,
+      }
+      expect(getDraggedSlidesCount(params)).toBe(0)
+    })
+
+    it('returns 0 for a negative or non-finite slide size', () => {
+      const base = {
+        isVertical: false,
+        isReversed: false,
+        dragged: { x: 150, y: 0 },
+        threshold: 0.5,
+      }
+      expect(getDraggedSlidesCount({ ...base, effectiveSlideSize: -100 })).toBe(0)
+      expect(getDraggedSlidesCount({ ...base, effectiveSlideSize: NaN })).toBe(0)
+      expect(getDraggedSlidesCount({ ...base, effectiveSlideSize: Infinity })).toBe(0)
+    })
+
+    it('returns 0 for a non-finite drag distance', () => {
+      const params = {
+        isVertical: false,
+        isReversed: false,
+        dragged: { x: Infinity, y: 0 },
+        effectiveSlideSize: 100,
+        threshold: 0.5,
+      }
+      expect(getDraggedSlidesCount(params)).toBe(0)
+    })
+  })
 })
