@@ -246,12 +246,34 @@ describe('marquee', () => {
       expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     })
 
-    it('does not start autoplay', () => {
-      vi.useFakeTimers()
-      const wrapper = mountCarousel({ autoplay: 100 })
-      vi.advanceTimersByTime(500)
-      expect(wrapper.emitted('slide-start')).toBeUndefined()
-      vi.useRealTimers()
+    describe('autoplay', () => {
+      beforeEach(() => vi.useFakeTimers())
+      afterEach(() => vi.useRealTimers())
+
+      it('does not start autoplay', async () => {
+        const wrapper = mountCarousel({ autoplay: 100 })
+        await wrapper.vm.$nextTick()
+        expect(vi.getTimerCount()).toBe(0)
+        vi.advanceTimersByTime(500)
+        expect(wrapper.emitted('slide-start')).toBeUndefined()
+      })
+
+      it('starts autoplay when marquee is turned off', async () => {
+        const wrapper = mountCarousel({ autoplay: 100 })
+        await wrapper.vm.$nextTick()
+        expect(vi.getTimerCount()).toBe(0)
+        await wrapper.setProps({ marquee: false })
+        vi.advanceTimersByTime(100)
+        expect(wrapper.emitted('slide-start')).toHaveLength(1)
+      })
+
+      it('stops autoplay when marquee is turned on', async () => {
+        const wrapper = mountCarousel({ autoplay: 100, marquee: false })
+        await wrapper.vm.$nextTick()
+        expect(vi.getTimerCount()).toBe(1)
+        await wrapper.setProps({ marquee: true })
+        expect(vi.getTimerCount()).toBe(0)
+      })
     })
 
     it('does not start a drag', () => {

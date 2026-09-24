@@ -611,6 +611,10 @@ export const Carousel = defineComponent({
       () => resetAutoplay()
     )
 
+    // Marquee disables autoplay, so restore or stop it when marquee toggles
+    // (a prop change or a breakpoint)
+    watch(isMarquee, () => resetAutoplay())
+
     // Handle changing v-model value
     const modelWatcher = watch(
       () => props.modelValue,
