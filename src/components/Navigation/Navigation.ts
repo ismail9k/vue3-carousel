@@ -54,6 +54,9 @@ export const Navigation = defineComponent<NavigationProps>({
         console.warn('[vue3-carousel]: A carousel component must be provided for the navigation component to display')
         return '';
       }
+      if (carousel.isMarquee) {
+        return ''
+      }
       const { i18n } = carousel.config
       const prevButton = h(
         'button',

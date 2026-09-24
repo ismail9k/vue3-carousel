@@ -18,7 +18,14 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
-import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
+import {
+  DragEventData,
+  useDrag,
+  useHover,
+  useMarqueePhase,
+  useWheel,
+  WheelEventData,
+} from '@/composables'
 import {
   CarouselConfig,
   DEFAULT_CONFIG,
@@ -75,6 +82,7 @@ export const Carousel = defineComponent({
 
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
+    const track: Ref<HTMLElement | null> = ref(null)
     const slideSize: Ref<number> = ref(0)
 
     const fallbackConfig = computed(() => ({
@@ -119,6 +127,8 @@ export const Carousel = defineComponent({
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
     const isAuto = computed(() => config.itemsToShow === 'auto')
+    // Marquee is ignored with the fade effect: the stacked slides cannot scroll
+    const isMarquee = computed(() => !!config.marquee && config.slideEffect !== 'fade')
 
     const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
@@ -264,6 +274,13 @@ export const Carousel = defineComponent({
     let animationInterval: number
 
     const setAnimationInterval = (event: AnimationEvent) => {
+      // A marquee track animates forever and never changes the slide sizes, so
+      // tracking it (e.g. from a carousel nested in a marquee) would run the
+      // rAF loop for good
+      if (event.animationName === 'vc-marquee') {
+        return
+      }
+
       const target = event.target as HTMLElement
       if (
         !target?.contains(root.value) ||
@@ -406,7 +423,7 @@ export const Carousel = defineComponent({
      * Autoplay
      */
     function initAutoplay(): void {
-      if (!config.autoplay || config.autoplay <= 0) {
+      if (isMarquee.value || !config.autoplay || config.autoplay <= 0) {
         return
       }
 
@@ -530,6 +547,10 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
+      if (isMarquee.value) {
+        return
+      }
+
       if (!skipTransition && isSliding.value) {
         return
       }
@@ -605,6 +626,10 @@ export const Carousel = defineComponent({
       () => resetAutoplay()
     )
 
+    // Marquee disables autoplay, so restore or stop it when marquee toggles
+    // (a prop change or a breakpoint)
+    watch(isMarquee, () => resetAutoplay())
+
     // Handle changing v-model value
     const modelWatcher = watch(
       () => props.modelValue,
@@ -619,7 +644,37 @@ export const Carousel = defineComponent({
     // Init carousel
     emit('before-init')
 
+    // Length of the real slide set, gaps included: the distance one marquee loop travels
+    const marqueeDistance = computed(() => {
+      if (!isMarquee.value) {
+        return 0
+      }
+      if (isAuto.value) {
+        return slidesRect.value.reduce(
+          (acc, slide) => acc + slide[dimension.value] + config.gap,
+          0
+        )
+      }
+      return slidesCount.value * effectiveSlideSize.value
+    })
+
     const clonedSlidesCount = computed(() => {
+      if (isMarquee.value) {
+        // The clones after the real set must cover one viewport, so the jump
+        // back to the start shows the same pixels
+        if (!isAuto.value) {
+          return { before: 0, after: Math.ceil(Number(config.itemsToShow)) }
+        }
+        // Auto mode clones whole sets; a set narrower than the viewport needs several.
+        // Before the slides are measured the distance is 0, so clone a single set
+        const sets = marqueeDistance.value
+          ? Math.max(
+              1,
+              Math.ceil(viewportRect.value[dimension.value] / marqueeDistance.value)
+            )
+          : 1
+        return { before: 0, after: slidesCount.value * sets }
+      }
       if (!config.wrapAround) {
         return { before: 0, after: 0 }
       }
@@ -818,7 +873,7 @@ export const Carousel = defineComponent({
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
-      if (config.slideEffect === 'fade') {
+      if (config.slideEffect === 'fade' || isMarquee.value) {
         return undefined
       }
 
@@ -854,15 +909,33 @@ export const Carousel = defineComponent({
       return `translate${translateAxis}(${totalOffset}px)`
     })
 
-    const carouselStyle = computed(() => ({
-      '--vc-carousel-height': toCssValue(config.height),
-      '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
-      '--vc-slide-gap': toCssValue(config.gap),
-      '--vc-transition-duration': isSliding.value
-        ? toCssValue(config.transition, 'ms')
-        : undefined,
-      '--vc-transition-easing': config.transitionEasing,
-    }))
+    // Seconds one marquee loop takes; 0 when the marquee is off or cannot run
+    const marqueeDuration = computed(() => {
+      const speed = Number(config.marqueeSpeed) || 0
+      return isMarquee.value && speed > 0 ? marqueeDistance.value / speed : 0
+    })
+
+    useMarqueePhase({ track, duration: marqueeDuration, slidesCount })
+
+    const carouselStyle = computed(() => {
+      const marqueeOffset = isMarquee.value
+        ? toCssValue(marqueeDistance.value * (isReversed.value ? 1 : -1))
+        : undefined
+      return {
+        '--vc-carousel-height': toCssValue(config.height),
+        '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
+        '--vc-marquee-duration': isMarquee.value
+          ? toCssValue(marqueeDuration.value, 's')
+          : undefined,
+        '--vc-marquee-x': isVertical.value ? undefined : marqueeOffset,
+        '--vc-marquee-y': isVertical.value ? marqueeOffset : undefined,
+        '--vc-slide-gap': toCssValue(config.gap),
+        '--vc-transition-duration': isSliding.value
+          ? toCssValue(config.transition, 'ms')
+          : undefined,
+        '--vc-transition-easing': config.transitionEasing,
+      }
+    })
 
     const nav: CarouselNav = { slideTo, next, prev }
 
@@ -870,6 +943,7 @@ export const Carousel = defineComponent({
       activeSlide: activeSlideIndex,
       config,
       currentSlide: currentSlideIndex,
+      isMarquee,
       isSliding,
       isVertical,
       maxSlide: maxSlideIndex,
@@ -945,10 +1019,13 @@ export const Carousel = defineComponent({
       const trackEl = h(
         'ol',
         {
+          ref: track,
           class: 'carousel__track',
-          onMousedownCapture: config.mouseDrag ? handleDragStart : null,
-          onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
-          onWheel: config.mouseWheel ? handleScroll : null,
+          onMousedownCapture:
+            config.mouseDrag && !isMarquee.value ? handleDragStart : null,
+          onTouchstartPassiveCapture:
+            config.touchDrag && !isMarquee.value ? handleDragStart : null,
+          onWheel: config.mouseWheel && !isMarquee.value ? handleScroll : null,
           style: { transform: trackTransform.value },
         },
         output
@@ -966,6 +1043,9 @@ export const Carousel = defineComponent({
             {
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-marquee': isMarquee.value,
+              'is-paused':
+                isMarquee.value && !!config.pauseAutoplayOnHover && isHover.value,
               'is-sliding': isSliding.value,
               'is-vertical': isVertical.value,
             },

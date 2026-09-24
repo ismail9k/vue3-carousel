@@ -33,6 +33,12 @@ Illustrates the carousel with autoplay functionality enabled.
 
 <live-codes :code="examples.AutoplayExample" />
 
+## Marquee
+
+Scrolls the slides continuously at a constant speed, pausing on hover.
+
+<live-codes :code="examples.MarqueeExample" />
+
 ## Mouse Wheel
 
 Demonstrates the carousel with mouse wheel scrolling navigation enabled.

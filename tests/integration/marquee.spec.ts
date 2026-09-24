@@ -1,0 +1,597 @@
+import { mount, VueWrapper } from '@vue/test-utils'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
+import { defineComponent, h } from 'vue'
+
+import { Carousel, Slide } from '@/index'
+
+const RECT = {
+  width: 300,
+  height: 100,
+  top: 0,
+  left: 0,
+  right: 300,
+  bottom: 100,
+  x: 0,
+  y: 0,
+}
+
+const mountCarousel = (props: Record<string, unknown> = {}, slideNum = 5) =>
+  mount(Carousel, {
+    props: { marquee: true, ...props },
+    slots: {
+      default: () =>
+        Array.from({ length: slideNum }, (_, i) =>
+          h(Slide, { key: i }, () => `${i + 1}`)
+        ),
+    },
+  })
+
+describe('marquee', () => {
+  beforeAll(() => {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      ...RECT,
+      toJSON: () => RECT,
+    })
+  })
+  afterAll(() => vi.restoreAllMocks())
+
+  describe('props', () => {
+    let warn: ReturnType<typeof vi.spyOn>
+    beforeEach(() => {
+      warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => warn.mockRestore())
+
+    it('warns when marqueeSpeed is not positive', () => {
+      mountCarousel({ marqueeSpeed: 0 })
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('marqueeSpeed'))
+    })
+
+    it('warns when combined with the fade effect', () => {
+      mountCarousel({ slideEffect: 'fade' })
+      expect(warn).toHaveBeenCalledWith(
+        '[vue3-carousel]: "marquee" cannot be used with slideEffect "fade". The setting will be ignored.'
+      )
+    })
+
+    it('does not warn for a valid setup', () => {
+      mountCarousel({ marqueeSpeed: 40 })
+      expect(warn).not.toHaveBeenCalled()
+    })
+  })
+
+  const rootStyle = (wrapper: ReturnType<typeof mountCarousel>) =>
+    wrapper.find('.carousel').attributes('style') || ''
+  const rootClasses = (wrapper: ReturnType<typeof mountCarousel>) =>
+    wrapper.find('.carousel').classes()
+  const trackTransform = (wrapper: ReturnType<typeof mountCarousel>) =>
+    (wrapper.find('.carousel__track').element as HTMLElement).style.transform
+
+  describe('track animation', () => {
+    it('sets the loop distance and duration for a horizontal carousel', async () => {
+      // slideSize = 300 / 2 = 150; distance = 5 * 150 = 750; 750 / 60 = 12.5
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(rootClasses(wrapper)).toContain('is-marquee')
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-x: -750px')
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 12.5s')
+      expect(rootStyle(wrapper)).not.toContain('--vc-marquee-y')
+    })
+
+    it('includes the gap in the loop distance', async () => {
+      // slideSize = (300 - 10) / 2 = 145; distance = 5 * (145 + 10) = 775
+      const wrapper = mountCarousel({ itemsToShow: 2, gap: 10, marqueeSpeed: 155 })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-x: -775px')
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 5s')
+    })
+
+    it('reverses the distance in rtl', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, dir: 'rtl' })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-x: 750px')
+    })
+
+    it('uses the Y axis when vertical', async () => {
+      // slideSize = 100 / 2 = 50; distance = 250; 250 / 50 = 5
+      const wrapper = mountCarousel({
+        itemsToShow: 2,
+        dir: 'ttb',
+        height: 100,
+        marqueeSpeed: 50,
+      })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-y: -250px')
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 5s')
+      expect(rootStyle(wrapper)).not.toContain('--vc-marquee-x')
+    })
+
+    it('reverses the distance in btt', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, dir: 'btt', height: 100 })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-y: 250px')
+      expect(rootStyle(wrapper)).not.toContain('--vc-marquee-x')
+    })
+
+    it('sums the slide sizes in auto mode', async () => {
+      // every slide measures 300px wide; distance = 5 * 300 = 1500
+      const wrapper = mountCarousel({ itemsToShow: 'auto', marqueeSpeed: 100 })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-x: -1500px')
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 15s')
+    })
+
+    it('uses 0s when the speed is not positive', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const wrapper = mountCarousel({ itemsToShow: 2, marqueeSpeed: 0 })
+      await wrapper.vm.$nextTick()
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 0s')
+      warn.mockRestore()
+    })
+
+    it('leaves the inline track transform unset', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(trackTransform(wrapper)).toBe('')
+    })
+
+    it('sets no marquee vars or class when off', async () => {
+      const wrapper = mountCarousel({ marquee: false, itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(rootClasses(wrapper)).not.toContain('is-marquee')
+      expect(rootStyle(wrapper)).not.toContain('--vc-marquee')
+      expect(trackTransform(wrapper)).toBe('translateX(0px)')
+    })
+  })
+
+  describe('phase on duration change', () => {
+    // Fakes the track's running CSS animation, which jsdom does not implement
+    const fakeAnimations = (
+      wrapper: VueWrapper,
+      animations: Array<{ animationName: string; currentTime: number | null }>
+    ) => {
+      Object.defineProperty(wrapper.find('.carousel__track').element, 'getAnimations', {
+        configurable: true,
+        value: () => animations,
+      })
+      return animations
+    }
+
+    it('keeps the loop progress when the speed changes', async () => {
+      // 750px / 60px/s = 12.5s; 3125ms is 25% of the loop; 750 / 30 = 25s
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'vc-marquee', currentTime: 3125 },
+      ])
+      await wrapper.setProps({ marqueeSpeed: 30 })
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 25s')
+      expect(animation.currentTime).toBe(6250)
+    })
+
+    it('keeps the loop progress when the carousel is resized', async () => {
+      // 300px viewport: 12.5s; 600px viewport: slideSize 300, 1500px / 60 = 25s
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'vc-marquee', currentTime: 3125 },
+      ])
+      const wide = { ...RECT, width: 600, right: 600 }
+      vi.mocked(Element.prototype.getBoundingClientRect).mockReturnValue({
+        ...wide,
+        toJSON: () => wide,
+      })
+      try {
+        wrapper.vm.updateSlideSize()
+        await wrapper.vm.$nextTick()
+        expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 25s')
+        expect(animation.currentTime).toBe(6250)
+      } finally {
+        vi.mocked(Element.prototype.getBoundingClientRect).mockReturnValue({
+          ...RECT,
+          toJSON: () => RECT,
+        })
+      }
+    })
+
+    it('uses the progress within the current loop', async () => {
+      // 15625ms is 1.25 loops of 12.5s
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'vc-marquee', currentTime: 15625 },
+      ])
+      await wrapper.setProps({ marqueeSpeed: 30 })
+      expect(animation.currentTime).toBe(6250)
+    })
+
+    describe('when slides are added or removed', () => {
+      const SlidesCarousel = defineComponent({
+        props: { count: { type: Number, required: true } },
+        setup(props) {
+          return () =>
+            h(
+              Carousel,
+              { marquee: true, itemsToShow: 2 },
+              {
+                default: () =>
+                  Array.from({ length: props.count }, (_, i) =>
+                    h(Slide, { key: i }, () => `${i + 1}`)
+                  ),
+              }
+            )
+        },
+      })
+
+      const mountSlides = async (count: number) => {
+        const wrapper = mount(SlidesCarousel, { props: { count } })
+        await wrapper.vm.$nextTick()
+        const [animation] = fakeAnimations(wrapper, [
+          { animationName: 'vc-marquee', currentTime: 3125 },
+        ])
+        return { wrapper, animation }
+      }
+
+      it('keeps the slide position when a slide is added', async () => {
+        // 5 slides: 750px / 12.5s; 3125ms is 25% = 1.25 slides = 187.5px
+        // 6 slides: 900px / 15s; 187.5px is 1.25 / 6 of the loop = 3125ms
+        const { wrapper, animation } = await mountSlides(5)
+        await wrapper.setProps({ count: 6 })
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('.carousel').attributes('style')).toContain(
+          '--vc-marquee-duration: 15s'
+        )
+        expect(animation.currentTime).toBe(3125)
+      })
+
+      it('keeps the slide position when a slide is removed', async () => {
+        // 4 slides: 600px / 10s; 187.5px is 1.25 / 4 of the loop = 3125ms
+        const { wrapper, animation } = await mountSlides(5)
+        await wrapper.setProps({ count: 4 })
+        await wrapper.vm.$nextTick()
+        expect(wrapper.find('.carousel').attributes('style')).toContain(
+          '--vc-marquee-duration: 10s'
+        )
+        expect(animation.currentTime).toBe(3125)
+      })
+    })
+
+    it('leaves other animations alone', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'other', currentTime: 3125 },
+      ])
+      await wrapper.setProps({ marqueeSpeed: 30 })
+      expect(animation.currentTime).toBe(3125)
+    })
+  })
+
+  describe('inside another marquee', () => {
+    let raf: ReturnType<typeof vi.fn>
+    beforeEach(() => {
+      raf = vi.fn(() => 1)
+      vi.stubGlobal('requestAnimationFrame', raf)
+      vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    })
+    afterEach(() => vi.unstubAllGlobals())
+
+    const startAnimation = (target: Element, animationName: string) => {
+      const event = new Event('animationstart', { bubbles: true })
+      Object.defineProperty(event, 'animationName', { value: animationName })
+      target.dispatchEvent(event)
+    }
+
+    const mountNested = () => {
+      const outerTrack = document.createElement('ol')
+      document.body.appendChild(outerTrack)
+      const wrapper = mount(Carousel, {
+        attachTo: outerTrack,
+        slots: { default: () => [h(Slide, () => '1'), h(Slide, () => '2')] },
+      })
+      return { outerTrack, wrapper }
+    }
+
+    it('does not track the outer marquee animation', async () => {
+      const { outerTrack, wrapper } = mountNested()
+      await wrapper.vm.$nextTick()
+      startAnimation(outerTrack, 'vc-marquee')
+      expect(raf).not.toHaveBeenCalled()
+      wrapper.unmount()
+      outerTrack.remove()
+    })
+
+    it('still tracks other ancestor animations', async () => {
+      const { outerTrack, wrapper } = mountNested()
+      await wrapper.vm.$nextTick()
+      startAnimation(outerTrack, 'grow')
+      expect(raf).toHaveBeenCalled()
+      wrapper.unmount()
+      outerTrack.remove()
+    })
+  })
+
+  describe('clones', () => {
+    const clones = (wrapper: ReturnType<typeof mountCarousel>) =>
+      wrapper.findAll('.carousel__slide--clone')
+
+    it('clones one viewport of slides after the real set and none before', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(clones(wrapper).length).toBe(2)
+      expect(wrapper.find('.carousel__slide').classes()).not.toContain(
+        'carousel__slide--clone'
+      )
+      expect(rootStyle(wrapper)).toContain('--vc-cloned-offset: 0px')
+    })
+
+    it('rounds fractional itemsToShow up', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2.5 })
+      await wrapper.vm.$nextTick()
+      expect(clones(wrapper).length).toBe(3)
+    })
+
+    it('clones more than the slide count when needed', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 5 }, 3)
+      await wrapper.vm.$nextTick()
+      expect(clones(wrapper).length).toBe(5)
+    })
+
+    it('clones the whole set in auto mode', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 'auto' })
+      await wrapper.vm.$nextTick()
+      expect(clones(wrapper).length).toBe(5)
+    })
+
+    describe('with slides narrower than the viewport in auto mode', () => {
+      const rectMock = () => vi.mocked(Element.prototype.getBoundingClientRect)
+      beforeEach(() => {
+        // Slides measure 100px wide, the viewport (and everything else) 300px
+        rectMock().mockImplementation(function (this: Element) {
+          const rect = this.classList.contains('carousel__slide')
+            ? { ...RECT, width: 100, right: 100 }
+            : RECT
+          return { ...rect, toJSON: () => rect }
+        })
+      })
+      afterEach(() => rectMock().mockReturnValue({ ...RECT, toJSON: () => RECT }))
+
+      it('clones one set when it already covers the viewport', async () => {
+        // set = 5 * 100 = 500px >= 300px viewport
+        const wrapper = mountCarousel({ itemsToShow: 'auto' })
+        await wrapper.vm.$nextTick()
+        expect(clones(wrapper).length).toBe(5)
+      })
+
+      it('clones whole sets until they cover the viewport', async () => {
+        // set = 2 * 100 = 200px; ceil(300 / 200) = 2 sets = 4 clones
+        const wrapper = mountCarousel({ itemsToShow: 'auto' }, 2)
+        await wrapper.vm.$nextTick()
+        expect(clones(wrapper).length).toBe(4)
+      })
+    })
+
+    it('does not need wrapAround', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, wrapAround: false })
+      await wrapper.vm.$nextTick()
+      expect(clones(wrapper).length).toBe(2)
+    })
+
+    it('renders nothing special with no slides', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 }, 0)
+      await wrapper.vm.$nextTick()
+      expect(clones(wrapper).length).toBe(0)
+    })
+  })
+
+  describe('breakpoints', () => {
+    const innerWidth = window.innerWidth
+    afterEach(() => {
+      window.innerWidth = innerWidth
+    })
+
+    it('turns the marquee on and off per breakpoint', async () => {
+      // jsdom's window is 1024px wide, so the 1024 breakpoint applies first
+      const wrapper = mountCarousel({
+        itemsToShow: 2,
+        breakpoints: { 1024: { marquee: false } },
+      })
+      await wrapper.vm.$nextTick()
+      expect(rootClasses(wrapper)).not.toContain('is-marquee')
+
+      window.innerWidth = 500
+      wrapper.vm.updateBreakpointsConfig()
+      await wrapper.vm.$nextTick()
+      expect(rootClasses(wrapper)).toContain('is-marquee')
+    })
+  })
+
+  describe('slide state', () => {
+    const slides = (wrapper: ReturnType<typeof mountCarousel>) =>
+      wrapper.findAll('.carousel__slide')
+    const liveRegion = (wrapper: ReturnType<typeof mountCarousel>) =>
+      wrapper.find('.carousel__liveregion')
+
+    it('marks every slide visible and none active, prev or next', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(slides(wrapper).length).toBe(7)
+      for (const slide of slides(wrapper)) {
+        expect(slide.classes()).toContain('carousel__slide--visible')
+        expect(slide.classes()).not.toContain('carousel__slide--active')
+        expect(slide.classes()).not.toContain('carousel__slide--prev')
+        expect(slide.classes()).not.toContain('carousel__slide--next')
+      }
+    })
+
+    it('keeps real slides focusable and clones out of the tab order', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const real = slides(wrapper).filter(
+        (slide) => !slide.classes('carousel__slide--clone')
+      )
+      const cloned = slides(wrapper).filter((slide) =>
+        slide.classes('carousel__slide--clone')
+      )
+      expect(real.length).toBe(5)
+      expect(cloned.length).toBe(2)
+      for (const slide of real) {
+        expect(slide.attributes('tabindex')).toBeUndefined()
+      }
+      for (const slide of cloned) {
+        expect(slide.attributes('tabindex')).toBe('-1')
+        expect(slide.attributes('aria-hidden')).toBe('true')
+      }
+    })
+
+    it('announces nothing in the live region', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      expect(liveRegion(wrapper).exists()).toBe(true)
+      expect(liveRegion(wrapper).text()).toBe('')
+    })
+
+    it('keeps the active slide and announcement when off', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2, marquee: false })
+      await wrapper.vm.$nextTick()
+      expect(slides(wrapper)[0].classes()).toContain('carousel__slide--active')
+      expect(liveRegion(wrapper).text()).toBe('Item 1 of 5')
+    })
+  })
+
+  describe('pause on hover', () => {
+    it('adds is-paused while hovered with pauseAutoplayOnHover', async () => {
+      const wrapper = mountCarousel({ pauseAutoplayOnHover: true })
+      await wrapper.find('.carousel').trigger('mouseenter')
+      expect(rootClasses(wrapper)).toContain('is-paused')
+      await wrapper.find('.carousel').trigger('mouseleave')
+      expect(rootClasses(wrapper)).not.toContain('is-paused')
+    })
+
+    it('does not pause on hover without pauseAutoplayOnHover', async () => {
+      const wrapper = mountCarousel()
+      await wrapper.find('.carousel').trigger('mouseenter')
+      expect(rootClasses(wrapper)).not.toContain('is-paused')
+    })
+  })
+
+  describe('interactions', () => {
+    it('ignores navigation', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      wrapper.vm.next()
+      wrapper.vm.slideTo(3)
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.data.currentSlide).toBe(0)
+      expect(wrapper.emitted('slide-start')).toBeUndefined()
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+
+    describe('autoplay', () => {
+      beforeEach(() => vi.useFakeTimers())
+      afterEach(() => vi.useRealTimers())
+
+      it('does not start autoplay', async () => {
+        const wrapper = mountCarousel({ autoplay: 100 })
+        await wrapper.vm.$nextTick()
+        expect(vi.getTimerCount()).toBe(0)
+        vi.advanceTimersByTime(500)
+        expect(wrapper.emitted('slide-start')).toBeUndefined()
+      })
+
+      it('starts autoplay when marquee is turned off', async () => {
+        const wrapper = mountCarousel({ autoplay: 100 })
+        await wrapper.vm.$nextTick()
+        expect(vi.getTimerCount()).toBe(0)
+        await wrapper.setProps({ marquee: false })
+        vi.advanceTimersByTime(100)
+        expect(wrapper.emitted('slide-start')).toHaveLength(1)
+      })
+
+      it('stops autoplay when marquee is turned on', async () => {
+        const wrapper = mountCarousel({ autoplay: 100, marquee: false })
+        await wrapper.vm.$nextTick()
+        expect(vi.getTimerCount()).toBe(1)
+        await wrapper.setProps({ marquee: true })
+        expect(vi.getTimerCount()).toBe(0)
+      })
+    })
+
+    it('does not start a drag', () => {
+      const wrapper = mountCarousel()
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+      wrapper.find('.carousel__track').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    describe('with the fade effect', () => {
+      let warn: ReturnType<typeof vi.spyOn>
+      beforeEach(() => {
+        warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      })
+      afterEach(() => warn.mockRestore())
+
+      it('is ignored, so the carousel navigates normally', async () => {
+        const wrapper = mountCarousel({ slideEffect: 'fade' })
+        await wrapper.vm.$nextTick()
+        expect(rootClasses(wrapper)).not.toContain('is-marquee')
+        expect(rootStyle(wrapper)).not.toContain('--vc-marquee')
+        wrapper.vm.next()
+        await wrapper.vm.$nextTick()
+        expect(wrapper.vm.data.currentSlide).toBe(1)
+        expect(wrapper.emitted('slide-start')).toHaveLength(1)
+      })
+    })
+
+    describe('arrow keys', () => {
+      beforeEach(() => vi.useFakeTimers())
+      afterEach(() => vi.useRealTimers())
+
+      const pressArrowRight = async (wrapper: ReturnType<typeof mountCarousel>) => {
+        await wrapper.find('.carousel').trigger('focus')
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+        // The key handler is throttled to 200ms
+        vi.advanceTimersByTime(200)
+        await wrapper.vm.$nextTick()
+      }
+
+      it('ignores them', async () => {
+        const wrapper = mountCarousel({ itemsToShow: 2 })
+        await wrapper.vm.$nextTick()
+        await pressArrowRight(wrapper)
+        expect(wrapper.vm.data.currentSlide).toBe(0)
+        expect(wrapper.emitted('slide-start')).toBeUndefined()
+        wrapper.unmount()
+      })
+
+      it('navigates with them when marquee is off', async () => {
+        const wrapper = mountCarousel({ itemsToShow: 2, marquee: false })
+        await wrapper.vm.$nextTick()
+        await pressArrowRight(wrapper)
+        expect(wrapper.vm.data.currentSlide).toBe(1)
+        expect(wrapper.emitted('slide-start')).toHaveLength(1)
+        wrapper.unmount()
+      })
+    })
+
+    it('ignores the mouse wheel', () => {
+      const wrapper = mountCarousel({ mouseWheel: true })
+      const event = new WheelEvent('wheel', {
+        deltaY: 100,
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('.carousel__track').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+      expect(wrapper.emitted('wheel')).toBeUndefined()
+    })
+  })
+})
