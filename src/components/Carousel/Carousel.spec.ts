@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { h } from 'vue'
 
 import { Slide } from '@/components/Slide'
 
@@ -38,6 +39,43 @@ describe('Carousel.ts', () => {
     const carousel = wrapper.find('.carousel')
     const style = carousel.attributes('style')
     expect(style).toContain('ease-in-out')
+  })
+
+  describe('aria-label', () => {
+    // A carousel without slides renders the disabled section, which has no aria-label
+    const slots = { default: () => h(Slide) }
+
+    it('gives each carousel a unique region label by default (#523)', () => {
+      // Both carousels live in one app, as on a real page; separate mount() calls
+      // create separate apps whose useId() counters each start at zero
+      const page = mount({
+        render: () => [h(Carousel, null, slots), h(Carousel, null, slots)],
+      })
+      const [first, second] = page
+        .findAll('.carousel')
+        .map((carousel) => carousel.attributes('aria-label'))
+      expect(first).toMatch(/^Gallery \S+$/)
+      expect(second).toMatch(/^Gallery \S+$/)
+      expect(first).not.toBe(second)
+    })
+
+    it('renders a custom ariaGallery label verbatim', () => {
+      const wrapper = mount(Carousel, {
+        props: { i18n: { ariaGallery: 'Products' } },
+        slots,
+      })
+      expect(wrapper.find('.carousel').attributes('aria-label')).toBe('Products')
+    })
+
+    it('replaces {id} in a custom ariaGallery label', () => {
+      const wrapper = mount(Carousel, {
+        props: { i18n: { ariaGallery: 'Photos {id}' } },
+        slots,
+      })
+      const label = wrapper.find('.carousel').attributes('aria-label')
+      expect(label).toMatch(/^Photos \S+$/)
+      expect(label).not.toContain('{id}')
+    })
   })
 
   describe('mouseWheel.ignoreCrossAxis', () => {
