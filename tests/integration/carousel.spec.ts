@@ -181,6 +181,43 @@ describe('Carousel.ts', () => {
     vi.useRealTimers()
   })
 
+  it('Should not navigate with arrow keys when keyboardNavigation is false', async () => {
+    vi.useFakeTimers()
+    const kbWrapper = mount(Carousel, {
+      props: {
+        keyboardNavigation: false,
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => kbWrapper.setProps({ modelValue: e }),
+      },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const track = kbWrapper.find('[tabindex="0"]')
+    const triggerKeyEvent = async (key = 'ArrowRight') => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+      vi.advanceTimersByTime(200)
+      await nextTick()
+    }
+
+    await track.trigger('focus')
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(0)
+
+    await kbWrapper.setProps({ keyboardNavigation: true })
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(1)
+
+    await kbWrapper.setProps({ keyboardNavigation: false })
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(1)
+
+    await track.trigger('blur')
+    kbWrapper.unmount()
+    vi.useRealTimers()
+  })
+
   it('Should default itemsToShow to 1 if less than 1', async () => {
     await wrapper.setProps({ itemsToShow: 0 })
     const slides = wrapper.findAll('.carousel__slide--visible')

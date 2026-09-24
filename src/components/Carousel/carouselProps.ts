@@ -111,6 +111,11 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.itemsToShow,
     type: [Number, String],
   },
+  // toggle arrow-key navigation while the carousel is focused
+  keyboardNavigation: {
+    default: DEFAULT_CONFIG.keyboardNavigation,
+    type: Boolean,
+  },
   // slide number number of initial slide
   modelValue: {
     default: undefined,
