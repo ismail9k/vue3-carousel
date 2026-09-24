@@ -705,7 +705,7 @@ describe('Drag release without a slide change', () => {
 
   const moveMouse = async (clientX: number, clientY = 0) => {
     document.dispatchEvent(new MouseEvent('mousemove', { clientX, clientY }))
-    vi.runAllTimers() // flush the throttled drag handler
+    vi.advanceTimersToNextFrame() // flush the rAF-throttled drag handler only
     await nextTick()
   }
 
