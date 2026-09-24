@@ -44,6 +44,22 @@ describe('Carousel.ts', () => {
     expect(wrapper.props('modelValue')).toBe(3)
   })
 
+  it('Should reset both viewport scroll offsets when a slide receives focus', async () => {
+    const focusWrapper = mount(Carousel, {
+      slots: {
+        default: () => [0, 1].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const viewport = focusWrapper.find('.carousel__viewport').element
+    viewport.scrollLeft = 20
+    viewport.scrollTop = 30
+    await focusWrapper.findAll('.carousel__slide')[1].trigger('focusin')
+    expect(viewport.scrollLeft).toBe(0)
+    expect(viewport.scrollTop).toBe(0)
+    focusWrapper.unmount()
+  })
+
   it('Should not navigate when focus is caused by a pointer (mousedown)', async () => {
     const viewport = wrapper.find('.carousel__viewport').element
     viewport.scrollLeft = 20
