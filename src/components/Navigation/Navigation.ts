@@ -48,11 +48,13 @@ export const Navigation = defineComponent<NavigationProps>({
 
     return () => {
       if (props.carousel) {
-        carousel = props.carousel;
+        carousel = props.carousel
       }
       if (!carousel) {
-        console.warn('[vue3-carousel]: A carousel component must be provided for the navigation component to display')
-        return '';
+        console.warn(
+          '[vue3-carousel]: A carousel component must be provided for the navigation component to display'
+        )
+        return ''
       }
       const { i18n } = carousel.config
       const prevButton = h(
@@ -62,7 +64,7 @@ export const Navigation = defineComponent<NavigationProps>({
           disabled: prevDisabled.value,
           'aria-label': i18n['ariaPreviousSlide'],
           title: i18n['ariaPreviousSlide'],
-          onClick: carousel.nav.prev,
+          onClick: () => carousel.nav.prev(),
           ...attrs,
           class: [
             'carousel__prev',
@@ -79,7 +81,7 @@ export const Navigation = defineComponent<NavigationProps>({
           disabled: nextDisabled.value,
           'aria-label': i18n['ariaNextSlide'],
           title: i18n['ariaNextSlide'],
-          onClick: carousel.nav.next,
+          onClick: () => carousel.nav.next(),
           ...attrs,
           class: [
             'carousel__next',

@@ -375,9 +375,9 @@ export const Carousel = defineComponent({
         case 'ArrowUp':
           if (isVertical.value === event.key.endsWith('Up')) {
             if (isReversed.value) {
-              next(true)
+              next()
             } else {
-              prev(true)
+              prev()
             }
           }
           break
@@ -385,9 +385,9 @@ export const Carousel = defineComponent({
         case 'ArrowDown':
           if (isVertical.value === event.key.endsWith('Down')) {
             if (isReversed.value) {
-              prev(true)
+              prev()
             } else {
-              next(true)
+              next()
             }
           }
           break
@@ -530,7 +530,9 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      if (!skipTransition && isSliding.value) {
+      // Only an explicit `true` bypasses the guard, so a handler that forwards
+      // its event (`@click="carousel.next"`) cannot start an overlapping slide
+      if (skipTransition !== true && isSliding.value) {
         return
       }
 

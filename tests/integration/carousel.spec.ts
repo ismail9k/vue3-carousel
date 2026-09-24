@@ -124,8 +124,9 @@ describe('Carousel.ts', () => {
     const track = wrapper.find('[tabindex="0"]')
     const triggerKeyEvent = async (key = 'ArrowRight', ctrl = false) => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: key, ctrlKey: ctrl }))
-      // Advance timers to handle throttle delay (200ms for arrow keys)
-      vi.advanceTimersByTime(200)
+      // Fire the 200 ms throttle, then let the 300 ms slide finish so the
+      // next key press is not ignored by the sliding guard
+      vi.advanceTimersByTime(500)
       await nextTick()
     }
     await triggerKeyEvent()
@@ -178,6 +179,31 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
+    vi.useRealTimers()
+  })
+
+  it('Should ignore an arrow key pressed while the carousel is still sliding', async () => {
+    vi.useFakeTimers()
+    await wrapper.setProps({ wrapAround: true })
+    const carousel = wrapper.findComponent(Carousel)
+    await wrapper.find('[tabindex="0"]').trigger('focus')
+    const pressArrowLeft = async () => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
+      // Fire the 200 ms throttle only: the 300 ms transition is still running
+      vi.advanceTimersByTime(200)
+      await nextTick()
+    }
+
+    await pressArrowLeft()
+    expect(carousel.emitted('slide-start')).toHaveLength(1)
+
+    await pressArrowLeft()
+    expect(carousel.emitted('slide-start')).toHaveLength(1)
+
+    vi.runAllTimers()
+    await nextTick()
+    expect(wrapper.props('modelValue')).toBe(4)
+    expect(carousel.emitted('slide-end')).toHaveLength(1)
     vi.useRealTimers()
   })
 
