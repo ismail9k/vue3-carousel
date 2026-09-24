@@ -23,6 +23,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. <Badge text="0.10.0"/> |
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `keyboardNavigation`       | `boolean`                                   | true                             | Enables/disables arrow-key navigation while the carousel is focused. <Badge text="0.19.0"/>            |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
@@ -103,6 +104,9 @@ These props control how users can interact with the carousel:
 - **`mouseWheel`**: Enable/disable mouse wheel navigation.
   - Basic usage: `:mouse-wheel="true"`
   - Advanced usage: `:mouse-wheel="{ threshold: 20 }"` (see [Wheel Options](#wheel-options))
+
+- **`keyboardNavigation`**: Enable/disable arrow-key navigation while the carousel is focused.
+  - Basic usage: `:keyboard-navigation="false"`
 
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
