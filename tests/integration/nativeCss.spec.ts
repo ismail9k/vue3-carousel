@@ -237,6 +237,18 @@ describe('nativeCss', () => {
       expect(wrapper.find('.carousel__track').attributes('style')).toContain('transform')
     })
 
+    it('restores wrapAround and mouseDrag when nativeCss is turned off at runtime', async () => {
+      mockLayout()
+      const wrapper = mountCarousel({ wrapAround: true })
+      await nextTick()
+      expect(wrapper.findAll('.carousel__slide--clone').length).toBe(0)
+      expect(wrapper.vm.config.mouseDrag).toBe(false)
+      await wrapper.setProps({ nativeCss: false })
+      await nextTick()
+      expect(wrapper.findAll('.carousel__slide--clone').length).toBeGreaterThan(0)
+      expect(wrapper.vm.config.mouseDrag).toBe(true)
+    })
+
     it('scrolls leftwards for next in rtl', async () => {
       // rtl layout: slide i sits i*SIZE to the left of the viewport
       vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
