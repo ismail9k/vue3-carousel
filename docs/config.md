@@ -26,6 +26,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
+| `nativeCss`                | `boolean`                                   | false                            | Renders a CSS scroll-snap carousel instead of a transformed track; falls back to the JS mode where unsupported. See [Native CSS mode](#native-css-mode). <Badge text="0.19.0"/> |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
@@ -221,6 +222,23 @@ These props provide additional customization for specific use cases:
 
 - **`wrapAround`**: Creates an infinite loop effect by connecting the last slide to the first.
   - Example: `:wrap-around="true"` allows continuous navigation in either direction.
+
+## Native CSS mode
+
+`nativeCss` turns the viewport into a CSS scroll-snap container: the browser scrolls, snaps and handles touch, wheel and momentum, and no track transform is applied. `Navigation`, `Pagination`, `v-model`, slide classes and the events keep working; `slideTo`, `next` and `prev` scroll the viewport, and the current slide follows the scroll position once scrolling settles.
+
+```vue
+<Carousel :native-css="true" :items-to-show="2.5" :gap="10" snap-align="start">
+  <!-- Slides -->
+</Carousel>
+```
+
+- Needs `scroll-snap-type` support; elsewhere (and during SSR) the carousel renders in the regular JS mode. The exposed `isNative` reports the mode in use, and the root element gets the `is-native` class.
+- Works with `itemsToShow` (number or `'auto'`), `itemsToScroll`, `gap`, `snapAlign` (`center-odd`/`center-even` snap as `center`), `dir` `ltr`/`rtl`/`ttb`, `height`, `breakpoints`, `autoplay`, `clamp` and arrow keys.
+- Turned off in this mode: `wrapAround`, `slideEffect: 'fade'`, `edgeSpacing`, `mouseDrag`, `touchDrag`, `mouseWheel` and `preventExcessiveDragging` (the exposed `config` shows the effective values). Native scrolling replaces touch drag and wheel; mouse drag is not available.
+- `dir: 'btt'` is not supported natively and uses the JS mode.
+- The scroll duration is the browser's; `transition` only times `isSliding` and the `slide-end` event, and `transitionEasing` has no effect.
+- Scrollbars are hidden; override `.carousel.is-native .carousel__viewport { scrollbar-width: auto }` to show them.
 
 ## Option Details
 

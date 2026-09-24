@@ -39,6 +39,12 @@ Demonstrates the carousel with mouse wheel scrolling navigation enabled.
 
 <live-codes :code="examples.MouseWheelExample" />
 
+## Native CSS
+
+A scroll-snap carousel driven by the browser, with the regular navigation and pagination on top.
+
+<live-codes :code="examples.NativeCssExample" />
+
 ## Active Classes
 
 An example highlighting active items with custom classes.

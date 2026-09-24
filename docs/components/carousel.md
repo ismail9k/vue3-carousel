@@ -76,6 +76,7 @@ The Carousel component provides several CSS classes that you can use for styling
 | `.carousel`          | Main carousel container           |
 | `.carousel__viewport`| Carousel viewport/wrapper element |
 | `.carousel__track`   | Container for slides              |
+| `.is-native`         | Set on `.carousel` in native CSS mode |
 
 ## Layout
 
