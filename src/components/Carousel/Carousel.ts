@@ -623,14 +623,36 @@ export const Carousel = defineComponent({
     // Init carousel
     emit('before-init')
 
+    // Length of the real slide set, gaps included: the distance one marquee loop travels
+    const marqueeDistance = computed(() => {
+      if (!config.marquee) {
+        return 0
+      }
+      if (isAuto.value) {
+        return slidesRect.value.reduce(
+          (acc, slide) => acc + slide[dimension.value] + config.gap,
+          0
+        )
+      }
+      return slidesCount.value * effectiveSlideSize.value
+    })
+
     const clonedSlidesCount = computed(() => {
       if (config.marquee) {
         // The clones after the real set must cover one viewport, so the jump
         // back to the start shows the same pixels
-        return {
-          before: 0,
-          after: isAuto.value ? slides.length : Math.ceil(Number(config.itemsToShow)),
+        if (!isAuto.value) {
+          return { before: 0, after: Math.ceil(Number(config.itemsToShow)) }
         }
+        // Auto mode clones whole sets; a set narrower than the viewport needs several.
+        // Before the slides are measured the distance is 0, so clone a single set
+        const sets = marqueeDistance.value
+          ? Math.max(
+              1,
+              Math.ceil(viewportRect.value[dimension.value] / marqueeDistance.value)
+            )
+          : 1
+        return { before: 0, after: slidesCount.value * sets }
       }
       if (!config.wrapAround) {
         return { before: 0, after: 0 }
@@ -663,20 +685,6 @@ export const Carousel = defineComponent({
       }
 
       return clonedSlidesCount.value.before * effectiveSlideSize.value * -1
-    })
-
-    // Length of the real slide set, gaps included: the distance one marquee loop travels
-    const marqueeDistance = computed(() => {
-      if (!config.marquee) {
-        return 0
-      }
-      if (isAuto.value) {
-        return slidesRect.value.reduce(
-          (acc, slide) => acc + slide[dimension.value] + config.gap,
-          0
-        )
-      }
-      return slidesCount.value * effectiveSlideSize.value
     })
 
     const snapAlignOffset = computed(() => {

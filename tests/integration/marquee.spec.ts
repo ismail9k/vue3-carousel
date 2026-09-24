@@ -176,6 +176,34 @@ describe('marquee', () => {
       expect(clones(wrapper).length).toBe(5)
     })
 
+    describe('with slides narrower than the viewport in auto mode', () => {
+      const rectMock = () => vi.mocked(Element.prototype.getBoundingClientRect)
+      beforeEach(() => {
+        // Slides measure 100px wide, the viewport (and everything else) 300px
+        rectMock().mockImplementation(function (this: Element) {
+          const rect = this.classList.contains('carousel__slide')
+            ? { ...RECT, width: 100, right: 100 }
+            : RECT
+          return { ...rect, toJSON: () => rect }
+        })
+      })
+      afterEach(() => rectMock().mockReturnValue({ ...RECT, toJSON: () => RECT }))
+
+      it('clones one set when it already covers the viewport', async () => {
+        // set = 5 * 100 = 500px >= 300px viewport
+        const wrapper = mountCarousel({ itemsToShow: 'auto' })
+        await wrapper.vm.$nextTick()
+        expect(clones(wrapper).length).toBe(5)
+      })
+
+      it('clones whole sets until they cover the viewport', async () => {
+        // set = 2 * 100 = 200px; ceil(300 / 200) = 2 sets = 4 clones
+        const wrapper = mountCarousel({ itemsToShow: 'auto' }, 2)
+        await wrapper.vm.$nextTick()
+        expect(clones(wrapper).length).toBe(4)
+      })
+    })
+
     it('does not need wrapAround', async () => {
       const wrapper = mountCarousel({ itemsToShow: 2, wrapAround: false })
       await wrapper.vm.$nextTick()
