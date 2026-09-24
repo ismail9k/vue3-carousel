@@ -24,18 +24,21 @@ function makeRect({ left, right, top, bottom }: Rect): DOMRect {
 
 /**
  * Fakes a layout: every element is SIZE px square at the origin, except slides,
- * which sit one after the other along the axis, shifted back by `scrolled`.
+ * which are `slideSize` long and sit one after the other along the axis,
+ * shifted back by `scrolled`.
  */
-function mockLayout({ scrolled = 0, vertical = false } = {}) {
+function mockLayout({ scrolled = 0, vertical = false, slideSize = SIZE } = {}) {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
     this: Element
   ) {
     let start = 0
+    let size = SIZE
     if (this.classList.contains('carousel__slide')) {
       const index = Array.from(this.parentElement!.children).indexOf(this)
-      start = index * SIZE - scrolled
+      start = index * slideSize - scrolled
+      size = slideSize
     }
-    const main = { start, end: start + SIZE }
+    const main = { start, end: start + size }
     return vertical
       ? makeRect({ top: main.start, bottom: main.end, left: 0, right: SIZE })
       : makeRect({ left: main.start, right: main.end, top: 0, bottom: SIZE })
@@ -280,9 +283,13 @@ describe('nativeCss', () => {
   })
 
   describe('scrolling', () => {
-    async function scrollTo(wrapper: ReturnType<typeof mountCarousel>, scrolled: number) {
+    async function scrollTo(
+      wrapper: ReturnType<typeof mountCarousel>,
+      scrolled: number,
+      layout: Parameters<typeof mockLayout>[0] = {}
+    ) {
       vi.restoreAllMocks()
-      mockLayout({ scrolled })
+      mockLayout({ ...layout, scrolled })
       await wrapper.find('.carousel__viewport').trigger('scroll')
       vi.advanceTimersByTime(100)
       await nextTick()
@@ -339,6 +346,36 @@ describe('nativeCss', () => {
       await nextTick()
       await scrollTo(wrapper, 4 * SIZE)
       expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([4])
+    })
+
+    it('keeps the requested slide when the scroll settles at a clamped end', async () => {
+      vi.useFakeTimers()
+      mockLayout({ slideSize: SIZE / 3 })
+      const wrapper = mountCarousel({ itemsToShow: 3, snapAlign: 'center' })
+      await nextTick()
+      wrapper.vm.slideTo(3)
+      // slide 3 cannot reach the center: the scroller stops at its end, 2-4 in view
+      await scrollTo(wrapper, (2 * SIZE) / 3, { slideSize: SIZE / 3 })
+      vi.advanceTimersByTime(wrapper.vm.config.transition)
+      await nextTick()
+      expect(wrapper.emitted('update:modelValue')).toEqual([[3]])
+      expect(wrapper.emitted('slide-end')).toHaveLength(1)
+      expect(wrapper.findAll('.carousel__slide')[3].classes()).toContain(
+        'carousel__slide--active'
+      )
+    })
+
+    it('keeps the initial modelValue when mounted at the clamped end', async () => {
+      vi.useFakeTimers()
+      const slideSize = SIZE / 2.5
+      mockLayout({ slideSize, scrolled: 7.5 * slideSize })
+      const wrapper = mountCarousel(
+        { modelValue: 8, itemsToShow: 2.5, snapAlign: 'start' },
+        10
+      )
+      await nextTick()
+      await scrollTo(wrapper, 7.5 * slideSize, { slideSize })
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     })
 
     it('does not listen to scroll in JS mode', async () => {

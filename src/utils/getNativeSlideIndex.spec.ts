@@ -56,6 +56,68 @@ describe('getNativeSlideIndex', () => {
     expect(getNativeSlideIndex({ ...ltr, slideRects })).toBe(0)
   })
 
+  describe('with a current index', () => {
+    // center-aligned, 3 of 5 slides in view: the browser clamps the snap
+    // points of slides 0 and 1 to the scroll start, of 3 and 4 to the end
+    it('keeps the current slide at the scroll start when its snap point is clamped there', () => {
+      const slideRects = ltrSlides(0)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 1 })).toBe(1)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 0 })).toBe(0)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 2 })).toBe(0)
+    })
+
+    it('keeps the current slide at the scroll end when its snap point is clamped there', () => {
+      const slideRects = ltrSlides(-200)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 3 })).toBe(3)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 4 })).toBe(4)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 2 })).toBe(4)
+    })
+
+    it('keeps an aligned current slide in between and replaces an unaligned one', () => {
+      // centers at -50, 50, 150, 250, 350; viewport center 150
+      const slideRects = ltrSlides(-100)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 2 })).toBe(2)
+      expect(getNativeSlideIndex({ ...ltr, slideRects, currentIndex: 1 })).toBe(2)
+      // 7 slides, centers at -100, 0, 100, 200, 300, 400, 500: 2 and 3 tie
+      const tied = [...ltrSlides(-150), ...ltrSlides(350).slice(0, 2)]
+      expect(
+        getNativeSlideIndex({ ...ltr, slideRects: tied, tolerance: 50, currentIndex: 3 })
+      ).toBe(3)
+      expect(
+        getNativeSlideIndex({ ...ltr, slideRects: tied, tolerance: 50, currentIndex: 0 })
+      ).toBe(2)
+    })
+
+    it('keeps the current slide at the rtl edges', () => {
+      expect(
+        getNativeSlideIndex({ ...rtl, slideRects: rtlSlides(0), currentIndex: 1 })
+      ).toBe(1)
+      expect(
+        getNativeSlideIndex({ ...rtl, slideRects: rtlSlides(0), currentIndex: 2 })
+      ).toBe(0)
+      expect(
+        getNativeSlideIndex({ ...rtl, slideRects: rtlSlides(200), currentIndex: 3 })
+      ).toBe(3)
+      expect(
+        getNativeSlideIndex({ ...rtl, slideRects: rtlSlides(200), currentIndex: 2 })
+      ).toBe(4)
+    })
+
+    it('ignores a missing or out-of-range current index', () => {
+      for (const currentIndex of [undefined, -1, 5, 1.5]) {
+        expect(
+          getNativeSlideIndex({ ...ltr, slideRects: ltrSlides(0), currentIndex })
+        ).toBe(0)
+        expect(
+          getNativeSlideIndex({ ...ltr, slideRects: ltrSlides(-200), currentIndex })
+        ).toBe(4)
+        expect(
+          getNativeSlideIndex({ ...ltr, slideRects: ltrSlides(-130), currentIndex })
+        ).toBe(2)
+      }
+    })
+  })
+
   it('handles rtl edges', () => {
     expect(getNativeSlideIndex({ ...rtl, slideRects: rtlSlides(0) })).toBe(0)
     expect(getNativeSlideIndex({ ...rtl, slideRects: rtlSlides(200) })).toBe(4)

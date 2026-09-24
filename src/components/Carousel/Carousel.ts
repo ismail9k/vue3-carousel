@@ -675,6 +675,7 @@ export const Carousel = defineComponent({
           (slide.vnode.el as Element).getBoundingClientRect()
         ),
         viewportRect: viewport.value.getBoundingClientRect(),
+        currentIndex: currentSlideIndex.value,
       })
       if (index === -1 || index === currentSlideIndex.value) {
         return
