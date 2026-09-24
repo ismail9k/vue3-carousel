@@ -121,7 +121,6 @@ describe('nativeCss', () => {
         slideEffect: 'fade',
         edgeSpacing: 20,
         mouseWheel: true,
-        preventExcessiveDragging: true,
       })
       await nextTick()
       expect(wrapper.findAll('.carousel__slide--clone')).toHaveLength(0)
@@ -130,11 +129,16 @@ describe('nativeCss', () => {
         edgeSpacing: 0,
         mouseDrag: false,
         mouseWheel: false,
-        preventExcessiveDragging: false,
         slideEffect: 'slide',
         touchDrag: false,
         wrapAround: false,
       })
+    })
+
+    it('turns off preventExcessiveDragging', async () => {
+      const wrapper = mountCarousel({ preventExcessiveDragging: true })
+      await nextTick()
+      expect(wrapper.vm.config.preventExcessiveDragging).toBe(false)
     })
 
     it('does not start a JS drag', async () => {
