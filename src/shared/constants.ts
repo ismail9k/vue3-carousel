@@ -73,6 +73,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   modelValue: 0,
   mouseDrag: true,
   mouseWheel: false,
+  nativeCss: false,
   pauseAutoplayOnHover: false,
   preventExcessiveDragging: false,
   slideEffect: SLIDE_EFFECTS[0],

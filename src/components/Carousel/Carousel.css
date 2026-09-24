@@ -87,3 +87,29 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+.carousel.is-native .carousel__viewport {
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.carousel.is-native .carousel__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel.is-native.is-vertical .carousel__viewport {
+  overflow: hidden auto;
+  overscroll-behavior-x: auto;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+}
+
+.carousel.is-native .carousel__track {
+  transition: none;
+}
+
+.carousel.is-native .carousel__slide {
+  scroll-snap-align: var(--vc-snap-align, center);
+}

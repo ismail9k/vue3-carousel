@@ -60,6 +60,7 @@ export type CarouselConfig = {
   mouseDrag?: boolean | DragConfig
   mouseWheel?: boolean | WheelConfig
   mouseScrollThreshold?: number
+  nativeCss?: boolean
   pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect

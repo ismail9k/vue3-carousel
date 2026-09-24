@@ -24,6 +24,7 @@ import {
   DEFAULT_CONFIG,
   DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
+  NATIVE_SNAP_ALIGN,
   NonNormalizedDir,
   NormalizedDir,
   createSlideRegistry,
@@ -40,6 +41,7 @@ import {
   getScaleMultipliers,
   getSnapAlignOffset,
   mapNumberToRange,
+  supportsNativeCss,
   throttle,
   toCssValue,
 } from '@/utils'
@@ -76,6 +78,10 @@ export const Carousel = defineComponent({
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
     const slideSize: Ref<number> = ref(0)
+
+    // Assumed until mount so supported browsers render native mode from the
+    // first paint and SSR output never needs a hydration fix-up
+    const nativeSupport = ref(true)
 
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
@@ -119,6 +125,29 @@ export const Carousel = defineComponent({
     const isReversed = computed(() => ['rtl', 'btt'].includes(normalizedDir.value))
     const isVertical = computed(() => ['ttb', 'btt'].includes(normalizedDir.value))
     const isAuto = computed(() => config.itemsToShow === 'auto')
+
+    // btt relies on column-reverse, whose overflow is not reliably scrollable
+    const isNative = computed(
+      () => !!config.nativeCss && nativeSupport.value && normalizedDir.value !== 'btt'
+    )
+
+    // Native CSS mode cannot loop, fade, drag with JS or offset the track, so
+    // those options are turned off in one place and everything else just reads config
+    function applyNativeConstraints(): void {
+      if (!isNative.value) {
+        return
+      }
+      Object.assign(config, {
+        edgeSpacing: 0,
+        mouseDrag: false,
+        mouseWheel: false,
+        preventExcessiveDragging: false,
+        slideEffect: 'slide',
+        touchDrag: false,
+        wrapAround: false,
+      })
+    }
+    applyNativeConstraints()
 
     const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
@@ -171,6 +200,8 @@ export const Carousel = defineComponent({
           min: 1,
         })
       }
+
+      applyNativeConstraints()
     }
 
     const handleResize = throttle(() => {
@@ -324,6 +355,7 @@ export const Carousel = defineComponent({
 
     onMounted((): void => {
       mounted.value = true
+      nativeSupport.value = supportsNativeCss()
       updateBreakpointsConfig()
       initAutoplay()
 
@@ -818,7 +850,7 @@ export const Carousel = defineComponent({
     })
 
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
-      if (config.slideEffect === 'fade') {
+      if (config.slideEffect === 'fade' || isNative.value) {
         return undefined
       }
 
@@ -858,6 +890,7 @@ export const Carousel = defineComponent({
       '--vc-carousel-height': toCssValue(config.height),
       '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
       '--vc-slide-gap': toCssValue(config.gap),
+      '--vc-snap-align': isNative.value ? NATIVE_SNAP_ALIGN[config.snapAlign] : undefined,
       '--vc-transition-duration': isSliding.value
         ? toCssValue(config.transition, 'ms')
         : undefined,
@@ -871,6 +904,7 @@ export const Carousel = defineComponent({
       config,
       currentSlide: currentSlideIndex,
       isSliding,
+      isNative,
       isVertical,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
@@ -966,6 +1000,7 @@ export const Carousel = defineComponent({
             {
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-native': isNative.value,
               'is-sliding': isSliding.value,
               'is-vertical': isVertical.value,
             },
