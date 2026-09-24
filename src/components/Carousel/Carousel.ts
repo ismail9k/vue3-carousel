@@ -771,6 +771,18 @@ export const Carousel = defineComponent({
       { flush: 'post' }
     )
 
+    // Adding or removing slides shifts the ones after them, so put the
+    // scroller back on the current slide once the DOM has updated
+    watch(
+      slidesCount,
+      () => {
+        if (isNative.value && mounted.value) {
+          scrollToSlide(currentSlideIndex.value, 'instant')
+        }
+      },
+      { flush: 'post' }
+    )
+
     // Handle changing v-model value
     const modelWatcher = watch(
       () => props.modelValue,

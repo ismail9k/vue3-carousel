@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { h, nextTick } from 'vue'
+import { h, nextTick, ref } from 'vue'
 
 import { Carousel, Navigation, Slide } from '@/index'
 
@@ -281,6 +281,31 @@ describe('nativeCss', () => {
       mountCarousel({ snapAlign: 'start' })
       await nextTick()
       expect(scrollBy).not.toHaveBeenCalled()
+    })
+
+    it('re-syncs the scroll position when the slide count changes', async () => {
+      mockLayout()
+      const scrollBy = vi.spyOn(Element.prototype, 'scrollBy')
+      const count = ref(5)
+      const wrapper = mount(Carousel, {
+        props: { nativeCss: true, modelValue: 2, snapAlign: 'start' },
+        slots: {
+          default: () =>
+            Array.from({ length: count.value }, (_, i) =>
+              h(Slide, { key: i }, () => `slide ${i}`)
+            ),
+        },
+      })
+      await nextTick()
+      expect(scrollBy).toHaveBeenCalledTimes(1)
+      expect(scrollBy).toHaveBeenCalledWith({ left: 2 * SIZE, behavior: 'instant' })
+      count.value = 6
+      await nextTick()
+      await nextTick()
+      expect(wrapper.findAll('.carousel__slide')).toHaveLength(6)
+      // the mock keeps slide 2 at 2 * SIZE, so the re-sync repeats the delta
+      expect(scrollBy).toHaveBeenCalledTimes(2)
+      expect(scrollBy).toHaveBeenLastCalledWith({ left: 2 * SIZE, behavior: 'instant' })
     })
   })
 
