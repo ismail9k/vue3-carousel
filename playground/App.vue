@@ -48,6 +48,8 @@ const defaultConfig = {
   gap: 10,
   edgeSpacing: 0,
   pauseAutoplayOnHover: true,
+  marquee: false,
+  marqueeSpeed: 60,
   useBreakpoints: false,
   threshold: 0.5,
   transitionEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // ease-out-quad
@@ -148,6 +150,17 @@ const formFields = [
         label: 'Autoplay time',
         path: 'autoplay',
         attrs: { step: '100', min: '0', max: '10000' },
+      },
+      {
+        type: 'checkbox',
+        label: 'Marquee',
+        path: 'marquee',
+      },
+      {
+        type: 'number',
+        label: 'Marquee speed',
+        path: 'marqueeSpeed',
+        attrs: { step: '10', min: '10', max: '500' },
       },
     ],
   },

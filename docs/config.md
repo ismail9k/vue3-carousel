@@ -23,10 +23,12 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. <Badge text="0.10.0"/> |
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `marquee`                  | `boolean`                                   | false                            | Scrolls the slides continuously at a constant speed in a seamless loop. Navigation, drag, wheel and autoplay are disabled in this mode. <Badge text="0.19.0"/> |
+| `marqueeSpeed`             | `number`                                    | 60                               | Marquee speed in pixels per second. <Badge text="0.19.0"/>                                             |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
-| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
+| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay (and the marquee) pauses while the mouse cursor is over the carousel.              |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
 | `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
@@ -95,6 +97,12 @@ These props control how users can interact with the carousel:
   - Set to 0 to disable autoplay: `:autoplay="0"`
   
 - **`pauseAutoplayOnHover`**: When `true`, pauses autoplay while mouse is over the carousel.
+
+- **`marquee`**: Scrolls the slides continuously, like a ticker, instead of stepping between them.
+  - Example: `marquee :marquee-speed="80"` moves the track 80px per second.
+  - The loop is seamless; `wrapAround` is not needed. `snapAlign` and `edgeSpacing` do not apply.
+  - Navigation, pagination, drag, mouse wheel, keyboard and `v-model` are inactive while `marquee` is on.
+  - Pair with `pauseAutoplayOnHover` to pause while the cursor is over the carousel.
 
 - **`mouseDrag`** and **`touchDrag`**: Enable/disable drag navigation.
   - Basic usage: `:mouse-drag="true"` or `:touch-drag="false"`
