@@ -1,7 +1,12 @@
 import { computed, defineComponent, h, inject, PropType, VNode } from 'vue'
 
 import { injectCarousel } from '@/shared'
-import { getSnapAlignOffset, i18nFormatter, mapNumberToRange } from '@/utils'
+import {
+  getNumberInRange,
+  getSnapAlignOffset,
+  i18nFormatter,
+  mapNumberToRange,
+} from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 
@@ -36,8 +41,10 @@ export const Pagination = defineComponent<PaginationProps>({
     )
     const pageCount = computed(() => Math.ceil(carousel.slidesCount / itemsToShow.value))
 
+    // Without wrapAround the last step lands on the last slide, which can give a
+    // page past the end; clamp it there instead of wrapping to the first page.
     const isActive = (slide: number): boolean =>
-      mapNumberToRange(
+      (carousel.config.wrapAround ? mapNumberToRange : getNumberInRange)(
         isPaginated.value
           ? {
               val: currentPage.value,

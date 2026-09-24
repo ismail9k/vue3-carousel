@@ -523,7 +523,15 @@ export const Carousel = defineComponent({
     })
 
     function getStepTarget(direction: 1 | -1): number {
-      if (config.wrapAround || isAuto.value) {
+      // Window stepping only applies to multi-slide steps on a track clamped at
+      // both ends; itemsToScroll 1 must reach every slide, and when itemsToShow
+      // exceeds the slide count the track is not clamped, so both use the index.
+      if (
+        config.wrapAround ||
+        isAuto.value ||
+        config.itemsToScroll <= 1 ||
+        Number(config.itemsToShow) > slidesCount.value
+      ) {
         return currentSlideIndex.value + direction * config.itemsToScroll
       }
       return getClampedScrollTarget({
