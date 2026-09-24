@@ -875,7 +875,7 @@ describe('v-model with wrapAround (#519)', () => {
     expect(wrapper.emitted('loop')).toBeUndefined()
   })
 
-  it('keeps an out-of-range model value as the slide target', async () => {
+  it('normalizes an out-of-range value, then takes the shortest path', async () => {
     const wrapper = mountCarousel({ modelValue: 2 })
     await nextTick()
 
