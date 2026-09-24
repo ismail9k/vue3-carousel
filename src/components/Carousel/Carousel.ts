@@ -274,6 +274,13 @@ export const Carousel = defineComponent({
     let animationInterval: number
 
     const setAnimationInterval = (event: AnimationEvent) => {
+      // A marquee track animates forever and never changes the slide sizes, so
+      // tracking it (e.g. from a carousel nested in a marquee) would run the
+      // rAF loop for good
+      if (event.animationName === 'vc-marquee') {
+        return
+      }
+
       const target = event.target as HTMLElement
       if (
         !target?.contains(root.value) ||

@@ -218,6 +218,50 @@ describe('marquee', () => {
     })
   })
 
+  describe('inside another marquee', () => {
+    let raf: ReturnType<typeof vi.fn>
+    beforeEach(() => {
+      raf = vi.fn(() => 1)
+      vi.stubGlobal('requestAnimationFrame', raf)
+      vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    })
+    afterEach(() => vi.unstubAllGlobals())
+
+    const startAnimation = (target: Element, animationName: string) => {
+      const event = new Event('animationstart', { bubbles: true })
+      Object.defineProperty(event, 'animationName', { value: animationName })
+      target.dispatchEvent(event)
+    }
+
+    const mountNested = () => {
+      const outerTrack = document.createElement('ol')
+      document.body.appendChild(outerTrack)
+      const wrapper = mount(Carousel, {
+        attachTo: outerTrack,
+        slots: { default: () => [h(Slide, () => '1'), h(Slide, () => '2')] },
+      })
+      return { outerTrack, wrapper }
+    }
+
+    it('does not track the outer marquee animation', async () => {
+      const { outerTrack, wrapper } = mountNested()
+      await wrapper.vm.$nextTick()
+      startAnimation(outerTrack, 'vc-marquee')
+      expect(raf).not.toHaveBeenCalled()
+      wrapper.unmount()
+      outerTrack.remove()
+    })
+
+    it('still tracks other ancestor animations', async () => {
+      const { outerTrack, wrapper } = mountNested()
+      await wrapper.vm.$nextTick()
+      startAnimation(outerTrack, 'grow')
+      expect(raf).toHaveBeenCalled()
+      wrapper.unmount()
+      outerTrack.remove()
+    })
+  })
+
   describe('clones', () => {
     const clones = (wrapper: ReturnType<typeof mountCarousel>) =>
       wrapper.findAll('.carousel__slide--clone')
