@@ -146,6 +146,78 @@ describe('marquee', () => {
     })
   })
 
+  describe('phase on duration change', () => {
+    // Fakes the track's running CSS animation, which jsdom does not implement
+    const fakeAnimations = (
+      wrapper: ReturnType<typeof mountCarousel>,
+      animations: Array<{ animationName: string; currentTime: number | null }>
+    ) => {
+      Object.defineProperty(wrapper.find('.carousel__track').element, 'getAnimations', {
+        configurable: true,
+        value: () => animations,
+      })
+      return animations
+    }
+
+    it('keeps the loop progress when the speed changes', async () => {
+      // 750px / 60px/s = 12.5s; 3125ms is 25% of the loop; 750 / 30 = 25s
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'vc-marquee', currentTime: 3125 },
+      ])
+      await wrapper.setProps({ marqueeSpeed: 30 })
+      expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 25s')
+      expect(animation.currentTime).toBe(6250)
+    })
+
+    it('keeps the loop progress when the carousel is resized', async () => {
+      // 300px viewport: 12.5s; 600px viewport: slideSize 300, 1500px / 60 = 25s
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'vc-marquee', currentTime: 3125 },
+      ])
+      const wide = { ...RECT, width: 600, right: 600 }
+      vi.mocked(Element.prototype.getBoundingClientRect).mockReturnValue({
+        ...wide,
+        toJSON: () => wide,
+      })
+      try {
+        wrapper.vm.updateSlideSize()
+        await wrapper.vm.$nextTick()
+        expect(rootStyle(wrapper)).toContain('--vc-marquee-duration: 25s')
+        expect(animation.currentTime).toBe(6250)
+      } finally {
+        vi.mocked(Element.prototype.getBoundingClientRect).mockReturnValue({
+          ...RECT,
+          toJSON: () => RECT,
+        })
+      }
+    })
+
+    it('uses the progress within the current loop', async () => {
+      // 15625ms is 1.25 loops of 12.5s
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'vc-marquee', currentTime: 15625 },
+      ])
+      await wrapper.setProps({ marqueeSpeed: 30 })
+      expect(animation.currentTime).toBe(6250)
+    })
+
+    it('leaves other animations alone', async () => {
+      const wrapper = mountCarousel({ itemsToShow: 2 })
+      await wrapper.vm.$nextTick()
+      const [animation] = fakeAnimations(wrapper, [
+        { animationName: 'other', currentTime: 3125 },
+      ])
+      await wrapper.setProps({ marqueeSpeed: 30 })
+      expect(animation.currentTime).toBe(3125)
+    })
+  })
+
   describe('clones', () => {
     const clones = (wrapper: ReturnType<typeof mountCarousel>) =>
       wrapper.findAll('.carousel__slide--clone')

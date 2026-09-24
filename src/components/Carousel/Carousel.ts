@@ -18,7 +18,14 @@ import {
 } from 'vue'
 
 import { ARIA as ARIAComponent } from '@/components/ARIA'
-import { DragEventData, useDrag, useHover, useWheel, WheelEventData } from '@/composables'
+import {
+  DragEventData,
+  useDrag,
+  useHover,
+  useMarqueePhase,
+  useWheel,
+  WheelEventData,
+} from '@/composables'
 import {
   CarouselConfig,
   DEFAULT_CONFIG,
@@ -75,6 +82,7 @@ export const Carousel = defineComponent({
 
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
+    const track: Ref<HTMLElement | null> = ref(null)
     const slideSize: Ref<number> = ref(0)
 
     const fallbackConfig = computed(() => ({
@@ -894,8 +902,15 @@ export const Carousel = defineComponent({
       return `translate${translateAxis}(${totalOffset}px)`
     })
 
-    const carouselStyle = computed(() => {
+    // Seconds one marquee loop takes; 0 when the marquee is off or cannot run
+    const marqueeDuration = computed(() => {
       const speed = Number(config.marqueeSpeed) || 0
+      return isMarquee.value && speed > 0 ? marqueeDistance.value / speed : 0
+    })
+
+    useMarqueePhase({ track, duration: marqueeDuration })
+
+    const carouselStyle = computed(() => {
       const marqueeOffset = isMarquee.value
         ? toCssValue(marqueeDistance.value * (isReversed.value ? 1 : -1))
         : undefined
@@ -903,7 +918,7 @@ export const Carousel = defineComponent({
         '--vc-carousel-height': toCssValue(config.height),
         '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
         '--vc-marquee-duration': isMarquee.value
-          ? toCssValue(speed > 0 ? marqueeDistance.value / speed : 0, 's')
+          ? toCssValue(marqueeDuration.value, 's')
           : undefined,
         '--vc-marquee-x': isVertical.value ? undefined : marqueeOffset,
         '--vc-marquee-y': isVertical.value ? marqueeOffset : undefined,
@@ -996,6 +1011,7 @@ export const Carousel = defineComponent({
       const trackEl = h(
         'ol',
         {
+          ref: track,
           class: 'carousel__track',
           onMousedownCapture:
             config.mouseDrag && !isMarquee.value ? handleDragStart : null,
