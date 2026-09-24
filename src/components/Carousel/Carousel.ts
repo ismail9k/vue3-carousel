@@ -628,6 +628,20 @@ export const Carousel = defineComponent({
       () => resetAutoplay()
     )
 
+    // A v-model can only hold a canonical index, so with wrapAround take the
+    // shortest path to it; slideTo maps the unclamped index and loops.
+    function getModelTarget(val: number): number {
+      if (!config.wrapAround || isAuto.value || slidesCount.value <= 0) {
+        return val
+      }
+      const current = currentSlideIndex.value
+      return [val - slidesCount.value, val + slidesCount.value].reduce(
+        (best, candidate) =>
+          Math.abs(candidate - current) < Math.abs(best - current) ? candidate : best,
+        val
+      )
+    }
+
     // Handle changing v-model value
     const modelWatcher = watch(
       () => props.modelValue,
@@ -635,7 +649,7 @@ export const Carousel = defineComponent({
         if (val === currentSlideIndex.value) {
           return
         }
-        slideTo(Number(val), true)
+        slideTo(getModelTarget(Number(val)), true)
       }
     )
 
