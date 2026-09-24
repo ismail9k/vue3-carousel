@@ -216,7 +216,8 @@ These props provide additional customization for specific use cases:
 
 - **`disableWhenSlidesFit`**: When `true`, locks the carousel while every slide already fits in the viewport (never with `wrapAround`).
   - Navigation and Pagination render nothing, and drag, wheel, keyboard, autoplay, `slideTo()`, and `modelValue` changes do nothing.
-  - Unlike `enabled: false`, the carousel keeps its layout and measurements, so it unlocks by itself when the viewport shrinks or slides are added.
+  - Unlike `enabled: false`, the carousel keeps its layout and measurements, so it locks and unlocks by itself when a breakpoint changes `itemsToShow`, the container is resized in `'auto'` mode, or slides are added or removed.
+  - While locked, the track is pinned at the first slide and `modelValue` is set to 0; a `modelValue` change made while locked is applied once the carousel unlocks.
   - The root element gets the `is-locked` class, and the exposed `isLocked` / `allSlidesFit` values report the state for custom addons.
 
 - **`ignoreAnimations`**: Excludes specified CSS animations from slide size calculations.
