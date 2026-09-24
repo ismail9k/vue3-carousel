@@ -16,7 +16,9 @@ export interface UseDragOptions {
 
 export function useDrag(options: UseDragOptions) {
   let isTouch = false
+  let hasPendingMove = false
   const startPosition = { x: 0, y: 0 }
+  const lastPosition = { x: 0, y: 0 }
   const dragged = reactive({ x: 0, y: 0 })
   const isDragging = ref(false)
 
@@ -25,6 +27,11 @@ export function useDrag(options: UseDragOptions) {
   const sliding = computed(() => {
     return typeof isSliding === 'boolean' ? isSliding : isSliding.value
   })
+
+  const getPosition = (event: TouchEvent | MouseEvent) => {
+    const source = isTouch ? (event as TouchEvent).touches[0] : (event as MouseEvent)
+    return { x: source.clientX, y: source.clientY }
+  }
 
   const handleDragStart = (event: MouseEvent | TouchEvent): void => {
     // Prevent drag initiation on input elements or if already sliding
@@ -45,12 +52,12 @@ export function useDrag(options: UseDragOptions) {
       }
     }
 
-    startPosition.x = isTouch
-      ? (event as TouchEvent).touches[0].clientX
-      : (event as MouseEvent).clientX
-    startPosition.y = isTouch
-      ? (event as TouchEvent).touches[0].clientY
-      : (event as MouseEvent).clientY
+    // A drag that never ended (e.g. touchcancel) may still have a frame scheduled
+    throttledApplyDrag.cancel()
+    hasPendingMove = false
+    const { x, y } = getPosition(event)
+    startPosition.x = x
+    startPosition.y = y
 
     const moveEvent = isTouch ? 'touchmove' : 'mousemove'
     const endEvent = isTouch ? 'touchend' : 'mouseup'
@@ -60,36 +67,44 @@ export function useDrag(options: UseDragOptions) {
     options.onDragStart?.()
   }
 
-  const handleDrag = throttle((event: TouchEvent | MouseEvent): void => {
+  const applyDrag = (): void => {
+    hasPendingMove = false
+    isDragging.value = true
+    dragged.x = lastPosition.x - startPosition.x
+    dragged.y = lastPosition.y - startPosition.y
+    options.onDrag?.({ deltaX: dragged.x, deltaY: dragged.y, isTouch })
+  }
+
+  const throttledApplyDrag = throttle(applyDrag)
+
+  const handleDrag = (event: TouchEvent | MouseEvent): void => {
     if (isTouch && (event as TouchEvent).touches.length > 1) {
       return
     }
-
-    isDragging.value = true
-
-    const currentX = isTouch
-      ? (event as TouchEvent).touches[0].clientX
-      : (event as MouseEvent).clientX
-    const currentY = isTouch
-      ? (event as TouchEvent).touches[0].clientY
-      : (event as MouseEvent).clientY
-
-    dragged.x = currentX - startPosition.x
-    dragged.y = currentY - startPosition.y
-
-    options.onDrag?.({ deltaX: dragged.x, deltaY: dragged.y, isTouch })
-  })
+    const { x, y } = getPosition(event)
+    lastPosition.x = x
+    lastPosition.y = y
+    hasPendingMove = true
+    throttledApplyDrag()
+  }
 
   const handleDragEnd = (): void => {
-    handleDrag.cancel()
+    throttledApplyDrag.cancel()
+    if (hasPendingMove) {
+      applyDrag()
+    }
 
-    const draggedDistance = Math.abs(dragged.x) + Math.abs(dragged.y);
+    const draggedDistance = Math.abs(dragged.x) + Math.abs(dragged.y)
 
     if (!isTouch && draggedDistance > 10) {
-      window.addEventListener('click', (e: MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-      }, { once: true, capture: true })
+      window.addEventListener(
+        'click',
+        (e: MouseEvent) => {
+          e.preventDefault()
+          e.stopPropagation()
+        },
+        { once: true, capture: true }
+      )
     }
 
     options.onDragEnd?.()
