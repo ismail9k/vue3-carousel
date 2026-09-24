@@ -22,6 +22,9 @@ import type {
   WheelConfig,
 } from '@/shared'
 
+export const isValidClassPrefix = (value: unknown): value is string =>
+  typeof value === 'string' && /^\S+$/.test(value)
+
 export const carouselProps = {
   // time to auto advance slides in ms
   autoplay: {
@@ -52,7 +55,7 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.classPrefix,
     type: String,
     validator(value: string) {
-      const isValid = typeof value === 'string' && /^\S+$/.test(value)
+      const isValid = isValidClassPrefix(value)
       if (!isValid) {
         console.warn(
           `[vue3-carousel]: Invalid classPrefix "${value}". It must be a non-empty string without whitespace.`

@@ -52,7 +52,7 @@ import {
   ElRect,
   InjectedCarousel,
 } from './Carousel.types'
-import { carouselProps } from './carouselProps'
+import { carouselProps, isValidClassPrefix } from './carouselProps'
 
 export const Carousel = defineComponent({
   name: 'VueCarousel',
@@ -82,6 +82,10 @@ export const Carousel = defineComponent({
       ...DEFAULT_CONFIG,
       // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
       ...except(props, ['breakpoints', 'modelValue']),
+      // The validator only warns, so an invalid prefix falls back here
+      classPrefix: isValidClassPrefix(props.classPrefix)
+        ? props.classPrefix
+        : DEFAULT_CLASS_PREFIX,
       i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
     }))
 
@@ -933,7 +937,7 @@ export const Carousel = defineComponent({
 
       const output = [...slidesBefore, ...outputSlides, ...slidesAfter]
 
-      const prefix = config.classPrefix || DEFAULT_CLASS_PREFIX
+      const prefix = config.classPrefix
 
       if (!config.enabled || !output.length) {
         return h(

@@ -149,16 +149,21 @@ describe('Carousel.ts', () => {
       expect(prefixed.find('.vc__track').exists()).toBe(true)
     })
 
-    it('warns and falls back to the default for an empty prefix', () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-      try {
-        const root = mountWithPrefix({ classPrefix: '' }).find('section')
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining('classPrefix'))
-        expect(root.classes()).toContain('carousel')
-      } finally {
-        warn.mockRestore()
+    it.each(['', '  ', 'vc x'])(
+      'warns and falls back to the default for the invalid prefix %j',
+      (classPrefix) => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+        try {
+          const prefixed = mountWithPrefix({ classPrefix })
+          const root = prefixed.find('section')
+          expect(warn).toHaveBeenCalledWith(expect.stringContaining('classPrefix'))
+          expect(root.classes()).toEqual(['carousel', 'is-ltr', 'is-effect-slide'])
+          expect(prefixed.find('.carousel__track').exists()).toBe(true)
+        } finally {
+          warn.mockRestore()
+        }
       }
-    })
+    )
   })
 })
 
