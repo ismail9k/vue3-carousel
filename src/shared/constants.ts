@@ -50,6 +50,7 @@ export const DEFAULT_DRAG_THRESHOLD = 0.08
 
 export const DEFAULT_CONFIG: CarouselConfig = {
   autoplay: 0,
+  autoScrollOnFocus: true,
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
   dir: DIR_OPTIONS[0],
