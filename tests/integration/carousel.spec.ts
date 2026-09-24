@@ -797,6 +797,28 @@ describe('Slide content tab order', () => {
     }
   )
 
+  it('Should keep every on-screen slide tabbable with a fractional itemsToShow', async () => {
+    const wrapper = mount(Carousel, {
+      props: { itemsToShow: 2.5, modelValue: 1, snapAlign: 'end' },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4, 5].map((i) =>
+            h(Slide, { key: i }, () => h('a', { href: '#' }, `slide ${i}`))
+          ),
+      },
+    })
+    await nextTick()
+    const links = wrapper.findAll('.carousel__slide a')
+    expect(links).toHaveLength(6)
+    for (const link of links.slice(0, 3)) {
+      expect(link.attributes('tabindex')).toBeUndefined()
+    }
+    for (const link of links.slice(3)) {
+      expect(link.attributes('tabindex')).toBe('-1')
+    }
+    wrapper.unmount()
+  })
+
   it("Should keep an inner carousel's hidden and clone content out of the tab order", async () => {
     const wrapper = mount(Carousel, {
       props: { itemsToShow: 1, modelValue: 0 },
