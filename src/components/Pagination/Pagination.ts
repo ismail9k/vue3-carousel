@@ -1,7 +1,12 @@
 import { computed, defineComponent, h, inject, PropType, VNode } from 'vue'
 
 import { injectCarousel } from '@/shared'
-import { getSnapAlignOffset, i18nFormatter, mapNumberToRange } from '@/utils'
+import {
+  getNumberInRange,
+  getSnapAlignOffset,
+  i18nFormatter,
+  mapNumberToRange,
+} from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 
@@ -36,8 +41,10 @@ export const Pagination = defineComponent<PaginationProps>({
     )
     const pageCount = computed(() => Math.ceil(carousel.slidesCount / itemsToShow.value))
 
+    // Without wrapAround the last step lands on the last slide, which can give a
+    // page past the end; clamp it there instead of wrapping to the first page.
     const isActive = (slide: number): boolean =>
-      mapNumberToRange(
+      (carousel.config.wrapAround ? mapNumberToRange : getNumberInRange)(
         isPaginated.value
           ? {
               val: currentPage.value,
@@ -50,6 +57,20 @@ export const Pagination = defineComponent<PaginationProps>({
               min: carousel.minSlide,
             }
       ) === slide
+
+    // Without wrapAround the last page targets the last slide, where next() also
+    // lands, so the Navigation button disables there too.
+    const getPageTarget = (slide: number): number => {
+      if (!isPaginated.value) {
+        return slide
+      }
+      const index = Math.floor(slide * itemsToShow.value + offset.value)
+      const reachesEnd =
+        !carousel.config.wrapAround &&
+        itemsToShow.value <= carousel.slidesCount &&
+        index - offset.value >= carousel.slidesCount - itemsToShow.value
+      return reachesEnd ? carousel.maxSlide : index
+    }
 
     return () => {
       if (props.carousel) {
@@ -86,12 +107,7 @@ export const Pagination = defineComponent<PaginationProps>({
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
           disabled: props.disableOnClick,
-          onClick: () =>
-            carousel.nav.slideTo(
-              isPaginated.value
-                ? Math.floor(slide * +carousel.config.itemsToShow + offset.value)
-                : slide
-            ),
+          onClick: () => carousel.nav.slideTo(getPageTarget(slide)),
         })
         const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
         children.push(item)

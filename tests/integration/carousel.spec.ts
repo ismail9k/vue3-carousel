@@ -3,7 +3,7 @@ import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vite
 import { Component, createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import { Carousel, Slide } from '@/index'
+import { Carousel, Navigation, Pagination, Slide } from '@/index'
 
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
@@ -657,4 +657,162 @@ describe('Carousel inside a scaled ancestor', () => {
     const track = await dragMouse([0, 400], [0, 340])
     expect(track.attributes('style')).toContain('translateY(-240px)')
   })
+})
+
+describe('itemsToScroll paging (#522)', () => {
+  const mountCarousel = (
+    props: Record<string, unknown> = {},
+    { slides = 9, paginateByItemsToShow = false } = {}
+  ) =>
+    mount(Carousel, {
+      props: {
+        itemsToShow: 3,
+        itemsToScroll: 3,
+        snapAlign: 'center',
+        wrapAround: false,
+        ...props,
+      },
+      slots: {
+        default: () =>
+          Array.from({ length: slides }, (_, i) => h(Slide, { key: i }, () => `${i}`)),
+        addons: () => [
+          h(Navigation),
+          ...(paginateByItemsToShow ? [h(Pagination, { paginateByItemsToShow })] : []),
+        ],
+      },
+    })
+  const visible = (wrapper: ReturnType<typeof mountCarousel>) =>
+    wrapper.findAll('.carousel__slide--visible').map((slide) => slide.text())
+  const step = async (
+    wrapper: ReturnType<typeof mountCarousel>,
+    direction: 'next' | 'prev'
+  ) => {
+    wrapper.vm[direction]()
+    vi.advanceTimersByTime(300)
+    await nextTick()
+  }
+
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('moves the visible slides by itemsToScroll from the clamped edges', async () => {
+    const wrapper = mountCarousel()
+    await nextTick()
+    expect(visible(wrapper)).toEqual(['0', '1', '2'])
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['3', '4', '5'])
+    expect(wrapper.vm.currentSlide).toBe(4)
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['6', '7', '8'])
+    expect(wrapper.vm.currentSlide).toBe(8)
+    expect(wrapper.find('.carousel__next').attributes('disabled')).toBeDefined()
+
+    await step(wrapper, 'prev')
+    expect(visible(wrapper)).toEqual(['3', '4', '5'])
+
+    await step(wrapper, 'prev')
+    expect(visible(wrapper)).toEqual(['0', '1', '2'])
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.find('.carousel__prev').attributes('disabled')).toBeDefined()
+  })
+
+  it('keeps wrapAround stepping by itemsToScroll', async () => {
+    const wrapper = mountCarousel({ wrapAround: true })
+    await nextTick()
+    expect(visible(wrapper)).toEqual(['8', '0', '1'])
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['2', '3', '4'])
+    expect(wrapper.vm.currentSlide).toBe(3)
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['5', '6', '7'])
+  })
+
+  it('steps one slide at a time with itemsToScroll 1 at the clamped edges', async () => {
+    const wrapper = mountCarousel({ itemsToShow: 5, itemsToScroll: 1 })
+    await nextTick()
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(1)
+    expect(visible(wrapper)).toEqual(['0', '1', '2', '3', '4'])
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(visible(wrapper)).toEqual(['0', '1', '2', '3', '4'])
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(3)
+    expect(visible(wrapper)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('steps by index when itemsToShow exceeds the slide count', async () => {
+    const wrapper = mountCarousel(
+      { itemsToShow: 4, itemsToScroll: 2, snapAlign: 'start' },
+      { slides: 3 }
+    )
+    await nextTick()
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(2)
+
+    await step(wrapper, 'prev')
+    expect(wrapper.vm.currentSlide).toBe(0)
+  })
+
+  it('does not jump to the last slide when itemsToShow exceeds the slide count', async () => {
+    const wrapper = mountCarousel(
+      { itemsToShow: 6, itemsToScroll: 2, snapAlign: 'start' },
+      { slides: 5 }
+    )
+    await nextTick()
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(2)
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(4)
+
+    await step(wrapper, 'prev')
+    expect(wrapper.vm.currentSlide).toBe(2)
+  })
+
+  it.each(['start', 'center', 'end'])(
+    'highlights the last page after paging to the end (snapAlign %s)',
+    async (snapAlign) => {
+      const wrapper = mountCarousel({ snapAlign }, { paginateByItemsToShow: true })
+      await nextTick()
+
+      await step(wrapper, 'next')
+      await step(wrapper, 'next')
+
+      const buttons = wrapper.findAll('.carousel__pagination-button')
+      const active = buttons.filter((button) =>
+        button.classes('carousel__pagination-button--active')
+      )
+      expect(buttons).toHaveLength(3)
+      expect(active).toHaveLength(1)
+      expect(buttons[2].classes()).toContain('carousel__pagination-button--active')
+    }
+  )
+
+  it.each(['start', 'center'])(
+    'lands the last page dot where next() lands (snapAlign %s)',
+    async (snapAlign) => {
+      const wrapper = mountCarousel({ snapAlign }, { paginateByItemsToShow: true })
+      await nextTick()
+
+      const buttons = wrapper.findAll('.carousel__pagination-button')
+      await buttons[2].trigger('click')
+      vi.advanceTimersByTime(300)
+      await nextTick()
+
+      expect(visible(wrapper)).toEqual(['6', '7', '8'])
+      expect(wrapper.vm.currentSlide).toBe(8)
+      expect(wrapper.find('.carousel__next').attributes('disabled')).toBeDefined()
+      expect(buttons[2].classes()).toContain('carousel__pagination-button--active')
+    }
+  )
 })
