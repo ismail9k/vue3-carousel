@@ -117,4 +117,31 @@ describe('Carousel.css', () => {
     expect(carouselRule, 'expected a top-level `.carousel { ... }` rule').not.toBe('')
     expect(carouselRule).toMatch(/min-width:\s*0;/)
   })
+
+  it('transitions the height and stops stretching slides in adaptive height mode (#382)', () => {
+    const adaptiveRule =
+      css.match(/^\.carousel\.is-adaptive-height \{([^}]*)\}/m)?.[1] ?? ''
+    expect(adaptiveRule).toMatch(/transition:\s*height var\(--vc-transition-easing\);/)
+    expect(adaptiveRule).toMatch(
+      /transition-duration:\s*var\(--vc-transition-duration\);/
+    )
+    const trackRule =
+      css.match(/^\.carousel\.is-adaptive-height \.carousel__track \{([^}]*)\}/m)?.[1] ??
+      ''
+    expect(trackRule).toMatch(/align-items:\s*flex-start;/)
+  })
+
+  it('lets fade slides keep their content height in adaptive height mode (#382)', () => {
+    const fadeTrackRule =
+      css.match(
+        /^\.carousel\.is-adaptive-height\.is-effect-fade \.carousel__track \{([^}]*)\}/m
+      )?.[1] ?? ''
+    expect(fadeTrackRule).toMatch(/grid-template-rows:\s*auto;/)
+    expect(fadeTrackRule).toMatch(/align-items:\s*start;/)
+    const fadeSlideRule =
+      css.match(
+        /^\.carousel\.is-adaptive-height\.is-effect-fade \.carousel__slide \{([^}]*)\}/m
+      )?.[1] ?? ''
+    expect(fadeSlideRule).toMatch(/height:\s*auto;/)
+  })
 })

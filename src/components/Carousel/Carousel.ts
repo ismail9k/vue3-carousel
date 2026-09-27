@@ -173,6 +173,10 @@ export const Carousel = defineComponent({
       }
     }
 
+    // With adaptiveHeight the root ResizeObserver fires on every frame of the height
+    // transition; those root-only, width-unchanged entries are skipped where the
+    // observer is created. The measured slide heights do not depend on the root
+    // height, so a re-measure cannot loop.
     const handleResize = throttle(() => {
       updateBreakpointsConfig()
       updateSlidesData()
@@ -328,8 +332,25 @@ export const Carousel = defineComponent({
       initAutoplay()
 
       if (root.value) {
-        resizeObserver = new ResizeObserver(handleResize)
+        let rootWidth = -1
+        resizeObserver = new ResizeObserver((entries) => {
+          // In adaptive mode the root height follows the slides, so a root-only
+          // entry with an unchanged width is a frame of the height transition
+          const rootEntry = entries.find((entry) => entry.target === root.value)
+          const onlyRootHeight =
+            isAdaptiveHeight.value &&
+            entries.length === 1 &&
+            rootEntry !== undefined &&
+            rootEntry.contentRect.width === rootWidth
+          if (rootEntry) {
+            rootWidth = rootEntry.contentRect.width
+          }
+          if (!onlyRootHeight) {
+            handleResize()
+          }
+        })
         resizeObserver.observe(root.value)
+        updateObservedSlides()
       }
 
       emit('init')
@@ -351,6 +372,7 @@ export const Carousel = defineComponent({
       }
       if (resizeObserver) {
         resizeObserver.disconnect()
+        observedSlides.clear()
         resizeObserver = null
       }
 
@@ -817,6 +839,64 @@ export const Carousel = defineComponent({
       }
     })
 
+    const isAdaptiveHeight = computed(() => !!config.adaptiveHeight && !isVertical.value)
+
+    // Tallest visible slide in layout px; undefined until a slide has a height, so
+    // the `height` prop stays in effect before the first measurement
+    const adaptiveHeight = computed<number | undefined>(() => {
+      if (!isAdaptiveHeight.value) {
+        return undefined
+      }
+      const count = slidesRect.value.length
+      if (!count) {
+        return undefined
+      }
+      const { min, max } = visibleRange.value
+      let height = 0
+      for (let index = min; index <= max; index++) {
+        const normalizedIndex = ((index % count) + count) % count
+        height = Math.max(height, slidesRect.value[normalizedIndex]?.height || 0)
+      }
+      return height > 0 ? height : undefined
+    })
+
+    // In adaptive height mode the root no longer grows with its content, so slide
+    // content changing size later (images loading) is caught by observing the
+    // slide elements themselves. Clones mirror real slides and are not observed.
+    const observedSlides = new Set<Element>()
+    function updateObservedSlides(): void {
+      const observer = resizeObserver
+      if (!observer) {
+        return
+      }
+      const next = new Set<Element>()
+      if (isAdaptiveHeight.value) {
+        slides.forEach((slide) => {
+          const el = slide.vnode.el
+          if (el instanceof Element) {
+            next.add(el)
+          }
+        })
+      }
+      observedSlides.forEach((el) => {
+        if (!next.has(el)) {
+          observer.unobserve(el)
+          observedSlides.delete(el)
+        }
+      })
+      next.forEach((el) => {
+        if (!observedSlides.has(el)) {
+          observer.observe(el)
+          observedSlides.add(el)
+        }
+      })
+    }
+    // Spread `slides` so registry changes re-run the watcher; post flush so the
+    // slide elements exist
+    watch(() => [isAdaptiveHeight.value, ...slides], updateObservedSlides, {
+      flush: 'post',
+    })
+
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
       if (config.slideEffect === 'fade') {
         return undefined
@@ -855,7 +935,10 @@ export const Carousel = defineComponent({
     })
 
     const carouselStyle = computed(() => ({
-      '--vc-carousel-height': toCssValue(config.height),
+      '--vc-carousel-height':
+        adaptiveHeight.value !== undefined
+          ? toCssValue(adaptiveHeight.value)
+          : toCssValue(config.height),
       '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
       '--vc-slide-gap': toCssValue(config.gap),
       '--vc-transition-duration': isSliding.value
@@ -964,6 +1047,7 @@ export const Carousel = defineComponent({
             `is-${normalizedDir.value}`,
             `is-effect-${config.slideEffect}`,
             {
+              'is-adaptive-height': isAdaptiveHeight.value,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
               'is-sliding': isSliding.value,
