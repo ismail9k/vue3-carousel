@@ -21,7 +21,7 @@ export const DIR_OPTIONS = [
 ] as const
 
 export const I18N_DEFAULT_CONFIG = {
-  ariaGallery: 'Gallery',
+  ariaGallery: 'Gallery {id}',
   ariaNavigateToPage: 'Navigate to page {slideNumber}',
   ariaNavigateToSlide: 'Navigate to slide {slideNumber}',
   ariaNextSlide: 'Navigate to next slide',
