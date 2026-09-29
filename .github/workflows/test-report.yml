@@ -12,9 +12,10 @@ jobs:
   test-report:
     runs-on: ubuntu-latest
     steps:
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v3
         with:
           artifact: test-results            # artifact name
           name: Tests results                  # Name of the check run which will be created
           path: '*.xml'                     # Path to test results (inside artifact .zip)
           reporter: jest-junit            # Format of test results
+          use-actions-summary: 'false'     # v2+ defaults to a job summary; keep publishing the check run
