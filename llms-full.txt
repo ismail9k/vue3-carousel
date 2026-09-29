@@ -1,0 +1,1620 @@
+# Vue3-carousel — full documentation
+
+> A highly customizable, lightweight Vue 3 carousel component for your next awesome project.
+
+Index: https://vue3-carousel.ismail9k.com/llms.txt
+
+---
+
+# Getting started
+
+Source: https://vue3-carousel.ismail9k.com/getting-started.md
+
+## Installation
+
+First step is to install it using `yarn` or `npm`:
+
+```bash
+npm install vue3-carousel
+
+# or use yarn
+yarn add vue3-carousel
+```
+
+## Basic Using
+
+```vue
+<script setup>
+// If you are using PurgeCSS, make sure to whitelist the carousel CSS classes
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+
+const carouselConfig = {
+  itemsToShow: 2.5,
+  wrapAround: true
+}
+</script>
+
+<template>
+  <Carousel v-bind="carouselConfig">
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+```
+
+---
+
+# Configuration
+
+Source: https://vue3-carousel.ismail9k.com/config.md
+
+Vue 3 Carousel offers a comprehensive set of configuration options to customize its behavior and appearance. This page documents all available props, their types, default values, and usage guidelines.
+
+## All Available Props
+
+| Prop                       | Type                                        | Default                          | Description                                                                                            |
+|----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. (added in 0.19.0) |
+| `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
+| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Focusable content in off-screen slides can then receive focus without being shown. (added in 0.19.0) |
+| `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
+| `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
+| `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
+| `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`. (added in 0.18.0) |
+| `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
+| `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
+| `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
+| `i18n`                     | `object`                                    | `{ ... }` | Internationalization options for accessibility labels and text content. See [i18n](#i18n) for configuration details.                            |
+| `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. (added in 0.10.0) |
+| `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
+| `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `keyboardNavigation`       | `boolean`                                   | true                             | Enables/disables arrow-key navigation while the carousel is focused. (added in 0.19.0)            |
+| `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
+| `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
+| `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
+| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
+| `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. (added in 0.13.0)                 |
+| `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
+| `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
+| `touchDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables touch navigation on touch-enabled devices. See [Drag Options](#drag-options) for configuration details. |
+| `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
+| `transitionEasing`         | `string`                                    | `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` | CSS easing function for slide transitions. Accepts any valid CSS timing function. (added in 0.17.0) |
+| `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
+
+## Basic Configuration
+
+These props control the fundamental behavior of the carousel:
+
+```vue
+<template>
+  <Carousel :items-to-show="3" :wrap-around="true" :transition="500">
+    <Slide v-for="slide in 10" :key="slide">
+      Slide {{ slide }}
+    </Slide>
+  </Carousel>
+</template>
+```
+
+### Item Display Options
+
+- **`itemsToShow`**: Controls the number of visible slides at once. Accepts numeric values (including decimals) or 'auto'.
+  - When set to 'auto', slides determine their own width based on content.
+  - Example: `:items-to-show="2.5"` shows 2 full slides and half of the next one.
+
+- **`itemsToScroll`**: Number of slides to move when navigating.
+  - Set to a value higher than 1 to create slide groups.
+  - Example: `:items-to-show="3" :items-to-scroll="3"` creates page-like navigation.
+
+### Direction Settings
+
+- **`dir`**: Controls sliding direction. Supports both short and verbose formats:
+  - Horizontal: 'ltr'/'left-to-right' or 'rtl'/'right-to-left'
+  - Vertical: 'ttb'/'top-to-bottom' or 'btt'/'bottom-to-top'
+  
+  For vertical orientations, a fixed `height` setting is required:
+  
+  ```vue
+  <Carousel dir="ttb" :height="300">
+    <!-- Slides -->
+  </Carousel>
+  ```
+
+## Navigation & Control
+
+These props control how users can interact with the carousel:
+
+```vue
+<template>
+  <Carousel 
+    :autoplay="3000"
+    :pause-autoplay-on-hover="true"
+    :mouse-drag="true"
+    :touch-drag="true"
+    :mouse-wheel="{ threshold: 20 }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+- **`autoplay`**: Automatically advances slides after the specified interval (in milliseconds).
+  - Set to 0 to disable autoplay: `:autoplay="0"`
+  
+- **`pauseAutoplayOnHover`**: When `true`, pauses autoplay while mouse is over the carousel.
+
+- **`mouseDrag`** and **`touchDrag`**: Enable/disable drag navigation.
+  - Basic usage: `:mouse-drag="true"` or `:touch-drag="false"`
+  - Advanced usage: `:mouse-drag="{ threshold: 0.5 }"` (see [Drag Options](#drag-options))
+
+- **`mouseWheel`**: Enable/disable mouse wheel navigation.
+  - Basic usage: `:mouse-wheel="true"`
+  - Advanced usage: `:mouse-wheel="{ threshold: 20 }"` (see [Wheel Options](#wheel-options))
+
+- **`keyboardNavigation`**: Enable/disable arrow-key navigation while the carousel is focused.
+  - Basic usage: `:keyboard-navigation="false"`
+  - Only arrow keys are affected; focusing a slide still brings it into view, and the Navigation buttons still work.
+
+- **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
+  - Automatically disabled when `wrapAround` is enabled
+
+- **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
+  - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
+  - With `false`, focusable content inside off-screen slides can still receive keyboard focus without being scrolled into view.
+
+## Visual Customization
+
+These props control the appearance of the carousel:
+
+```vue
+<template>
+  <Carousel 
+    :adaptive-height="true"
+    :gap="20"
+    snap-align="start"
+    slide-effect="fade"
+    :transition="500"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+- **`adaptiveHeight`**: Sizes the carousel to the tallest visible slide instead of the tallest slide overall, and animates the height on navigation with the `transition` settings.
+  - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
+  - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
+  - Visible slides are no longer stretched to the same height; with `itemsToShow > 1` shorter slides align to the top.
+  - Partially visible slides count too: with a fractional `itemsToShow` or a centred peek layout, a taller neighbour that peeks into the viewport sets the height.
+  - Visible slides size to their content, so percentage heights inside a slide (`height: 100%`) resolve to `auto`: give the content an intrinsic or explicit height (images keep their aspect ratio).
+  - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
+
+- **`gap`**: Space (in pixels) between slides.
+  - Example: `:gap="20"` creates 20px spacing between slides.
+
+- **`edgeSpacing`**: Space (in pixels) before the first slide and after the last one.
+  - Example: `:edge-spacing="16"` shifts the track by 16px at the first and last positions; positions in between are unchanged.
+  - Slides keep their size, so pair it with a fractional or `'auto'` `itemsToShow` to keep every slide fully visible at the edges.
+  - When every slide already fits in the viewport, only the space before the first slide is applied.
+  - Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`.
+
+- **`snapAlign`**: Controls how slides align within the viewport.
+  - 'start': Aligns slides to the beginning of the carousel
+  - 'center': Centers the current slide (default)
+  - 'end': Aligns slides to the end of the carousel
+  - 'center-odd'/'center-even': Special center alignments for odd/even number of visible slides
+
+- **`slideEffect`**: Controls the transition effect between slides.
+  - 'slide': Standard sliding transition (default)
+  - 'fade': Fade effect between slides
+
+- **`transition`**: Duration of slide transitions in milliseconds.
+  - Example: `:transition="500"` for a half-second transition.
+
+- **`transitionEasing`**: CSS timing function that controls the acceleration curve of transitions.
+  - Accepts any valid CSS timing function value
+  - Default: `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` (ease-out-quad for smooth deceleration)
+  - Common presets:
+    - `'ease'`: Slow start, fast middle, slow end
+    - `'ease-in'`: Slow start, fast end
+    - `'ease-out'`: Fast start, slow end
+    - `'ease-in-out'`: Slow start and end
+    - `'linear'`: Constant speed
+  - Custom cubic-bezier examples:
+    - `'cubic-bezier(0.68, -0.55, 0.265, 1.55)'`: Elastic effect
+    - `'cubic-bezier(0.4, 0, 0.2, 1)'`: Material Design standard
+
+  Example with custom easing:
+
+  ```vue
+  <Carousel
+    :transition="600"
+    transition-easing="cubic-bezier(0.4, 0, 0.2, 1)"
+  >
+    <!-- Slides -->
+  </Carousel>
+  ```
+
+## Responsive Behavior
+
+These props control how the carousel adapts to different screen sizes:
+
+```vue
+<template>
+  <Carousel 
+    :items-to-show="1"
+    breakpoint-mode="carousel"
+    :breakpoints="{
+      700: {
+        itemsToShow: 2,
+        snapAlign: 'center',
+      },
+      1000: {
+        itemsToShow: 3,
+        snapAlign: 'start',
+      }
+    }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+- **`breakpoints`**: Responsive settings that override default props at different widths.
+  - Keys represent the minimum width in pixels
+  - Values are objects containing any carousel props to override
+
+- **`breakpointMode`**: Determines how breakpoints are calculated.
+  - 'viewport': Based on browser window width (default)
+  - 'carousel': Based on carousel container width
+
+## Advanced Options
+
+These props provide additional customization for specific use cases:
+
+- **`clamp`**: When `true`, limits `itemsToShow` to the actual number of available slides.
+  - Useful for preventing empty space when there are fewer slides than `itemsToShow`.
+
+- **`enabled`**: When `false`, disables all carousel interactions.
+  - Useful for conditionally disabling the carousel functionality.
+
+- **`ignoreAnimations`**: Excludes specified CSS animations from slide size calculations.
+  - Useful when animations are causing layout issues.
+
+- **`modelValue`**: Controls the active slide index (for use with v-model).
+  - Example: `v-model="activeSlide"` for two-way binding.
+
+- **`wrapAround`**: Creates an infinite loop effect by connecting the last slide to the first.
+  - Example: `:wrap-around="true"` allows continuous navigation in either direction.
+
+## Option Details
+
+### Drag Options
+
+Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `DragConfig` object with the following properties:
+
+| Property    | Type     | Default | Description                                                                                |
+|-------------|----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold` | `number` | 0.08    | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+
+Example:
+
+```vue
+<Carousel :mouse-drag="{ threshold: 0.5 }" :touch-drag="false">
+  <!-- Slides -->
+</Carousel>
+```
+
+### Wheel Options
+
+The `mouseWheel` property accepts either a boolean value or a `WheelConfig` object with the following properties:
+
+| Property          | Type      | Default | Description                                                                                |
+|-------------------|-----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold`       | `number`  | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
+| `ignoreCrossAxis` | `boolean` | false   | When true, the carousel handles a wheel event only when the delta along its own axis (horizontal for a horizontal carousel, vertical for a vertical one) exceeds `threshold` and is larger than the cross-axis delta; every other wheel event is left to the browser, so vertical trackpad scrolling over a horizontal carousel scrolls the page. Note that a classic mouse wheel reports only vertical movement, so a horizontal carousel with this option is no longer navigable with a plain mouse wheel. (added in 0.18.0) |
+
+Example:
+
+```vue
+<Carousel :mouse-wheel="{ threshold: 20, ignoreCrossAxis: true }">
+  <!-- Slides -->
+</Carousel>
+```
+
+### I18n
+
+The `i18n` prop allows customization of text content for accessibility and internationalization:
+
+```vue
+<Carousel 
+  :i18n="{
+    ariaNextSlide: 'Go to next slide',
+    ariaPreviousSlide: 'Go to previous slide'
+  }"
+>
+  <!-- Slides -->
+</Carousel>
+```
+
+Available keys:
+
+| Key                   | Defaults                               | Description                                                                |
+| --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| `ariaGallery`         | "Gallery {id}"                         | Carousel aria-label. Prefer a meaningful name; `{id}` is an instance id.   |
+| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
+| `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
+| `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
+| `iconArrowDown`       | "Arrow pointing downwards"             | Sets title and aria-label for the downward-pointing arrow SVG icon.        |
+| `iconArrowLeft`       | "Arrow pointing to the left"           | Sets title and aria-label for the left-pointing arrow SVG icon.            |
+| `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
+| `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
+| `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.
+
+---
+
+# Examples
+
+Source: https://vue3-carousel.ismail9k.com/examples.md
+
+This page showcases examples of the carousel component with live demos. Explore different configurations from basic to advanced, and use the provided code samples as starting points for your own implementations.
+
+## Basic
+
+A simple implementation of the carousel with default settings.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+}
+</script>
+
+<template>
+  <Carousel v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="image" />
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-pgn-background-color: rgba(255, 255, 255, 0.7);
+  --vc-pgn-active-color: rgba(255, 255, 255, 1);
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+```
+
+## Wrap Around
+
+Demonstrates a carousel with continuous wrap-around functionality.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+  wrapAround: true,
+}
+</script>
+
+<template>
+  <Carousel v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="image" />
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+```
+
+## Vertical
+
+Showcases a vertically scrolling carousel. Adjust the height to better fit your content.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+
+const carouselConfig = {
+  dir: 'ttb',
+  wrapAround: true,
+  itemsToShow: 2,
+  snapAlign: 'center',
+  height: '400px',
+  gap: 5,
+}
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+</script>
+
+<template>
+  <Carousel v-bind="carouselConfig">
+    <Slide v-for="img in images" :key="img.id">
+      <img :src="img.url" />
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-pgn-background-color: rgba(255, 255, 255, 0.7);
+  --vc-pgn-active-color: rgba(255, 255, 255, 1);
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+.carousel__slide {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+```
+
+## Breakpoints
+
+An example of a responsive carousel with breakpoints for varying screen sizes.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+// Carousel configuration
+const config = {
+  height: 200,
+  itemsToShow: 1,
+  gap: 5,
+  snapAlign: 'center',
+
+  // 'breakpointMode' determines how the carousel breakpoints are calculated
+  // Acceptable values: 'viewport' (default) | 'carousel'
+  // 'viewport' - breakpoints are based on the viewport width
+  // 'carousel' - breakpoints are based on the carousel width
+  breakpointMode: 'carousel',
+
+  // Breakpoints are mobile-first
+  // Any settings not specified will fall back to the carousel's default settings
+  breakpoints: {
+    // 300px and up
+    300: {
+      itemsToShow: 2,
+      snapAlign: 'center',
+    },
+    // 400px and up
+    400: {
+      itemsToShow: 3,
+      snapAlign: 'start',
+    },
+    // 500px and up
+    500: {
+      itemsToShow: 4,
+      snapAlign: 'start',
+    },
+  },
+}
+</script>
+
+<template>
+  <!-- Resizable container for testing 'carousel' breakpointMode -->
+  <!-- Drag the right edge to adjust the width and see the breakpoints change -->
+  <div class="carousel__wrapper">
+    <Carousel v-bind="config">
+      <Slide v-for="image in images" :key="image.id">
+        <img :src="image.url" alt="image" />
+      </Slide>
+
+      <template #addons>
+        <Navigation />
+      </template>
+    </Carousel>
+  </div>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel__wrapper {
+  resize: horizontal;
+  border: 2px dashed gray;
+  overflow: auto;
+  max-width: 688px;
+  padding: 2px;
+}
+</style>
+```
+
+## Autoplay
+
+Illustrates the carousel with autoplay functionality enabled.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+  autoplay: 4000,
+  wrapAround: true,
+  pauseAutoplayOnHover: true,
+}
+</script>
+
+<template>
+  <Carousel v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="image" />
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+```
+
+## Mouse Wheel
+
+Demonstrates the carousel with mouse wheel scrolling navigation enabled.
+
+```vue
+<script setup>
+import { Carousel, Pagination, Navigation, Slide } from 'vue3-carousel'
+import 'vue3-carousel/carousel.css'
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+  mouseWheel: true,
+  wrapAround: true,
+}
+</script>
+
+<template>
+  <Carousel v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <div class="carousel__item">
+        <img :src="image.url" alt="image" />
+      </div>
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-pgn-background-color: rgba(255, 255, 255, 0.7);
+  --vc-pgn-active-color: rgba(255, 255, 255, 1);
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+```
+
+## Active Classes
+
+An example highlighting active items with custom classes.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+const carouselConfig = {
+  height: 200,
+  itemsToShow: 3.5,
+  wrapAround: true,
+}
+</script>
+
+<template>
+  <Carousel v-bind="carouselConfig">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="image" />
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  --carousel-transition: 300ms;
+  --carousel-opacity-inactive: 0.7;
+  --carousel-opacity-active: 1;
+  --carousel-opacity-near: 0.9;
+
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel__viewport {
+  perspective: 2000px;
+}
+
+.carousel__track {
+  transform-style: preserve-3d;
+}
+
+.carousel__slide--sliding {
+  transition:
+    opacity var(--carousel-transition),
+    transform var(--carousel-transition);
+}
+
+.carousel.is-dragging .carousel__slide {
+  transition:
+    opacity var(--carousel-transition),
+    transform var(--carousel-transition);
+}
+
+.carousel__slide {
+  opacity: var(--carousel-opacity-inactive);
+  transform: translateX(10px) rotateY(-12deg) scale(0.9);
+}
+
+.carousel__slide--prev {
+  opacity: var(--carousel-opacity-near);
+  transform: rotateY(-10deg) scale(0.95);
+}
+
+.carousel__slide--active {
+  opacity: var(--carousel-opacity-active);
+  transform: rotateY(0) scale(1);
+}
+
+.carousel__slide--next {
+  opacity: var(--carousel-opacity-near);
+  transform: rotateY(10deg) scale(0.95);
+}
+
+.carousel__slide--next ~ .carousel__slide {
+  opacity: var(--carousel-opacity-inactive);
+  transform: translateX(-10px) rotateY(12deg) scale(0.9);
+}
+</style>
+```
+
+## Custom Navigation
+
+A demonstration of the carousel with fully customizable navigation controls.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { ref } from 'vue'
+import { Carousel, Slide } from 'vue3-carousel'
+
+const carouselRef = ref()
+const currentSlide = ref(1)
+
+const next = () => carouselRef.value.next()
+const prev = () => carouselRef.value.prev()
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+
+const config = {
+  height: 200,
+  itemsToShow: 2,
+  gap: 5,
+}
+</script>
+
+<template>
+  <Carousel ref="carouselRef" v-model="currentSlide" v-bind="config">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="image" />
+    </Slide>
+  </Carousel>
+
+  <div>
+    <button @click="prev">Prev</button>
+    <input type="number" min="0" max="9" v-model="currentSlide" />
+    <button @click="next">Next</button>
+  </div>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+```
+
+## Gallery
+
+Transforms the carousel into a gallery-style component.
+
+```vue
+<script setup>
+import 'vue3-carousel/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+import { ref } from 'vue'
+
+const currentSlide = ref(0)
+
+const slideTo = (nextSlide) => (currentSlide.value = nextSlide)
+
+const galleryConfig = {
+  itemsToShow: 1,
+  wrapAround: true,
+  slideEffect: 'fade',
+  mouseDrag: false,
+  touchDrag: false,
+  height: 320,
+}
+
+const thumbnailsConfig = {
+  height: 80,
+  itemsToShow: 6,
+  wrapAround: true,
+  touchDrag: false,
+  gap: 10,
+}
+
+const images = Array.from({ length: 10 }, (_, index) => ({
+  id: index + 1,
+  url: `https://picsum.photos/seed/${Math.random()}/800/600`,
+}))
+</script>
+
+<template>
+  <Carousel id="gallery" v-bind="galleryConfig" v-model="currentSlide">
+    <Slide v-for="image in images" :key="image.id">
+      <img :src="image.url" alt="Gallery Image" class="gallery-image" />
+    </Slide>
+  </Carousel>
+
+  <Carousel id="thumbnails" v-bind="thumbnailsConfig" v-model="currentSlide">
+    <Slide v-for="image in images" :key="image.id">
+      <template #default="{ currentIndex, isActive }">
+        <div
+          :class="['thumbnail', { 'is-active': isActive }]"
+          @click="slideTo(currentIndex)"
+        >
+          <img :src="image.url" alt="Thumbnail Image" class="thumbnail-image" />
+        </div>
+      </template>
+    </Slide>
+
+    <template #addons>
+      <Navigation />
+    </template>
+  </Carousel>
+</template>
+
+<style>
+:root {
+  background-color: #242424;
+}
+
+.carousel {
+  --vc-nav-background: rgba(255, 255, 255, 0.7);
+  --vc-nav-border-radius: 100%;
+}
+
+img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-image {
+  border-radius: 16px;
+}
+
+#thumbnails {
+  margin-top: 10px;
+}
+
+.thumbnail {
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.thumbnail.is-active,
+.thumbnail:hover {
+  opacity: 1;
+}
+</style>
+```
+
+---
+
+# Carousel Component
+
+Source: https://vue3-carousel.ismail9k.com/components/carousel.md
+
+The Carousel component is the main container that manages slides, navigation, and overall carousel functionality.
+
+## Basic Usage
+
+```vue
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+    
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+```
+
+## Slots
+
+### Default/Slides Slot
+
+Used to render the carousel items. You can use either the default slot or wrap elements in the `slides` slot.
+
+```vue
+<template>
+  <Carousel>
+    <template #slides>
+      <Slide v-for="slide in 10" :key="slide">
+        ...
+      </Slide>
+    </template>
+  </Carousel>
+</template>
+```
+
+### Addons Slot
+
+Used to add display carousel addon components such as Navigation and Pagination.
+
+```vue
+<template>
+  <Carousel>
+    ...
+    <template #addons>
+      <Navigation />
+      <Pagination />
+    </template>
+  </Carousel>
+</template>
+```
+
+## Slot Props
+
+The following props are passed to slots and can be used within them:
+
+| Name           | Type    | Description                                 |
+| -------------- | ------- | ------------------------------------------- |
+| `config`       | Object  | Configuration object with carousel settings. |
+| `currentSlide` | Number  | Index number of the current slide.          |
+| `maxSlide`     | Number  | The maximum slide index.                    |
+| `middleSlide`  | Number  | The middle slide index.                     |
+| `minSlide`     | Number  | The minimum slide index.                    |
+| `slideSize`    | Number  | The width/height of a single slide element. |
+| `slidesCount`  | Number  | The count of all slides.                    |
+
+## Styling
+
+The Carousel component provides several CSS classes that you can use for styling:
+
+| CSS Class            | Description                       |
+| -------------------- | --------------------------------- |
+| `.carousel`          | Main carousel container           |
+| `.carousel__viewport`| Carousel viewport/wrapper element |
+| `.carousel__track`   | Container for slides              |
+
+## Layout
+
+The carousel is sized by its container, so make sure the container can shrink. `.carousel` already sets `min-width: 0`, which lets it shrink when it is a flex or grid item. In a grid column that is all it needs. In a flex row its flex basis is still the width of all its slides, so also give it `flex: 1`; otherwise it claims most of the row and squeezes its siblings. If you wrap it in your own element that is the flex or grid item, give that wrapper `min-width: 0` (flex and grid items default to `min-width: auto`, which prevents shrinking below the slides' content):
+
+```css
+.two-columns-grid {
+  display: grid;
+  grid-template-columns: 1fr 250px;
+}
+
+.two-columns-flex {
+  display: flex;
+}
+
+.two-columns-flex .carousel {
+  flex: 1;
+}
+
+.carousel-wrapper {
+  min-width: 0;
+}
+```
+
+For more information about configuration options, see the [Configuration documentation](https://vue3-carousel.ismail9k.com/config.md).
+
+---
+
+# Slide Component
+
+Source: https://vue3-carousel.ismail9k.com/components/slide.md
+
+The Slide component is a fundamental building block of the carousel that represents individual slides. It manages slide visibility, positioning, and state transitions.
+
+## Basic Usage
+
+```vue
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">
+        {{ slide }}
+      </div>
+    </Slide>
+  </Carousel>
+</template>
+```
+
+## Props
+
+| Name  | Type   | Default | Description                                                |
+| ----- | ------ | ------- | ---------------------------------------------------------- |
+| index | Number | -       | Zero-based index position of the slide within the carousel |
+
+## Slot Props
+
+The default slot exposes these reactive properties for custom slide content:
+
+| Name         | Type    | Description                                               |
+| ------------ | ------- | --------------------------------------------------------- |
+| currentIndex | Number  | Current index position of the slide                       |
+| isActive     | Boolean | True when this slide is the current active slide          |
+| isClone      | Boolean | True if this is a clone slide (used for infinite scroll)  |
+| isNext       | Boolean | True if this slide is immediately after the active slide  |
+| isPrev       | Boolean | True if this slide is immediately before the active slide |
+| isSliding    | Boolean | True during slide transition animations                   |
+| isVisible    | Boolean | True when the slide is within the visible viewport        |
+
+## Examples
+
+### Basic Slide
+
+```vue
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <div class="carousel__item">{{ slide }}</div>
+    </Slide>
+  </Carousel>
+</template>
+```
+
+### Custom Slide with State
+
+```vue
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <template #default="{ isActive, isVisible }">
+        <div 
+          class="carousel__item"
+          :class="{
+            'is-active': isActive,
+            'is-visible': isVisible
+          }"
+        >
+          <h3>Slide {{ slide }}</h3>
+          <p>{{ isActive ? 'Current Slide' : 'Other Slide' }}</p>
+        </div>
+      </template>
+    </Slide>
+  </Carousel>
+</template>
+```
+
+## Styling
+
+The component provides these CSS classes for styling:
+
+| CSS Class                   | Description               |
+| --------------------------- | ------------------------- |
+| `.carousel__slide`          | Base slide styles         |
+| `.carousel__slide--active`  | Active slide styles       |
+| `.carousel__slide--clone`   | Cloned slide styles       |
+| `.carousel__slide--next`    | Next slide styles         |
+| `.carousel__slide--prev`    | Previous slide styles     |
+| `.carousel__slide--sliding` | Styles during transitions |
+| `.carousel__slide--visible` | Visible slide styles      |
+
+## Best Practices
+
+1. Always provide a unique `:key` when using v-for with Slides
+2. If you have a dynamic slides which changes its position consider use `index` prop
+
+---
+
+# Navigation Component
+
+Source: https://vue3-carousel.ismail9k.com/components/navigation.md
+
+The Navigation component provides intuitive Previous and Next buttons for slide navigation, with support for custom styling and RTL layouts.
+
+## Basic Usage
+
+```vue {2,11,12,13}
+<script setup>
+import { Navigation as CarouselNavigation } from 'vue3-carousel'
+</script>
+
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <!-- slide content -->
+    </Slide>
+    
+    <template #addons>
+      <CarouselNavigation />
+    </template>
+  </Carousel>
+</template>
+```
+
+## Features
+
+- Automatic RTL support
+- Vertical navigation support
+- Customizable button appearance
+- Automatic disable state when reaching bounds
+- Built-in accessibility features
+
+## Custom Navigation Buttons
+
+You can customize the navigation buttons using slots:
+
+```vue 
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <!-- slide content -->
+    </Slide>
+    
+    <template #addons>
+      <CarouselNavigation>
+        <template #prev>
+          <span>←</span>
+        </template>
+        <template #next>
+          <span>→</span>
+        </template>
+      </CarouselNavigation>
+    </template>
+  </Carousel>
+</template>
+```
+
+## Styling
+
+### CSS Custom Properties
+
+| Variable                 | Default Value             | Description                     |
+| ------------------------ | ------------------------- | ------------------------------- |
+| `--vc-nav-background`    | `transparent`             | Navigation button background    |
+| `--vc-nav-border-radius` | `0`                       | Navigation button border radius |
+| `--vc-nav-color`         | `var(--vc-clr-primary)`   | Navigation button color         |
+| `--vc-nav-color-hover`   | `var(--vc-clr-secondary)` | Navigation button hover color   |
+| `--vc-nav-height`        | `30px`                    | Navigation button height        |
+| `--vc-nav-width`         | `30px`                    | Navigation button width         |
+
+### Customization Examples
+
+There are two ways to customize the navigation appearance:
+
+#### 1. Using CSS Custom Properties
+
+```css
+.carousel {
+  --vc-nav-background: rgba(0, 0, 0, 0.3);
+  --vc-nav-color: white;
+  --vc-nav-color-hover: #e5e5e5;
+  --vc-nav-border-radius: 50%;
+  --vc-nav-width: 40px;
+  --vc-nav-height: 40px;
+}
+```
+
+#### 2. Direct CSS Override
+
+```css
+.carousel__next,
+.carousel__prev {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.carousel__next:hover,
+.carousel__prev:hover {
+  color: #e5e5e5;
+}
+
+.carousel__next--disabled,
+.carousel__prev--disabled {
+  opacity: 0.3;
+}
+```
+
+## Accessibility
+
+- Buttons include descriptive ARIA labels
+- Automatic disable state management
+- Keyboard navigation support
+- Proper focus management
+
+---
+
+# Pagination Component
+
+Source: https://vue3-carousel.ismail9k.com/components/pagination.md
+
+The Pagination component provides interactive indicators that allow users to navigate directly to specific slides.
+
+## Basic Usage
+
+```vue  {2,11,12,13}
+<script setup>
+import { Pagination as CarouselPagination } from 'vue3-carousel'
+</script>
+
+<template>
+  <Carousel>
+    <Slide v-for="slide in 10" :key="slide">
+      <!-- slide content -->
+    </Slide>
+    
+    <template #addons>
+      <CarouselPagination />
+    </template>
+  </Carousel>
+</template>
+```
+
+## Props
+
+| Prop                    | Type    | Default | Description                                                     |
+| ----------------------- | ------- | ------- | --------------------------------------------------------------- |
+| `disableOnClick`        | Boolean | false   | When true, disables navigation when clicking pagination buttons |
+| `paginateByItemsToShow` | Boolean | false   | Groups slides into pages based on `itemsToShow` setting         |
+
+## Styling
+
+### CSS Custom Properties
+
+| Variable                    | Default Value             | Description                        |
+| --------------------------- | ------------------------- | ---------------------------------- |
+| `--vc-pgn-active-color`     | `var(--vc-clr-primary)`   | Active pagination button color     |
+| `--vc-pgn-background-color` | `var(--vc-clr-secondary)` | Pagination button background color |
+| `--vc-pgn-border-radius`    | `0`                       | Pagination button border radius    |
+| `--vc-pgn-gap`              | `6px`                     | Gap between pagination buttons     |
+| `--vc-pgn-height`           | `4px`                     | Pagination button height           |
+| `--vc-png-bottom`           | `10px`                    | Bottom spacing for pagination      |
+| `--vc-png-left`             | `auto`                    | Left spacing for vertical mode     |
+| `--vc-png-right`            | `10px`                    | Right spacing for vertical mode    |
+| `--vc-pgn-width`            | `16px`                    | Pagination button width            |
+
+### Customization Examples
+
+There are two ways to customize the pagination appearance:
+
+#### 1. Using CSS Custom Properties
+
+```css
+.carousel {
+  --vc-pgn-background-color: white;
+  --vc-pgn-active-color: red;
+  --vc-pgn-border-radius: 5px;
+  --vc-pgn-height: 5px;
+  --vc-pgn-width: 5px;
+}
+```
+
+#### 2. Direct CSS Override
+
+```css
+.carousel__pagination-button {
+  height: 5px;
+  width: 5px;
+  border-radius: 5px;
+  background-color: white;
+}
+.carousel__pagination-button--active {
+  background-color: red;
+}
+```
+
+## Accessibility
+
+- Pagination buttons are properly labeled for screen readers
+- Active state is communicated through ARIA attributes
+- Buttons include descriptive titles for better UX
+
+---
+
+# Methods
+
+Source: https://vue3-carousel.ismail9k.com/api/methods.md
+
+To use the API methods, add a reference to the carousel element and then call methods from that reference.
+
+Example:
+
+```html
+<Carousel ref="myCarousel"> ... </Carousel>
+```
+
+```js
+import { ref } from 'vue'
+const myCarousel = ref(null)
+
+// Methods are available in this reference
+myCarousel.next()
+myCarousel.updateSlideSize()
+```
+
+## next()
+
+Slide to the next slide
+
+## prev()
+
+Slide to the previous slide
+
+## restartCarousel()
+
+Restart the carousel settings and data, internally it calls:
+
+- `resetAutoplay`
+- `updateBreakpointsConfig`
+- `updateSlidesData`
+- `updateSlideSize`
+
+## slideTo(index: number, skipTransition = false)
+
+Slide to specific slide index
+
+## updateBreakpointsConfig()
+
+Update the current carousel config based on `breakpoints` settings and screen width
+
+## updateSlideSize()
+
+Update `slideSize` value based on `itemsToShow`, `dir` and the current carousel width/height
+
+## updateSlidesData()
+
+Update all the slide related date includes:
+
+- `currentSlideIndex`
+- `maxSlide`
+- `middleSlide`
+- `minSlide`
+
+---
+
+# Data
+
+Source: https://vue3-carousel.ismail9k.com/api/data.md
+
+To use the data values, add a reference to the carousel element and then get the values from the data property.
+
+Example:
+
+```html
+<Carousel ref="myCarousel"> ... </Carousel>
+```
+
+```js
+import { ref } from 'vue';
+const myCarousel = ref(null);
+
+// Data can be accessed under data property
+if (myCarousel.currentSlide === 10) {
+  // Do your magic here
+}
+....
+```
+
+## Available Exposed data
+
+| Data           | Description                                                                                       |
+|----------------|---------------------------------------------------------------------------------------------------|
+| `currentSlide` | current slide index                                                                               |
+| `activeSlide`  | current slide index even while dragging                                                           |
+| `isSliding`    | if the slider is dragging                                                                         |
+| `isVertical`   | if the slider is vertical                                                                         |
+| `nav`          | An object of navigation methods                                                                   |
+| `config`       | the current carousel configuration                                                                |
+| `maxSlide`     | maximum slide index                                                                               |
+| `minSlide`     | minimum slide index                                                                               |
+| `slideSize`    | single slide width or height                                                                      |
+| `slidesCount`  | slides total count                                                                                |
+| `slides`       | an array of Slides component                                                                      |
+| `viewport`     | the viewport element                                                                              |
+| `visibleRange` | an object with {min, max} properties min being the lowest visible slide index and max the highest |
+
+---
+
+# Events
+
+Source: https://vue3-carousel.ismail9k.com/api/events.md
+
+Carousel events provide flexibility to intercept and react to navigation changes, offering greater control and customization options.
+
+## How to Use Events
+
+```vue
+<script setup>
+const handleInit = () => {
+  console.log('Carousel initialized')
+}
+const handleSlideStart = (data) => {
+  console.log('Slide started:', data)
+}
+</script>
+
+<template>
+  <Carousel
+    @init="handleInit"
+    @slide-start="handleSlideStart"
+  >
+    ...
+  </Carousel>
+</template>
+```
+
+## Event Reference
+
+### @before-init
+
+Triggered before the carousel is initialized. Use this to perform any setup tasks required before the carousel is ready.
+
+### @drag
+
+Triggered while the carousel is being dragged, providing live positional data. Emits the following:
+
+- `deltaX`: The horizontal distance dragged.
+- `deltaY`: The vertical distance dragged.
+
+The deltas are the pointer's movement in screen pixels since the drag started; they are not converted for CSS-scaled ancestors, unlike the carousel's own slide movement, so divide them by the ancestor scale if you need layout pixels.
+
+### @init
+
+Triggered once the carousel is mounted and fully initialized. This is ideal for executing post-initialization logic.
+
+### @loop
+
+Triggered when the carousel loops over (wraps around), only in wrap-around mode. Emits the following data:
+
+- `currentSlideIndex`: The current slide index before the loop occurs.
+- `slidingToIndex`: The index of the slide the carousel loops to.
+
+### @slide-end
+
+Triggered after the sliding animation completes and the current slide is updated. Emits the following data:
+
+- `currentSlideIndex`: The updated current slide index.
+- `prevSlideIndex`: The index of the slide before the transition.
+- `slidesCount`: The total number of slides in the carousel.
+
+### @slide-registered
+
+Triggered when a new slide is registered with the carousel. Emits the following data:
+
+- `index`: The index position where the slide was registered
+- `slide`: The Vue component instance of the registered slide
+
+### @slide-start
+
+Triggered at the beginning of the sliding function. Emits the following data:
+
+- `currentSlideIndex`: The current slide index before the transition starts.
+- `prevSlideIndex`: The index of the slide before the current one.
+- `slidingToIndex`: The index of the slide the carousel is moving to.
+- `slidesCount`: The total number of slides in the carousel.
+
+### @slide-unregistered
+
+Triggered when a slide is unregistered (removed) from the carousel. Emits the following data:
+
+- `index`: The index position from which the slide was removed
+- `slide`: The Vue component instance of the unregistered slide
+
+## Notes
+
+- Events are reactive and can be used to trigger animations, analytics, or other custom behaviors.
+- Registration events (`slide-registered`, `slide-unregistered`) are particularly useful for tracking slide lifecycle and managing external state.
+- Ensure your event handlers account for edge cases, such as looping or rapid navigation.

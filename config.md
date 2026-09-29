@@ -1,0 +1,305 @@
+# Configuration
+
+Vue 3 Carousel offers a comprehensive set of configuration options to customize its behavior and appearance. This page documents all available props, their types, default values, and usage guidelines.
+
+## All Available Props
+
+| Prop                       | Type                                        | Default                          | Description                                                                                            |
+|----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. (added in 0.19.0) |
+| `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
+| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Focusable content in off-screen slides can then receive focus without being shown. (added in 0.19.0) |
+| `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
+| `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
+| `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
+| `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`. (added in 0.18.0) |
+| `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
+| `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
+| `height`                   | `number` \| `string`                        | 'auto'                           | Sets the carousel track height. Required for vertical orientation.                                     |
+| `i18n`                     | `object`                                    | `{ ... }` | Internationalization options for accessibility labels and text content. See [i18n](#i18n) for configuration details.                            |
+| `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. (added in 0.10.0) |
+| `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
+| `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `keyboardNavigation`       | `boolean`                                   | true                             | Enables/disables arrow-key navigation while the carousel is focused. (added in 0.19.0)            |
+| `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
+| `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
+| `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
+| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
+| `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. (added in 0.13.0)                 |
+| `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
+| `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
+| `touchDrag`                | `boolean` \| `DragConfig`                   | true                             | Enables/disables touch navigation on touch-enabled devices. See [Drag Options](#drag-options) for configuration details. |
+| `transition`               | `number`                                    | 300                              | Duration of the slide transition animation in milliseconds.                                            |
+| `transitionEasing`         | `string`                                    | `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` | CSS easing function for slide transitions. Accepts any valid CSS timing function. (added in 0.17.0) |
+| `wrapAround`               | `boolean`                                   | false                            | When true, creates an infinite loop effect by connecting the last slide to the first.                  |
+
+## Basic Configuration
+
+These props control the fundamental behavior of the carousel:
+
+```vue
+<template>
+  <Carousel :items-to-show="3" :wrap-around="true" :transition="500">
+    <Slide v-for="slide in 10" :key="slide">
+      Slide {{ slide }}
+    </Slide>
+  </Carousel>
+</template>
+```
+
+### Item Display Options
+
+- **`itemsToShow`**: Controls the number of visible slides at once. Accepts numeric values (including decimals) or 'auto'.
+  - When set to 'auto', slides determine their own width based on content.
+  - Example: `:items-to-show="2.5"` shows 2 full slides and half of the next one.
+
+- **`itemsToScroll`**: Number of slides to move when navigating.
+  - Set to a value higher than 1 to create slide groups.
+  - Example: `:items-to-show="3" :items-to-scroll="3"` creates page-like navigation.
+
+### Direction Settings
+
+- **`dir`**: Controls sliding direction. Supports both short and verbose formats:
+  - Horizontal: 'ltr'/'left-to-right' or 'rtl'/'right-to-left'
+  - Vertical: 'ttb'/'top-to-bottom' or 'btt'/'bottom-to-top'
+  
+  For vertical orientations, a fixed `height` setting is required:
+  
+  ```vue
+  <Carousel dir="ttb" :height="300">
+    <!-- Slides -->
+  </Carousel>
+  ```
+
+## Navigation & Control
+
+These props control how users can interact with the carousel:
+
+```vue
+<template>
+  <Carousel 
+    :autoplay="3000"
+    :pause-autoplay-on-hover="true"
+    :mouse-drag="true"
+    :touch-drag="true"
+    :mouse-wheel="{ threshold: 20 }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+- **`autoplay`**: Automatically advances slides after the specified interval (in milliseconds).
+  - Set to 0 to disable autoplay: `:autoplay="0"`
+  
+- **`pauseAutoplayOnHover`**: When `true`, pauses autoplay while mouse is over the carousel.
+
+- **`mouseDrag`** and **`touchDrag`**: Enable/disable drag navigation.
+  - Basic usage: `:mouse-drag="true"` or `:touch-drag="false"`
+  - Advanced usage: `:mouse-drag="{ threshold: 0.5 }"` (see [Drag Options](#drag-options))
+
+- **`mouseWheel`**: Enable/disable mouse wheel navigation.
+  - Basic usage: `:mouse-wheel="true"`
+  - Advanced usage: `:mouse-wheel="{ threshold: 20 }"` (see [Wheel Options](#wheel-options))
+
+- **`keyboardNavigation`**: Enable/disable arrow-key navigation while the carousel is focused.
+  - Basic usage: `:keyboard-navigation="false"`
+  - Only arrow keys are affected; focusing a slide still brings it into view, and the Navigation buttons still work.
+
+- **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
+  - Automatically disabled when `wrapAround` is enabled
+
+- **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
+  - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
+  - With `false`, focusable content inside off-screen slides can still receive keyboard focus without being scrolled into view.
+
+## Visual Customization
+
+These props control the appearance of the carousel:
+
+```vue
+<template>
+  <Carousel 
+    :adaptive-height="true"
+    :gap="20"
+    snap-align="start"
+    slide-effect="fade"
+    :transition="500"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+- **`adaptiveHeight`**: Sizes the carousel to the tallest visible slide instead of the tallest slide overall, and animates the height on navigation with the `transition` settings.
+  - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
+  - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
+  - Visible slides are no longer stretched to the same height; with `itemsToShow > 1` shorter slides align to the top.
+  - Partially visible slides count too: with a fractional `itemsToShow` or a centred peek layout, a taller neighbour that peeks into the viewport sets the height.
+  - Visible slides size to their content, so percentage heights inside a slide (`height: 100%`) resolve to `auto`: give the content an intrinsic or explicit height (images keep their aspect ratio).
+  - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
+
+- **`gap`**: Space (in pixels) between slides.
+  - Example: `:gap="20"` creates 20px spacing between slides.
+
+- **`edgeSpacing`**: Space (in pixels) before the first slide and after the last one.
+  - Example: `:edge-spacing="16"` shifts the track by 16px at the first and last positions; positions in between are unchanged.
+  - Slides keep their size, so pair it with a fractional or `'auto'` `itemsToShow` to keep every slide fully visible at the edges.
+  - When every slide already fits in the viewport, only the space before the first slide is applied.
+  - Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`.
+
+- **`snapAlign`**: Controls how slides align within the viewport.
+  - 'start': Aligns slides to the beginning of the carousel
+  - 'center': Centers the current slide (default)
+  - 'end': Aligns slides to the end of the carousel
+  - 'center-odd'/'center-even': Special center alignments for odd/even number of visible slides
+
+- **`slideEffect`**: Controls the transition effect between slides.
+  - 'slide': Standard sliding transition (default)
+  - 'fade': Fade effect between slides
+
+- **`transition`**: Duration of slide transitions in milliseconds.
+  - Example: `:transition="500"` for a half-second transition.
+
+- **`transitionEasing`**: CSS timing function that controls the acceleration curve of transitions.
+  - Accepts any valid CSS timing function value
+  - Default: `'cubic-bezier(0.25, 0.46, 0.45, 0.94)'` (ease-out-quad for smooth deceleration)
+  - Common presets:
+    - `'ease'`: Slow start, fast middle, slow end
+    - `'ease-in'`: Slow start, fast end
+    - `'ease-out'`: Fast start, slow end
+    - `'ease-in-out'`: Slow start and end
+    - `'linear'`: Constant speed
+  - Custom cubic-bezier examples:
+    - `'cubic-bezier(0.68, -0.55, 0.265, 1.55)'`: Elastic effect
+    - `'cubic-bezier(0.4, 0, 0.2, 1)'`: Material Design standard
+
+  Example with custom easing:
+
+  ```vue
+  <Carousel
+    :transition="600"
+    transition-easing="cubic-bezier(0.4, 0, 0.2, 1)"
+  >
+    <!-- Slides -->
+  </Carousel>
+  ```
+
+## Responsive Behavior
+
+These props control how the carousel adapts to different screen sizes:
+
+```vue
+<template>
+  <Carousel 
+    :items-to-show="1"
+    breakpoint-mode="carousel"
+    :breakpoints="{
+      700: {
+        itemsToShow: 2,
+        snapAlign: 'center',
+      },
+      1000: {
+        itemsToShow: 3,
+        snapAlign: 'start',
+      }
+    }"
+  >
+    <!-- Slides -->
+  </Carousel>
+</template>
+```
+
+- **`breakpoints`**: Responsive settings that override default props at different widths.
+  - Keys represent the minimum width in pixels
+  - Values are objects containing any carousel props to override
+
+- **`breakpointMode`**: Determines how breakpoints are calculated.
+  - 'viewport': Based on browser window width (default)
+  - 'carousel': Based on carousel container width
+
+## Advanced Options
+
+These props provide additional customization for specific use cases:
+
+- **`clamp`**: When `true`, limits `itemsToShow` to the actual number of available slides.
+  - Useful for preventing empty space when there are fewer slides than `itemsToShow`.
+
+- **`enabled`**: When `false`, disables all carousel interactions.
+  - Useful for conditionally disabling the carousel functionality.
+
+- **`ignoreAnimations`**: Excludes specified CSS animations from slide size calculations.
+  - Useful when animations are causing layout issues.
+
+- **`modelValue`**: Controls the active slide index (for use with v-model).
+  - Example: `v-model="activeSlide"` for two-way binding.
+
+- **`wrapAround`**: Creates an infinite loop effect by connecting the last slide to the first.
+  - Example: `:wrap-around="true"` allows continuous navigation in either direction.
+
+## Option Details
+
+### Drag Options
+
+Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `DragConfig` object with the following properties:
+
+| Property    | Type     | Default | Description                                                                                |
+|-------------|----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold` | `number` | 0.08    | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+
+Example:
+
+```vue
+<Carousel :mouse-drag="{ threshold: 0.5 }" :touch-drag="false">
+  <!-- Slides -->
+</Carousel>
+```
+
+### Wheel Options
+
+The `mouseWheel` property accepts either a boolean value or a `WheelConfig` object with the following properties:
+
+| Property          | Type      | Default | Description                                                                                |
+|-------------------|-----------|---------|--------------------------------------------------------------------------------------------|
+| `threshold`       | `number`  | 10      | Controls the wheel movement threshold required to trigger a slide transition. Higher values require more scrolling to trigger a slide change. |
+| `ignoreCrossAxis` | `boolean` | false   | When true, the carousel handles a wheel event only when the delta along its own axis (horizontal for a horizontal carousel, vertical for a vertical one) exceeds `threshold` and is larger than the cross-axis delta; every other wheel event is left to the browser, so vertical trackpad scrolling over a horizontal carousel scrolls the page. Note that a classic mouse wheel reports only vertical movement, so a horizontal carousel with this option is no longer navigable with a plain mouse wheel. (added in 0.18.0) |
+
+Example:
+
+```vue
+<Carousel :mouse-wheel="{ threshold: 20, ignoreCrossAxis: true }">
+  <!-- Slides -->
+</Carousel>
+```
+
+### I18n
+
+The `i18n` prop allows customization of text content for accessibility and internationalization:
+
+```vue
+<Carousel 
+  :i18n="{
+    ariaNextSlide: 'Go to next slide',
+    ariaPreviousSlide: 'Go to previous slide'
+  }"
+>
+  <!-- Slides -->
+</Carousel>
+```
+
+Available keys:
+
+| Key                   | Defaults                               | Description                                                                |
+| --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| `ariaGallery`         | "Gallery {id}"                         | Carousel aria-label. Prefer a meaningful name; `{id}` is an instance id.   |
+| `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
+| `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
+| `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
+| `iconArrowDown`       | "Arrow pointing downwards"             | Sets title and aria-label for the downward-pointing arrow SVG icon.        |
+| `iconArrowLeft`       | "Arrow pointing to the left"           | Sets title and aria-label for the left-pointing arrow SVG icon.            |
+| `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
+| `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
+| `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.

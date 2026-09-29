@@ -1,0 +1,30 @@
+# Vue3-carousel
+
+> A highly customizable, lightweight Vue 3 carousel component for your next awesome project.
+
+Install with `npm i vue3-carousel`, import `vue3-carousel/carousel.css`, and import `Carousel`, `Slide`, `Navigation` and `Pagination` from `vue3-carousel`.
+Every page below is also served as Markdown at its `.md` URL. The whole documentation in one file: https://vue3-carousel.ismail9k.com/llms-full.txt
+
+## Introduction
+
+- [Getting Started](https://vue3-carousel.ismail9k.com/getting-started.md): First step is to install it using `yarn` or `npm`
+- [Configuration](https://vue3-carousel.ismail9k.com/config.md): Vue 3 Carousel offers a comprehensive set of configuration options to customize its behavior and appearance. This page documents all available props, their types, default values, and usage guidelines.
+- [Examples](https://vue3-carousel.ismail9k.com/examples.md): This page showcases examples of the carousel component with live demos. Explore different configurations from basic to advanced, and use the provided code samples as starting points for your own implementations.
+
+## Components
+
+- [Carousel](https://vue3-carousel.ismail9k.com/components/carousel.md): The Carousel component is the main container that manages slides, navigation, and overall carousel functionality.
+- [Slide](https://vue3-carousel.ismail9k.com/components/slide.md): The Slide component is a fundamental building block of the carousel that represents individual slides. It manages slide visibility, positioning, and state transitions.
+- [Navigation](https://vue3-carousel.ismail9k.com/components/navigation.md): The Navigation component provides intuitive Previous and Next buttons for slide navigation, with support for custom styling and RTL layouts.
+- [Pagination](https://vue3-carousel.ismail9k.com/components/pagination.md): The Pagination component provides interactive indicators that allow users to navigate directly to specific slides.
+
+## API
+
+- [Methods](https://vue3-carousel.ismail9k.com/api/methods.md): To use the API methods, add a reference to the carousel element and then call methods from that reference.
+- [Data](https://vue3-carousel.ismail9k.com/api/data.md): To use the data values, add a reference to the carousel element and then get the values from the data property.
+- [Events](https://vue3-carousel.ismail9k.com/api/events.md): Carousel events provide flexibility to intercept and react to navigation changes, offering greater control and customization options.
+
+## Optional
+
+- [GitHub repository](https://github.com/ismail9k/vue3-carousel)
+- [Changelog](https://github.com/ismail9k/vue3-carousel/blob/master/CHANGELOG.md)
