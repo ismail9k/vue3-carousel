@@ -10,6 +10,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 
 | Prop                       | Type                                        | Default                          | Description                                                                                            |
 |----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. <Badge text="0.19.0"/> |
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
@@ -114,6 +115,7 @@ These props control the appearance of the carousel:
 ```vue
 <template>
   <Carousel 
+    :adaptive-height="true"
     :gap="20"
     snap-align="start"
     slide-effect="fade"
@@ -123,6 +125,14 @@ These props control the appearance of the carousel:
   </Carousel>
 </template>
 ```
+
+- **`adaptiveHeight`**: Sizes the carousel to the tallest visible slide instead of the tallest slide overall, and animates the height on navigation with the `transition` settings.
+  - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
+  - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
+  - Visible slides are no longer stretched to the same height; with `itemsToShow > 1` shorter slides align to the top.
+  - Partially visible slides count too: with a fractional `itemsToShow` or a centred peek layout, a taller neighbour that peeks into the viewport sets the height.
+  - Visible slides size to their content, so percentage heights inside a slide (`height: 100%`) resolve to `auto`: give the content an intrinsic or explicit height (images keep their aspect ratio).
+  - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
 
 - **`gap`**: Space (in pixels) between slides.
   - Example: `:gap="20"` creates 20px spacing between slides.
@@ -276,7 +286,7 @@ Available keys:
 
 | Key                   | Defaults                               | Description                                                                |
 | --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `ariaGallery`         | "Gallery {id}"                         | Carousel aria-label. Prefer a meaningful name; `{id}` is an instance id.   |
 | `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
 | `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
 | `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
@@ -285,3 +295,5 @@ Available keys:
 | `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.
