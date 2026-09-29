@@ -191,4 +191,4 @@ The `playground/` directory contains a Vite + Vue app (`App.vue`) for manual tes
 - **`pnpm typecheck` only covers `src`.** `tsconfig.json` sets `include: ["src"]`, so type errors in `tests/`, `playground/`, and root config files are never reported. Type problems there surface only at runtime.
 - **The pre-commit hook is the full pipeline.** `.husky/pre-commit` runs `pnpm lint`, `pnpm test`, and `pnpm build` in sequence, so every commit is slow and a broken build blocks it entirely.
 - **`pnpm test` always collects coverage.** For a fast, focused run use `pnpm vitest run <path>` instead.
-- **CI mirrors three scripts.** `.github/workflows/test.yml` runs `lint`, `typecheck`, and `test` as a matrix on Node 20 / pnpm 9, triggered only by changes to `src/**`, `tests/**`, `package.json`, `pnpm-lock.yaml`, or that workflow file.
+- **CI mirrors three scripts.** `.github/workflows/test.yml` runs `lint`, `typecheck`, and `test` as a matrix on Node 24, with pnpm installed at the version pinned by `packageManager` in `package.json`, triggered only by changes to `src/**`, `tests/**`, `package.json`, `pnpm-lock.yaml`, or that workflow file.
