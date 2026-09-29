@@ -5,6 +5,7 @@
   "author": "Abdelrahman Ismail <dev@ismail9k.com>",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
     "build": "rollup -c",
     "dev": "vite playground",

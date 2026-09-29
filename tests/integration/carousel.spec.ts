@@ -44,6 +44,22 @@ describe('Carousel.ts', () => {
     expect(wrapper.props('modelValue')).toBe(3)
   })
 
+  it('Should reset both viewport scroll offsets when a slide receives focus', async () => {
+    const focusWrapper = mount(Carousel, {
+      slots: {
+        default: () => [0, 1].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const viewport = focusWrapper.find('.carousel__viewport').element
+    viewport.scrollLeft = 20
+    viewport.scrollTop = 30
+    await focusWrapper.findAll('.carousel__slide')[1].trigger('focusin')
+    expect(viewport.scrollLeft).toBe(0)
+    expect(viewport.scrollTop).toBe(0)
+    focusWrapper.unmount()
+  })
+
   it('Should not navigate when focus is caused by a pointer (mousedown)', async () => {
     const viewport = wrapper.find('.carousel__viewport').element
     viewport.scrollLeft = 20
@@ -656,5 +672,52 @@ describe('Carousel inside a scaled ancestor', () => {
     // 60 screen px at scaleY 0.25 is 240 layout px (widthMultiplier is only 2)
     const track = await dragMouse([0, 400], [0, 340])
     expect(track.attributes('style')).toContain('translateY(-240px)')
+  })
+})
+
+describe('Drag on a carousel with no measurable size (#518)', () => {
+  let wrapper: ReturnType<typeof mount<typeof App>>
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    vi.useRealTimers()
+  })
+
+  it('ignores a vertical wrapAround drag instead of creating infinite clones', async () => {
+    // jsdom lays nothing out: every rect is 0, so slideSize and gap are both 0
+    wrapper = mount(App, {
+      props: {
+        dir: 'ttb',
+        height: 200, // jsdom still measures 0; only satisfies the ttb/height validator
+        wrapAround: true,
+        slideNum: 5,
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
+      },
+    })
+    await nextTick()
+    const clonesBefore = wrapper.findAll('.carousel__slide--clone').length
+    expect(clonesBefore).toBeGreaterThan(0)
+
+    const track = wrapper.find('.carousel__track')
+    await track.trigger('mousedown', { clientX: 0, clientY: 200, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, clientY: 100 }))
+    vi.runAllTimers() // flush the throttled drag handler
+    await nextTick()
+    expect(wrapper.findComponent(Carousel).emitted('drag')).toHaveLength(1)
+
+    expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
+
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+    vi.runAllTimers() // any slide transition
+    await nextTick()
+
+    expect(wrapper.props('modelValue')).toBe(0)
+    expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
   })
 })
