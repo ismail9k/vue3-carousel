@@ -8,7 +8,7 @@ const FOCUSABLE_ELEMENTS_SELECTOR =
  * @param node Vue virtual node containing the elements to disable
  */
 export function disableChildrenTabbing(node: VNode) {
-  if (!node.el || !(node.el instanceof Element)) {
+  if (typeof Element === 'undefined' || !node.el || !(node.el instanceof Element)) {
     return
   }
 
