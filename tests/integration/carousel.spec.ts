@@ -23,6 +23,12 @@ describe('Carousel.ts', () => {
     })
   })
 
+  // A carousel left mounted keeps its transition timer, which can fire after the
+  // test environment is torn down and fail the run with an unhandled error.
+  afterEach(() => {
+    wrapper.unmount()
+  })
+
   it('It renders *five* slides correctly', () => {
     const slides = wrapper.findAll('.carousel__slide')
     expect(slides.length).toBe(5)
