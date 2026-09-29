@@ -62,6 +62,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   ignoreAnimations: false,
   itemsToScroll: 1,
   itemsToShow: 1,
+  keyboardNavigation: true,
   modelValue: 0,
   mouseDrag: true,
   mouseWheel: false,
