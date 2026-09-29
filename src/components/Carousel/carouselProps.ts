@@ -23,6 +23,22 @@ import type {
 } from '@/shared'
 
 export const carouselProps = {
+  // follow the height of the visible slides instead of the tallest slide
+  adaptiveHeight: {
+    default: DEFAULT_CONFIG.adaptiveHeight,
+    type: Boolean,
+    validator(value: boolean, props: { dir?: Dir }) {
+      const dir = props.dir || DEFAULT_CONFIG.dir!
+      const normalizedDir =
+        dir in DIR_MAP ? DIR_MAP[dir as NonNormalizedDir] : (dir as NormalizedDir)
+      if (value && ['ttb', 'btt'].includes(normalizedDir)) {
+        console.warn(
+          `[vue3-carousel]: "adaptiveHeight" is ignored with the vertical dir "${dir}".`
+        )
+      }
+      return true
+    },
+  },
   // time to auto advance slides in ms
   autoplay: {
     default: DEFAULT_CONFIG.autoplay,
@@ -115,6 +131,11 @@ export const carouselProps = {
   itemsToShow: {
     default: DEFAULT_CONFIG.itemsToShow,
     type: [Number, String],
+  },
+  // toggle arrow-key navigation while the carousel is focused
+  keyboardNavigation: {
+    default: DEFAULT_CONFIG.keyboardNavigation,
+    type: Boolean,
   },
   // slide number number of initial slide
   modelValue: {
