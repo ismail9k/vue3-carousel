@@ -12,6 +12,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 |----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. <Badge text="0.19.0"/> |
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
+| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Focusable content in off-screen slides can then receive focus without being shown. <Badge text="0.19.0"/> |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
@@ -112,6 +113,10 @@ These props control how users can interact with the carousel:
 
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
+
+- **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
+  - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
+  - With `false`, focusable content inside off-screen slides can still receive keyboard focus without being scrolled into view.
 
 ## Visual Customization
 

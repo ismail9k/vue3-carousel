@@ -42,6 +42,7 @@ export type WheelConfig = {
 export type CarouselConfig = {
   adaptiveHeight?: boolean
   autoplay?: number
+  autoScrollOnFocus?: boolean
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
   clamp?: boolean
