@@ -1,12 +1,16 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { Slide } from '@/components/Slide'
 
 import { Carousel } from './Carousel'
+
+// A carousel left mounted keeps its transition timer, which can fire after the
+// test environment is torn down and fail the run with an unhandled error.
+enableAutoUnmount(afterEach)
 
 describe('Carousel.ts', () => {
   let wrapper: ReturnType<typeof mount<typeof Carousel>>
