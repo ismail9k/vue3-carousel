@@ -102,6 +102,7 @@ export const Carousel = defineComponent({
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
+    let endTransition: ((interrupted?: boolean) => void) | null = null
     let resizeObserver: ResizeObserver | null = null
 
     const effectiveSlideSize = computed(() => slideSize.value + config.gap)
@@ -366,6 +367,8 @@ export const Carousel = defineComponent({
 
       if (transitionTimer) {
         clearTimeout(transitionTimer)
+        transitionTimer = null
+        endTransition = null
       }
       if (animationInterval) {
         cancelAnimationFrame(animationInterval)
@@ -569,6 +572,13 @@ export const Carousel = defineComponent({
         return
       }
 
+      // A transition still in flight ends here, so that its timer never fires
+      if (transitionTimer) {
+        clearTimeout(transitionTimer)
+        transitionTimer = null
+        endTransition?.(true)
+      }
+
       prevSlideIndex.value = currentSlideIndex.value
 
       emit('slide-start', {
@@ -584,12 +594,19 @@ export const Carousel = defineComponent({
       currentSlideIndex.value = slideIndex
       if (targetIndex !== slideIndex) {
         modelWatcher.pause()
+      } else {
+        // The interrupted transition may have left the watcher paused
+        modelWatcher.resume()
       }
       emit('update:modelValue', targetIndex)
 
-      const transitionCallback = (): void => {
+      endTransition = (interrupted = false): void => {
         if (config.wrapAround && targetIndex !== slideIndex) {
-          modelWatcher.resume()
+          // The interrupting transition sets the watcher state itself, resuming
+          // here would queue a watcher run in the middle of that transition
+          if (!interrupted) {
+            modelWatcher.resume()
+          }
 
           currentSlideIndex.value = targetIndex
           emit('loop', {
@@ -603,12 +620,20 @@ export const Carousel = defineComponent({
           prevSlideIndex: prevSlideIndex.value,
           slidesCount: slidesCount.value,
         })
-
-        isSliding.value = false
-        resetAutoplay()
       }
 
-      transitionTimer = setTimeout(transitionCallback, config.transition)
+      transitionTimer = setTimeout(() => {
+        transitionTimer = null
+        // slideTo can still be called on an unmounted carousel
+        if (!mounted.value) {
+          return
+        }
+
+        endTransition?.()
+        endTransition = null
+        isSliding.value = false
+        resetAutoplay()
+      }, config.transition)
     }
 
     function restartCarousel(): void {
