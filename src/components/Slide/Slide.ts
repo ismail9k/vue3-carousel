@@ -151,6 +151,7 @@ export const Slide = defineComponent({
             // Prevent the viewport being scrolled by the focus
             if (carousel.viewport) {
               carousel.viewport.scrollLeft = 0
+              carousel.viewport.scrollTop = 0
             }
             if (isPointerFocus) {
               return
