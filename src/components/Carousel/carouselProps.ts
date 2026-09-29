@@ -44,6 +44,11 @@ export const carouselProps = {
     default: DEFAULT_CONFIG.autoplay,
     type: Number,
   },
+  // slide to a slide when it, or an element inside it, receives keyboard or programmatic focus
+  autoScrollOnFocus: {
+    default: DEFAULT_CONFIG.autoScrollOnFocus,
+    type: Boolean,
+  },
   // an object to store breakpoints
   breakpoints: {
     default: DEFAULT_CONFIG.breakpoints,
@@ -126,6 +131,11 @@ export const carouselProps = {
   itemsToShow: {
     default: DEFAULT_CONFIG.itemsToShow,
     type: [Number, String],
+  },
+  // toggle arrow-key navigation while the carousel is focused
+  keyboardNavigation: {
+    default: DEFAULT_CONFIG.keyboardNavigation,
+    type: Boolean,
   },
   // slide number number of initial slide
   modelValue: {

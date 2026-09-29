@@ -12,6 +12,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 |----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. <Badge text="0.19.0"/> |
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
+| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Focusable content in off-screen slides can then receive focus without being shown. <Badge text="0.19.0"/> |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
@@ -24,6 +25,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. <Badge text="0.10.0"/> |
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `keyboardNavigation`       | `boolean`                                   | true                             | Enables/disables arrow-key navigation while the carousel is focused. <Badge text="0.19.0"/>            |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
@@ -105,8 +107,16 @@ These props control how users can interact with the carousel:
   - Basic usage: `:mouse-wheel="true"`
   - Advanced usage: `:mouse-wheel="{ threshold: 20 }"` (see [Wheel Options](#wheel-options))
 
+- **`keyboardNavigation`**: Enable/disable arrow-key navigation while the carousel is focused.
+  - Basic usage: `:keyboard-navigation="false"`
+  - Only arrow keys are affected; focusing a slide still brings it into view, and the Navigation buttons still work.
+
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
+
+- **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
+  - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
+  - With `false`, focusable content inside off-screen slides can still receive keyboard focus without being scrolled into view.
 
 ## Visual Customization
 
@@ -240,7 +250,7 @@ Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `
 
 | Property    | Type     | Default | Description                                                                                |
 |-------------|----------|---------|--------------------------------------------------------------------------------------------|
-| `threshold` | `number` | 0.3     | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+| `threshold` | `number` | 0.08    | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
 
 Example:
 
@@ -286,7 +296,7 @@ Available keys:
 
 | Key                   | Defaults                               | Description                                                                |
 | --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `ariaGallery`         | "Gallery {id}"                         | Carousel aria-label. Prefer a meaningful name; `{id}` is an instance id.   |
 | `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
 | `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
 | `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
@@ -295,3 +305,5 @@ Available keys:
 | `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.

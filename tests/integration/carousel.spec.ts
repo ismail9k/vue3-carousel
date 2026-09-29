@@ -141,6 +141,42 @@ describe('Carousel.ts', () => {
     stopWrapper.unmount()
   })
 
+  it('Should not navigate on focus when autoScrollOnFocus is false', async () => {
+    const focusWrapper = mount(Carousel, {
+      props: { itemsToShow: 1, autoScrollOnFocus: false, modelValue: 0 },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const viewport = focusWrapper.find('.carousel__viewport').element
+    viewport.scrollLeft = 20
+    await focusWrapper.findAll('.carousel__slide')[3].trigger('focusin')
+    expect(focusWrapper.emitted('update:modelValue')).toBeUndefined()
+    // The focus still scrolls the viewport, so the reset must run regardless
+    expect(viewport.scrollLeft).toBe(0)
+    focusWrapper.unmount()
+  })
+
+  it('Should honour autoScrollOnFocus from a breakpoint', async () => {
+    const focusWrapper = mount(Carousel, {
+      props: {
+        itemsToShow: 1,
+        modelValue: 0,
+        breakpoints: { 0: { autoScrollOnFocus: false } },
+      },
+      slots: {
+        default: () =>
+          [0, 1, 2, 3, 4].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    await focusWrapper.findAll('.carousel__slide')[3].trigger('focusin')
+    expect(focusWrapper.emitted('update:modelValue')).toBeUndefined()
+    focusWrapper.unmount()
+  })
+
   it('Should navigate the carousel with arrow keys', async () => {
     vi.useFakeTimers()
     const track = wrapper.find('[tabindex="0"]')
@@ -200,6 +236,69 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
+    vi.useRealTimers()
+  })
+
+  it('Should not navigate with arrow keys when keyboardNavigation is false', async () => {
+    vi.useFakeTimers()
+    const kbWrapper = mount(Carousel, {
+      props: {
+        keyboardNavigation: false,
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => kbWrapper.setProps({ modelValue: e }),
+      },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const track = kbWrapper.find('[tabindex="0"]')
+    const triggerKeyEvent = async (key = 'ArrowRight') => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+      vi.advanceTimersByTime(200)
+      await nextTick()
+    }
+
+    await track.trigger('focus')
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(0)
+
+    await kbWrapper.setProps({ keyboardNavigation: true })
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(1)
+
+    await kbWrapper.setProps({ keyboardNavigation: false })
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(1)
+
+    await track.trigger('blur')
+    kbWrapper.unmount()
+    vi.useRealTimers()
+  })
+
+  it('Should honour keyboardNavigation from a matching breakpoint', async () => {
+    vi.useFakeTimers()
+    const bpWrapper = mount(Carousel, {
+      props: {
+        breakpoints: { 0: { keyboardNavigation: false } },
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => bpWrapper.setProps({ modelValue: e }),
+      },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const track = bpWrapper.find('[tabindex="0"]')
+
+    await track.trigger('focus')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    vi.advanceTimersByTime(200)
+    await nextTick()
+    expect(bpWrapper.props('modelValue')).toBe(0)
+
+    await track.trigger('blur')
+    bpWrapper.unmount()
     vi.useRealTimers()
   })
 

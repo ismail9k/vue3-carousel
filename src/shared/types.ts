@@ -42,6 +42,7 @@ export type WheelConfig = {
 export type CarouselConfig = {
   adaptiveHeight?: boolean
   autoplay?: number
+  autoScrollOnFocus?: boolean
   breakpointMode?: BreakpointMode
   breakpoints?: Breakpoints
   clamp?: boolean
@@ -54,6 +55,7 @@ export type CarouselConfig = {
   ignoreAnimations: boolean | string[] | string
   itemsToScroll: number
   itemsToShow: number | 'auto'
+  keyboardNavigation?: boolean
   modelValue?: number
   mouseDrag?: boolean | DragConfig
   mouseWheel?: boolean | WheelConfig
