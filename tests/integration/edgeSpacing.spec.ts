@@ -1,8 +1,12 @@
-import { mount } from '@vue/test-utils'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
 
 import { Carousel, Slide } from '@/index'
+
+// A carousel left mounted keeps its transition timer, which can fire after the
+// test environment is torn down and fail the run with an unhandled error.
+enableAutoUnmount(afterEach)
 
 const RECT = {
   width: 300,
