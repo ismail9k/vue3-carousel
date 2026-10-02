@@ -18,7 +18,7 @@ const tabbingState = new WeakMap<HTMLElement, TabbingState>()
  */
 export function disableChildrenTabbing(node: VNode) {
   const owner = node.el
-  if (!owner || !(owner instanceof Element)) {
+  if (typeof Element === 'undefined' || !owner || !(owner instanceof Element)) {
     return
   }
 
@@ -56,7 +56,7 @@ export function disableChildrenTabbing(node: VNode) {
  */
 export function restoreChildrenTabbing(node: VNode) {
   const owner = node.el
-  if (!owner || !(owner instanceof Element)) {
+  if (typeof Element === 'undefined' || !owner || !(owner instanceof Element)) {
     return
   }
 

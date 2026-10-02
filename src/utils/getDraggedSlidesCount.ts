@@ -17,8 +17,13 @@ export function getDraggedSlidesCount(params: DragParams): number {
   // Get drag value based on direction
   const dragValue = isVertical ? dragged.y : dragged.x
 
-  // If no drag, return +0 explicitly
-  if (dragValue === 0) return 0
+  // If no drag (or an unusable drag value), return +0 explicitly
+  if (dragValue === 0 || !Number.isFinite(dragValue)) return 0
+
+  // A carousel with no measurable size cannot map a drag to slides (#518):
+  // dividing by 0 would make the count Infinity and, with wrapAround, the
+  // clone count with it
+  if (!Number.isFinite(effectiveSlideSize) || effectiveSlideSize <= 0) return 0
 
   const dragRatio = dragValue / effectiveSlideSize
   const absRatio = Math.abs(dragRatio)

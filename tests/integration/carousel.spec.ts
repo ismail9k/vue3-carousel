@@ -3,7 +3,7 @@ import { expect, it, describe, beforeAll, vi, afterEach, beforeEach } from 'vite
 import { Component, createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import { Carousel, Slide } from '@/index'
+import { Carousel, Navigation, Pagination, Slide } from '@/index'
 
 import App from '../components/BasicApp.vue'
 import SlottedApp from '../components/SlottedApp.vue'
@@ -21,6 +21,12 @@ describe('Carousel.ts', () => {
         'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
       },
     })
+  })
+
+  // A carousel left mounted keeps its transition timer, which can fire after the
+  // test environment is torn down and fail the run with an unhandled error.
+  afterEach(() => {
+    wrapper.unmount()
   })
 
   it('It renders *five* slides correctly', () => {
@@ -42,6 +48,22 @@ describe('Carousel.ts', () => {
     const slide = wrapper.find('.carousel__slide:nth-child(4)')
     await slide.trigger('focusin')
     expect(wrapper.props('modelValue')).toBe(3)
+  })
+
+  it('Should reset both viewport scroll offsets when a slide receives focus', async () => {
+    const focusWrapper = mount(Carousel, {
+      slots: {
+        default: () => [0, 1].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const viewport = focusWrapper.find('.carousel__viewport').element
+    viewport.scrollLeft = 20
+    viewport.scrollTop = 30
+    await focusWrapper.findAll('.carousel__slide')[1].trigger('focusin')
+    expect(viewport.scrollLeft).toBe(0)
+    expect(viewport.scrollTop).toBe(0)
+    focusWrapper.unmount()
   })
 
   it('Should not navigate when focus is caused by a pointer (mousedown)', async () => {
@@ -214,6 +236,69 @@ describe('Carousel.ts', () => {
     await triggerKeyEvent('ArrowLeft')
     expect(wrapper.props('modelValue')).toBe(1)
 
+    vi.useRealTimers()
+  })
+
+  it('Should not navigate with arrow keys when keyboardNavigation is false', async () => {
+    vi.useFakeTimers()
+    const kbWrapper = mount(Carousel, {
+      props: {
+        keyboardNavigation: false,
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => kbWrapper.setProps({ modelValue: e }),
+      },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const track = kbWrapper.find('[tabindex="0"]')
+    const triggerKeyEvent = async (key = 'ArrowRight') => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+      vi.advanceTimersByTime(200)
+      await nextTick()
+    }
+
+    await track.trigger('focus')
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(0)
+
+    await kbWrapper.setProps({ keyboardNavigation: true })
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(1)
+
+    await kbWrapper.setProps({ keyboardNavigation: false })
+    await triggerKeyEvent()
+    expect(kbWrapper.props('modelValue')).toBe(1)
+
+    await track.trigger('blur')
+    kbWrapper.unmount()
+    vi.useRealTimers()
+  })
+
+  it('Should honour keyboardNavigation from a matching breakpoint', async () => {
+    vi.useFakeTimers()
+    const bpWrapper = mount(Carousel, {
+      props: {
+        breakpoints: { 0: { keyboardNavigation: false } },
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => bpWrapper.setProps({ modelValue: e }),
+      },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+    const track = bpWrapper.find('[tabindex="0"]')
+
+    await track.trigger('focus')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    vi.advanceTimersByTime(200)
+    await nextTick()
+    expect(bpWrapper.props('modelValue')).toBe(0)
+
+    await track.trigger('blur')
+    bpWrapper.unmount()
     vi.useRealTimers()
   })
 
@@ -866,5 +951,342 @@ describe('Slide content tab order', () => {
     await wrapper.findAll('.carousel__slide')[3].trigger('focusin')
     expect(viewport.scrollTop).toBe(0)
     wrapper.unmount()
+  })
+})
+
+describe('itemsToScroll paging (#522)', () => {
+  const mountCarousel = (
+    props: Record<string, unknown> = {},
+    { slides = 9, paginateByItemsToShow = false } = {}
+  ) =>
+    mount(Carousel, {
+      props: {
+        itemsToShow: 3,
+        itemsToScroll: 3,
+        snapAlign: 'center',
+        wrapAround: false,
+        ...props,
+      },
+      slots: {
+        default: () =>
+          Array.from({ length: slides }, (_, i) => h(Slide, { key: i }, () => `${i}`)),
+        addons: () => [
+          h(Navigation),
+          ...(paginateByItemsToShow ? [h(Pagination, { paginateByItemsToShow })] : []),
+        ],
+      },
+    })
+  const visible = (wrapper: ReturnType<typeof mountCarousel>) =>
+    wrapper.findAll('.carousel__slide--visible').map((slide) => slide.text())
+  const step = async (
+    wrapper: ReturnType<typeof mountCarousel>,
+    direction: 'next' | 'prev'
+  ) => {
+    wrapper.vm[direction]()
+    vi.advanceTimersByTime(300)
+    await nextTick()
+  }
+
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('moves the visible slides by itemsToScroll from the clamped edges', async () => {
+    const wrapper = mountCarousel()
+    await nextTick()
+    expect(visible(wrapper)).toEqual(['0', '1', '2'])
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['3', '4', '5'])
+    expect(wrapper.vm.currentSlide).toBe(4)
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['6', '7', '8'])
+    expect(wrapper.vm.currentSlide).toBe(8)
+    expect(wrapper.find('.carousel__next').attributes('disabled')).toBeDefined()
+
+    await step(wrapper, 'prev')
+    expect(visible(wrapper)).toEqual(['3', '4', '5'])
+
+    await step(wrapper, 'prev')
+    expect(visible(wrapper)).toEqual(['0', '1', '2'])
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.find('.carousel__prev').attributes('disabled')).toBeDefined()
+  })
+
+  it('keeps wrapAround stepping by itemsToScroll', async () => {
+    const wrapper = mountCarousel({ wrapAround: true })
+    await nextTick()
+    expect(visible(wrapper)).toEqual(['8', '0', '1'])
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['2', '3', '4'])
+    expect(wrapper.vm.currentSlide).toBe(3)
+
+    await step(wrapper, 'next')
+    expect(visible(wrapper)).toEqual(['5', '6', '7'])
+  })
+
+  it('steps one slide at a time with itemsToScroll 1 at the clamped edges', async () => {
+    const wrapper = mountCarousel({ itemsToShow: 5, itemsToScroll: 1 })
+    await nextTick()
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(1)
+    expect(visible(wrapper)).toEqual(['0', '1', '2', '3', '4'])
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(visible(wrapper)).toEqual(['0', '1', '2', '3', '4'])
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(3)
+    expect(visible(wrapper)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('steps by index when itemsToShow exceeds the slide count', async () => {
+    const wrapper = mountCarousel(
+      { itemsToShow: 4, itemsToScroll: 2, snapAlign: 'start' },
+      { slides: 3 }
+    )
+    await nextTick()
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(2)
+
+    await step(wrapper, 'prev')
+    expect(wrapper.vm.currentSlide).toBe(0)
+  })
+
+  it('does not jump to the last slide when itemsToShow exceeds the slide count', async () => {
+    const wrapper = mountCarousel(
+      { itemsToShow: 6, itemsToScroll: 2, snapAlign: 'start' },
+      { slides: 5 }
+    )
+    await nextTick()
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(2)
+
+    await step(wrapper, 'next')
+    expect(wrapper.vm.currentSlide).toBe(4)
+
+    await step(wrapper, 'prev')
+    expect(wrapper.vm.currentSlide).toBe(2)
+  })
+
+  it.each(['start', 'center', 'end'])(
+    'highlights the last page after paging to the end (snapAlign %s)',
+    async (snapAlign) => {
+      const wrapper = mountCarousel({ snapAlign }, { paginateByItemsToShow: true })
+      await nextTick()
+
+      await step(wrapper, 'next')
+      await step(wrapper, 'next')
+
+      const buttons = wrapper.findAll('.carousel__pagination-button')
+      const active = buttons.filter((button) =>
+        button.classes('carousel__pagination-button--active')
+      )
+      expect(buttons).toHaveLength(3)
+      expect(active).toHaveLength(1)
+      expect(buttons[2].classes()).toContain('carousel__pagination-button--active')
+    }
+  )
+
+  it.each(['start', 'center'])(
+    'lands the last page dot where next() lands (snapAlign %s)',
+    async (snapAlign) => {
+      const wrapper = mountCarousel({ snapAlign }, { paginateByItemsToShow: true })
+      await nextTick()
+
+      const buttons = wrapper.findAll('.carousel__pagination-button')
+      await buttons[2].trigger('click')
+      vi.advanceTimersByTime(300)
+      await nextTick()
+
+      expect(visible(wrapper)).toEqual(['6', '7', '8'])
+      expect(wrapper.vm.currentSlide).toBe(8)
+      expect(wrapper.find('.carousel__next').attributes('disabled')).toBeDefined()
+      expect(buttons[2].classes()).toContain('carousel__pagination-button--active')
+    }
+  )
+})
+
+describe('v-model with wrapAround (#519)', () => {
+  const mountCarousel = (props: Record<string, unknown> = {}, slides = 3) =>
+    mount(Carousel, {
+      props: { itemsToShow: 1, snapAlign: 'start', wrapAround: true, ...props },
+      slots: {
+        default: () =>
+          Array.from({ length: slides }, (_, i) => h(Slide, { key: i }, () => `${i}`)),
+      },
+    })
+  const setModel = async (wrapper: ReturnType<typeof mountCarousel>, value: number) => {
+    await wrapper.setProps({ modelValue: value })
+    await nextTick()
+  }
+  const finish = async () => {
+    vi.advanceTimersByTime(300)
+    await nextTick()
+  }
+
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('loops forward through the clone from the last slide to the first', async () => {
+    const wrapper = mountCarousel({ modelValue: 2 })
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(3)
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([0])
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.emitted('loop')?.at(-1)).toEqual([
+      { currentSlideIndex: 0, slidingToIndex: 3 },
+    ])
+  })
+
+  it('loops backward through the clone from the first slide to the last', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 })
+    await nextTick()
+
+    await setModel(wrapper, 2)
+    expect(wrapper.vm.currentSlide).toBe(-1)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+  })
+
+  it('round-trips the canonical index through the parent while looping', async () => {
+    const wrapper = mountCarousel({
+      modelValue: 0,
+      'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
+    })
+    await nextTick()
+
+    await setModel(wrapper, -1)
+    expect(wrapper.vm.currentSlide).toBe(-1)
+    expect(wrapper.props('modelValue')).toBe(2)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(2)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+    expect(wrapper.emitted('slide-start')).toHaveLength(1)
+  })
+
+  it('does not wrap on a tie', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 }, 4)
+    await nextTick()
+
+    await setModel(wrapper, 2)
+    expect(wrapper.vm.currentSlide).toBe(2)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('normalizes an out-of-range value, then takes the shortest path', async () => {
+    const wrapper = mountCarousel({ modelValue: 2 })
+    await nextTick()
+
+    await setModel(wrapper, 3)
+    expect(wrapper.vm.currentSlide).toBe(3)
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+  })
+
+  it('takes the shortest path to an out-of-range model value', async () => {
+    const wrapper = mountCarousel({ modelValue: 0 })
+    await nextTick()
+
+    await setModel(wrapper, 7)
+    expect(wrapper.vm.currentSlide).toBe(1)
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(1)
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('loops through the clone with several items shown', async () => {
+    const wrapper = mountCarousel(
+      { modelValue: 4, itemsToShow: 3, snapAlign: 'center' },
+      5
+    )
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(5)
+
+    await finish()
+    expect(wrapper.vm.currentSlide).toBe(0)
+    expect(wrapper.emitted('loop')).toHaveLength(1)
+  })
+
+  it('slides directly without wrapAround', async () => {
+    const wrapper = mountCarousel({ modelValue: 2, wrapAround: false })
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(0)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+
+  it('slides directly in auto width mode', async () => {
+    const wrapper = mountCarousel({ modelValue: 2, itemsToShow: 'auto' })
+    await nextTick()
+
+    await setModel(wrapper, 0)
+    expect(wrapper.vm.currentSlide).toBe(0)
+    await finish()
+    expect(wrapper.emitted('loop')).toBeUndefined()
+  })
+})
+
+describe('Drag on a carousel with no measurable size (#518)', () => {
+  let wrapper: ReturnType<typeof mount<typeof App>>
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    vi.useRealTimers()
+  })
+
+  it('ignores a vertical wrapAround drag instead of creating infinite clones', async () => {
+    // jsdom lays nothing out: every rect is 0, so slideSize and gap are both 0
+    wrapper = mount(App, {
+      props: {
+        dir: 'ttb',
+        height: 200, // jsdom still measures 0; only satisfies the ttb/height validator
+        wrapAround: true,
+        slideNum: 5,
+        modelValue: 0,
+        'onUpdate:modelValue': (e: number) => wrapper.setProps({ modelValue: e }),
+      },
+    })
+    await nextTick()
+    const clonesBefore = wrapper.findAll('.carousel__slide--clone').length
+    expect(clonesBefore).toBeGreaterThan(0)
+
+    const track = wrapper.find('.carousel__track')
+    await track.trigger('mousedown', { clientX: 0, clientY: 200, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, clientY: 100 }))
+    vi.runAllTimers() // flush the throttled drag handler
+    await nextTick()
+    expect(wrapper.findComponent(Carousel).emitted('drag')).toHaveLength(1)
+
+    expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
+
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+    vi.runAllTimers() // any slide transition
+    await nextTick()
+
+    expect(wrapper.props('modelValue')).toBe(0)
+    expect(wrapper.findAll('.carousel__slide--clone').length).toBe(clonesBefore)
   })
 })

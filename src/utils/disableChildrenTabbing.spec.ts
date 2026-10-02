@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { VNode } from 'vue'
 
 import { disableChildrenTabbing, restoreChildrenTabbing } from './disableChildrenTabbing'
@@ -25,6 +25,22 @@ describe('disableChildrenTabbing', () => {
 
     expect(child1.tabIndex).toBe(-1)
     expect(child2.tabIndex).toBe(-1)
+  })
+
+  it('should do nothing when the DOM globals are gone', () => {
+    const child = document.createElement('button')
+    container.appendChild(child)
+    // A hook that runs after the test environment is torn down has no Element
+    vi.stubGlobal('Element', undefined)
+
+    try {
+      expect(() =>
+        disableChildrenTabbing({ el: container } as unknown as VNode)
+      ).not.toThrow()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+    expect(child.hasAttribute('tabindex')).toBe(false)
   })
 
   it('should not affect elements outside the container', () => {

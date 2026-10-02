@@ -58,6 +58,8 @@ Triggered after the sliding animation completes and the current slide is updated
 - `prevSlideIndex`: The index of the slide before the transition.
 - `slidesCount`: The total number of slides in the carousel.
 
+A transition that is interrupted by another one, for example when `v-model` changes twice within the transition duration, emits `slide-end` at the moment it is interrupted. Every `slide-start` is therefore followed by one `slide-end`, unless the carousel is unmounted first.
+
 ### @slide-registered
 
 Triggered when a new slide is registered with the carousel. Emits the following data:
