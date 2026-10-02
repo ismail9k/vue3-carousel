@@ -29,6 +29,8 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 | `disableOnClick`        | Boolean | false   | When true, disables navigation when clicking pagination buttons |
 | `paginateByItemsToShow` | Boolean | false   | Groups slides into pages based on `itemsToShow` setting         |
 
+The component renders nothing while the carousel is locked by the [`disableWhenSlidesFit`](https://vue3-carousel.ismail9k.com/config.md#advanced-options) prop.
+
 ## Styling
 
 ### CSS Custom Properties

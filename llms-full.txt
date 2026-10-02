@@ -68,6 +68,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `disableWhenSlidesFit`     | `boolean`                                   | false                            | When every slide fits in the viewport and `wrapAround` is off, hides Navigation and Pagination and stops sliding (drag, wheel, keyboard, autoplay, `slideTo`, `modelValue`). The carousel stays laid out and measured. (added in 0.19.0) |
 | `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`. (added in 0.18.0) |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
@@ -283,6 +284,12 @@ These props provide additional customization for specific use cases:
 
 - **`enabled`**: When `false`, disables all carousel interactions.
   - Useful for conditionally disabling the carousel functionality.
+
+- **`disableWhenSlidesFit`**: When `true`, locks the carousel while every slide already fits in the viewport (never with `wrapAround`).
+  - Navigation and Pagination render nothing, and drag, wheel, keyboard, autoplay, `slideTo()`, and `modelValue` changes do nothing.
+  - Unlike `enabled: false`, the carousel keeps its layout and measurements, so it locks and unlocks by itself when a breakpoint changes `itemsToShow`, the container is resized in `'auto'` mode, or slides are added or removed.
+  - While locked, the track is pinned at the first slide and `modelValue` is set to 0; a `modelValue` change made while locked is applied once the carousel unlocks.
+  - The root element gets the `is-locked` class, and the exposed `isLocked` / `allSlidesFit` values report the state for custom addons.
 
 - **`ignoreAnimations`**: Excludes specified CSS animations from slide size calculations.
   - Useful when animations are causing layout issues.
@@ -1249,6 +1256,7 @@ import { Navigation as CarouselNavigation } from 'vue3-carousel'
 - Customizable button appearance
 - Automatic disable state when reaching bounds
 - Built-in accessibility features
+- Renders nothing while the carousel is locked by `disableWhenSlidesFit`
 
 ## Custom Navigation Buttons
 
@@ -1369,6 +1377,8 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 | ----------------------- | ------- | ------- | --------------------------------------------------------------- |
 | `disableOnClick`        | Boolean | false   | When true, disables navigation when clicking pagination buttons |
 | `paginateByItemsToShow` | Boolean | false   | Groups slides into pages based on `itemsToShow` setting         |
+
+The component renders nothing while the carousel is locked by the [`disableWhenSlidesFit`](https://vue3-carousel.ismail9k.com/config.md#advanced-options) prop.
 
 ## Styling
 
@@ -1525,6 +1535,8 @@ if (myCarousel.currentSlide === 10) {
 | `slides`       | an array of Slides component                                                                      |
 | `viewport`     | the viewport element                                                                              |
 | `visibleRange` | an object with {min, max} properties min being the lowest visible slide index and max the highest |
+| `allSlidesFit` | `true` when every slide (plus the leading `edgeSpacing`) fits in the viewport without `wrapAround`; always `false` with `wrapAround`, with no slides, with `slideEffect: 'fade'` and more than one slide, and in `'auto'` mode before the viewport is measured |
+| `isLocked`     | `true` while `disableWhenSlidesFit` is on and `allSlidesFit` holds; Navigation and Pagination render nothing |
 
 ---
 
@@ -1589,6 +1601,8 @@ Triggered after the sliding animation completes and the current slide is updated
 - `currentSlideIndex`: The updated current slide index.
 - `prevSlideIndex`: The index of the slide before the transition.
 - `slidesCount`: The total number of slides in the carousel.
+
+A transition that is interrupted by another one, for example when `v-model` changes twice within the transition duration, emits `slide-end` at the moment it is interrupted. Every `slide-start` is therefore followed by one `slide-end`, unless the carousel is unmounted first.
 
 ### @slide-registered
 
