@@ -222,6 +222,39 @@ export const Carousel = defineComponent({
       }
     }
 
+    // Every slide is on screen at once, so there is nothing to slide to.
+    // Never true with wrapAround: the loop always has somewhere to go.
+    const allSlidesFit = computed(() => {
+      if (slidesCount.value === 0) {
+        // Nothing registered yet (first render, SSR): never lock an empty carousel
+        return false
+      }
+      if (config.wrapAround) {
+        return false
+      }
+      if (config.slideEffect === 'fade') {
+        // Fade stacks every slide in one cell, so only a single slide ever fits
+        return slidesCount.value <= 1
+      }
+      if (!isAuto.value) {
+        return slidesCount.value <= Number(config.itemsToShow)
+      }
+      const viewportSize = viewportRect.value[dimension.value]
+      if (viewportSize <= 0) {
+        // Not measured yet: keep the controls until the sizes are known
+        return false
+      }
+      const slidesSize = slidesRect.value.reduce(
+        (acc, slide) => acc + slide[dimension.value] + config.gap,
+        -config.gap
+      )
+      // The locked track keeps its leading edgeSpacing, so that has to fit as well.
+      // 1px tolerance: fractional widths and scale multipliers make an exact fit measure a hair over
+      return slidesSize + normalizedEdgeSpacing.value - viewportSize <= 1
+    })
+
+    const isLocked = computed(() => config.disableWhenSlidesFit && allSlidesFit.value)
+
     function updateSlideSize(): void {
       if (!viewport.value) return
 
@@ -513,7 +546,13 @@ export const Carousel = defineComponent({
           })
     }
 
-    const onDragEnd = () => slideTo(activeSlideIndex.value)
+    const onDragEnd = () => {
+      if (isLocked.value) {
+        activeSlideIndex.value = currentSlideIndex.value
+        return
+      }
+      slideTo(activeSlideIndex.value)
+    }
 
     const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
@@ -558,7 +597,7 @@ export const Carousel = defineComponent({
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
-      if (!skipTransition && isSliding.value) {
+      if (isLocked.value || (!skipTransition && isSliding.value)) {
         return
       }
 
@@ -666,6 +705,22 @@ export const Carousel = defineComponent({
       }
     )
 
+    // Locking pins the carousel at its first slide; unlocking re-applies the
+    // v-model value that was ignored while locked
+    watch(isLocked, (locked) => {
+      if (locked) {
+        if (currentSlideIndex.value !== minSlideIndex.value) {
+          currentSlideIndex.value = minSlideIndex.value
+          emit('update:modelValue', minSlideIndex.value)
+        }
+      } else if (
+        props.modelValue !== undefined &&
+        props.modelValue !== currentSlideIndex.value
+      ) {
+        slideTo(props.modelValue, true)
+      }
+    })
+
     // Init carousel
     emit('before-init')
 
@@ -745,8 +800,11 @@ export const Carousel = defineComponent({
             viewportRect.value[dimension.value] -
             config.gap
 
+          // A locked carousel is pinned at its first slide: every slide is already on screen
           output = applyEdgeSpacing({
-            value: getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
+            value: isLocked.value
+              ? 0
+              : getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
             max: maxSlidingValue,
             spacing: normalizedEdgeSpacing.value,
           })
@@ -759,10 +817,16 @@ export const Carousel = defineComponent({
         } else {
           // remove whitespace
           const maxScrolledSlides = slidesCount.value - +config.itemsToShow
+          // A locked carousel is pinned at its first slide: every slide is already on screen
           output = applyEdgeSpacing({
             value:
-              getNumberInRange({ val: scrolledSlides, max: maxScrolledSlides, min: 0 }) *
-              effectiveSlideSize.value,
+              (isLocked.value
+                ? 0
+                : getNumberInRange({
+                    val: scrolledSlides,
+                    max: maxScrolledSlides,
+                    min: 0,
+                  })) * effectiveSlideSize.value,
             max: maxScrolledSlides * effectiveSlideSize.value,
             spacing: normalizedEdgeSpacing.value,
           })
@@ -773,6 +837,10 @@ export const Carousel = defineComponent({
     })
 
     const visibleRange = computed(() => {
+      if (isLocked.value) {
+        // A locked track is pinned at its first slide with every slide on screen
+        return { min: 0, max: slidesCount.value - 1 }
+      }
       if (!isAuto.value) {
         const base = currentSlideIndex.value - snapAlignOffset.value
         if (config.wrapAround) {
@@ -979,9 +1047,11 @@ export const Carousel = defineComponent({
 
     const provided: InjectedCarousel = reactive({
       activeSlide: activeSlideIndex,
+      allSlidesFit,
       config,
       currentSlide: currentSlideIndex,
       isSliding,
+      isLocked,
       isVertical,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
@@ -1057,9 +1127,11 @@ export const Carousel = defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          onMousedownCapture: config.mouseDrag ? handleDragStart : null,
-          onTouchstartPassiveCapture: config.touchDrag ? handleDragStart : null,
-          onWheel: config.mouseWheel ? handleScroll : null,
+          onMousedownCapture:
+            config.mouseDrag && !isLocked.value ? handleDragStart : null,
+          onTouchstartPassiveCapture:
+            config.touchDrag && !isLocked.value ? handleDragStart : null,
+          onWheel: config.mouseWheel && !isLocked.value ? handleScroll : null,
           style: { transform: trackTransform.value },
         },
         output
@@ -1078,6 +1150,7 @@ export const Carousel = defineComponent({
               'is-adaptive-height': isAdaptiveHeight.value,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-locked': isLocked.value,
               'is-sliding': isSliding.value,
               'is-vertical': isVertical.value,
             },

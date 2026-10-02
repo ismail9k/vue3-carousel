@@ -59,6 +59,9 @@ export const Pagination = defineComponent<PaginationProps>({
         console.warn('[vue3-carousel]: A carousel component must be provided for the pagination component to display')
         return '';
       }
+      if (carousel.isLocked) {
+        return ''
+      }
       const children: Array<VNode> = []
 
       for (
