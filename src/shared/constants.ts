@@ -21,7 +21,7 @@ export const DIR_OPTIONS = [
 ] as const
 
 export const I18N_DEFAULT_CONFIG = {
-  ariaGallery: 'Gallery',
+  ariaGallery: 'Gallery {id}',
   ariaNavigateToPage: 'Navigate to page {slideNumber}',
   ariaNavigateToSlide: 'Navigate to slide {slideNumber}',
   ariaNextSlide: 'Navigate to next slide',
@@ -51,11 +51,14 @@ export const DEFAULT_DRAG_THRESHOLD = 0.08
 export const DEFAULT_CLASS_PREFIX = 'carousel'
 
 export const DEFAULT_CONFIG: CarouselConfig = {
+  adaptiveHeight: false,
   autoplay: 0,
+  autoScrollOnFocus: true,
   breakpointMode: BREAKPOINT_MODE_OPTIONS[0],
   breakpoints: undefined,
   classPrefix: DEFAULT_CLASS_PREFIX,
   dir: DIR_OPTIONS[0],
+  disableWhenSlidesFit: false,
   edgeSpacing: 0,
   enabled: true,
   gap: 0,
@@ -64,6 +67,7 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   ignoreAnimations: false,
   itemsToScroll: 1,
   itemsToShow: 1,
+  keyboardNavigation: true,
   modelValue: 0,
   mouseDrag: true,
   mouseWheel: false,

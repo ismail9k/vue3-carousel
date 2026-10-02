@@ -29,6 +29,8 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 | `disableOnClick`        | Boolean | false   | When true, disables navigation when clicking pagination buttons |
 | `paginateByItemsToShow` | Boolean | false   | Groups slides into pages based on `itemsToShow` setting         |
 
+The component renders nothing while the carousel is locked by the [`disableWhenSlidesFit`](/config#advanced-options) prop.
+
 ## Styling
 
 With a custom [`classPrefix`](/components/carousel#class-prefix), `carousel` in the class names used below (for example `.carousel__pagination-button`) is replaced by the prefix.
