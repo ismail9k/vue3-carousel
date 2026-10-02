@@ -46,4 +46,19 @@ describe('createCloneSlides', () => {
     const clones = createCloneSlides({ slides, position: 'before', toShow: 0 })
     expect(clones.length).toBe(0)
   })
+
+  it('returns no clones for a non-finite toShow instead of looping forever (#518)', () => {
+    const slides = [createMockSlide(1), createMockSlide(2), createMockSlide(3)]
+    expect(createCloneSlides({ slides, position: 'after', toShow: Infinity })).toEqual([])
+    expect(createCloneSlides({ slides, position: 'before', toShow: Infinity })).toEqual(
+      []
+    )
+    expect(createCloneSlides({ slides, position: 'after', toShow: NaN })).toEqual([])
+  })
+
+  it('returns no clones for a negative toShow', () => {
+    const slides = [createMockSlide(1), createMockSlide(2), createMockSlide(3)]
+    expect(createCloneSlides({ slides, position: 'after', toShow: -2 })).toEqual([])
+    expect(createCloneSlides({ slides, position: 'before', toShow: -2 })).toEqual([])
+  })
 })
