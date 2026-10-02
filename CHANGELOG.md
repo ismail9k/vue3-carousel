@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.19.0) - 2026-10-02
+
+- feat: add `marquee` mode for smooth continuous scrolling (#477) in #584
+- feat: add `nativeCss` mode with scroll-snap rendering and JS fallback (#514) in #583
+- feat: add `classPrefix` prop to rename the carousel CSS classes (#509) in #578
+- feat: add `disableWhenSlidesFit` to lock the carousel when all slides fit (#483) in #579
+- feat: add `adaptiveHeight` to size the carousel to the visible slides (#382) in #580
+- feat: add `autoScrollOnFocus` prop to opt out of focus navigation (#513) in #574
+- feat: add `keyboardNavigation` prop to toggle arrow-key navigation (#499) in #576
+- feat(docs): publish llms.txt, llms-full.txt and Markdown pages for agents (#564) in #581
+- fix: transition the track back after a drag that does not change slide (#512) in #582
+- fix: stop navigation clicks from bypassing the sliding guard (#531) in #572
+- fix: keep focusable content of off-screen slides out of the tab order (#537) in #577
+- fix: loop v-model changes through the clones with wrapAround (#519) in #575
+- fix: page by `itemsToScroll` from clamped edges without wrapAround (#522) in #571
+- fix: end the interrupted transition when `slideTo` starts a new one in #588
+- fix: apply the last drag sample on release so `threshold` works (#502) in #569
+- fix: give each carousel a unique aria-label region name (#523) in #573
+- fix: guard against non-finite drag and clone counts under wrapAround (#518) in #570
+
 ## [0.18.0](https://github.com/ismail9k/vue3-carousel/releases/tag/v0.18.0) - 2026-09-23
 
 - feat: add `ignoreCrossAxis` option to `mouseWheel` (#543) in #559
