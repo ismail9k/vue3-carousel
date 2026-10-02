@@ -1,7 +1,12 @@
 import { computed, defineComponent, h, inject, PropType, VNode } from 'vue'
 
-import { injectCarousel } from '@/shared'
-import { getSnapAlignOffset, i18nFormatter, mapNumberToRange } from '@/utils'
+import { DEFAULT_CLASS_PREFIX, injectCarousel } from '@/shared'
+import {
+  getNumberInRange,
+  getSnapAlignOffset,
+  i18nFormatter,
+  mapNumberToRange,
+} from '@/utils'
 
 import { PaginationProps } from './Pagination.types'
 
@@ -36,8 +41,10 @@ export const Pagination = defineComponent<PaginationProps>({
     )
     const pageCount = computed(() => Math.ceil(carousel.slidesCount / itemsToShow.value))
 
+    // Without wrapAround the last step lands on the last slide, which can give a
+    // page past the end; clamp it there instead of wrapping to the first page.
     const isActive = (slide: number): boolean =>
-      mapNumberToRange(
+      (carousel.config.wrapAround ? mapNumberToRange : getNumberInRange)(
         isPaginated.value
           ? {
               val: currentPage.value,
@@ -51,6 +58,20 @@ export const Pagination = defineComponent<PaginationProps>({
             }
       ) === slide
 
+    // Without wrapAround the last page targets the last slide, where next() also
+    // lands, so the Navigation button disables there too.
+    const getPageTarget = (slide: number): number => {
+      if (!isPaginated.value) {
+        return slide
+      }
+      const index = Math.floor(slide * itemsToShow.value + offset.value)
+      const reachesEnd =
+        !carousel.config.wrapAround &&
+        itemsToShow.value <= carousel.slidesCount &&
+        index - offset.value >= carousel.slidesCount - itemsToShow.value
+      return reachesEnd ? carousel.maxSlide : index
+    }
+
     return () => {
       if (props.carousel) {
         carousel = props.carousel;
@@ -62,6 +83,10 @@ export const Pagination = defineComponent<PaginationProps>({
       if (carousel.isMarquee) {
         return ''
       }
+      if (carousel.isLocked) {
+        return ''
+      }
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
       const children: Array<VNode> = []
 
       for (
@@ -81,26 +106,21 @@ export const Pagination = defineComponent<PaginationProps>({
         const button = h('button', {
           type: 'button',
           class: {
-            'carousel__pagination-button': true,
-            'carousel__pagination-button--active': active,
+            [`${prefix}__pagination-button`]: true,
+            [`${prefix}__pagination-button--active`]: active,
           },
           'aria-label': buttonLabel,
           'aria-pressed': active,
           'aria-controls': carousel.slides[slide]?.exposed?.id,
           title: buttonLabel,
           disabled: props.disableOnClick,
-          onClick: () =>
-            carousel.nav.slideTo(
-              isPaginated.value
-                ? Math.floor(slide * +carousel.config.itemsToShow + offset.value)
-                : slide
-            ),
+          onClick: () => carousel.nav.slideTo(getPageTarget(slide)),
         })
-        const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
+        const item = h('li', { class: `${prefix}__pagination-item`, key: slide }, button)
         children.push(item)
       }
 
-      return h('ol', { class: 'carousel__pagination' }, children)
+      return h('ol', { class: `${prefix}__pagination` }, children)
     }
   },
 })

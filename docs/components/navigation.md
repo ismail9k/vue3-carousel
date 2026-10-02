@@ -29,6 +29,7 @@ import { Navigation as CarouselNavigation } from 'vue3-carousel'
 - Customizable button appearance
 - Automatic disable state when reaching bounds
 - Built-in accessibility features
+- Renders nothing while the carousel is locked by `disableWhenSlidesFit`
 
 ## Custom Navigation Buttons
 
@@ -56,6 +57,8 @@ You can customize the navigation buttons using slots:
 ```
 
 ## Styling
+
+With a custom [`classPrefix`](/components/carousel#class-prefix), `carousel` in the class names used below (for example `.carousel__prev` and `.carousel__next`) is replaced by the prefix.
 
 ### CSS Custom Properties
 

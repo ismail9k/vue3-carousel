@@ -15,8 +15,8 @@ import {
   useId,
 } from 'vue'
 
-import { injectCarousel } from '@/shared'
-import { disableChildrenTabbing } from '@/utils'
+import { DEFAULT_CLASS_PREFIX, injectCarousel } from '@/shared'
+import { disableChildrenTabbing, restoreChildrenTabbing } from '@/utils'
 
 import { SlideProps } from './Slide.types'
 
@@ -120,41 +120,54 @@ export const Slide = defineComponent({
       }
     })
 
-    if (props.isClone) {
-      // Prevent cloned slides from being focusable
-      onMounted(() => {
+    // Keep focusable content of clones and off-screen slides out of the tab order.
+    // Slides re-render on every navigation, so only query the DOM when this
+    // slide has actually disabled something.
+    let hasDisabledChildren = false
+    const updateChildrenTabbing = () => {
+      if (!carousel.config.enabled) {
+        return
+      }
+      if (props.isClone || !isVisible.value) {
         disableChildrenTabbing(instance.vnode)
-      })
-      onUpdated(() => {
-        disableChildrenTabbing(instance.vnode)
-      })
+        hasDisabledChildren = true
+      } else if (hasDisabledChildren) {
+        restoreChildrenTabbing(instance.vnode)
+        hasDisabledChildren = false
+      }
     }
+    onMounted(updateChildrenTabbing)
+    onUpdated(updateChildrenTabbing)
 
     return () => {
       if (!carousel.config.enabled) {
         return slots.default?.()
       }
 
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
+
       return h(
         'li',
         {
           style: [attrs.style, { ...slideStyle.value }],
           class: {
-            carousel__slide: true,
-            'carousel__slide--clone': props.isClone,
-            'carousel__slide--visible': isVisible.value,
-            'carousel__slide--active': isActive.value,
-            'carousel__slide--prev': isPrev.value,
-            'carousel__slide--next': isNext.value,
-            'carousel__slide--sliding': carousel.isSliding,
+            [`${prefix}__slide`]: true,
+            [`${prefix}__slide--clone`]: props.isClone,
+            [`${prefix}__slide--visible`]: isVisible.value,
+            [`${prefix}__slide--active`]: isActive.value,
+            [`${prefix}__slide--prev`]: isPrev.value,
+            [`${prefix}__slide--next`]: isNext.value,
+            [`${prefix}__slide--sliding`]: carousel.isSliding,
           },
           onMousedownCapture: handleMousedown,
           onFocusin: () => {
-            // Prevent the viewport being scrolled by the focus
-            if (carousel.viewport) {
+            // Prevent the viewport being scrolled by the focus (in native mode
+            // that scroll is the navigation itself)
+            if (carousel.viewport && !carousel.isNative) {
               carousel.viewport.scrollLeft = 0
+              carousel.viewport.scrollTop = 0
             }
-            if (isPointerFocus) {
+            if (isPointerFocus || carousel.config.autoScrollOnFocus === false) {
               return
             }
             carousel.nav.slideTo(currentIndex.value)

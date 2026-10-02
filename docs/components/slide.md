@@ -87,6 +87,8 @@ The component provides these CSS classes for styling:
 | `.carousel__slide--sliding` | Styles during transitions |
 | `.carousel__slide--visible` | Visible slide styles      |
 
+With a custom [`classPrefix`](/components/carousel#class-prefix), `carousel` in these names is replaced by the prefix.
+
 ## Best Practices
 
 1. Always provide a unique `:key` when using v-for with Slides

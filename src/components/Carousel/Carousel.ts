@@ -13,6 +13,7 @@ import {
   shallowReactive,
   shallowRef,
   toRefs,
+  useId,
   watch,
   watchEffect,
 } from 'vue'
@@ -28,9 +29,11 @@ import {
 } from '@/composables'
 import {
   CarouselConfig,
+  DEFAULT_CLASS_PREFIX,
   DEFAULT_CONFIG,
   DEFAULT_DRAG_THRESHOLD,
   DIR_MAP,
+  NATIVE_SNAP_ALIGN,
   NonNormalizedDir,
   NormalizedDir,
   createSlideRegistry,
@@ -41,12 +44,18 @@ import {
   applyEdgeSpacing,
   calculateAverage,
   createCloneSlides,
+  debounce,
   except,
+  getClampedScrollTarget,
   getDraggedSlidesCount,
+  getNativeScrollDelta,
+  getNativeSlideIndex,
   getNumberInRange,
   getScaleMultipliers,
   getSnapAlignOffset,
+  i18nFormatter,
   mapNumberToRange,
+  supportsNativeCss,
   throttle,
   toCssValue,
 } from '@/utils'
@@ -58,7 +67,7 @@ import {
   ElRect,
   InjectedCarousel,
 } from './Carousel.types'
-import { carouselProps } from './carouselProps'
+import { carouselProps, isValidClassPrefix } from './carouselProps'
 
 export const Carousel = defineComponent({
   name: 'VueCarousel',
@@ -79,16 +88,25 @@ export const Carousel = defineComponent({
     const slideRegistry = createSlideRegistry(emit)
     const slides = slideRegistry.getSlides()
     const slidesCount = computed(() => slides.length)
+    const id = useId()
 
     const root: Ref<Element | null> = ref(null)
     const viewport: Ref<Element | null> = ref(null)
     const track: Ref<HTMLElement | null> = ref(null)
     const slideSize: Ref<number> = ref(0)
 
+    // Assumed until mount so supported browsers render native mode from the
+    // first paint and SSR output never needs a hydration fix-up
+    const nativeSupport = ref(true)
+
     const fallbackConfig = computed(() => ({
       ...DEFAULT_CONFIG,
       // Avoid reactivity tracking in breakpoints and vModel which would trigger unnecessary updates
       ...except(props, ['breakpoints', 'modelValue']),
+      // The validator only warns, so an invalid prefix falls back here
+      classPrefix: isValidClassPrefix(props.classPrefix)
+        ? props.classPrefix
+        : DEFAULT_CLASS_PREFIX,
       i18n: { ...DEFAULT_CONFIG.i18n, ...props.i18n },
     }))
 
@@ -107,6 +125,8 @@ export const Carousel = defineComponent({
 
     let autoplayTimer: ReturnType<typeof setInterval> | null = null
     let transitionTimer: ReturnType<typeof setTimeout> | null = null
+    let snapBackTimer: ReturnType<typeof setTimeout> | null = null
+    let endTransition: ((interrupted?: boolean) => void) | null = null
     let resizeObserver: ResizeObserver | null = null
 
     const effectiveSlideSize = computed(() => slideSize.value + config.gap)
@@ -129,6 +149,34 @@ export const Carousel = defineComponent({
     const isAuto = computed(() => config.itemsToShow === 'auto')
     // Marquee is ignored with the fade effect: the stacked slides cannot scroll
     const isMarquee = computed(() => !!config.marquee && config.slideEffect !== 'fade')
+
+    // btt relies on column-reverse, whose overflow is not reliably scrollable.
+    // Marquee loops over cloned slides, which native mode cannot render
+    const isNative = computed(
+      () =>
+        !!config.nativeCss &&
+        nativeSupport.value &&
+        normalizedDir.value !== 'btt' &&
+        !isMarquee.value
+    )
+
+    // Native CSS mode cannot loop, fade, drag with JS or offset the track, so
+    // those options are turned off in one place and everything else just reads config
+    function applyNativeConstraints(): void {
+      if (!isNative.value) {
+        return
+      }
+      Object.assign(config, {
+        edgeSpacing: 0,
+        mouseDrag: false,
+        mouseWheel: false,
+        preventExcessiveDragging: false,
+        slideEffect: 'slide',
+        touchDrag: false,
+        wrapAround: false,
+      })
+    }
+    applyNativeConstraints()
 
     const dimension = computed(() => (isVertical.value ? 'height' : 'width'))
 
@@ -171,7 +219,10 @@ export const Carousel = defineComponent({
         return false
       })
 
-      Object.assign(config, fallbackConfig.value, newConfig)
+      // classPrefix is not a breakpoint option (see Breakpoints); keep the prop value
+      Object.assign(config, fallbackConfig.value, newConfig, {
+        classPrefix: fallbackConfig.value.classPrefix,
+      })
 
       // Validate itemsToShow
       if (!isAuto.value) {
@@ -181,12 +232,23 @@ export const Carousel = defineComponent({
           min: 1,
         })
       }
+
+      applyNativeConstraints()
     }
 
+    // With adaptiveHeight the root ResizeObserver fires on every frame of the height
+    // transition; those root-only, width-unchanged entries are skipped where the
+    // observer is created. The measured slide heights do not depend on the root
+    // height, so a re-measure cannot loop.
     const handleResize = throttle(() => {
       updateBreakpointsConfig()
       updateSlidesData()
       updateSlideSize()
+      // A user scroll that has not settled yet is still moving away from the
+      // current slide; snapping back to it would undo the scroll
+      if (isNative.value && !nativeScrollPending) {
+        scrollToSlide(currentSlideIndex.value, 'instant')
+      }
     })
 
     // Plain Set: nothing reads it reactively — the rAF loop and finishAnimation
@@ -223,6 +285,42 @@ export const Carousel = defineComponent({
         height: rect.height * heightMultiplier,
       }
     }
+
+    // Every slide is on screen at once, so there is nothing to slide to.
+    // Never true with wrapAround: the loop always has somewhere to go.
+    const allSlidesFit = computed(() => {
+      if (slidesCount.value === 0) {
+        // Nothing registered yet (first render, SSR): never lock an empty carousel
+        return false
+      }
+      if (config.wrapAround) {
+        return false
+      }
+      if (config.slideEffect === 'fade') {
+        // Fade stacks every slide in one cell, so only a single slide ever fits
+        return slidesCount.value <= 1
+      }
+      if (!isAuto.value) {
+        return slidesCount.value <= Number(config.itemsToShow)
+      }
+      const viewportSize = viewportRect.value[dimension.value]
+      if (viewportSize <= 0) {
+        // Not measured yet: keep the controls until the sizes are known
+        return false
+      }
+      const slidesSize = slidesRect.value.reduce(
+        (acc, slide) => acc + slide[dimension.value] + config.gap,
+        -config.gap
+      )
+      // The locked track keeps its leading edgeSpacing, so that has to fit as well.
+      // 1px tolerance: fractional widths and scale multipliers make an exact fit measure a hair over
+      return slidesSize + normalizedEdgeSpacing.value - viewportSize <= 1
+    })
+
+    const isLocked = computed(() => config.disableWhenSlidesFit && allSlidesFit.value)
+
+    // Drag and wheel do nothing on a locked carousel or a display-only marquee
+    const isInteractionDisabled = computed(() => isLocked.value || isMarquee.value)
 
     function updateSlideSize(): void {
       if (!viewport.value) return
@@ -341,24 +439,51 @@ export const Carousel = defineComponent({
 
     onMounted((): void => {
       mounted.value = true
+      nativeSupport.value = supportsNativeCss()
       updateBreakpointsConfig()
       initAutoplay()
 
       if (root.value) {
-        resizeObserver = new ResizeObserver(handleResize)
+        let rootWidth = -1
+        resizeObserver = new ResizeObserver((entries) => {
+          // In adaptive mode the root height follows the slides, so a root-only
+          // entry with an unchanged width is a frame of the height transition
+          const rootEntry = entries.find((entry) => entry.target === root.value)
+          const onlyRootHeight =
+            isAdaptiveHeight.value &&
+            entries.length === 1 &&
+            rootEntry !== undefined &&
+            rootEntry.contentRect.width === rootWidth
+          if (rootEntry) {
+            rootWidth = rootEntry.contentRect.width
+          }
+          if (!onlyRootHeight) {
+            handleResize()
+          }
+        })
         resizeObserver.observe(root.value)
+        updateObservedSlides()
       }
 
       emit('init')
+      if (isNative.value) {
+        scrollToSlide(currentSlideIndex.value, 'instant')
+      }
     })
 
     onBeforeUnmount(() => {
       mounted.value = false
 
       slideRegistry.cleanup()
+      handleNativeScroll.cancel()
 
       if (transitionTimer) {
         clearTimeout(transitionTimer)
+        transitionTimer = null
+        endTransition = null
+      }
+      if (snapBackTimer) {
+        clearTimeout(snapBackTimer)
       }
       if (animationInterval) {
         cancelAnimationFrame(animationInterval)
@@ -368,6 +493,7 @@ export const Carousel = defineComponent({
       }
       if (resizeObserver) {
         resizeObserver.disconnect()
+        observedSlides.clear()
         resizeObserver = null
       }
 
@@ -386,15 +512,15 @@ export const Carousel = defineComponent({
     const { isHover, handleMouseEnter, handleMouseLeave } = useHover()
 
     const handleArrowKeys = throttle((event: KeyboardEvent): void => {
-      if (event.ctrlKey) return
+      if (!config.keyboardNavigation || event.ctrlKey) return
       switch (event.key) {
         case 'ArrowLeft':
         case 'ArrowUp':
           if (isVertical.value === event.key.endsWith('Up')) {
             if (isReversed.value) {
-              next(true)
+              next()
             } else {
-              prev(true)
+              prev()
             }
           }
           break
@@ -402,9 +528,9 @@ export const Carousel = defineComponent({
         case 'ArrowDown':
           if (isVertical.value === event.key.endsWith('Down')) {
             if (isReversed.value) {
-              prev(true)
+              prev()
             } else {
-              next(true)
+              next()
             }
           }
           break
@@ -452,6 +578,9 @@ export const Carousel = defineComponent({
      * Navigation function
      */
     const isSliding = ref(false)
+    // Transitions the track back after a drag that did not change slide,
+    // without locking input the way isSliding does
+    const isSnappingBack = ref(false)
 
     // Screen px → layout px multipliers, sampled when a drag starts so the
     // drag follows the pointer 1:1 under scaled ancestors
@@ -461,6 +590,12 @@ export const Carousel = defineComponent({
     })
 
     const onDragStart = () => {
+      // A new drag must follow the pointer directly, not with easing
+      if (snapBackTimer) {
+        clearTimeout(snapBackTimer)
+        snapBackTimer = null
+      }
+      isSnappingBack.value = false
       dragScale.value = getScaleMultipliers(root.value)
     }
 
@@ -502,7 +637,28 @@ export const Carousel = defineComponent({
           })
     }
 
-    const onDragEnd = () => slideTo(activeSlideIndex.value)
+    const onDragEnd = () => {
+      if (isLocked.value) {
+        activeSlideIndex.value = currentSlideIndex.value
+        return
+      }
+      slideTo(activeSlideIndex.value)
+
+      // slideTo returns early when the drag did not change the slide (under the
+      // threshold or clamped at an edge). The track's return to its slot must
+      // still be transitioned instead of snapping back.
+      const axisOffset = isVertical.value ? dragged.y : dragged.x
+      if (!isSliding.value && config.slideEffect !== 'fade' && axisOffset !== 0) {
+        isSnappingBack.value = true
+        if (snapBackTimer) {
+          clearTimeout(snapBackTimer)
+        }
+        snapBackTimer = setTimeout(() => {
+          isSnappingBack.value = false
+          snapBackTimer = null
+        }, config.transition)
+      }
+    }
 
     const { dragged, isDragging, handleDragStart } = useDrag({
       isSliding,
@@ -538,12 +694,36 @@ export const Carousel = defineComponent({
       onWheel,
     })
 
+    function getStepTarget(direction: 1 | -1): number {
+      // Window stepping only applies to multi-slide steps on a track clamped at
+      // both ends; itemsToScroll 1 must reach every slide, and when itemsToShow
+      // exceeds the slide count the track is not clamped, so both use the index.
+      if (
+        config.wrapAround ||
+        isAuto.value ||
+        config.itemsToScroll <= 1 ||
+        Number(config.itemsToShow) > slidesCount.value
+      ) {
+        return currentSlideIndex.value + direction * config.itemsToScroll
+      }
+      return getClampedScrollTarget({
+        currentIndex: currentSlideIndex.value,
+        direction,
+        itemsToScroll: config.itemsToScroll,
+        itemsToShow: Number(config.itemsToShow),
+        slidesCount: slidesCount.value,
+        snapAlignOffset: snapAlignOffset.value,
+      })
+    }
+
     function next(skipTransition = false): void {
-      slideTo(currentSlideIndex.value + config.itemsToScroll, skipTransition)
+      flushNativeScroll()
+      slideTo(getStepTarget(1), skipTransition)
     }
 
     function prev(skipTransition = false): void {
-      slideTo(currentSlideIndex.value - config.itemsToScroll, skipTransition)
+      flushNativeScroll()
+      slideTo(getStepTarget(-1), skipTransition)
     }
 
     function slideTo(slideIndex: number, skipTransition = false): void {
@@ -551,7 +731,10 @@ export const Carousel = defineComponent({
         return
       }
 
-      if (!skipTransition && isSliding.value) {
+      flushNativeScroll()
+      // Only an explicit `true` bypasses the guard, so a handler that forwards
+      // its event (`@click="carousel.next"`) cannot start an overlapping slide
+      if (isLocked.value || (skipTransition !== true && isSliding.value)) {
         return
       }
 
@@ -563,6 +746,13 @@ export const Carousel = defineComponent({
 
       if (currentSlideIndex.value === targetIndex) {
         return
+      }
+
+      // A transition still in flight ends here, so that its timer never fires
+      if (transitionTimer) {
+        clearTimeout(transitionTimer)
+        transitionTimer = null
+        endTransition?.(true)
       }
 
       prevSlideIndex.value = currentSlideIndex.value
@@ -580,12 +770,19 @@ export const Carousel = defineComponent({
       currentSlideIndex.value = slideIndex
       if (targetIndex !== slideIndex) {
         modelWatcher.pause()
+      } else {
+        // The interrupted transition may have left the watcher paused
+        modelWatcher.resume()
       }
       emit('update:modelValue', targetIndex)
 
-      const transitionCallback = (): void => {
+      endTransition = (interrupted = false): void => {
         if (config.wrapAround && targetIndex !== slideIndex) {
-          modelWatcher.resume()
+          // The interrupting transition sets the watcher state itself, resuming
+          // here would queue a watcher run in the middle of that transition
+          if (!interrupted) {
+            modelWatcher.resume()
+          }
 
           currentSlideIndex.value = targetIndex
           emit('loop', {
@@ -599,12 +796,122 @@ export const Carousel = defineComponent({
           prevSlideIndex: prevSlideIndex.value,
           slidesCount: slidesCount.value,
         })
-
-        isSliding.value = false
-        resetAutoplay()
       }
 
-      transitionTimer = setTimeout(transitionCallback, config.transition)
+      transitionTimer = setTimeout(() => {
+        transitionTimer = null
+        // slideTo can still be called on an unmounted carousel
+        if (!mounted.value) {
+          return
+        }
+
+        endTransition?.()
+        endTransition = null
+        isSliding.value = false
+        resetAutoplay()
+      }, config.transition)
+
+      if (isNative.value) {
+        scrollToSlide(targetIndex)
+      }
+    }
+
+    // Native mode: the snap point every scroll measurement aligns on
+    const nativeAlignOptions = computed(() => ({
+      align: NATIVE_SNAP_ALIGN[config.snapAlign],
+      isReversed: isReversed.value,
+      isVertical: isVertical.value,
+    }))
+
+    /**
+     * Native mode: scroll the viewport so `index` meets its snap point. Uses
+     * client rects so it works for every direction; scaled like every other
+     * measurement (layout px).
+     */
+    function scrollToSlide(index: number, behavior: ScrollBehavior = 'smooth'): void {
+      const slideEl = slides[index]?.vnode.el as Element | null | undefined
+      if (!viewport.value || !slideEl?.getBoundingClientRect) {
+        return
+      }
+      const delta = getNativeScrollDelta({
+        ...nativeAlignOptions.value,
+        slideRect: slideEl.getBoundingClientRect(),
+        viewportRect: viewport.value.getBoundingClientRect(),
+      })
+      if (Math.abs(delta) < 1) {
+        return
+      }
+      const { widthMultiplier, heightMultiplier } = getScaleMultipliers(root.value)
+      viewport.value.scrollBy(
+        isVertical.value
+          ? { top: delta * heightMultiplier, behavior }
+          : { left: delta * widthMultiplier, behavior }
+      )
+    }
+
+    // Native mode: once the user's scroll settles, adopt the slide the scroller
+    // landed on. A smooth scroll fires `scroll` every frame, so the debounce
+    // cannot fire in the middle of a programmatic scroll.
+    function adoptNativeScrollIndex(): void {
+      if (!isNative.value || !viewport.value) {
+        return
+      }
+      const slideEls = slides.map((slide) => slide.vnode.el as Element | null | undefined)
+      // Every slide must be measurable, or the indexes would not line up
+      if (!slideEls.every((el): el is Element => !!el?.getBoundingClientRect)) {
+        return
+      }
+      const index = getNativeSlideIndex({
+        ...nativeAlignOptions.value,
+        slideRects: slideEls.map((el) => el.getBoundingClientRect()),
+        viewportRect: viewport.value.getBoundingClientRect(),
+        currentIndex: currentSlideIndex.value,
+      })
+      if (index === -1 || index === currentSlideIndex.value) {
+        return
+      }
+      prevSlideIndex.value = currentSlideIndex.value
+      emit('slide-start', {
+        slidingToIndex: index,
+        currentSlideIndex: currentSlideIndex.value,
+        prevSlideIndex: prevSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+      currentSlideIndex.value = index
+      emit('update:modelValue', index)
+      emit('slide-end', {
+        currentSlideIndex: index,
+        prevSlideIndex: prevSlideIndex.value,
+        slidesCount: slidesCount.value,
+      })
+    }
+
+    // Set by a scroll event, cleared once that scroll settles
+    let nativeScrollPending = false
+
+    const handleNativeScroll = debounce(() => {
+      nativeScrollPending = false
+      adoptNativeScrollIndex()
+      resetAutoplay()
+    }, 100)
+
+    // A user scroll pauses autoplay until it settles; while sliding, the scroll
+    // is the carousel's own and autoplay restarts when the slide ends
+    function onNativeScroll(): void {
+      if (!isSliding.value) {
+        stopAutoplay()
+      }
+      nativeScrollPending = true
+      handleNativeScroll()
+    }
+
+    // Before navigating, adopt a user scroll that has not settled yet so the
+    // move starts from the slide in view. Skipped while sliding: the pending
+    // scroll is then the carousel's own, still on its way to the current slide
+    function flushNativeScroll(): void {
+      if (isNative.value && !isSliding.value) {
+        handleNativeScroll.flush()
+      }
     }
 
     function restartCarousel(): void {
@@ -630,6 +937,50 @@ export const Carousel = defineComponent({
     // (a prop change or a breakpoint)
     watch(isMarquee, () => resetAutoplay())
 
+    // Turning native mode on after mount: the track is no longer transformed,
+    // so put the scroller on the current slide once the DOM has updated.
+    // Turning it off: the viewport's leftover native scroll offset would add to
+    // the track transform under `overflow: hidden`, so reset it
+    watch(
+      isNative,
+      (native) => {
+        if (native && mounted.value) {
+          scrollToSlide(currentSlideIndex.value, 'instant')
+        } else if (!native && viewport.value) {
+          viewport.value.scrollLeft = 0
+          viewport.value.scrollTop = 0
+        }
+      },
+      { flush: 'post' }
+    )
+
+    // Adding or removing slides shifts the ones after them, so put the
+    // scroller back on the current slide once the DOM has updated
+    watch(
+      slidesCount,
+      () => {
+        if (isNative.value && mounted.value) {
+          scrollToSlide(currentSlideIndex.value, 'instant')
+        }
+      },
+      { flush: 'post' }
+    )
+
+    // A v-model can only hold a canonical index, so with wrapAround take the
+    // shortest path to it; slideTo maps the unclamped index and loops.
+    function getModelTarget(val: number): number {
+      if (!config.wrapAround || isAuto.value || slidesCount.value <= 0) {
+        return val
+      }
+      const current = currentSlideIndex.value
+      const canonical = mapNumberToRange({ val, max: maxSlideIndex.value, min: 0 })
+      return [canonical - slidesCount.value, canonical + slidesCount.value].reduce(
+        (best, candidate) =>
+          Math.abs(candidate - current) < Math.abs(best - current) ? candidate : best,
+        canonical
+      )
+    }
+
     // Handle changing v-model value
     const modelWatcher = watch(
       () => props.modelValue,
@@ -637,9 +988,25 @@ export const Carousel = defineComponent({
         if (val === currentSlideIndex.value) {
           return
         }
-        slideTo(Number(val), true)
+        slideTo(getModelTarget(Number(val)), true)
       }
     )
+
+    // Locking pins the carousel at its first slide; unlocking re-applies the
+    // v-model value that was ignored while locked
+    watch(isLocked, (locked) => {
+      if (locked) {
+        if (currentSlideIndex.value !== minSlideIndex.value) {
+          currentSlideIndex.value = minSlideIndex.value
+          emit('update:modelValue', minSlideIndex.value)
+        }
+      } else if (
+        props.modelValue !== undefined &&
+        props.modelValue !== currentSlideIndex.value
+      ) {
+        slideTo(props.modelValue, true)
+      }
+    })
 
     // Init carousel
     emit('before-init')
@@ -750,8 +1117,11 @@ export const Carousel = defineComponent({
             viewportRect.value[dimension.value] -
             config.gap
 
+          // A locked carousel is pinned at its first slide: every slide is already on screen
           output = applyEdgeSpacing({
-            value: getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
+            value: isLocked.value
+              ? 0
+              : getNumberInRange({ val: output, max: maxSlidingValue, min: 0 }),
             max: maxSlidingValue,
             spacing: normalizedEdgeSpacing.value,
           })
@@ -764,10 +1134,16 @@ export const Carousel = defineComponent({
         } else {
           // remove whitespace
           const maxScrolledSlides = slidesCount.value - +config.itemsToShow
+          // A locked carousel is pinned at its first slide: every slide is already on screen
           output = applyEdgeSpacing({
             value:
-              getNumberInRange({ val: scrolledSlides, max: maxScrolledSlides, min: 0 }) *
-              effectiveSlideSize.value,
+              (isLocked.value
+                ? 0
+                : getNumberInRange({
+                    val: scrolledSlides,
+                    max: maxScrolledSlides,
+                    min: 0,
+                  })) * effectiveSlideSize.value,
             max: maxScrolledSlides * effectiveSlideSize.value,
             spacing: normalizedEdgeSpacing.value,
           })
@@ -778,6 +1154,10 @@ export const Carousel = defineComponent({
     })
 
     const visibleRange = computed(() => {
+      if (isLocked.value) {
+        // A locked track is pinned at its first slide with every slide on screen
+        return { min: 0, max: slidesCount.value - 1 }
+      }
       if (!isAuto.value) {
         const base = currentSlideIndex.value - snapAlignOffset.value
         if (config.wrapAround) {
@@ -786,17 +1166,17 @@ export const Carousel = defineComponent({
             max: Math.ceil(base + Number(config.itemsToShow) - 1),
           }
         }
+        const itemsToShow = Number(config.itemsToShow)
+        const start = getNumberInRange({
+          val: base,
+          max: slidesCount.value - itemsToShow,
+          min: 0,
+        })
         return {
-          min: Math.floor(
-            getNumberInRange({
-              val: base,
-              max: slidesCount.value - Number(config.itemsToShow),
-              min: 0,
-            })
-          ),
+          min: Math.floor(start),
           max: Math.ceil(
             getNumberInRange({
-              val: base + Number(config.itemsToShow) - 1,
+              val: start + itemsToShow - 1,
               max: slidesCount.value - 1,
               min: 0,
             })
@@ -872,8 +1252,66 @@ export const Carousel = defineComponent({
       }
     })
 
+    const isAdaptiveHeight = computed(() => !!config.adaptiveHeight && !isVertical.value)
+
+    // Tallest visible slide in layout px; undefined until a slide has a height, so
+    // the `height` prop stays in effect before the first measurement
+    const adaptiveHeight = computed<number | undefined>(() => {
+      if (!isAdaptiveHeight.value) {
+        return undefined
+      }
+      const count = slidesRect.value.length
+      if (!count) {
+        return undefined
+      }
+      const { min, max } = visibleRange.value
+      let height = 0
+      for (let index = min; index <= max; index++) {
+        const normalizedIndex = ((index % count) + count) % count
+        height = Math.max(height, slidesRect.value[normalizedIndex]?.height || 0)
+      }
+      return height > 0 ? height : undefined
+    })
+
+    // In adaptive height mode the root no longer grows with its content, so slide
+    // content changing size later (images loading) is caught by observing the
+    // slide elements themselves. Clones mirror real slides and are not observed.
+    const observedSlides = new Set<Element>()
+    function updateObservedSlides(): void {
+      const observer = resizeObserver
+      if (!observer) {
+        return
+      }
+      const next = new Set<Element>()
+      if (isAdaptiveHeight.value) {
+        slides.forEach((slide) => {
+          const el = slide.vnode.el
+          if (el instanceof Element) {
+            next.add(el)
+          }
+        })
+      }
+      observedSlides.forEach((el) => {
+        if (!next.has(el)) {
+          observer.unobserve(el)
+          observedSlides.delete(el)
+        }
+      })
+      next.forEach((el) => {
+        if (!observedSlides.has(el)) {
+          observer.observe(el)
+          observedSlides.add(el)
+        }
+      })
+    }
+    // Spread `slides` so registry changes re-run the watcher; post flush so the
+    // slide elements exist
+    watch(() => [isAdaptiveHeight.value, ...slides], updateObservedSlides, {
+      flush: 'post',
+    })
+
     const trackTransform: ComputedRef<string | undefined> = computed(() => {
-      if (config.slideEffect === 'fade' || isMarquee.value) {
+      if (config.slideEffect === 'fade' || isMarquee.value || isNative.value) {
         return undefined
       }
 
@@ -922,7 +1360,10 @@ export const Carousel = defineComponent({
         ? toCssValue(marqueeDistance.value * (isReversed.value ? 1 : -1))
         : undefined
       return {
-        '--vc-carousel-height': toCssValue(config.height),
+        '--vc-carousel-height':
+          adaptiveHeight.value !== undefined
+            ? toCssValue(adaptiveHeight.value)
+            : toCssValue(config.height),
         '--vc-cloned-offset': toCssValue(clonedSlidesOffset.value),
         '--vc-marquee-duration': isMarquee.value
           ? toCssValue(marqueeDuration.value, 's')
@@ -930,9 +1371,13 @@ export const Carousel = defineComponent({
         '--vc-marquee-x': isVertical.value ? undefined : marqueeOffset,
         '--vc-marquee-y': isVertical.value ? marqueeOffset : undefined,
         '--vc-slide-gap': toCssValue(config.gap),
-        '--vc-transition-duration': isSliding.value
-          ? toCssValue(config.transition, 'ms')
+        '--vc-snap-align': isNative.value
+          ? NATIVE_SNAP_ALIGN[config.snapAlign]
           : undefined,
+        '--vc-transition-duration':
+          isSliding.value || isSnappingBack.value
+            ? toCssValue(config.transition, 'ms')
+            : undefined,
         '--vc-transition-easing': config.transitionEasing,
       }
     })
@@ -941,10 +1386,13 @@ export const Carousel = defineComponent({
 
     const provided: InjectedCarousel = reactive({
       activeSlide: activeSlideIndex,
+      allSlidesFit,
       config,
       currentSlide: currentSlideIndex,
       isMarquee,
       isSliding,
+      isNative,
+      isLocked,
       isVertical,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
@@ -1003,12 +1451,14 @@ export const Carousel = defineComponent({
 
       const output = [...slidesBefore, ...outputSlides, ...slidesAfter]
 
+      const prefix = config.classPrefix
+
       if (!config.enabled || !output.length) {
         return h(
           'section',
           {
             ref: root,
-            class: ['carousel', 'is-disabled'],
+            class: [prefix, 'is-disabled'],
           },
           output
         )
@@ -1020,29 +1470,40 @@ export const Carousel = defineComponent({
         'ol',
         {
           ref: track,
-          class: 'carousel__track',
+          class: `${prefix}__track`,
           onMousedownCapture:
-            config.mouseDrag && !isMarquee.value ? handleDragStart : null,
+            config.mouseDrag && !isInteractionDisabled.value ? handleDragStart : null,
           onTouchstartPassiveCapture:
-            config.touchDrag && !isMarquee.value ? handleDragStart : null,
-          onWheel: config.mouseWheel && !isMarquee.value ? handleScroll : null,
+            config.touchDrag && !isInteractionDisabled.value ? handleDragStart : null,
+          onWheel: config.mouseWheel && !isInteractionDisabled.value ? handleScroll : null,
           style: { transform: trackTransform.value },
         },
         output
       )
-      const viewPortEl = h('div', { class: 'carousel__viewport', ref: viewport }, trackEl)
+      const viewPortEl = h(
+        'div',
+        {
+          class: `${prefix}__viewport`,
+          ref: viewport,
+          onScrollPassive: isNative.value ? onNativeScroll : undefined,
+        },
+        trackEl
+      )
 
       return h(
         'section',
         {
           ref: root,
           class: [
-            'carousel',
+            prefix,
             `is-${normalizedDir.value}`,
             `is-effect-${config.slideEffect}`,
             {
+              'is-adaptive-height': isAdaptiveHeight.value,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
+              'is-locked': isLocked.value,
+              'is-native': isNative.value,
               'is-marquee': isMarquee.value,
               'is-paused':
                 isMarquee.value && !!config.pauseAutoplayOnHover && isHover.value,
@@ -1052,7 +1513,7 @@ export const Carousel = defineComponent({
           ],
           dir: normalizedDir.value,
           style: carouselStyle.value,
-          'aria-label': config.i18n['ariaGallery'],
+          'aria-label': i18nFormatter(config.i18n['ariaGallery'], { id }),
           tabindex: '0',
           onBlur: handleBlur,
           onFocus: handleFocus,

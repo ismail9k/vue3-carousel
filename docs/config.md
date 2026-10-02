@@ -10,11 +10,15 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 
 | Prop                       | Type                                        | Default                          | Description                                                                                            |
 |----------------------------|---------------------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| `adaptiveHeight`           | `boolean`                                   | false                            | Sizes the carousel to the tallest visible slide and animates the height on navigation. Ignored for vertical directions. <Badge text="0.19.0"/> |
 | `autoplay`                 | `number`                                    | 0                                | Time interval (in milliseconds) between auto-advancing slides. Set to 0 to disable autoplay.           |
+| `autoScrollOnFocus`        | `boolean`                                   | true                             | When true, focusing a slide or an element inside it by keyboard or programmatically (not by mouse or touch) slides the carousel to that slide. Set to false to keep the carousel in place, for example when slide links open another page. Content inside off-screen slides is kept out of the tab order; with false, focusing it programmatically no longer scrolls it into view. <Badge text="0.19.0"/> |
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
+| `classPrefix`              | `string`                                    | 'carousel'                       | Prefix for every CSS class the carousel renders (`carousel`, `carousel__slide`, ...). Change it when the default collides with other CSS or scripts. The bundled stylesheet targets the default prefix; see [Class prefix](/components/carousel#class-prefix). <Badge text="0.19.0"/> |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
+| `disableWhenSlidesFit`     | `boolean`                                   | false                            | When every slide fits in the viewport and `wrapAround` is off, hides Navigation and Pagination and stops sliding (drag, wheel, keyboard, autoplay, `slideTo`, `modelValue`). The carousel stays laid out and measured. <Badge text="0.19.0"/> |
 | `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`. <Badge text="0.18.0"/> |
 | `enabled`                  | `boolean`                                   | true                             | Controls whether the carousel is interactive. When false, all interactions are disabled.               |
 | `gap`                      | `number`                                    | 0                                | Space (in pixels) between carousel slides.                                                             |
@@ -23,11 +27,13 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `ignoreAnimations`         | `boolean` \| `string` \| `array`            | false                            | Specifies which CSS animations should be excluded from slide size calculations. <Badge text="0.10.0"/> |
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
+| `keyboardNavigation`       | `boolean`                                   | true                             | Enables/disables arrow-key navigation while the carousel is focused. <Badge text="0.19.0"/>            |
 | `marquee`                  | `boolean`                                   | false                            | Scrolls the slides continuously at a constant speed in a seamless loop. Navigation, drag, wheel and autoplay are disabled in this mode. <Badge text="0.19.0"/> |
 | `marqueeSpeed`             | `number`                                    | 60                               | Marquee speed in pixels per second. <Badge text="0.19.0"/>                                             |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
+| `nativeCss`                | `boolean`                                   | false                            | Renders a CSS scroll-snap carousel instead of a transformed track; falls back to the JS mode where unsupported or while `marquee` is on. See [Native CSS mode](#native-css-mode). <Badge text="0.19.0"/> |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay (and the marquee) pauses while the mouse cursor is over the carousel.              |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
@@ -60,6 +66,7 @@ These props control the fundamental behavior of the carousel:
 - **`itemsToScroll`**: Number of slides to move when navigating.
   - Set to a value higher than 1 to create slide groups.
   - Example: `:items-to-show="3" :items-to-scroll="3"` creates page-like navigation.
+  - Without `wrapAround` and with a value above 1, navigation moves the visible slides by this amount, so a first or last page clamped at the edge still advances a full step; the last step lands on the last (or first) slide. When the slide count is not a multiple of `itemsToScroll`, that final step is shorter, and stepping back retraces from the end rather than from the original pages.
 
 ### Direction Settings
 
@@ -116,8 +123,17 @@ These props control how users can interact with the carousel:
   - Basic usage: `:mouse-wheel="true"`
   - Advanced usage: `:mouse-wheel="{ threshold: 20 }"` (see [Wheel Options](#wheel-options))
 
+- **`keyboardNavigation`**: Enable/disable arrow-key navigation while the carousel is focused.
+  - Basic usage: `:keyboard-navigation="false"`
+  - Only arrow keys are affected; focusing a slide still brings it into view, and the Navigation buttons still work.
+
 - **`preventExcessiveDragging`**: Improves UX by limiting drag behavior at carousel boundaries.
   - Automatically disabled when `wrapAround` is enabled
+
+- **`autoScrollOnFocus`**: When `true` (default), keyboard or programmatic focus on a slide, or on an element inside it, slides the carousel to that slide. Pointer focus (mouse or touch) never navigates.
+  - Set to `false` when slide content navigates elsewhere on click and the carousel must not move first: `:auto-scroll-on-focus="false"`
+  - Content inside off-screen slides is removed from the tab order either way; with `false`, focusing it programmatically no longer scrolls it into view.
+  - Known limitation: focusable elements inside a shadow root (web components) cannot be reached, so they stay in the tab order while their slide is off screen.
 
 ## Visual Customization
 
@@ -126,6 +142,7 @@ These props control the appearance of the carousel:
 ```vue
 <template>
   <Carousel 
+    :adaptive-height="true"
     :gap="20"
     snap-align="start"
     slide-effect="fade"
@@ -135,6 +152,14 @@ These props control the appearance of the carousel:
   </Carousel>
 </template>
 ```
+
+- **`adaptiveHeight`**: Sizes the carousel to the tallest visible slide instead of the tallest slide overall, and animates the height on navigation with the `transition` settings.
+  - Example: `:adaptive-height="true"` for images with mixed aspect ratios.
+  - The `height` prop is the fallback until the slides are measured; slides are re-measured when their content resizes (for example when images load).
+  - Visible slides are no longer stretched to the same height; with `itemsToShow > 1` shorter slides align to the top.
+  - Partially visible slides count too: with a fractional `itemsToShow` or a centred peek layout, a taller neighbour that peeks into the viewport sets the height.
+  - Visible slides size to their content, so percentage heights inside a slide (`height: 100%`) resolve to `auto`: give the content an intrinsic or explicit height (images keep their aspect ratio).
+  - Ignored for vertical directions (`ttb`/`btt`), which need a fixed `height`.
 
 - **`gap`**: Space (in pixels) between slides.
   - Example: `:gap="20"` creates 20px spacing between slides.
@@ -225,6 +250,12 @@ These props provide additional customization for specific use cases:
 - **`enabled`**: When `false`, disables all carousel interactions.
   - Useful for conditionally disabling the carousel functionality.
 
+- **`disableWhenSlidesFit`**: When `true`, locks the carousel while every slide already fits in the viewport (never with `wrapAround`).
+  - Navigation and Pagination render nothing, and drag, wheel, keyboard, autoplay, `slideTo()`, and `modelValue` changes do nothing.
+  - Unlike `enabled: false`, the carousel keeps its layout and measurements, so it locks and unlocks by itself when a breakpoint changes `itemsToShow`, the container is resized in `'auto'` mode, or slides are added or removed.
+  - While locked, the track is pinned at the first slide and `modelValue` is set to 0; a `modelValue` change made while locked is applied once the carousel unlocks.
+  - The root element gets the `is-locked` class, and the exposed `isLocked` / `allSlidesFit` values report the state for custom addons.
+
 - **`ignoreAnimations`**: Excludes specified CSS animations from slide size calculations.
   - Useful when animations are causing layout issues.
 
@@ -233,6 +264,24 @@ These props provide additional customization for specific use cases:
 
 - **`wrapAround`**: Creates an infinite loop effect by connecting the last slide to the first.
   - Example: `:wrap-around="true"` allows continuous navigation in either direction.
+  - A `v-model` change takes the shortest path, looping through the clone slides when that is shorter than crossing the track (not with `itemsToShow: 'auto'`).
+
+## Native CSS mode
+
+`nativeCss` turns the viewport into a CSS scroll-snap container: the browser scrolls, snaps and handles touch, wheel and momentum, and no track transform is applied. `Navigation`, `Pagination`, `v-model`, slide classes and the events other than `drag`, `wheel` and `loop` keep working; `slideTo`, `next` and `prev` scroll the viewport, and the current slide follows the scroll position once scrolling settles.
+
+```vue
+<Carousel :native-css="true" :items-to-show="2.5" :gap="10" snap-align="start">
+  <!-- Slides -->
+</Carousel>
+```
+
+- Needs `scroll-snap-type` support. The server renders the native markup and the browser check runs on mount: where scroll snap is unsupported, the carousel then switches to the regular JS mode. The exposed `isNative` reports the mode in use, and the root element gets the `is-native` class.
+- Works with `itemsToShow` (number or `'auto'`), `itemsToScroll`, `gap`, `snapAlign` (`center-odd`/`center-even` snap as `center`), `dir` `ltr`/`rtl`/`ttb`, `height`, `breakpoints`, `autoplay`, `pauseAutoplayOnHover`, `clamp`, `i18n` and arrow keys.
+- Turned off in this mode: `wrapAround`, `slideEffect: 'fade'`, `edgeSpacing`, `mouseDrag`, `touchDrag`, `mouseWheel` and `preventExcessiveDragging` (the exposed `config` shows the effective values). Native scrolling replaces touch drag; trackpads and horizontal or shift+wheel scroll the carousel, but a vertical mouse wheel and mouse drag do not, so add `Navigation` or `Pagination` for mouse users. With `wrapAround` off, `autoplay` stops at the last slide.
+- `dir: 'btt'` and `marquee` are not supported natively and use the JS mode.
+- The scroll duration is the browser's; `transition` only times `isSliding` and the `slide-end` event, and `transitionEasing` has no effect.
+- Scrollbars are hidden; override `.carousel.is-native .carousel__viewport { scrollbar-width: auto }` to show them.
 
 ## Option Details
 
@@ -242,7 +291,7 @@ Both `mouseDrag` and `touchDrag` properties accept either a boolean value or a `
 
 | Property    | Type     | Default | Description                                                                                |
 |-------------|----------|---------|--------------------------------------------------------------------------------------------|
-| `threshold` | `number` | 0.3     | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
+| `threshold` | `number` | 0.08    | Controls the drag distance required to trigger a slide transition, as a fraction of slide width. Higher values require more dragging to trigger a slide change. |
 
 Example:
 
@@ -288,7 +337,7 @@ Available keys:
 
 | Key                   | Defaults                               | Description                                                                |
 | --------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `ariaGallery`         | "Gallery"                              | Used as the aria-label for the main carousel element, indicating purpose.  |
+| `ariaGallery`         | "Gallery {id}"                         | Carousel aria-label. Prefer a meaningful name; `{id}` is an instance id.   |
 | `ariaNavigateToSlide` | "Navigate to slide {slideNumber}"      | Sets title and aria-label for pagination buttons to select a slide.        |
 | `ariaNextSlide`       | "Navigate to next slide"               | Sets title and aria-label for the "Next" navigation button.                |
 | `ariaPreviousSlide`   | "Navigate to previous slide"           | Sets title and aria-label for the "Previous" navigation button.            |
@@ -297,3 +346,5 @@ Available keys:
 | `iconArrowRight`      | "Arrow pointing to the right"          | Sets title and aria-label for the right-pointing arrow SVG icon.           |
 | `iconArrowUp`         | "Arrow pointing upwards"               | Sets title and aria-label for the upward-pointing arrow SVG icon.          |
 | `itemXofY`            | "Item {currentSlide} of {slidesCount}" | Provides screen readers with the current slide's position in the sequence. |
+
+If you translate `ariaGallery`, keep `{id}` in it, or give each carousel its own label. If a page mounts several Vue apps, also set `app.config.idPrefix` per app. A meaningful label per carousel is best for screen-reader users.

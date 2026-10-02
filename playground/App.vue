@@ -27,11 +27,11 @@ const breakpoints = reactive({
 })
 
 const defaultSlides = [
-  { id: 1, title: 'Slide 1', description: 'First slide description' },
-  { id: 2, title: 'Slide 2', description: 'Second slide description' },
-  { id: 3, title: 'Slide 3', description: 'Third slide description' },
-  { id: 4, title: 'Slide 4', description: 'Fourth slide description' },
-  { id: 5, title: 'Slide 5', description: 'Fifth slide description' },
+  { id: 1, title: 'Slide 1', description: 'First slide description', height: 160 },
+  { id: 2, title: 'Slide 2', description: 'Second slide description', height: 240 },
+  { id: 3, title: 'Slide 3', description: 'Third slide description', height: 120 },
+  { id: 4, title: 'Slide 4', description: 'Fourth slide description', height: 200 },
+  { id: 5, title: 'Slide 5', description: 'Fifth slide description', height: 280 },
 ]
 const defaultConfig = {
   currentSlide: 0,
@@ -41,7 +41,9 @@ const defaultConfig = {
   itemsToShow: 2,
   autoplay: null,
   wrapAround: true,
+  nativeCss: false,
   height: '200',
+  adaptiveHeight: false,
   mouseWheel: true,
   dir: 'left-to-right',
   breakpointMode: 'carousel',
@@ -90,6 +92,11 @@ const formFields = [
         attrs: { step: '100', min: '200', max: '1000' },
       },
       {
+        type: 'checkbox',
+        label: 'Adaptive height',
+        path: 'adaptiveHeight',
+      },
+      {
         type: 'number',
         label: 'Gap',
         path: 'gap',
@@ -134,6 +141,11 @@ const formFields = [
         type: 'checkbox',
         label: 'Wrap Around',
         path: 'wrapAround',
+      },
+      {
+        type: 'checkbox',
+        label: 'Native CSS',
+        path: 'nativeCss',
       },
     ],
   },
@@ -288,7 +300,11 @@ onMounted(() => {
             <div
               class="carousel-item"
               :key="item.id"
-              :style="{ backgroundColor: `${item.color}` }"
+              :style="{
+                backgroundColor: `${item.color}`,
+                minHeight:
+                  config.adaptiveHeight && item.height ? `${item.height}px` : undefined,
+              }"
             >
               <h3>{{ item.title }}</h3>
               <p>{{ item.description }}</p>

@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, inject, PropType } from 'vue'
 
-import { injectCarousel, NormalizedDir } from '@/shared'
+import { DEFAULT_CLASS_PREFIX, injectCarousel, NormalizedDir } from '@/shared'
 
 import { Icon, IconNameValue } from '../Icon'
 
@@ -48,16 +48,22 @@ export const Navigation = defineComponent<NavigationProps>({
 
     return () => {
       if (props.carousel) {
-        carousel = props.carousel;
+        carousel = props.carousel
       }
       if (!carousel) {
-        console.warn('[vue3-carousel]: A carousel component must be provided for the navigation component to display')
-        return '';
+        console.warn(
+          '[vue3-carousel]: A carousel component must be provided for the navigation component to display'
+        )
+        return ''
+      }
+      if (carousel.isLocked) {
+        return ''
       }
       if (carousel.isMarquee) {
         return ''
       }
       const { i18n } = carousel.config
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
       const prevButton = h(
         'button',
         {
@@ -65,15 +71,15 @@ export const Navigation = defineComponent<NavigationProps>({
           disabled: prevDisabled.value,
           'aria-label': i18n['ariaPreviousSlide'],
           title: i18n['ariaPreviousSlide'],
-          onClick: carousel.nav.prev,
+          onClick: () => carousel.nav.prev(),
           ...attrs,
           class: [
-            'carousel__prev',
-            { 'carousel__prev--disabled': prevDisabled.value },
+            `${prefix}__prev`,
+            { [`${prefix}__prev--disabled`]: prevDisabled.value },
             attrs.class,
           ],
         },
-        slotPrev?.() || h(Icon, { name: getPrevIcon() })
+        slotPrev?.() || h(Icon, { name: getPrevIcon(), carousel })
       )
       const nextButton = h(
         'button',
@@ -82,15 +88,15 @@ export const Navigation = defineComponent<NavigationProps>({
           disabled: nextDisabled.value,
           'aria-label': i18n['ariaNextSlide'],
           title: i18n['ariaNextSlide'],
-          onClick: carousel.nav.next,
+          onClick: () => carousel.nav.next(),
           ...attrs,
           class: [
-            'carousel__next',
-            { 'carousel__next--disabled': nextDisabled.value },
+            `${prefix}__next`,
+            { [`${prefix}__next--disabled`]: nextDisabled.value },
             attrs.class,
           ],
         },
-        slotNext?.() || h(Icon, { name: getNextIcon() })
+        slotNext?.() || h(Icon, { name: getNextIcon(), carousel })
       )
 
       return [prevButton, nextButton]

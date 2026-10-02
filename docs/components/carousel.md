@@ -76,6 +76,19 @@ The Carousel component provides several CSS classes that you can use for styling
 | `.carousel`          | Main carousel container           |
 | `.carousel__viewport`| Carousel viewport/wrapper element |
 | `.carousel__track`   | Container for slides              |
+| `.is-native`         | Set on `.carousel` in native CSS mode |
+
+### Class prefix <Badge text="0.19.0"/>
+
+Every class above (and the ones from Slide, Navigation and Pagination) starts with `carousel`. If that name collides with another stylesheet or script on your page, set `classPrefix` and every class is renamed, e.g. `classPrefix="vc"` renders `vc`, `vc__track`, `vc__slide--active`. The `is-*` state classes are unchanged.
+
+The bundled `carousel.css` targets the default prefix, so with a custom prefix the carousel is unstyled until you load a copy with `.carousel` replaced by `.<prefix>` (the `is-*` and `--vc-*` names are unaffected), or write your own styles for the prefixed classes. For example, for `classPrefix="vc"`: `sed 's/\.carousel/.vc/g' node_modules/vue3-carousel/dist/carousel.css > src/vc-carousel.css`, then import that file instead of `vue3-carousel/carousel.css`.
+
+```vue
+<Carousel class-prefix="vc">
+  <Slide v-for="slide in 10" :key="slide">{{ slide }}</Slide>
+</Carousel>
+```
 
 ## Layout
 

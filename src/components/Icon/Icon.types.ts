@@ -1,3 +1,5 @@
+import type { InjectedCarousel } from '@/components/Carousel'
+
 export enum IconName {
   arrowDown = 'arrowDown',
   arrowLeft = 'arrowLeft',
@@ -10,4 +12,5 @@ export type IconNameValue = `${IconName}`
 export type IconProps = {
   name: IconNameValue
   title?: string
+  carousel?: InjectedCarousel
 }

@@ -16,15 +16,13 @@ import MarqueeExampleRaw from './ExampleMarquee.vue?raw'
 // @ts-ignore
 import MouseWheelExampleRaw from './ExampleMouseWheel.vue?raw'
 // @ts-ignore
+import NativeCssExampleRaw from './ExampleNativeCss.vue?raw'
+// @ts-ignore
 import VerticalExampleRaw from './ExampleVertical.vue?raw'
 // @ts-ignore
 import WrapAroundExampleRaw from './ExampleWrapAround.vue?raw'
 
-function formatExample(exampleRaw: string) {
-  return exampleRaw
-    .replace('../../dist/carousel.css', 'vue3-carousel/carousel.css')
-    .replace('../../dist/carousel.mjs', 'vue3-carousel')
-}
+import { formatExample } from './format'
 
 export const BasicExample = formatExample(BasicExampleRaw)
 export const WrapAroundExample = formatExample(WrapAroundExampleRaw)
@@ -36,3 +34,4 @@ export const CustomNavigationExample = formatExample(CustomNavigationExampleRaw)
 export const GalleryExample = formatExample(GalleryExampleRaw)
 export const MouseWheelExample = formatExample(MouseWheelExampleRaw)
 export const MarqueeExample = formatExample(MarqueeExampleRaw)
+export const NativeCssExample = formatExample(NativeCssExampleRaw)

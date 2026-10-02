@@ -27,6 +27,7 @@ if (myCarousel.currentSlide === 10) {
 | `activeSlide`  | current slide index even while dragging                                                           |
 | `isSliding`    | if the slider is dragging                                                                         |
 | `isVertical`   | if the slider is vertical                                                                         |
+| `isNative`     | if the carousel runs in native CSS mode (`nativeCss` and browser support)                         |
 | `nav`          | An object of navigation methods                                                                   |
 | `config`       | the current carousel configuration                                                                |
 | `maxSlide`     | maximum slide index                                                                               |
@@ -36,3 +37,5 @@ if (myCarousel.currentSlide === 10) {
 | `slides`       | an array of Slides component                                                                      |
 | `viewport`     | the viewport element                                                                              |
 | `visibleRange` | an object with {min, max} properties min being the lowest visible slide index and max the highest |
+| `allSlidesFit` | `true` when every slide (plus the leading `edgeSpacing`) fits in the viewport without `wrapAround`; always `false` with `wrapAround`, with no slides, with `slideEffect: 'fade'` and more than one slide, and in `'auto'` mode before the viewport is measured |
+| `isLocked`     | `true` while `disableWhenSlidesFit` is on and `allSlidesFit` holds; Navigation and Pagination render nothing |

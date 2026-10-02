@@ -42,15 +42,18 @@ export type CarouselMethods = CarouselNav & {
 export type CarouselNav = {
   next: (skipTransition?: boolean) => void
   prev: (skipTransition?: boolean) => void
-  slideTo: (index: number) => void
+  slideTo: (index: number, skipTransition?: boolean) => void
 }
 
 export type InjectedCarousel = Reactive<{
   activeSlide: Ref<number>
+  allSlidesFit: ComputedRef<boolean>
   config: CarouselConfig
   currentSlide: Ref<number>
   isMarquee: ComputedRef<boolean>
   isSliding: Ref<boolean>
+  isLocked: ComputedRef<boolean>
+  isNative: ComputedRef<boolean>
   isVertical: ComputedRef<boolean>
   maxSlide: ComputedRef<number>
   minSlide: ComputedRef<number>
