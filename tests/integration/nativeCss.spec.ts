@@ -488,11 +488,11 @@ describe('nativeCss', () => {
     it('does not re-scroll on resize while a user scroll is unsettled', async () => {
       // rAF stays real: the resize handler is throttled to one frame
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
-      let resize: () => void = () => {}
+      let resize: (entries: ResizeObserverEntry[]) => void = () => {}
       vi.stubGlobal(
         'ResizeObserver',
         class {
-          constructor(callback: () => void) {
+          constructor(callback: (entries: ResizeObserverEntry[]) => void) {
             resize = callback
           }
           observe() {}
@@ -509,7 +509,7 @@ describe('nativeCss', () => {
       const viewport = wrapper.find('.carousel__viewport')
       let scrollBy = vi.spyOn(viewport.element, 'scrollBy')
       await viewport.trigger('scroll')
-      resize()
+      resize([])
       await nextFrame()
       await nextTick()
       expect(scrollBy).not.toHaveBeenCalled()
@@ -521,7 +521,7 @@ describe('nativeCss', () => {
       vi.restoreAllMocks()
       mockLayout({ scrolled: 0 })
       scrollBy = vi.spyOn(viewport.element, 'scrollBy')
-      resize()
+      resize([])
       await nextFrame()
       await nextTick()
       expect(scrollBy).toHaveBeenCalledTimes(1)

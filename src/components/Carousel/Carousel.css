@@ -88,6 +88,24 @@
   pointer-events: auto;
 }
 
+.carousel.is-adaptive-height {
+  transition: height var(--vc-transition-easing);
+  transition-duration: var(--vc-transition-duration);
+}
+
+.carousel.is-adaptive-height .carousel__track {
+  align-items: flex-start;
+}
+
+.carousel.is-adaptive-height.is-effect-fade .carousel__track {
+  align-items: start;
+  grid-template-rows: auto;
+}
+
+.carousel.is-adaptive-height.is-effect-fade .carousel__slide {
+  height: auto;
+}
+
 .carousel.is-native .carousel__viewport {
   overflow: auto hidden;
   overscroll-behavior-x: contain;
