@@ -42,7 +42,7 @@ export type CarouselMethods = CarouselNav & {
 export type CarouselNav = {
   next: (skipTransition?: boolean) => void
   prev: (skipTransition?: boolean) => void
-  slideTo: (index: number) => void
+  slideTo: (index: number, skipTransition?: boolean) => void
 }
 
 export type InjectedCarousel = Reactive<{

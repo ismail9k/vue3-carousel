@@ -2,12 +2,13 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { h } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { h, nextTick } from 'vue'
 
 import { Slide } from '@/components/Slide'
 
 import { Carousel } from './Carousel'
+import { CarouselExposed } from './Carousel.types'
 
 // A carousel left mounted keeps its transition timer, which can fire after the
 // test environment is torn down and fail the run with an unhandled error.
@@ -25,6 +26,10 @@ describe('Carousel.ts', () => {
         ],
       },
     })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('It renders correctly', () => {
@@ -147,6 +152,30 @@ describe('Carousel.ts', () => {
       expect(wheelWrapper.emitted('wheel')?.[0]).toEqual([{ deltaX: 0, deltaY: 100 }])
       expect(wheelWrapper.emitted('update:modelValue')?.[0]).toEqual([1])
     })
+  })
+
+  it('ignores a non-boolean skipTransition argument while sliding', async () => {
+    vi.useFakeTimers()
+    const eventWrapper = mount(Carousel, {
+      props: { wrapAround: true },
+      slots: {
+        default: () => [0, 1, 2].map((i) => h(Slide, { key: i }, () => `slide ${i}`)),
+      },
+    })
+    await nextTick()
+
+    // A template-bound handler such as `@click="carousel.next"` passes the event
+    const event = new MouseEvent('click') as unknown as boolean
+    const carousel = eventWrapper.vm as unknown as CarouselExposed
+    carousel.next(event)
+    carousel.next(event)
+    expect(eventWrapper.emitted('slide-start')).toHaveLength(1)
+
+    vi.runAllTimers()
+    await nextTick()
+    expect(eventWrapper.emitted('slide-end')).toHaveLength(1)
+    expect(eventWrapper.emitted('update:modelValue')).toEqual([[1]])
+    eventWrapper.unmount()
   })
 })
 
