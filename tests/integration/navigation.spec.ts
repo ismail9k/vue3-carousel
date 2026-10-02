@@ -90,6 +90,18 @@ describe('Navigation.ts', () => {
     expect(wrapper.html()).toBe('')
   })
 
+  it('renders nothing while the carousel is locked', async () => {
+    const inject = makeCarouselInject()
+    inject.isLocked = true
+    const wrapper = await mount(Navigation, {
+      global: { provide: { [injectCarousel]: inject } },
+    })
+    expect(wrapper.html()).toBe('')
+    inject.isLocked = false
+    await nextTick()
+    expect(wrapper.find('.carousel__next').exists()).toBe(true)
+  })
+
   it('inherits attrs on buttons', async () => {
     const inject = makeCarouselInject()
     const wrapper = await mount(Navigation, {

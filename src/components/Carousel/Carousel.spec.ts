@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
 
@@ -9,6 +9,10 @@ import { Slide } from '@/components/Slide'
 
 import { Carousel } from './Carousel'
 import { CarouselExposed } from './Carousel.types'
+
+// A carousel left mounted keeps its transition timer, which can fire after the
+// test environment is torn down and fail the run with an unhandled error.
+enableAutoUnmount(afterEach)
 
 describe('Carousel.ts', () => {
   let wrapper: ReturnType<typeof mount<typeof Carousel>>
@@ -44,6 +48,43 @@ describe('Carousel.ts', () => {
     const carousel = wrapper.find('.carousel')
     const style = carousel.attributes('style')
     expect(style).toContain('ease-in-out')
+  })
+
+  describe('aria-label', () => {
+    // A carousel without slides renders the disabled section, which has no aria-label
+    const slots = { default: () => h(Slide) }
+
+    it('gives each carousel a unique region label by default (#523)', () => {
+      // Both carousels live in one app, as on a real page; separate mount() calls
+      // create separate apps whose useId() counters each start at zero
+      const page = mount({
+        render: () => [h(Carousel, null, slots), h(Carousel, null, slots)],
+      })
+      const [first, second] = page
+        .findAll('.carousel')
+        .map((carousel) => carousel.attributes('aria-label'))
+      expect(first).toMatch(/^Gallery \S+$/)
+      expect(second).toMatch(/^Gallery \S+$/)
+      expect(first).not.toBe(second)
+    })
+
+    it('renders a custom ariaGallery label verbatim', () => {
+      const wrapper = mount(Carousel, {
+        props: { i18n: { ariaGallery: 'Products' } },
+        slots,
+      })
+      expect(wrapper.find('.carousel').attributes('aria-label')).toBe('Products')
+    })
+
+    it('replaces {id} in a custom ariaGallery label', () => {
+      const wrapper = mount(Carousel, {
+        props: { i18n: { ariaGallery: 'Photos {id}' } },
+        slots,
+      })
+      const label = wrapper.find('.carousel').attributes('aria-label')
+      expect(label).toMatch(/^Photos \S+$/)
+      expect(label).not.toContain('{id}')
+    })
   })
 
   describe('mouseWheel.ignoreCrossAxis', () => {
@@ -146,5 +187,32 @@ describe('Carousel.css', () => {
   it('declares min-width: 0 on .carousel so it can shrink as a flex or grid item (#540)', () => {
     expect(carouselRule, 'expected a top-level `.carousel { ... }` rule').not.toBe('')
     expect(carouselRule).toMatch(/min-width:\s*0;/)
+  })
+
+  it('transitions the height and stops stretching slides in adaptive height mode (#382)', () => {
+    const adaptiveRule =
+      css.match(/^\.carousel\.is-adaptive-height \{([^}]*)\}/m)?.[1] ?? ''
+    expect(adaptiveRule).toMatch(/transition:\s*height var\(--vc-transition-easing\);/)
+    expect(adaptiveRule).toMatch(
+      /transition-duration:\s*var\(--vc-transition-duration\);/
+    )
+    const trackRule =
+      css.match(/^\.carousel\.is-adaptive-height \.carousel__track \{([^}]*)\}/m)?.[1] ??
+      ''
+    expect(trackRule).toMatch(/align-items:\s*flex-start;/)
+  })
+
+  it('lets fade slides keep their content height in adaptive height mode (#382)', () => {
+    const fadeTrackRule =
+      css.match(
+        /^\.carousel\.is-adaptive-height\.is-effect-fade \.carousel__track \{([^}]*)\}/m
+      )?.[1] ?? ''
+    expect(fadeTrackRule).toMatch(/grid-template-rows:\s*auto;/)
+    expect(fadeTrackRule).toMatch(/align-items:\s*start;/)
+    const fadeSlideRule =
+      css.match(
+        /^\.carousel\.is-adaptive-height\.is-effect-fade \.carousel__slide \{([^}]*)\}/m
+      )?.[1] ?? ''
+    expect(fadeSlideRule).toMatch(/height:\s*auto;/)
   })
 })

@@ -56,6 +56,9 @@ export const Navigation = defineComponent<NavigationProps>({
         )
         return ''
       }
+      if (carousel.isLocked) {
+        return ''
+      }
       const { i18n } = carousel.config
       const prevButton = h(
         'button',
