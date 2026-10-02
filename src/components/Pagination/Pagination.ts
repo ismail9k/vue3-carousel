@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, inject, PropType, VNode } from 'vue'
 
-import { injectCarousel } from '@/shared'
+import { DEFAULT_CLASS_PREFIX, injectCarousel } from '@/shared'
 import {
   getNumberInRange,
   getSnapAlignOffset,
@@ -83,6 +83,7 @@ export const Pagination = defineComponent<PaginationProps>({
       if (carousel.isLocked) {
         return ''
       }
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
       const children: Array<VNode> = []
 
       for (
@@ -102,8 +103,8 @@ export const Pagination = defineComponent<PaginationProps>({
         const button = h('button', {
           type: 'button',
           class: {
-            'carousel__pagination-button': true,
-            'carousel__pagination-button--active': active,
+            [`${prefix}__pagination-button`]: true,
+            [`${prefix}__pagination-button--active`]: active,
           },
           'aria-label': buttonLabel,
           'aria-pressed': active,
@@ -112,11 +113,11 @@ export const Pagination = defineComponent<PaginationProps>({
           disabled: props.disableOnClick,
           onClick: () => carousel.nav.slideTo(getPageTarget(slide)),
         })
-        const item = h('li', { class: 'carousel__pagination-item', key: slide }, button)
+        const item = h('li', { class: `${prefix}__pagination-item`, key: slide }, button)
         children.push(item)
       }
 
-      return h('ol', { class: 'carousel__pagination' }, children)
+      return h('ol', { class: `${prefix}__pagination` }, children)
     }
   },
 })

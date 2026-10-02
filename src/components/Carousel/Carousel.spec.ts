@@ -154,6 +154,65 @@ describe('Carousel.ts', () => {
     })
   })
 
+  describe('classPrefix', () => {
+    const mountWithPrefix = (props: Record<string, unknown> = {}) =>
+      mount(Carousel, {
+        props: { classPrefix: 'vc', ...props },
+        slots: {
+          default: [
+            mount(Slide, { props: { index: 0 } }).html(),
+            mount(Slide, { props: { index: 1 } }).html(),
+          ],
+        },
+      })
+
+    it('renders the root, viewport and track with a custom prefix', () => {
+      const prefixed = mountWithPrefix()
+      const root = prefixed.find('section')
+      expect(root.classes()).toContain('vc')
+      expect(root.classes()).not.toContain('carousel')
+      expect(prefixed.find('.vc__viewport').exists()).toBe(true)
+      expect(prefixed.find('.vc__track').exists()).toBe(true)
+      expect(prefixed.find('.carousel__track').exists()).toBe(false)
+    })
+
+    it('keeps the is-* state classes unprefixed', () => {
+      const root = mountWithPrefix().find('section')
+      expect(root.classes()).toContain('is-ltr')
+      expect(root.classes()).toContain('is-effect-slide')
+    })
+
+    it('applies the prefix to a disabled carousel', () => {
+      const root = mountWithPrefix({ enabled: false }).find('section')
+      expect(root.classes()).toEqual(['vc', 'is-disabled'])
+    })
+
+    it('ignores a classPrefix override in breakpoints', async () => {
+      const prefixed = mountWithPrefix({ breakpoints: { 0: { classPrefix: 'bp' } } })
+      await prefixed.vm.$nextTick()
+      const root = prefixed.find('section')
+      expect(root.classes()).toContain('vc')
+      expect(root.classes()).not.toContain('bp')
+      expect(prefixed.find('.vc__track').exists()).toBe(true)
+    })
+
+    it.each(['', '  ', 'vc x'])(
+      'warns and falls back to the default for the invalid prefix %j',
+      (classPrefix) => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+        try {
+          const prefixed = mountWithPrefix({ classPrefix })
+          const root = prefixed.find('section')
+          expect(warn).toHaveBeenCalledWith(expect.stringContaining('classPrefix'))
+          expect(root.classes()).toEqual(['carousel', 'is-ltr', 'is-effect-slide'])
+          expect(prefixed.find('.carousel__track').exists()).toBe(true)
+        } finally {
+          warn.mockRestore()
+        }
+      }
+    )
+  })
+
   it('ignores a non-boolean skipTransition argument while sliding', async () => {
     vi.useFakeTimers()
     const eventWrapper = mount(Carousel, {

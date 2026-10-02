@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, inject, PropType } from 'vue'
 
-import { injectCarousel, NormalizedDir } from '@/shared'
+import { DEFAULT_CLASS_PREFIX, injectCarousel, NormalizedDir } from '@/shared'
 
 import { Icon, IconNameValue } from '../Icon'
 
@@ -60,6 +60,7 @@ export const Navigation = defineComponent<NavigationProps>({
         return ''
       }
       const { i18n } = carousel.config
+      const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
       const prevButton = h(
         'button',
         {
@@ -70,12 +71,12 @@ export const Navigation = defineComponent<NavigationProps>({
           onClick: () => carousel.nav.prev(),
           ...attrs,
           class: [
-            'carousel__prev',
-            { 'carousel__prev--disabled': prevDisabled.value },
+            `${prefix}__prev`,
+            { [`${prefix}__prev--disabled`]: prevDisabled.value },
             attrs.class,
           ],
         },
-        slotPrev?.() || h(Icon, { name: getPrevIcon() })
+        slotPrev?.() || h(Icon, { name: getPrevIcon(), carousel })
       )
       const nextButton = h(
         'button',
@@ -87,12 +88,12 @@ export const Navigation = defineComponent<NavigationProps>({
           onClick: () => carousel.nav.next(),
           ...attrs,
           class: [
-            'carousel__next',
-            { 'carousel__next--disabled': nextDisabled.value },
+            `${prefix}__next`,
+            { [`${prefix}__next--disabled`]: nextDisabled.value },
             attrs.class,
           ],
         },
-        slotNext?.() || h(Icon, { name: getNextIcon() })
+        slotNext?.() || h(Icon, { name: getNextIcon(), carousel })
       )
 
       return [prevButton, nextButton]
