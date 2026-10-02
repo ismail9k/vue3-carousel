@@ -58,6 +58,8 @@ You can customize the navigation buttons using slots:
 
 ## Styling
 
+With a custom [`classPrefix`](https://vue3-carousel.ismail9k.com/components/carousel.md#class-prefix), `carousel` in the class names used below (for example `.carousel__prev` and `.carousel__next`) is replaced by the prefix.
+
 ### CSS Custom Properties
 
 | Variable                 | Default Value             | Description                     |

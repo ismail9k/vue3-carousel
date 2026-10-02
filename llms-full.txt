@@ -49,6 +49,10 @@ const carouselConfig = {
 </template>
 ```
 
+::: warning
+`vue3-carousel/carousel.css` styles the default `carousel` classes. If you set a custom [`classPrefix`](https://vue3-carousel.ismail9k.com/components/carousel.md#class-prefix), load a copy of the stylesheet with `.carousel` replaced by your prefix instead.
+:::
+
 ---
 
 # Configuration
@@ -67,6 +71,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `breakpointMode`           | 'viewport', 'carousel'                      | 'viewport'                       | Defines whether breakpoints are calculated based on viewport width or carousel container width.        |
 | `breakpoints`              | `object`                                    | null                             | Responsive breakpoint configurations. Each breakpoint can override any carousel prop.                  |
 | `clamp`                    | `boolean`                                   | false                            | If true will clamp itemsToShow to the number of available slides                                       |
+| `classPrefix`              | `string`                                    | 'carousel'                       | Prefix for every CSS class the carousel renders (`carousel`, `carousel__slide`, ...). Change it when the default collides with other CSS or scripts. The bundled stylesheet targets the default prefix; see [Class prefix](https://vue3-carousel.ismail9k.com/components/carousel.md#class-prefix). (added in 0.19.0) |
 | `dir`                      | 'ltr', 'rtl', 'ttb', 'btt'                  | 'ltr'                            | Carousel sliding direction. Supports horizontal (ltr/rtl) and vertical (ttb/btt) orientations.         |
 | `disableWhenSlidesFit`     | `boolean`                                   | false                            | When every slide fits in the viewport and `wrapAround` is off, hides Navigation and Pagination and stops sliding (drag, wheel, keyboard, autoplay, `slideTo`, `modelValue`). The carousel stays laid out and measured. (added in 0.19.0) |
 | `edgeSpacing`              | `number`                                    | 0                                | Space (in pixels) before the first slide and after the last one. Ignored when `wrapAround` is enabled or `slideEffect` is `'fade'`. (added in 0.18.0) |
@@ -1101,6 +1106,18 @@ The Carousel component provides several CSS classes that you can use for styling
 | `.carousel__viewport`| Carousel viewport/wrapper element |
 | `.carousel__track`   | Container for slides              |
 
+### Class prefix (added in 0.19.0)
+
+Every class above (and the ones from Slide, Navigation and Pagination) starts with `carousel`. If that name collides with another stylesheet or script on your page, set `classPrefix` and every class is renamed, e.g. `classPrefix="vc"` renders `vc`, `vc__track`, `vc__slide--active`. The `is-*` state classes are unchanged.
+
+The bundled `carousel.css` targets the default prefix, so with a custom prefix the carousel is unstyled until you load a copy with `.carousel` replaced by `.<prefix>` (the `is-*` and `--vc-*` names are unaffected), or write your own styles for the prefixed classes. For example, for `classPrefix="vc"`: `sed 's/\.carousel/.vc/g' node_modules/vue3-carousel/dist/carousel.css > src/vc-carousel.css`, then import that file instead of `vue3-carousel/carousel.css`.
+
+```vue
+<Carousel class-prefix="vc">
+  <Slide v-for="slide in 10" :key="slide">{{ slide }}</Slide>
+</Carousel>
+```
+
 ## Layout
 
 The carousel is sized by its container, so make sure the container can shrink. `.carousel` already sets `min-width: 0`, which lets it shrink when it is a flex or grid item. In a grid column that is all it needs. In a flex row its flex basis is still the width of all its slides, so also give it `flex: 1`; otherwise it claims most of the row and squeezes its siblings. If you wrap it in your own element that is the flex or grid item, give that wrapper `min-width: 0` (flex and grid items default to `min-width: auto`, which prevents shrinking below the slides' content):
@@ -1219,6 +1236,8 @@ The component provides these CSS classes for styling:
 | `.carousel__slide--sliding` | Styles during transitions |
 | `.carousel__slide--visible` | Visible slide styles      |
 
+With a custom [`classPrefix`](https://vue3-carousel.ismail9k.com/components/carousel.md#class-prefix), `carousel` in these names is replaced by the prefix.
+
 ## Best Practices
 
 1. Always provide a unique `:key` when using v-for with Slides
@@ -1287,6 +1306,8 @@ You can customize the navigation buttons using slots:
 ```
 
 ## Styling
+
+With a custom [`classPrefix`](https://vue3-carousel.ismail9k.com/components/carousel.md#class-prefix), `carousel` in the class names used below (for example `.carousel__prev` and `.carousel__next`) is replaced by the prefix.
 
 ### CSS Custom Properties
 
@@ -1384,6 +1405,8 @@ import { Pagination as CarouselPagination } from 'vue3-carousel'
 The component renders nothing while the carousel is locked by the [`disableWhenSlidesFit`](https://vue3-carousel.ismail9k.com/config.md#advanced-options) prop.
 
 ## Styling
+
+With a custom [`classPrefix`](https://vue3-carousel.ismail9k.com/components/carousel.md#class-prefix), `carousel` in the class names used below (for example `.carousel__pagination-button`) is replaced by the prefix.
 
 ### CSS Custom Properties
 
