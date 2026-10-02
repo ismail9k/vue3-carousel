@@ -50,6 +50,7 @@ export type InjectedCarousel = Reactive<{
   allSlidesFit: ComputedRef<boolean>
   config: CarouselConfig
   currentSlide: Ref<number>
+  isMarquee: ComputedRef<boolean>
   isSliding: Ref<boolean>
   isLocked: ComputedRef<boolean>
   isNative: ComputedRef<boolean>

@@ -28,11 +28,13 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `itemsToScroll`            | `number`                                    | 1                                | Number of slides to move when navigating. Useful for creating slide groups.                            |
 | `itemsToShow`              | `number`  \| 'auto'                         | 1                                | Number of slides visible simultaneously. Use 'auto' for variable width slides.                         |
 | `keyboardNavigation`       | `boolean`                                   | true                             | Enables/disables arrow-key navigation while the carousel is focused. <Badge text="0.19.0"/>            |
+| `marquee`                  | `boolean`                                   | false                            | Scrolls the slides continuously at a constant speed in a seamless loop. Navigation, drag, wheel and autoplay are disabled in this mode. <Badge text="0.19.0"/> |
+| `marqueeSpeed`             | `number`                                    | 60                               | Marquee speed in pixels per second. <Badge text="0.19.0"/>                                             |
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
-| `nativeCss`                | `boolean`                                   | false                            | Renders a CSS scroll-snap carousel instead of a transformed track; falls back to the JS mode where unsupported. See [Native CSS mode](#native-css-mode). <Badge text="0.19.0"/> |
-| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay pauses while the mouse cursor is over the carousel.                                |
+| `nativeCss`                | `boolean`                                   | false                            | Renders a CSS scroll-snap carousel instead of a transformed track; falls back to the JS mode where unsupported or while `marquee` is on. See [Native CSS mode](#native-css-mode). <Badge text="0.19.0"/> |
+| `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay (and the marquee) pauses while the mouse cursor is over the carousel.              |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
 | `snapAlign`                | 'start', 'end', 'center-odd', 'center-even' | 'center'                         | Determines how slides are aligned within the viewport.                                                 |
@@ -102,6 +104,16 @@ These props control how users can interact with the carousel:
   - Set to 0 to disable autoplay: `:autoplay="0"`
   
 - **`pauseAutoplayOnHover`**: When `true`, pauses autoplay while mouse is over the carousel.
+
+- **`marquee`**: Scrolls the slides continuously, like a ticker, instead of stepping between them.
+  - Example: `marquee :marquee-speed="80"` moves the track 80px per second.
+  - The loop is seamless; `wrapAround` is not needed. `snapAlign` and `edgeSpacing` do not apply.
+  - Ignored when `slideEffect` is `'fade'`.
+  - Navigation, pagination, drag, mouse wheel, keyboard and `v-model` are inactive while `marquee` is on.
+  - The `Navigation` and `Pagination` addons render nothing while `marquee` is on, so they can stay in the template when `marquee` is set per breakpoint.
+  - All slides count as visible: the `--active`, `--prev` and `--next` slide classes and slot props are off, and the `itemXofY` announcement is empty.
+  - Pair with `pauseAutoplayOnHover` to pause while the cursor is over the carousel.
+  - Pauses while keyboard focus is on or inside the carousel; a mouse click does not pause it. Use `pauseAutoplayOnHover` for pointer users.
 
 - **`mouseDrag`** and **`touchDrag`**: Enable/disable drag navigation.
   - Basic usage: `:mouse-drag="true"` or `:touch-drag="false"`
@@ -267,7 +279,7 @@ These props provide additional customization for specific use cases:
 - Needs `scroll-snap-type` support. The server renders the native markup and the browser check runs on mount: where scroll snap is unsupported, the carousel then switches to the regular JS mode. The exposed `isNative` reports the mode in use, and the root element gets the `is-native` class.
 - Works with `itemsToShow` (number or `'auto'`), `itemsToScroll`, `gap`, `snapAlign` (`center-odd`/`center-even` snap as `center`), `dir` `ltr`/`rtl`/`ttb`, `height`, `breakpoints`, `autoplay`, `pauseAutoplayOnHover`, `clamp`, `i18n` and arrow keys.
 - Turned off in this mode: `wrapAround`, `slideEffect: 'fade'`, `edgeSpacing`, `mouseDrag`, `touchDrag`, `mouseWheel` and `preventExcessiveDragging` (the exposed `config` shows the effective values). Native scrolling replaces touch drag; trackpads and horizontal or shift+wheel scroll the carousel, but a vertical mouse wheel and mouse drag do not, so add `Navigation` or `Pagination` for mouse users. With `wrapAround` off, `autoplay` stops at the last slide.
-- `dir: 'btt'` is not supported natively and uses the JS mode.
+- `dir: 'btt'` and `marquee` are not supported natively and use the JS mode.
 - The scroll duration is the browser's; `transition` only times `isSliding` and the `slide-end` event, and `transitionEasing` has no effect.
 - Scrollbars are hidden; override `.carousel.is-native .carousel__viewport { scrollbar-width: auto }` to show them.
 

@@ -100,6 +100,16 @@ describe('nativeCss', () => {
       expect(wrapper.vm.isNative).toBe(false)
     })
 
+    it('falls back to JS mode while marquee is on', async () => {
+      const wrapper = mountCarousel({ marquee: true })
+      await nextTick()
+      const root = wrapper.find('.carousel')
+      expect(root.classes()).not.toContain('is-native')
+      expect(root.classes()).toContain('is-marquee')
+      expect(root.attributes('style')).toContain('--vc-marquee-duration')
+      expect(wrapper.vm.isNative).toBe(false)
+    })
+
     it('falls back to JS mode for the btt direction', async () => {
       const wrapper = mountCarousel({ dir: 'btt', height: 200 })
       await nextTick()

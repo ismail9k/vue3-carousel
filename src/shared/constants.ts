@@ -77,6 +77,8 @@ export const DEFAULT_CONFIG: CarouselConfig = {
   itemsToScroll: 1,
   itemsToShow: 1,
   keyboardNavigation: true,
+  marquee: false,
+  marqueeSpeed: 60,
   modelValue: 0,
   mouseDrag: true,
   mouseWheel: false,

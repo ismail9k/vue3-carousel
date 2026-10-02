@@ -90,6 +90,20 @@ describe('Navigation.ts', () => {
     expect(wrapper.html()).toBe('')
   })
 
+  it('renders nothing while marquee is on', async () => {
+    const inject = makeCarouselInject()
+    inject.isMarquee = true
+    const wrapper = await mount(Navigation, { global: { provide: { [injectCarousel]: inject }} })
+    expect(consoleMock).not.toHaveBeenCalled()
+    expect(wrapper.find('.carousel__prev').exists()).toBe(false)
+    expect(wrapper.find('.carousel__next').exists()).toBe(false)
+
+    inject.isMarquee = false
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.carousel__prev').exists()).toBe(true)
+    expect(wrapper.find('.carousel__next').exists()).toBe(true)
+  })
+
   it('renders nothing while the carousel is locked', async () => {
     const inject = makeCarouselInject()
     inject.isLocked = true

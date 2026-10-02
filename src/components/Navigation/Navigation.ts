@@ -59,6 +59,9 @@ export const Navigation = defineComponent<NavigationProps>({
       if (carousel.isLocked) {
         return ''
       }
+      if (carousel.isMarquee) {
+        return ''
+      }
       const { i18n } = carousel.config
       const prefix = carousel.config.classPrefix || DEFAULT_CLASS_PREFIX
       const prevButton = h(

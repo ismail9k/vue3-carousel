@@ -61,6 +61,8 @@ export type CarouselConfig = {
   itemsToScroll: number
   itemsToShow: number | 'auto'
   keyboardNavigation?: boolean
+  marquee?: boolean
+  marqueeSpeed?: number
   modelValue?: number
   mouseDrag?: boolean | DragConfig
   mouseWheel?: boolean | WheelConfig

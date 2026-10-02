@@ -63,19 +63,21 @@ export const Slide = defineComponent({
       getBoundingRect,
     })
 
+    // A marquee has no current slide, and every slide passes through the viewport
     const isActive: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.activeSlide
+      () => !carousel.isMarquee && currentIndex.value === carousel.activeSlide
     )
     const isPrev: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.activeSlide - 1
+      () => !carousel.isMarquee && currentIndex.value === carousel.activeSlide - 1
     )
     const isNext: ComputedRef<boolean> = computed(
-      () => currentIndex.value === carousel.activeSlide + 1
+      () => !carousel.isMarquee && currentIndex.value === carousel.activeSlide + 1
     )
     const isVisible: ComputedRef<boolean> = computed(
       () =>
-        currentIndex.value >= carousel.visibleRange.min &&
-        currentIndex.value <= carousel.visibleRange.max
+        carousel.isMarquee ||
+        (currentIndex.value >= carousel.visibleRange.min &&
+          currentIndex.value <= carousel.visibleRange.max)
     )
 
     const slideStyle = computed(() => {
