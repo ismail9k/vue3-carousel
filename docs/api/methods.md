@@ -36,7 +36,7 @@ Restart the carousel settings and data, internally it calls:
 
 ## slideTo(index: number, skipTransition = false)
 
-Slide to specific slide index
+Slide to specific slide index. While a slide is in progress the call is ignored unless `skipTransition` is `true`, which starts the new slide anyway; the flag does not disable the CSS transition.
 
 ## updateBreakpointsConfig()
 
