@@ -13,6 +13,9 @@ export const Navigation = defineComponent<NavigationProps>({
     carousel: {
       type: Object as PropType<NavigationProps['carousel']>,
     },
+    complyWithItemsToScroll: {
+        type: Boolean
+    }
   },
   setup(props, { slots, attrs }) {
     let carousel = inject(injectCarousel, null)!
@@ -43,7 +46,7 @@ export const Navigation = defineComponent<NavigationProps>({
       () => !carousel.config.wrapAround && carousel.currentSlide <= carousel.minSlide
     )
     const nextDisabled = computed(
-      () => !carousel.config.wrapAround && carousel.currentSlide >= carousel.maxSlide
+      () => !carousel.config.wrapAround && carousel.currentSlide >= (carousel.maxSlide + (1 - (props.complyWithItemsToScroll ? carousel.config.itemsToScroll : 1 )))
     )
 
     return () => {
