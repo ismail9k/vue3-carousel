@@ -30,11 +30,41 @@ jobs:
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 60 # the change, then a video of the pull request
+    outputs:
+      explainer: ${{ steps.explainer.outputs.ready }}
+      pull-request: ${{ steps.explainer.outputs.number }}
 
     steps:
       - uses: actions/checkout@v7
         with:
           ref: master
+
+      # The presenter plugin, at the commit of the action that publishes in
+      # the next job. Outside the checkout, so Claude cannot edit the one
+      # script it is allowed to run.
+      - name: Check out the presenter plugin
+        run: |
+          git init -q "$RUNNER_TEMP/presenter"
+          git -C "$RUNNER_TEMP/presenter" fetch -q --depth 1 https://github.com/bisque-cloud/presenter.git 1bcc1ea0f91811ae0a54d9ef70d6d493ad9132a0 # v1.10.0
+          git -C "$RUNNER_TEMP/presenter" checkout -q FETCH_HEAD
+
+      # Installed here because Claude's shell can only run that script, so it
+      # cannot download the speech engine `narrate` needs.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - name: Install the speech engine
+        run: |
+          node "$RUNNER_TEMP/presenter/action/src/install-bisque-voice.ts"
+          ~/.bisque/bin/bisque-voice install kokoro
+
+      # The presentation is written inside the checkout; this keeps it out of
+      # the pull request Claude commits.
+      - name: Keep the presentation out of commits
+        run: |
+          echo ".explainer/" >> .git/info/exclude
+          echo ".explainer-pr.txt" >> .git/info/exclude
 
       - name: Implement issue with Claude
         uses: anthropics/claude-code-action@v1
@@ -43,7 +73,7 @@ jobs:
           label_trigger: agent:claude
           base_branch: master
           branch_prefix: claude/
-          plugin_marketplaces: https://github.com/bisque-cloud/presenter.git
+          plugin_marketplaces: ${{ runner.temp }}/presenter
           plugins: presenter@bisque-cloud
           prompt: |
             Implement only the GitHub issue identified by this event:
@@ -63,28 +93,52 @@ jobs:
             a concise summary, and the validation commands/results. Never merge or enable auto-merge.
 
             After the pull request is open, write its number as the only line of
-            ${{ runner.temp }}/explainer-pr.txt. Then decide whether it is worth a short video for someone who did not write it: yes for a design decision, a new command or option, a migration, or a change where the reasoning matters more than the diff; no for a dependency bump, formatting, a typo or a small fix. If it is, use the present skill from the presenter plugin to make a presentation of the pull request from what you have already read: what it changes, why, and what a reviewer should look at. Write index.html, context.md, assets/ and title.txt (one line, the title) to ${{ runner.temp }}/explainer. Run the skill's plan, pronunciation-report and narrate with --voice kokoro:af_heart and fix what they report. Do not run login or publish: the next step of this job publishes the folder and comments the link. If it is not worth a video, write nothing there.
+            .explainer-pr.txt in the working directory. Then decide whether it is worth a short video for someone who did not write it: yes for a design decision, a new command or option, a migration, or a change where the reasoning matters more than the diff; no for a dependency bump, formatting, a typo or a small fix. If it is, use the present skill from the presenter plugin to make a presentation of the pull request from what you have already read: what it changes, why, and what a reviewer should look at. Run the skill's script as node ${{ runner.temp }}/presenter/skills/present/scripts/present.mjs. Write index.html, context.md, assets/ and title.txt (one line, the title) to .explainer/ in the working directory. Run the skill's plan, pronunciation-report and narrate with --voice kokoro:af_heart and fix what they report. Do not run login or publish: the publish job publishes the folder and comments the link. If it is not worth a video, write nothing there.
+          # For the video, only the subcommands that write and narrate; login
+          # and publish stay out of reach.
           claude_args: |
             --max-turns 100
-            --allowedTools "Read,Edit,Write,Bash(git:*),Bash(gh:*),Bash(pnpm:*),Bash(ls:*),Bash(pwd),Skill,WebFetch,Bash(node:*),Bash(mkdir:*)"
+            --allowedTools "Read,Edit,Write,Bash(git:*),Bash(gh:*),Bash(pnpm:*),Bash(ls:*),Bash(pwd),Skill,Bash(node ${{ runner.temp }}/presenter/skills/present/scripts/present.mjs spec:*),Bash(node ${{ runner.temp }}/presenter/skills/present/scripts/present.mjs plan:*),Bash(node ${{ runner.temp }}/presenter/skills/present/scripts/present.mjs pronunciation-report:*),Bash(node ${{ runner.temp }}/presenter/skills/present/scripts/present.mjs narrate:*)"
 
-      # Publishes the presentation the session above wrote, as this
-      # repository, to its bisque.today channel, and comments the link on the
-      # pull request. A separate step because claude-code-action keeps the
-      # token that publishes away from Claude's session. No folder, no publish.
+      # Only what Claude wrote: a pull request that commits its own
+      # .explainer/ is not published.
       - name: Check for a presentation
         id: explainer
         run: |
-          if [ -f "$RUNNER_TEMP/explainer/index.html" ] && [ -s "$RUNNER_TEMP/explainer-pr.txt" ]; then
+          if [ -f .explainer/index.html ] && [ -s .explainer-pr.txt ] && [ -z "$(git ls-files .explainer .explainer-pr.txt)" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
-            echo "number=$(head -n 1 "$RUNNER_TEMP/explainer-pr.txt" | tr -cd 0-9)" >> "$GITHUB_OUTPUT"
+            echo "number=$(head -n 1 .explainer-pr.txt | tr -cd 0-9)" >> "$GITHUB_OUTPUT"
           fi
 
+      - if: steps.explainer.outputs.ready == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: explainer
+          path: .explainer
+          include-hidden-files: true
+
+  # Publishes the presentation the implement job wrote, as this repository,
+  # to its bisque.today channel, and comments the link on the pull request.
+  # On its own runner, because claude-code-action keeps the identity that
+  # publishes away from Claude's session; it runs no model.
+  publish:
+    needs: implement
+    if: needs.implement.outputs.explainer == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # comment the watch link
+      id-token: write # publish as this repository, no Bisque account
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: explainer
+          path: explainer
+
       - name: Publish the presentation
-        if: steps.explainer.outputs.ready == 'true'
         continue-on-error: true
-        uses: bisque-cloud/presenter@7159a1bda766df3900465cdbcc532fc5a8de495f # v1.9.4
+        uses: bisque-cloud/presenter@1bcc1ea0f91811ae0a54d9ef70d6d493ad9132a0 # v1.10.0
         with:
           source: pull-request
-          pull-request: ${{ steps.explainer.outputs.number }}
-          presentation: ${{ runner.temp }}/explainer
+          pull-request: ${{ needs.implement.outputs.pull-request }}
+          presentation: explainer
