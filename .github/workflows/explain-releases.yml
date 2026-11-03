@@ -1,0 +1,17 @@
+name: Release explainer
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write # append the watch link to the release notes
+  id-token: write # sign in with GitHub to publish
+
+jobs:
+  explain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bisque-cloud/presenter@1bcc1ea0f91811ae0a54d9ef70d6d493ad9132a0 # v1.10.0
+        with:
+          claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
