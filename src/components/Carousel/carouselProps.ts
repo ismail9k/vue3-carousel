@@ -14,6 +14,7 @@ import type {
   CarouselConfig,
   Dir,
   DragConfig,
+  NativeCssConfig,
   NonNormalizedDir,
   NormalizedDir,
   SlideEffect,
@@ -209,7 +210,7 @@ export const carouselProps = {
   // render a CSS scroll-snap carousel instead of a transformed track
   nativeCss: {
     default: DEFAULT_CONFIG.nativeCss,
-    type: Boolean,
+    type: [Boolean, Object] as PropType<boolean | NativeCssConfig>,
   },
   pauseAutoplayOnHover: {
     default: DEFAULT_CONFIG.pauseAutoplayOnHover,

@@ -28,6 +28,7 @@ if (myCarousel.currentSlide === 10) {
 | `isSliding`    | if the slider is dragging                                                                         |
 | `isVertical`   | if the slider is vertical                                                                         |
 | `isNative`     | if the carousel runs in native CSS mode (`nativeCss` and browser support)                         |
+| `nativeControls` | which CSS-only controls are on in native CSS mode: `{ navigation, pagination }`                 |
 | `nav`          | An object of navigation methods                                                                   |
 | `config`       | the current carousel configuration                                                                |
 | `maxSlide`     | maximum slide index                                                                               |

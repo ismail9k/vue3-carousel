@@ -13,8 +13,17 @@ import {
   SNAP_ALIGN_OPTIONS,
   BREAKPOINT_MODE_OPTIONS,
   SLIDE_EFFECTS,
-  TRANSITION_EASING_OPTIONS,
 } from '@/shared/constants'
+
+// transitionEasing accepts any CSS easing value; these are just handy presets
+const TRANSITION_EASING_OPTIONS = [
+  'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  'ease',
+  'ease-in',
+  'ease-out',
+  'ease-in-out',
+  'linear',
+]
 
 const carouselWrapper = ref<HTMLDivElement | null>(null)
 const carousel = ref<VueCarousel | null>(null)
@@ -42,6 +51,8 @@ const defaultConfig = {
   autoplay: null,
   wrapAround: true,
   nativeCss: false,
+  nativeNavigation: false,
+  nativePagination: false,
   height: '200',
   adaptiveHeight: false,
   mouseWheel: true,
@@ -58,6 +69,15 @@ const defaultConfig = {
 }
 
 const config = reactive({ ...defaultConfig })
+
+// The CSS-only controls are options of the nativeCss prop
+const nativeCss = computed(
+  () =>
+    config.nativeCss && {
+      navigation: config.nativeNavigation,
+      pagination: config.nativePagination,
+    }
+)
 const items = reactive([...defaultSlides])
 
 const getConfigValue = (path: string) => config[path]
@@ -146,6 +166,16 @@ const formFields = [
         type: 'checkbox',
         label: 'Native CSS',
         path: 'nativeCss',
+      },
+      {
+        type: 'checkbox',
+        label: 'Native CSS: scroll buttons',
+        path: 'nativeNavigation',
+      },
+      {
+        type: 'checkbox',
+        label: 'Native CSS: scroll markers',
+        path: 'nativePagination',
       },
     ],
   },
@@ -293,6 +323,7 @@ onMounted(() => {
           ref="carousel"
           v-model="config.currentSlide"
           v-bind="config"
+          :native-css="nativeCss"
           :breakpoints="config.useBreakpoints ? breakpoints : null"
           v-on="Object.fromEntries(events.map((e) => [e, handleEvent(e)]))"
         >

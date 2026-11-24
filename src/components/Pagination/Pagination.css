@@ -63,3 +63,64 @@
 .carousel.is-btt .carousel__pagination {
   flex-direction: column-reverse;
 }
+
+/*
+ * CSS-only markers for native CSS mode (nativeCss.pagination): one per slide,
+ * generated and kept current by the browser. A <Pagination> rendered as a
+ * fallback for browsers without ::scroll-marker is hidden where they are supported.
+ */
+@supports selector(::scroll-marker) {
+  .carousel.has-native-pagination {
+    .carousel__pagination {
+      display: none;
+    }
+
+    .carousel__viewport {
+      scroll-marker-group: after;
+    }
+
+    .carousel__viewport::scroll-marker-group {
+      bottom: var(--vc-png-bottom);
+      display: flex;
+      gap: var(--vc-pgn-gap);
+      justify-content: center;
+      left: 50%;
+      position: absolute;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .carousel__slide::scroll-marker {
+      background-color: var(--vc-pgn-background-color);
+      border-radius: var(--vc-pgn-border-radius);
+      content: '' / var(--vc-native-marker-label);
+      cursor: pointer;
+      display: block;
+      height: var(--vc-pgn-height);
+      width: var(--vc-pgn-width);
+    }
+
+    .carousel__slide::scroll-marker:target-current {
+      background-color: var(--vc-pgn-active-color);
+    }
+
+    &.is-vertical .carousel__viewport::scroll-marker-group {
+      bottom: 50%;
+      flex-direction: column;
+      left: var(--vc-png-left);
+      right: var(--vc-png-right);
+      transform: translateY(50%);
+    }
+
+    &.is-vertical .carousel__slide::scroll-marker {
+      height: var(--vc-pgn-width);
+      width: var(--vc-pgn-height);
+    }
+  }
+
+  @media (hover: hover) {
+    .carousel.has-native-pagination .carousel__slide::scroll-marker:hover {
+      background-color: var(--vc-pgn-active-color);
+    }
+  }
+}

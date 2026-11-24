@@ -47,7 +47,7 @@ Demonstrates the carousel with mouse wheel scrolling navigation enabled.
 
 ## Native CSS
 
-A scroll-snap carousel driven by the browser, with the regular navigation and pagination on top.
+A scroll-snap carousel driven by the browser. Its buttons and markers are drawn with CSS where the browser supports that, and by the regular navigation and pagination elsewhere.
 
 <live-codes :code="examples.NativeCssExample" />
 

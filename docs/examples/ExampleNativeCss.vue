@@ -3,7 +3,9 @@ import '../../dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from '../../dist/carousel.mjs'
 
 const carouselConfig = {
-  nativeCss: true,
+  // CSS-only buttons and markers where the browser has them;
+  // the Navigation and Pagination below are the fallback elsewhere
+  nativeCss: { navigation: true, pagination: true },
   itemsToShow: 2.5,
   gap: 10,
   snapAlign: 'start',
