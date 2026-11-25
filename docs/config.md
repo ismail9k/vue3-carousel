@@ -33,7 +33,7 @@ Vue 3 Carousel offers a comprehensive set of configuration options to customize 
 | `modelValue`               | `number`                                    | 0                                | Controls the active slide index. Can be used with v-model for two-way binding.                         |
 | `mouseDrag`                | `boolean` \| `object`                   | true                             | Enables/disables mouse drag navigation. See [Drag Options](#drag-options) for configuration details.   |
 | `mouseWheel`               | `boolean` \| `object`                   | false                            | Enables/disables mouse wheel scrolling for carousel navigation. See [Wheel Options](#wheel-options) for configuration details. |
-| `nativeCss`                | `boolean`                                   | false                            | Renders a CSS scroll-snap carousel instead of a transformed track; falls back to the JS mode where unsupported or while `marquee` is on. See [Native CSS mode](#native-css-mode). <Badge text="0.19.0"/> |
+| `nativeCss`                | `boolean` \| `NativeCssConfig`              | false                            | Renders a CSS scroll-snap carousel instead of a transformed track; falls back to the JS mode where unsupported or while `marquee` is on. Pass an object to also get [CSS-only controls](#css-only-controls). See [Native CSS mode](#native-css-mode). <Badge text="0.19.0"/> |
 | `pauseAutoplayOnHover`     | `boolean`                                   | false                            | When true, autoplay (and the marquee) pauses while the mouse cursor is over the carousel.              |
 | `preventExcessiveDragging` | `boolean`                                   | false                            | Limits dragging behavior at carousel boundaries for better UX. <Badge text="0.13.0" />                 |
 | `slideEffect`              | 'slide', 'fade'                             | 'slide'                          | Determines the transition effect between slides.                                                       |
@@ -282,6 +282,33 @@ These props provide additional customization for specific use cases:
 - `dir: 'btt'` and `marquee` are not supported natively and use the JS mode.
 - The scroll duration is the browser's; `transition` only times `isSliding` and the `slide-end` event, and `transitionEasing` has no effect.
 - Scrollbars are hidden; override `.carousel.is-native .carousel__viewport { scrollbar-width: auto }` to show them.
+
+### CSS-only controls
+
+Pass an object to `nativeCss` to let the browser draw the controls with CSS, with no JavaScript behind them: `navigation` adds previous/next buttons (`::scroll-button()`) and `pagination` adds one marker per slide (`::scroll-marker`). <Badge text="0.20.0"/>
+
+```vue
+<Carousel :native-css="{ navigation: true, pagination: true }" :items-to-show="2.5" :gap="10">
+  <!-- Slides -->
+
+  <template #addons>
+    <!-- Fallback for browsers without CSS scroll buttons and markers -->
+    <Navigation />
+    <Pagination />
+  </template>
+</Carousel>
+```
+
+| Property     | Type      | Default | Description                                          |
+|--------------|-----------|---------|------------------------------------------------------|
+| `navigation` | `boolean` | false   | Draws previous/next buttons with `::scroll-button()`. |
+| `pagination` | `boolean` | false   | Draws one marker per slide with `::scroll-marker`.    |
+
+- Supported in Chrome and Edge 135+. Other browsers draw nothing for these options, so keep `Navigation` and `Pagination` in the `addons` slot as a fallback: the stylesheet hides them wherever the CSS controls are supported, and shows them everywhere else.
+- The controls reuse the `--vc-nav-*` and `--vc-pgn-*` variables. The button glyphs come from `--vc-native-prev-icon` and `--vc-native-next-icon` (any CSS `content` value), since a pseudo-element cannot render the `Navigation` slots or icons.
+- The accessible names come from `i18n` (`ariaPreviousSlide`, `ariaNextSlide`, `ariaNavigateToSlide`).
+- The browser decides how far a button scrolls (about one viewport, then it snaps), so `itemsToScroll` does not apply to the CSS buttons, and there is always one marker per slide (`paginateByItemsToShow` is a `Pagination` prop).
+- `v-model`, the current slide and the slide events keep following the scroll position. The exposed `nativeControls` reports which CSS controls are on, and the root element gets the `has-native-navigation` and `has-native-pagination` classes.
 
 ## Option Details
 

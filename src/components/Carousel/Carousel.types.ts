@@ -6,7 +6,7 @@ import {
   ShallowReactive,
 } from 'vue'
 
-import { CarouselConfig, NormalizedDir, SlideRegistry } from '@/shared'
+import { CarouselConfig, NativeCssConfig, NormalizedDir, SlideRegistry } from '@/shared'
 
 export type ElRect = {
   height: number
@@ -54,6 +54,7 @@ export type InjectedCarousel = Reactive<{
   isSliding: Ref<boolean>
   isLocked: ComputedRef<boolean>
   isNative: ComputedRef<boolean>
+  nativeControls: ComputedRef<Required<NativeCssConfig>>
   isVertical: ComputedRef<boolean>
   maxSlide: ComputedRef<number>
   minSlide: ComputedRef<number>

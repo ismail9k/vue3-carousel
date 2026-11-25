@@ -538,4 +538,73 @@ describe('nativeCss', () => {
       expect(scrollBy).toHaveBeenCalledWith({ left: SIZE, behavior: 'instant' })
     })
   })
+
+  describe('CSS controls', () => {
+    it('renders no CSS controls for a plain nativeCss: true', async () => {
+      const wrapper = mountCarousel()
+      await nextTick()
+      const root = wrapper.find('.carousel')
+      expect(root.classes()).not.toContain('has-native-navigation')
+      expect(root.classes()).not.toContain('has-native-pagination')
+      expect(root.attributes('style')).not.toContain('--vc-native')
+      expect(wrapper.find('.carousel__slide').attributes('style')).not.toContain(
+        '--vc-native'
+      )
+      expect(wrapper.vm.nativeControls).toEqual({ navigation: false, pagination: false })
+    })
+
+    it('runs in native mode when nativeCss is an options object', async () => {
+      const wrapper = mountCarousel({ nativeCss: {} })
+      await nextTick()
+      expect(wrapper.find('.carousel').classes()).toContain('is-native')
+    })
+
+    it('turns on CSS scroll buttons labelled from i18n', async () => {
+      const wrapper = mountCarousel({
+        nativeCss: { navigation: true },
+        i18n: { ariaNextSlide: 'Go "next"' },
+      })
+      await nextTick()
+      const root = wrapper.find('.carousel')
+      expect(root.classes()).toContain('has-native-navigation')
+      expect(root.classes()).not.toContain('has-native-pagination')
+      expect(root.attributes('style')).toContain(
+        '--vc-native-prev-label: "Navigate to previous slide";'
+      )
+      expect(root.attributes('style')).toContain(
+        '--vc-native-next-label: "Go \\"next\\"";'
+      )
+      expect(wrapper.vm.nativeControls).toEqual({ navigation: true, pagination: false })
+    })
+
+    it('turns on CSS scroll markers with a label on every slide', async () => {
+      const wrapper = mountCarousel({ nativeCss: { pagination: true } })
+      await nextTick()
+      const root = wrapper.find('.carousel')
+      expect(root.classes()).toContain('has-native-pagination')
+      expect(root.classes()).not.toContain('has-native-navigation')
+      const slides = wrapper.findAll('.carousel__slide')
+      expect(slides[0].attributes('style')).toContain(
+        '--vc-native-marker-label: "Navigate to slide 1";'
+      )
+      expect(slides[4].attributes('style')).toContain(
+        '--vc-native-marker-label: "Navigate to slide 5";'
+      )
+    })
+
+    it('drops the CSS controls when the carousel falls back to JS mode', async () => {
+      supports.mockReturnValue(false)
+      const wrapper = mountCarousel({
+        nativeCss: { navigation: true, pagination: true },
+      })
+      await nextTick()
+      const root = wrapper.find('.carousel')
+      expect(root.classes()).not.toContain('has-native-navigation')
+      expect(root.classes()).not.toContain('has-native-pagination')
+      expect(wrapper.find('.carousel__slide').attributes('style')).not.toContain(
+        '--vc-native'
+      )
+      expect(wrapper.vm.nativeControls).toEqual({ navigation: false, pagination: false })
+    })
+  })
 })

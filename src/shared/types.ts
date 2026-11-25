@@ -67,7 +67,7 @@ export type CarouselConfig = {
   mouseDrag?: boolean | DragConfig
   mouseWheel?: boolean | WheelConfig
   mouseScrollThreshold?: number
-  nativeCss?: boolean
+  nativeCss?: boolean | NativeCssConfig
   pauseAutoplayOnHover?: boolean
   preventExcessiveDragging: boolean
   slideEffect: SlideEffect
@@ -76,6 +76,12 @@ export type CarouselConfig = {
   transition?: number
   transitionEasing?: TransitionEasing
   wrapAround?: boolean
+}
+
+// CSS-only controls for native CSS mode, drawn by the browser where supported
+export type NativeCssConfig = {
+  navigation?: boolean
+  pagination?: boolean
 }
 
 export type VueClass = string | Record<string, boolean> | VueClass[]

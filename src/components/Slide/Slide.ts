@@ -16,7 +16,12 @@ import {
 } from 'vue'
 
 import { DEFAULT_CLASS_PREFIX, injectCarousel } from '@/shared'
-import { disableChildrenTabbing, restoreChildrenTabbing } from '@/utils'
+import {
+  disableChildrenTabbing,
+  i18nFormatter,
+  restoreChildrenTabbing,
+  toCssString,
+} from '@/utils'
 
 import { SlideProps } from './Slide.types'
 
@@ -139,6 +144,19 @@ export const Slide = defineComponent({
     onMounted(updateChildrenTabbing)
     onUpdated(updateChildrenTabbing)
 
+    // Accessible name of this slide's CSS scroll marker, read by the stylesheet
+    const markerStyle = computed(() =>
+      carousel.nativeControls.pagination && !props.isClone
+        ? {
+            '--vc-native-marker-label': toCssString(
+              i18nFormatter(carousel.config.i18n['ariaNavigateToSlide'], {
+                slideNumber: currentIndex.value + 1,
+              })
+            ),
+          }
+        : undefined
+    )
+
     return () => {
       if (!carousel.config.enabled) {
         return slots.default?.()
@@ -149,7 +167,7 @@ export const Slide = defineComponent({
       return h(
         'li',
         {
-          style: [attrs.style, { ...slideStyle.value }],
+          style: [attrs.style, { ...slideStyle.value }, markerStyle.value],
           class: {
             [`${prefix}__slide`]: true,
             [`${prefix}__slide--clone`]: props.isClone,

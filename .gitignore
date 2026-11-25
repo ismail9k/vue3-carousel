@@ -24,3 +24,6 @@ yarn-error.log*
 package-lock.json
 coverage/*
 
+docs/agents/*
+docs/superpowers/*
+.playwright-mcp/*

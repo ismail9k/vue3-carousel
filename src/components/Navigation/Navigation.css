@@ -73,3 +73,79 @@
     color: var(--vc-nav-color-hover);
   }
 }
+
+/*
+ * CSS-only buttons for native CSS mode (nativeCss.navigation). The browser
+ * generates and disables them; a <Navigation> rendered as a fallback for
+ * browsers without ::scroll-button() is hidden where they are supported.
+ */
+@supports selector(::scroll-button(*)) {
+  .carousel.has-native-navigation {
+    /* Both glyphs are mirrored by the browser in rtl */
+    --vc-native-prev-icon: '\2039';
+    --vc-native-next-icon: '\203A';
+
+    .carousel__next,
+    .carousel__prev {
+      display: none;
+    }
+
+    .carousel__viewport::scroll-button(*) {
+      align-items: center;
+      background: var(--vc-nav-background);
+      border: 0;
+      border-radius: var(--vc-nav-border-radius);
+      color: var(--vc-nav-color);
+      cursor: pointer;
+      display: flex;
+      font-family: inherit;
+      font-size: var(--vc-nav-height);
+      height: var(--vc-nav-height);
+      inset-block-start: 50%;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      position: absolute;
+      transform: translateY(-50%);
+      width: var(--vc-nav-width);
+      z-index: 1;
+    }
+
+    .carousel__viewport::scroll-button(*):disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &:not(.is-vertical) .carousel__viewport::scroll-button(inline-start) {
+      content: var(--vc-native-prev-icon) / var(--vc-native-prev-label);
+      inset-inline-start: 0;
+    }
+
+    &:not(.is-vertical) .carousel__viewport::scroll-button(inline-end) {
+      content: var(--vc-native-next-icon) / var(--vc-native-next-label);
+      inset-inline-end: 0;
+    }
+
+    &.is-vertical .carousel__viewport::scroll-button(*) {
+      inset-block-start: auto;
+      inset-inline: auto 50%;
+      transform: translateX(50%) rotate(90deg);
+    }
+
+    &.is-vertical .carousel__viewport::scroll-button(block-start) {
+      content: var(--vc-native-prev-icon) / var(--vc-native-prev-label);
+      inset-block-start: 0;
+    }
+
+    &.is-vertical .carousel__viewport::scroll-button(block-end) {
+      content: var(--vc-native-next-icon) / var(--vc-native-next-label);
+      inset-block-end: 0;
+    }
+  }
+
+  @media (hover: hover) {
+    .carousel.has-native-navigation .carousel__viewport::scroll-button(*):enabled:hover {
+      color: var(--vc-nav-color-hover);
+    }
+  }
+}

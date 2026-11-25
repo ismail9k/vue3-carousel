@@ -56,6 +56,7 @@ import {
   i18nFormatter,
   mapNumberToRange,
   supportsNativeCss,
+  toCssString,
   throttle,
   toCssValue,
 } from '@/utils'
@@ -159,6 +160,16 @@ export const Carousel = defineComponent({
         normalizedDir.value !== 'btt' &&
         !isMarquee.value
     )
+
+    // CSS-only controls (::scroll-button, ::scroll-marker) asked for through
+    // the object form of nativeCss; the stylesheet draws them where supported
+    const nativeControls = computed(() => {
+      const options = typeof config.nativeCss === 'object' ? config.nativeCss : {}
+      return {
+        navigation: isNative.value && !!options.navigation,
+        pagination: isNative.value && !!options.pagination,
+      }
+    })
 
     // Native CSS mode cannot loop, fade, drag with JS or offset the track, so
     // those options are turned off in one place and everything else just reads config
@@ -1370,6 +1381,12 @@ export const Carousel = defineComponent({
           : undefined,
         '--vc-marquee-x': isVertical.value ? undefined : marqueeOffset,
         '--vc-marquee-y': isVertical.value ? marqueeOffset : undefined,
+        '--vc-native-next-label': nativeControls.value.navigation
+          ? toCssString(config.i18n['ariaNextSlide'])
+          : undefined,
+        '--vc-native-prev-label': nativeControls.value.navigation
+          ? toCssString(config.i18n['ariaPreviousSlide'])
+          : undefined,
         '--vc-slide-gap': toCssValue(config.gap),
         '--vc-snap-align': isNative.value
           ? NATIVE_SNAP_ALIGN[config.snapAlign]
@@ -1393,6 +1410,7 @@ export const Carousel = defineComponent({
       isSliding,
       isNative,
       isLocked,
+      nativeControls,
       isVertical,
       maxSlide: maxSlideIndex,
       minSlide: minSlideIndex,
@@ -1500,6 +1518,8 @@ export const Carousel = defineComponent({
             `is-effect-${config.slideEffect}`,
             {
               'is-adaptive-height': isAdaptiveHeight.value,
+              'has-native-navigation': nativeControls.value.navigation,
+              'has-native-pagination': nativeControls.value.pagination,
               'is-dragging': isDragging.value,
               'is-hover': isHover.value,
               'is-locked': isLocked.value,
