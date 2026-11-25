@@ -46,6 +46,14 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['**/.vitepress/{cache,dist}/**', 'dist', 'node_modules', 'coverage'],
+    ignores: [
+      '**/.vitepress/{cache,dist}/**',
+      'dist',
+      'node_modules',
+      'coverage',
+      // Git worktrees hold full copies of the repo
+      '.worktrees',
+      '.claude',
+    ],
   }
 )

@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 import { compilerOptions } from './tsconfig.json'
 
@@ -22,6 +22,8 @@ export default defineConfig({
     globals: true,
     reporters: ['basic'],
     include: ['**/*.spec.{ts,tsx,js,jsx}'],
+    // Git worktrees hold full copies of the repo, specs included
+    exclude: [...configDefaults.exclude, '.worktrees/**', '.claude/**'],
     outputFile: {
       junit: './junit-report.xml',
     },
