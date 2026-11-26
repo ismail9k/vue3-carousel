@@ -623,8 +623,9 @@ export const Carousel = defineComponent({
         threshold,
       })
 
-      // Prevent unnecessary reactivity
+      // Returning below the threshold cancels any target from an earlier drag sample.
       if (draggedSlides === 0) {
+        activeSlideIndex.value = currentSlideIndex.value
         return
       }
 
