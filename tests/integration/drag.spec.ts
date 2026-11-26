@@ -88,6 +88,32 @@ describe('drag threshold', () => {
     expect(emittedIndex(wrapper)).toBeUndefined()
   })
 
+  it('does not change slides when a touch drag returns below the threshold', async () => {
+    const wrapper = mountCarousel({ touchDrag: { threshold: 0.1 } })
+    await nextTick()
+    wrapper.find('.carousel__track').element.dispatchEvent(touchEvent('touchstart', 200))
+    document.dispatchEvent(touchEvent('touchmove', 150)) // 50px, above threshold
+    await flushFrame()
+    document.dispatchEvent(touchEvent('touchmove', 195)) // 5px, flushed on release
+    document.dispatchEvent(touchEvent('touchend', 195))
+    await nextTick()
+    expect(emittedIndex(wrapper)).toBeUndefined()
+  })
+
+  it('does not change slides when a mouse drag returns below the threshold', async () => {
+    const wrapper = mountCarousel({ mouseDrag: { threshold: 0.1 }, wrapAround: true })
+    await nextTick()
+    await wrapper
+      .find('.carousel__track')
+      .trigger('mousedown', { clientX: 200, button: 0 })
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 250 })) // above threshold
+    await flushFrame()
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 205 })) // below threshold
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+    expect(emittedIndex(wrapper)).toBeUndefined()
+  })
+
   it('uses the last touchmove when touchend lands in the same frame', async () => {
     const wrapper = mountCarousel({ touchDrag: { threshold: 0.1 } })
     wrapper.find('.carousel__track').element.dispatchEvent(touchEvent('touchstart', 200))
